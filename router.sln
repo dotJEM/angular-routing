@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "router", "router.csproj", "{ADA65F5B-B633-45D1-8EF9-00EDE91E58D5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6144C6A0-D37C-4C47-A074-D46B740BB851}"
+	ProjectSection(SolutionItems) = preProject
+		grunt-start.bat = grunt-start.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

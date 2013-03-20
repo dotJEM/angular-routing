@@ -41,11 +41,12 @@
     <None Include="package.json" />
     <None Include="README.md" />
     <None Include="resources.md" />
-    <None Include="testacular-start.bat" />
+    <None Include="test-start.bat" />
     <None Include="version.yaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Content Include="test-grunt-config.js" />
     <Content Include="gruntfile.js" />
     <Content Include="lib\angular\angular-1.0.d.ts" />
     <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
@@ -158,7 +159,7 @@
       <DependentUpon>viewSpec.ts</DependentUpon>
     </Content>
     <Content Include="files.js" />
-    <Content Include="testacular-config.js" />
+    <Content Include="test-dev-config.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="build\" />
