@@ -9,4 +9,4 @@ before_script:
   - ./nodeserver.sh > /dev/null &
 
 script:
-  - testacular start testacular-config.js
+ # - testacular test testacular-config.js
