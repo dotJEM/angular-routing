@@ -12,21 +12,12 @@ files = [
   'lib/angular/impl/angular.js',
   'lib/angular/impl/angular-mocks.js',
 
-  //TODO: Source Files, provide files list to ensure the right order.
-  'src/common.js',
-  'src/template.js',
-  'src/view.js',
-  'src/route.js',
-  'src/state.js',
-  'src/legacy/templateDecorator.js',
-
-  //TODO: Test Files, provide files list to ensure the right order.
-  'test/*Spec.js',
-  'test/legacy/*Spec.js'
+  'src/**/*.js',
+  'test/**/*Spec.js'
 ];
 
 // list of files to exclude
-exclude = ['**/*jasmine*/**', '**/*jstd*/**'];//.concat(angularFiles.files.jstdJqueryExclude);
+exclude = ['**/*jasmine*/**', '**/*jstd*/**', 'src/**/*.min.js'];//.concat(angularFiles.files.jstdJqueryExclude);
 
 // use dots reporter, as travis terminal does not support escaping sequences
 // possible values: 'dots' || 'progress'
@@ -45,7 +36,7 @@ colors = true;
 
 // level of logging
 // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-logLevel = LOG_DEBUG;
+logLevel = LOG_INFO;
 logColors = true;
 
 // enable / disable watching file and executing tests whenever any file changes
@@ -62,7 +53,7 @@ autoWatchInterval = 0;
 // - Safari
 // - PhantomJS
 browsers = ['PhantomJS'];
-reporters = ['progress'/*, 'junit'*/];
+reporters = [ 'progress' /*, 'junit'*/];
 
 //junitReporter = {
 //    outputFile: 'ts-test-out.xml'
