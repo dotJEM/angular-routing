@@ -1,13 +1,9 @@
-/// <reference path="../src/interfaces.d.ts" />
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../lib/angular/angular-mocks-1.0.d.ts" />
-/// <reference path="../lib/jasmine/jasmine.d.ts" />
+/// <reference path="testcommon.ts" />
 
-'use strict';
-
-var mock = angular.mock;
 
 describe('$routeProvider', function () {
+    'use strict';
+    var mock = angular.mock;
     var scope: ng.IRootScopeService;
 
     beforeEach(mock.module('ui.routing', function () {

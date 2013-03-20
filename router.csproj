@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-    <Content Include="grunt.js" />
+    <Content Include="gruntfile.js" />
     <Content Include="lib\angular\angular-1.0.d.ts" />
     <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
     <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
@@ -123,6 +123,7 @@
     <Content Include="src\view.min.js">
       <DependentUpon>view.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="test\testcommon.ts" />
     <Content Include="test\legacy\routeLegacySpec.js">
       <DependentUpon>routeLegacySpec.ts</DependentUpon>
     </Content>
@@ -143,6 +144,12 @@
     <TypeScriptCompile Include="test\viewSpec.ts" />
     <Content Include="test\stateSpec.min.js">
       <DependentUpon>stateSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\testcommon.js">
+      <DependentUpon>testcommon.ts</DependentUpon>
+    </Content>
+    <Content Include="test\testcommon.min.js">
+      <DependentUpon>testcommon.ts</DependentUpon>
     </Content>
     <Content Include="test\viewSpec.js">
       <DependentUpon>viewSpec.ts</DependentUpon>

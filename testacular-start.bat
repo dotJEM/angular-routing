@@ -1,1 +1,0 @@
-testacular start testacular-config.js
