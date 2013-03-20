@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{ADA65F5B-B633-45D1-8EF9-00EDE91E58D5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>router</RootNamespace>
+    <AssemblyName>router</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <JSLintSkip>\build\angular-ui-states.js|\build\angular-ui-states.min.js|\lib\angular-1.0.4.js|\lib\angular-1.1.2.js|\lib\angular-mocks.js|\lib\jQuery-1.9.1.min.js|\src\common.js|\src\compat.js|\src\stateProvider.js|\src\templateFactory.js|\src\urlMatcherFactory.js|\src\urlRouterProvider.js|\src\viewDirective.js|\src\viewService.js|\test\stateProviderSpec.js|\test\templateFactorySpec.js|\test\test-config.js|\test\urlMatcherFactorySpec.js|\test\urlRouteProviderSpec.js|\test\viewDirectiveSpec.js|\test\viewProviderSpec.js|\test\lib\angular-mocks-1.0.4.js</JSLintSkip>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="LICENSE" />
+    <None Include="package.json" />
+    <None Include="README.md" />
+    <None Include="ts-test-start.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="lib\angular\angular-1.0.d.ts" />
+    <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
+    <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
+    <Content Include="lib\angular\angular-resource-1.0.d.ts" />
+    <Content Include="lib\angular\angular-sanitize-1.0.d.ts" />
+    <Content Include="lib\jasmine\jasmine.d.ts" />
+    <Content Include="lib\jquery\jquery-1.8.d.ts" />
+    <Content Include="src\common.ts" />
+    <Content Include="src\directives\viewDirective.ts" />
+    <Content Include="src\interfaces.d.ts" />
+    <Content Include="src\legacy\templateDecorator.ts" />
+    <Content Include="src\route.ts" />
+    <Content Include="src\state.ts" />
+    <Content Include="src\template.ts" />
+    <Content Include="src\view.ts" />
+    <Content Include="test\legacy\routeLegacySpec.ts" />
+    <Content Include="test\routeSpec.ts" />
+    <Content Include="test\stateSpec.ts" />
+    <Content Include="test\viewSpec.ts" />
+    <Content Include="ui-router-files.js" />
+    <Content Include="ts-test-config.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="build\" />
+    <Folder Include="doc\" />
+    <Folder Include="samples\actions\" />
+    <Folder Include="samples\legacy\" />
+    <Folder Include="samples\simple\" />
+    <Folder Include="test\directives\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
