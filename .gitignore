@@ -4,6 +4,9 @@ src/**/*.js
 test/*.js
 src/*.js
 
+# Local node modules 'yuk'
+node_modules
+
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
 [Oo]bj/
