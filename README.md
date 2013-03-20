@@ -2,11 +2,14 @@
 
 # NOTE: Still in development and getting close to a first working alpha version.
 
-Inspired by the UI-Router project bu Angular-ui, this project came to life as I wanted
+Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
 to provide what I belive is more "true states" where the transitions could be
 an important part of the implementation.
 
 The UI-Route project can be found here: https://github.com/angular-ui/ui-router
+
+One important note is that this is developed using TypeScript, yet following the
+basic style of how Angular modules, services and directives is written
 
 ## Main goal
 

@@ -21,6 +21,15 @@ interface IRoute {
     match: (path: string) => any;
 }
 
+/**
+ * @ngdoc object
+ * @name ui.routing.$routeProvider
+ * @function
+ *
+ * @description
+ *
+ * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+ */
 function $RouteProvider() {
     var routes = {},
         converters = {},
@@ -29,12 +38,123 @@ function $RouteProvider() {
 
     //Public Methods
 
+    /**
+     * @ngdoc method
+     * @name ui.routing.$routeProvider#convert
+     * @methodOf ui.routing.$routeProvider
+     * 
+     * @param {string} name Cerverter name, used in the path when registering routes through the 
+     *   {@link ui.routing.routeProvider#when when} function.
+
+     * 
+     * @returns {Object} self
+     * 
+     * 
+     * @description
+     * Adds a new converter or overwrites an existing one.
+     * 
+     * By default the folowing converters are precent:
+     *  - `` - default Converter, used on all parameters that doesn't specify a converter.
+     *    Matches any input.
+     * 
+     *  - `num` - number converter, used to only mach numeric values.
+     *
+     *  - `regex` - regular expressions converter, used to match a parameter agains a regular
+     *    expression.
+     */
     this.convert = (name: string, converter) => {
         //Note: We wan't to allow overwrite
         converters[name] = converter;
         return this;
     };
 
+    /**
+     * @ngdoc method
+     * @name ui.routing.$routeProvider#when
+     * @methodOf ui.routing.$routeProvider
+     *
+     * @param {string} path Route path (matched against `$location.path`). If `$location.path`
+     *    contains redundant trailing slash or is missing one, the route will still match.
+     *
+     *    `path` can contain named groups starting with a colon (`:name`) or curly brackets (`{name}`).
+     *    All characters up to the next slash are matched and stored in `$routeParams` under the 
+     *    given `name` when the route matches.
+     *
+     *    Further, when using the curly bracket syntax, converters can be used to match only specific
+     *    values, (`{num:name}`) will only match numerical values and (`{regex(\d{1,2}[a-z]+):name}`)
+     *    would only match a parameter starting with one or two digits followed by a number of
+     *    characters between 'a' and 'z'.
+     * 
+     *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+     *    function.
+     *
+     * @param {Object} route Mapping information to be assigned to `$route.current` on route
+     *    match.
+     *
+     *    Object properties:
+     *    
+     *    - `state` – `{string}` – a state that should be activated when the route is matched.
+     *    - `action` – `{(string|function()=}` – an action that should be performed when the route is matched.
+     *    
+     *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy} 
+     *    module.
+     *
+     *    - `controller` – `{(string|function()=}` – Controller fn that should be associated with newly
+     *      created scope or the name of a {@link angular.Module#controller registered controller}
+     *      if passed as a string.
+     *    - `template` – `{string=|function()=}` – html template as a string or function that returns
+     *      an html template as a string which should be used by {@link ng.directive:ngView ngView} or
+     *      {@link ng.directive:ngInclude ngInclude} directives.
+     *      This property takes precedence over `templateUrl`.
+     *
+     *      If `template` is a function, it will be called with the following parameters:
+     *
+     *      - `{Array.<Object>}` - route parameters extracted from the current
+     *        `$location.path()` by applying the current route
+     *
+     *    - `templateUrl` – `{string=|function()=}` – path or function that returns a path to an html
+     *      template that should be used by {@link ng.directive:ngView ngView}.
+     *
+     *      If `templateUrl` is a function, it will be called with the following parameters:
+     *
+     *      - `{Array.<Object>}` - route parameters extracted from the current
+     *        `$location.path()` by applying the current route
+     *
+     *    - `resolve` - `{Object.<string, function>=}` - An optional map of dependencies which should
+     *      be injected into the controller. If any of these dependencies are promises, they will be
+     *      resolved and converted to a value before the controller is instantiated and the
+     *      `$routeChangeSuccess` event is fired. The map object is:
+     *
+     *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
+     *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
+     *        Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
+     *        and the return value is treated as the dependency. If the result is a promise, it is resolved
+     *        before its value is injected into the controller.
+     *
+     *    - `redirectTo` – {(string|function())=} – value to update
+     *      {@link ng.$location $location} path with and trigger route redirection.
+     *
+     *      If `redirectTo` is a function, it will be called with the following parameters:
+     *
+     *      - `{Object.<string>}` - route parameters extracted from the current
+     *        `$location.path()` by applying the current route templateUrl.
+     *      - `{string}` - current `$location.path()`
+     *      - `{Object}` - current `$location.search()`
+     *
+     *      The custom `redirectTo` function is expected to return a string which will be used
+     *      to update `$location.path()` and `$location.search()`.
+     *
+     *    - `[reloadOnSearch=true]` - {boolean=} - reload route when only $location.search()
+     *    changes.
+     *
+     *      If the option is set to `false` and url in the browser changes, then
+     *      `$routeUpdate` event is broadcasted on the root scope.
+     *
+     * @returns {Object} self
+     *
+     * @description
+     * Adds a new route definition to the `$route` service.
+     */
     this.when = (path: string, route: ui.routing.IRoute) => {
         var normalized = normalizePath(path);
         routes[normalized.name] = {

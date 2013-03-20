@@ -37,8 +37,11 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
 
-    function createRoute(stateRoute: string, parrentRoute: string, stateName: string) {
+    function createRoute(stateRoute: string, parrentRoute: string, stateName: string, reloadOnSearch: bool) {
         var route;
+
+        if (!isDefined(reloadOnSearch))
+            reloadOnSearch = true;
 
         route = (parrentRoute || '');
         if (route !== '' && route[route.length - 1] === '/')
@@ -48,31 +51,69 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             route += '/';
         route += stateRoute;
 
-        //TODO: Yuk!... We currently strip away "root." because our full name contains that, but when navigating states
-        //      we normaly don't use that.
-        $routeProvider.when(route, { state: stateName });
+        $routeProvider.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
 
         return route;
     }
 
+    function registerEnterTransition(onenter, name) {
+        //TODO: Validation
+
+        if (angular.isArray(onenter))
+        {
+            angular.forEach(onenter, (single) => {
+                registerEnterTransition(single, name);
+            })
+        } else if (angular.isObject(onenter)) {
+            this.transition(onenter.from || '*', name, onenter.handler);
+        } else if (angular.isFunction(onenter)) {
+            this.transition('*', name, onenter);
+        }
+    }
+
+    function registerExitTransition(onexit, name) {
+        //TODO: Validation
+
+        if (angular.isArray(onexit)) {
+            angular.forEach(onexit, (single) => {
+                registerExitTransition(single, name);
+            })
+        } else if (angular.isObject(onexit)) {
+            this.transition(name, onexit.to || '*', onexit.handler);
+        } else if (angular.isFunction(onexit)) {
+            this.transition(name, '*', onexit);
+        }
+    }
+
     function register(name, at, state) {
         var fullname = at.fullname + '.' + name,
-            route: string;
+            route: string,
+            parent = at;
 
         if (!at.children) {
             at.children = {};
         }
+
         if (!(name in at.children)) {
             at.children[name] = {};
         }
-
+        
         if (angular.isDefined(state.route)) {
-            route = createRoute(state.route, at.fullRoute, fullname);
+            route = createRoute(state.route, at.fullRoute, fullname, state.reloadOnSearch);
+        }
+
+        if (angular.isDefined(state.onenter)) {
+            registerEnterTransition(state.onenter, fullname);
+        }
+
+        if (angular.isDefined(state.onexit)) {
+            registerExitTransition(state.onexit, fullname);
         }
 
         at = at.children[name];
-        at.self = angular.extend({ reloadOnSearch: false }, at.self, state);
+        at.self = state;
         at.fullname = fullname;
+        at.parent = parent;
         if (angular.isDefined(route))
             at.fullRoute = route;
 
@@ -129,27 +170,23 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         return this;
     };
 
-    this.transition = function (from: any, to: any, ...handlers: any[]) {
+    this.transition = function (from: any, to: any, handler: any) {
         var transition;
 
         if (angular.isArray(from)) {
             angular.forEach(from, (value) => {
-                this.transition(value, to, handlers);
+                this.transition(value, to, handler);
             });
         } else if (angular.isArray(to)) {
             angular.forEach(to, (value) => {
-                this.transition(from, value, handlers);
+                this.transition(from, value, handler);
             });
         } else {
             validateTransition(from, to);
 
 
 
-            angular.forEach(handlers, (handler) => {
-                if (angular.isFunction(handler)) {
-                    handler = { before: () => { }, between: handler, after: () => { }, };
-                }
-            });
+           
         }
         return this;
     };
@@ -225,53 +262,44 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             var tr = buildTransition(to),
                 event,
                 transaction,
-                promise: ng.IPromise;
+                promise: ng.IPromise,
+                event;
 
-            if (!forceReload && tr.to && tr.from
-                && tr.to.fullname == tr.from.fullname
-                && angular.equals(tr.to.params, tr.to.params)
-                /*&& !tr.to.reloadOnSearch*/) {
+            //tr.emit();
 
-                tr.from.params = tr.to.params;
-                $rootScope.$broadcast('$stateUpdate', tr.from);
+            event = $rootScope.$broadcast('$stateChangeStart', tr.from, tr.to);
+            if (!event.defaultPrevented) {
+                $state.current = tr.to;
 
-            } else {
-                //tr.emit();
+                promise = $q.when(tr.to);
 
-                var event = $rootScope.$broadcast('$stateChangeStart', tr.from, tr.to);
-                if (!event.defaultPrevented) {
-                    $state.current = tr.to;
+                promise.then(() => {
+                    //TODO: var corelation = $view.BeginUpdate(); ??
+                    transaction = $view.beginUpdate();
+                    //$view.clear();
 
-                    promise = $q.when(tr.to);
+                    //Should we pin views?
+                    tr.emit();
 
-                    promise.then(() => {
-                        //TODO: var corelation = $view.BeginUpdate(); ??
-                        transaction = $view.beginUpdate();
-                        //$view.clear();
-
-                        //Should we pin views?
-                        tr.emit();
-
-                        angular.forEach(tr.to.views, (view, name) => {
-                            $view.setOrUpdate(name, view.template, view.controller);
-                        });
-
-                        //Or let views be overwritten?
-                        tr.emit();
-
-
-                        //TODO: $view.EndUpdate(corelation); ??
-                        $rootScope.$broadcast('$stateChangeSuccess', tr.to, tr.from);
-                        transaction.commit();
-
-                    }, (error) => {
-                        $rootScope.$broadcast('$stateChangeError', tr.to, tr.from, error);
-                        transaction.cancel();
-
-                    }).then(() => {
-                        tr.emit();
+                    angular.forEach(tr.to.views, (view, name) => {
+                        $view.setOrUpdate(name, view.template, view.controller);
                     });
-                }
+
+                    //Or let views be overwritten?
+                    tr.emit();
+
+
+                    //TODO: $view.EndUpdate(corelation); ??
+                    $rootScope.$broadcast('$stateChangeSuccess', tr.to, tr.from);
+                    transaction.commit();
+
+                }, (error) => {
+                    $rootScope.$broadcast('$stateChangeError', tr.to, tr.from, error);
+                    transaction.cancel();
+
+                }).then(() => {
+                    tr.emit();
+                });
             }
         }
     }];
