@@ -264,7 +264,7 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
-
+                expect('fubar').toBe('good');
             });
         });
     });
