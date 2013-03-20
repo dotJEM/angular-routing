@@ -5,7 +5,7 @@
 'use strict';
 var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routing.IRouteProvider) {
     var root = { fullname: 'root', children: {}, self: {} },
-        transition = { children: {} },
+        transition = { path: 'root', children: {} },
         nameValidation = /^\w+(\.\w+)*?$/,
         targetValiation = /^\w+(\.\w+)*(\.[*])?$/;
 
@@ -25,7 +25,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
     function validateTransition(from: string, to: string) {
         var fromValid = validateTarget(from);
         var toValid = validateTarget(to);
-        if (fromValid && toValid)
+        if (fromValid && toValid) // && from !== to
             return;
 
         if (fromValid)
@@ -33,6 +33,9 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
 
         if (toValid)
             throw new Error("Invalid transition - from: '" + from + "'.");
+
+        //if (from === to && from.indexOf('*') === -1)
+        //    throw new Error("Invalid transition - from and to can't be the same.");
 
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
@@ -85,7 +88,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         }
     }
 
-    function register(name, at, state) {
+    function registerState(name, at, state) {
         var fullname = at.fullname + '.' + name,
             route: string,
             parent = at;
@@ -121,7 +124,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             at.children = {};
         } else {
             angular.forEach(state.children, (childState, childName) => {
-                register(childName, at, childState);
+                registerState(childName, at, childState);
             });
         }
     }
@@ -166,7 +169,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         validateName(name);
 
         pair = lookupParent(name);
-        register(pair.name, pair.at, state);
+        registerState(pair.name, pair.at, state);
         return this;
     };
 
@@ -203,6 +206,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             current,
             $state: any = {
                 root: root,
+                troot: transition,
                 goto: goto,
 
                 nextSibling: '',

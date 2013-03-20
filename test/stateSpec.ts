@@ -9,12 +9,25 @@ var mock = angular.mock;
 describe('$stateProvider', function () {
     var scope: ng.IRootScopeService;
 
-    function stringify(state) {
+    function stringify(stateOrTransition) {
         var result = '(',
             children = [];
-        angular.forEach(state.children, (child, name) => {
-            children.push(name + stringify(child));
-        });
+
+        if (angular.isDefined(stateOrTransition.from)) {
+            angular.forEach(stateOrTransition.children, (child, name) => {
+                children.push(
+
+                    name + stringify(child)
+
+                    );
+            });
+
+
+        } else {
+            angular.forEach(stateOrTransition.children, (child, name) => {
+                children.push(name + stringify(child));
+            });
+        }
         return result + children.join() + ')';
     }
 
@@ -229,6 +242,32 @@ describe('$stateProvider', function () {
 
             mock.inject(function ($state: ui.routing.IStateService) {
                 expect(stringify($state.root)).toBe("(blog(recent(),item()))");
+            });
+        });
+    });
+
+    describe("transition", () => {
+        it('valid passes', function () {
+            var provider: ui.routing.IStateProvider;
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                provider = $stateProvider;
+                provider
+                    .transition('blog', 'about', () => { });
+            });
+
+            mock.inject(function ($state: ui.routing.IStateService) {
+
+            });
+        });
+
+        it('invalid throws errors', function () {
+            var provider;
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                provider = $stateProvider;
+            });
+
+            mock.inject(function ($state: ui.routing.IStateService) {
+
             });
         });
     });

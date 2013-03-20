@@ -1,5 +1,5 @@
 {
-	"name": "dotjem-angular-routing",
+	"name": "angular-routing",
 	"title": "AngularJS Routing",
 	"description": "State-based routing and view management for AngularJS",
 	"version": "0.0.1",
@@ -24,7 +24,11 @@
 	"dependencies": {
 	},
 	"devDependencies": {
-		"testacular": "~0.4.0"
+		"typescript": "~0.8.3",
+		"testacular": "~0.4.0",
+		"grunt": "~0.4.1",
+		"grunt-contrib-jshint": "~0.1.1",
+		"grunt-contrib-nodeunit": "~0.1.2"
 	},
 	"keywords": []
 }
