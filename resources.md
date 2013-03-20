@@ -61,6 +61,6 @@ $&
 These options are considered:
 
  - Buildhive: https://buildhive.cloudbees.com/ ?
- - Travis: https://travis-ci.org/dotJEM/angular-routing ?
+ - Travis: https://travis-ci.org/dotJEM/angular-routing ? -> https://travis-ci.org/dotJEM/angular-routing/builds
  - Thoughtworks GO: http://www.thoughtworks-studios.com/ (Need to host that self)
  - Others?
