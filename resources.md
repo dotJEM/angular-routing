@@ -55,3 +55,12 @@ $&
 ## Other stuff
 
 - http://michaux.ca/articles/lazy-function-definition-pattern
+
+## Continous Ingegration
+
+These options are considered:
+
+ - Buildhive: https://buildhive.cloudbees.com/ ?
+ - Travis: https://travis-ci.org/dotJEM/angular-routing ?
+ - Thoughtworks GO: http://www.thoughtworks-studios.com/ (Need to host that self)
+ - Others?

@@ -89,8 +89,6 @@ describe('$stateProvider', function () {
                 expect(function () { provider.state('another.sub2.deep', {}); }).toThrow("Could not locate 'sub2' under 'root.another'.");
 
                 expect(stringify($state.root)).toBe("(valid(sub1()),another(sub1()))");
-
-
             });
         });
     })

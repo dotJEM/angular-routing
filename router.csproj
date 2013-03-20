@@ -36,10 +36,13 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <None Include=".travis.yml" />
     <None Include="LICENSE" />
     <None Include="package.json" />
     <None Include="README.md" />
-    <None Include="ts-test-start.bat" />
+    <None Include="resources.md" />
+    <None Include="testacular-start.bat" />
+    <None Include="version.yaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
@@ -48,26 +51,108 @@
     <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
     <Content Include="lib\angular\angular-resource-1.0.d.ts" />
     <Content Include="lib\angular\angular-sanitize-1.0.d.ts" />
+    <Content Include="lib\angular\impl\angular-bootstrap-prettify.js" />
+    <Content Include="lib\angular\impl\angular-bootstrap.js" />
+    <Content Include="lib\angular\impl\angular-mocks.js" />
+    <Content Include="lib\angular\impl\angular-resource.js" />
+    <Content Include="lib\angular\impl\angular.js" />
     <Content Include="lib\jasmine\jasmine.d.ts" />
-    <Content Include="lib\jquery\jquery-1.8.d.ts" />
-    <Content Include="src\common.ts" />
-    <Content Include="src\directives\viewDirective.ts" />
-    <Content Include="src\interfaces.d.ts" />
-    <Content Include="src\legacy\templateDecorator.ts" />
-    <Content Include="src\route.ts" />
-    <Content Include="src\state.ts" />
-    <Content Include="src\template.ts" />
-    <Content Include="src\view.ts" />
-    <Content Include="test\legacy\routeLegacySpec.ts" />
-    <Content Include="test\routeSpec.ts" />
-    <Content Include="test\stateSpec.ts" />
-    <Content Include="test\viewSpec.ts" />
-    <Content Include="ui-router-files.js" />
-    <Content Include="ts-test-config.js" />
+    <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
+    <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
+    <Content Include="lib\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="src\common.ts" />
+    <TypeScriptCompile Include="samples\configuration.ts" />
+    <Content Include="samples\bootstrap.min.css" />
+    <Content Include="samples\configuration.js">
+      <DependentUpon>configuration.ts</DependentUpon>
+    </Content>
+    <Content Include="samples\configuration.min.js">
+      <DependentUpon>configuration.ts</DependentUpon>
+    </Content>
+    <Content Include="src\common.js">
+      <DependentUpon>common.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\directives\jemView.ts" />
+    <Content Include="src\common.min.js">
+      <DependentUpon>common.ts</DependentUpon>
+    </Content>
+    <Content Include="src\directives\jemView.js">
+      <DependentUpon>jemView.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\legacy\templateDecorator.ts" />
+    <TypeScriptCompile Include="src\interfaces.d.ts" />
+    <Content Include="src\directives\jemView.min.js">
+      <DependentUpon>jemView.ts</DependentUpon>
+    </Content>
+    <Content Include="src\interfaces.d.js">
+      <DependentUpon>interfaces.d.ts</DependentUpon>
+    </Content>
+    <Content Include="src\legacy\templateDecorator.js">
+      <DependentUpon>templateDecorator.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\route.ts" />
+    <Content Include="src\legacy\templateDecorator.min.js">
+      <DependentUpon>templateDecorator.ts</DependentUpon>
+    </Content>
+    <Content Include="src\route.js">
+      <DependentUpon>route.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state.ts" />
+    <Content Include="src\route.min.js">
+      <DependentUpon>route.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\template.ts" />
+    <Content Include="src\state.min.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
+    <Content Include="src\template.js">
+      <DependentUpon>template.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\view.ts" />
+    <Content Include="src\template.min.js">
+      <DependentUpon>template.ts</DependentUpon>
+    </Content>
+    <Content Include="src\view.js">
+      <DependentUpon>view.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\legacy\routeLegacySpec.ts" />
+    <Content Include="test\legacy\routeLegacySpec.js">
+      <DependentUpon>routeLegacySpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\legacy\routeLegacySpec.min.js">
+      <DependentUpon>routeLegacySpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\routeSpec.ts" />
+    <Content Include="test\routeSpec.js">
+      <DependentUpon>routeSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\stateSpec.ts" />
+    <Content Include="test\routeSpec.min.js">
+      <DependentUpon>routeSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\stateSpec.js">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\viewSpec.ts" />
+    <Content Include="test\stateSpec.min.js">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\viewSpec.js">
+      <DependentUpon>viewSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\viewSpec.min.js">
+      <DependentUpon>viewSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="files.js" />
+    <Content Include="testacular-config.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="build\" />
-    <Folder Include="doc\" />
+    <Folder Include="doc\turtorials\" />
+    <Folder Include="lib\jasmine\impl\" />
     <Folder Include="samples\actions\" />
     <Folder Include="samples\legacy\" />
     <Folder Include="samples\simple\" />
