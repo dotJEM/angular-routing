@@ -408,57 +408,6 @@ describe('$stateProvider', function () {
             });
         });
 
-        //it('can define state', function () {
-        //    mock.module(function ($stateProvider: ui.routing.IStateProvider) {
-        //        $stateProvider
-        //            .state('blog', { name: 'blog' })
-        //            .state('about', { name: 'about' });
-        //    });
-
-        //    mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-        //        var spy: jasmine.Spy = jasmine.createSpy('mySpy');
-        //        scope.$on('$stateChangeSuccess', <any>spy);
-
-        //        $route.current = { state: 'blog' };
-        //        scope.$broadcast('$routeChangeSuccess');
-        //        scope.$digest();
-
-        //        expect($state.current.name).toBe('blog');
-        //        expect(spy.mostRecentCall.args[2]).toBeUndefined();
-        //        expect(spy.mostRecentCall.args[3]).toBe(5);
-        //    });
-        //});
-
-        //it('can define state', function () {
-        //    mock.module(function ($stateProvider: ui.routing.IStateProvider) {
-        //        $stateProvider
-        //            .state('blog', { name: 'blog' })
-        //            .state('about', { name: 'about' });
-        //    });
-
-        //    mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-        //        var change: jasmine.Spy = jasmine.createSpy('mySpy');
-        //        var update: jasmine.Spy = jasmine.createSpy('mySpy');
-
-        //        scope.$on('$stateChangeSuccess', <any>change);
-        //        scope.$on('$stateUpdate', <any>update);
-
-        //        $route.current = { state: 'blog' };
-        //        scope.$broadcast('$routeChangeSuccess');
-        //        scope.$digest();
-
-        //        expect(update.wasCalled).toBe(false);
-        //        expect($state.current.name).toBe('blog');
-
-        //        $route.current = { state: 'about' };
-        //        scope.$broadcast('$routeChangeSuccess');
-        //        scope.$digest();
-
-        //        expect($state.current.name).toBe('about');
-        //        expect(change.mostRecentCall.args[2].name).toBe('blog');
-        //    });
-        //});
-
     });
 
 
