@@ -17,9 +17,9 @@ The idea is to support a varaity of page designs.
 
 ## Features
 
-* ´$routeProvider´ and ´$route´ to replace the existing angular routing concept.
-* ´$stateProvider´ and ´$state´ to manage application state and transitions.
-* ´$viewProvider´ and ´$view´ to manage view state.
+* `$routeProvider` and `$route` to replace the existing angular routing concept.
+* `$stateProvider` and `$state` to manage application state and transitions.
+* `$viewProvider` and `$view` to manage view state.
 
 #### $routeProvider and $route
 
@@ -39,8 +39,9 @@ Also providing the abilty to switch to a case insensitive mode.
 Provides the means to define application states and controll behavior on transitions
 and even reject the transition if wanted.
 
-´$stateProvider´ will register routes with the ´$routeProvider´ if a `route` propery
-is specified on the state.
+`$stateProvider` will register routes with the `$routeProvider` if a `route` propery
+is specified on the state, which is really just a short-hand to registering that route
+manually.
 
 #### $viewProvider and $view
 
