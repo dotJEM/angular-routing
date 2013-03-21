@@ -8,14 +8,15 @@ describe('$stateProvider', function () {
 
     function stringify(stateOrTransition) {
         var result = '(',
-            children = [];
-
-        if (angular.isDefined(stateOrTransition.from)) {
+            children = [],
+            targets = [] ;
+        //{ path: 'root', children: { } , targets: { } }
+        if (angular.isDefined(stateOrTransition.targets)) {
             angular.forEach(stateOrTransition.children, (child, name) => {
-                children.push(
-                    name + stringify(child)
-                        
-                    );
+                angular.forEach(child.targets, (target, targetName) => {
+                    targets.push(targetName + '+' + target.length);
+                });
+                children.push(name + '[' + targets.join()+ ']' + stringify(child));
             });
 
 
@@ -242,81 +243,6 @@ describe('$stateProvider', function () {
         });
     });
 
-    describe("transition", () => {
-        it('valid passes', function () {
-            var provider: ui.routing.IStateProvider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
-                provider = $stateProvider;
-                provider
-                    .transition('blog', 'about', () => { });
-            });
-
-            mock.inject(function ($state: ui.routing.IStateService) {
-
-            });
-        });
-
-        it('invalid throws errors', function () {
-            var provider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
-                provider = $stateProvider;
-            });
-
-            mock.inject(function ($state: ui.routing.IStateService) {
-
-
-            });
-        });
-    });
-
-    describe("transition targets", () => {
-        it('valid passes', function () {
-            var provider: ui.routing.IStateProvider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
-                provider = $stateProvider;
-            });
-
-            mock.inject(function ($state: ui.routing.IStateService) {
-                provider
-                    .transition('*', '*', () => { })
-                    .transition('a', 'b', () => { })
-                    .transition('a.1', 'b.1', () => { })
-                    .transition('a.*', '*', () => { })
-                    .transition('*', 'b.*', () => { });
-            });
-        });
-
-        it('invalid throws errors', function () {
-            var provider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
-                provider = $stateProvider;
-            });
-
-            mock.inject(function ($state: ui.routing.IStateService) {
-                //Note: Both Invalid
-                expect(function () { provider.transition('', '', {}); }).toThrow("Invalid transition - from: '', to: ''.");
-                expect(function () { provider.transition('.', '.', {}); }).toThrow("Invalid transition - from: '.', to: '.'.");
-                expect(function () { provider.transition('*.', '*.', {}); }).toThrow("Invalid transition - from: '*.', to: '*.'.");
-                expect(function () { provider.transition('.one', 'one.', {}); }).toThrow("Invalid transition - from: '.one', to: 'one.'.");
-                expect(function () { provider.transition('*.one', 'one.*.one', {}); }).toThrow("Invalid transition - from: '*.one', to: 'one.*.one'.");
-
-                //Note: From Invalid
-                expect(function () { provider.transition('', '*', {}); }).toThrow("Invalid transition - from: ''.");
-                expect(function () { provider.transition('.*', 'valid', {}); }).toThrow("Invalid transition - from: '.*'.");
-                expect(function () { provider.transition('*.*', 'valid.*', {}); }).toThrow("Invalid transition - from: '*.*'.");
-                expect(function () { provider.transition('one.', 'valid.one', {}); }).toThrow("Invalid transition - from: 'one.'.");
-                expect(function () { provider.transition('.one', 'valid.two', {}); }).toThrow("Invalid transition - from: '.one'.");
-
-                //Note: To Invalid
-                expect(function () { provider.transition('*', '', {}); }).toThrow("Invalid transition - to: ''.");
-                expect(function () { provider.transition('valid', '.*', {}); }).toThrow("Invalid transition - to: '.*'.");
-                expect(function () { provider.transition('valid.*', '*.*', {}); }).toThrow("Invalid transition - to: '*.*'.");
-                expect(function () { provider.transition('valid.one', 'one.', {}); }).toThrow("Invalid transition - to: 'one.'.");
-                expect(function () { provider.transition('valid.two', '.one', {}); }).toThrow("Invalid transition - to: '.one'.");
-            });
-        });
-    });
-
     //Note: These are essentialy integration tests between $location, $route and $state.
     //      because I haven't been able to sucessfully mock out $route.current for some reason.
 
@@ -442,6 +368,124 @@ describe('$stateProvider', function () {
             });
         });
 
+    });
+
+    describe("transition targets", () => {
+        it('valid passes', function () {
+            var provider: ui.routing.IStateProvider;
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                provider = $stateProvider;
+            });
+
+            mock.inject(function ($state: ui.routing.IStateService) {
+                provider
+                    .transition('*', '*', () => { })
+                    .transition('a', 'b', () => { })
+                    .transition('a.1', 'b.1', () => { })
+                    .transition('a.*', '*', () => { })
+                    .transition('*', 'b.*', () => { });
+            });
+        });
+
+        it('invalid throws errors', function () {
+            var provider;
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                provider = $stateProvider;
+            });
+
+            mock.inject(function ($state: ui.routing.IStateService) {
+                //Note: Both Invalid
+                expect(function () { provider.transition('', '', {}); }).toThrow("Invalid transition - from: '', to: ''.");
+                expect(function () { provider.transition('.', '.', {}); }).toThrow("Invalid transition - from: '.', to: '.'.");
+                expect(function () { provider.transition('*.', '*.', {}); }).toThrow("Invalid transition - from: '*.', to: '*.'.");
+                expect(function () { provider.transition('.one', 'one.', {}); }).toThrow("Invalid transition - from: '.one', to: 'one.'.");
+                expect(function () { provider.transition('*.one', 'one.*.one', {}); }).toThrow("Invalid transition - from: '*.one', to: 'one.*.one'.");
+
+                //Note: From Invalid
+                expect(function () { provider.transition('', '*', {}); }).toThrow("Invalid transition - from: ''.");
+                expect(function () { provider.transition('.*', 'valid', {}); }).toThrow("Invalid transition - from: '.*'.");
+                expect(function () { provider.transition('*.*', 'valid.*', {}); }).toThrow("Invalid transition - from: '*.*'.");
+                expect(function () { provider.transition('one.', 'valid.one', {}); }).toThrow("Invalid transition - from: 'one.'.");
+                expect(function () { provider.transition('.one', 'valid.two', {}); }).toThrow("Invalid transition - from: '.one'.");
+
+                //Note: To Invalid
+                expect(function () { provider.transition('*', '', {}); }).toThrow("Invalid transition - to: ''.");
+                expect(function () { provider.transition('valid', '.*', {}); }).toThrow("Invalid transition - to: '.*'.");
+                expect(function () { provider.transition('valid.*', '*.*', {}); }).toThrow("Invalid transition - to: '*.*'.");
+                expect(function () { provider.transition('valid.one', 'one.', {}); }).toThrow("Invalid transition - to: 'one.'.");
+                expect(function () { provider.transition('valid.two', '.one', {}); }).toThrow("Invalid transition - to: '.one'.");
+            });
+        });
+    });
+
+
+
+    describe("transition $routeChangeSuccess", () => {
+        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+            var wasCalled = "FALSE";
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+
+                $stateProvider
+                    .transition('*', '*', () => { wasCalled = "TRUE"; })
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+
+                expect(stringify($state.t)).toBe('(*[*+1]())');
+
+                //var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+                //scope.$on('$stateChangeSuccess', <any>spy);
+
+                //$location.path('/blog/recent');
+                //scope.$digest();
+
+                //expect($state.current.name).toBe('blog.recent');
+                //expect(spy.mostRecentCall.args[2]).toBeUndefined();
+
+                //$location.path('/blog/42');
+                //scope.$digest();
+
+                //expect($state.current.name).toBe('blog.details');
+                //expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
+
+                //expect(transitionSpy.callCount).toBe(1);
+            });
+        });
+
+        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+            var transitions = [];
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+
+                $stateProvider
+                    .state('blog', { route: '/blog', name: 'blog' })
+                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                    .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
+                    .state('about', { route: '/blog', name: 'about' })
+
+                    .transition('*', '*', [<any>'$from', '$to',
+                        ($from, $to) => { transitions.push({ from: $from, to: $to }); }]);
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+
+                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+                scope.$on('$stateChangeSuccess', <any>spy);
+
+                $location.path('/blog/recent');
+                scope.$digest();
+
+                expect(transitions.length).toBe(1);
+                //expect(transitions[0].from.fullname).toBe('root');
+                //expect(transitions[0].to.fullname).toBe('root.blog.recent');
+
+                $location.path('/blog/42');
+                scope.$digest();
+
+                expect(transitions.length).toBe(2);
+                //expect(transitions[1].from.fullname).toBe('root.blog.recent');
+                expect(transitions[1].to.fullname).toBe('root.blog.details');
+            });
+        });
     });
 
 

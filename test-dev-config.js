@@ -17,7 +17,7 @@ files = [
 ];
 
 // list of files to exclude
-exclude = ['**/*jasmine*/**', '**/*jstd*/**', 'src/**/*.min.js'];//.concat(angularFiles.files.jstdJqueryExclude);
+exclude = ['**/*jasmine*/**', '**/*jstd*/**'];//.concat(angularFiles.files.jstdJqueryExclude);
 
 // use dots reporter, as travis terminal does not support escaping sequences
 // possible values: 'dots' || 'progress'
@@ -53,7 +53,7 @@ autoWatchInterval = 0;
 // - Safari
 // - PhantomJS
 browsers = ['PhantomJS'];
-reporters = [ 'progress' /*, 'junit'*/];
+reporters = ['dots' /*, 'junit'*/];
 
 //junitReporter = {
 //    outputFile: 'ts-test-out.xml'

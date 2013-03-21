@@ -70,31 +70,32 @@ module ui.routing {
     interface IStateProvider {
         state(name: string, state: any): IStateProvider;
 
-        transition(from: string, to: string, handlers: ITransitionHandler): IStateProvider;
-        transition(from: string, to: string, handlers: ITransition): IStateProvider;
-        transition(from: string, to: string, ...handlers: ITransitionHandler[]): IStateProvider;
-        transition(from: string, to: string, ...handlers: ITransition[]): IStateProvider;
+        transition(from: string, to: string, handler: ITransitionHandler): IStateProvider;
+        transition(from: string, to: string, handler: ITransition): IStateProvider;
+        transition(from: string, to: string, handler: any): IStateProvider;
 
-        transition(from: string[], to: string[], handlers: ITransitionHandler): IStateProvider;
-        transition(from: string[], to: string[], handlers: ITransition): IStateProvider;
-        transition(from: string[], to: string[], ...handlers: ITransitionHandler[]): IStateProvider;
-        transition(from: string[], to: string[], ...handlers: ITransition[]): IStateProvider;
+        transition(from: string[], to: string[], handler: ITransitionHandler): IStateProvider;
+        transition(from: string[], to: string[], handler: ITransition): IStateProvider;
+        transition(from: string[], to: string[], handler: any): IStateProvider;
 
-        transition(from: string, to: string[], handlers: ITransitionHandler): IStateProvider;
-        transition(from: string, to: string[], handlers: ITransition): IStateProvider;
-        transition(from: string, to: string[], ...handlers: ITransitionHandler[]): IStateProvider;
-        transition(from: string, to: string[], ...handlers: ITransition[]): IStateProvider;
+        transition(from: string, to: string[], handler: ITransitionHandler): IStateProvider;
+        transition(from: string, to: string[], handler: ITransition): IStateProvider;
+        transition(from: string, to: string[], handler: any): IStateProvider;
 
-        transition(from: string[], to: string, handlers: ITransitionHandler): IStateProvider;
-        transition(from: string[], to: string, handlers: ITransition): IStateProvider;
-        transition(from: string[], to: string, ...handlers: ITransitionHandler[]): IStateProvider;
-        transition(from: string[], to: string, ...handlers: ITransition[]): IStateProvider;
+        transition(from: string[], to: string, handler: ITransitionHandler): IStateProvider;
+        transition(from: string[], to: string, handler: ITransition): IStateProvider;
+        transition(from: string[], to: string, handler: any): IStateProvider;
+
+        transition(from: any, to: any, handler: ITransitionHandler): IStateProvider;
+        transition(from: any, to: any, handler: ITransition): IStateProvider;
+        transition(from: any, to: any, handler: any): IStateProvider;
 
         print(): string;
     }
 
     interface IStateService {
         root: any;
+        t: any;
         reload: () => void;
         current?: any;
     }

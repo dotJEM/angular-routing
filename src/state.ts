@@ -5,7 +5,7 @@
 'use strict';
 var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routing.IRouteProvider) {
     var root = { fullname: 'root', children: {}, self: {} },
-        transition = { path: 'root', children: {} },
+        transition = { children: {}, targets: {} },
         nameValidation = /^\w+(\.\w+)*?$/,
         targetValiation = /^\w+(\.\w+)*(\.[*])?$/;
 
@@ -43,12 +43,14 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
     function createRoute(stateRoute: string, parrentRoute: string, stateName: string, reloadOnSearch: bool) {
         var route;
 
-        if (!isDefined(reloadOnSearch))
+        if (!isDefined(reloadOnSearch)) {
             reloadOnSearch = true;
+        }
 
         route = (parrentRoute || '');
-        if (route !== '' && route[route.length - 1] === '/')
+        if (route !== '' && route[route.length - 1] === '/') {
             route = route.substr(0, route.length - 1);
+        }
 
         if (stateRoute[0] !== '/')
             route += '/';
@@ -62,8 +64,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
     function registerEnterTransition(onenter, name) {
         //TODO: Validation
 
-        if (angular.isArray(onenter))
-        {
+        if (angular.isArray(onenter)) {
             angular.forEach(onenter, (single) => {
                 registerEnterTransition(single, name);
             })
@@ -100,7 +101,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         if (!(name in at.children)) {
             at.children[name] = {};
         }
-        
+
         if (angular.isDefined(state.route)) {
             route = createRoute(state.route, at.fullRoute, fullname, state.reloadOnSearch);
         }
@@ -114,7 +115,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         }
 
         at = at.children[name];
-        at.self = extend(state, {fullname: fullname});
+        at.self = extend(state, { fullname: fullname });
         at.fullname = fullname;
         at.parent = parent;
         if (angular.isDefined(route))
@@ -131,7 +132,15 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
 
     function lookupTransition(names: string[]) {
         var current = transition;
+
+        //If name contains root explicitly, skip that one
+        if (names[0] === 'root')
+            i++;
+
         for (var i = 0; i < names.length; i++) {
+            if (!(names[i] in current.children)) {
+                current.children[names[i]] = { children: {}, targets: {} }
+            }
             current = current.children[names[i]];
         }
         return current;
@@ -174,7 +183,8 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
     };
 
     this.transition = function (from: any, to: any, handler: any) {
-        var transition;
+        var transition,
+            regHandler;
 
         if (angular.isArray(from)) {
             angular.forEach(from, (value) => {
@@ -185,17 +195,28 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
                 this.transition(from, value, handler);
             });
         } else {
-            if (angular.isObject(from))
+            if (angular.isObject(from)) {
                 from = from.fullname;
+            }
 
-            if (angular.isObject(to))
+            if (angular.isObject(to)) {
                 to = to.fullname;
+            }
 
             validateTransition(from, to);
 
+            if (angular.isFunction(handler) || angular.isArray(handler)) {
+                handler = {
+                    between: handler
+                };
+            }
 
 
-           
+            transition = lookupTransition(from);
+            if (!(to in transition.targets)) {
+                transition.targets[to] = [];
+            }
+            transition.targets[to].push(handler);
         }
         return this;
     };
@@ -212,7 +233,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             current,
             $state: any = {
                 root: root,
-                troot: transition,
+                t: transition,
                 goto: goto,
 
                 nextSibling: '',
@@ -229,12 +250,19 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         return $state;
 
         function update() {
-            var currentRoute = $route.current;
-            if (currentRoute) {
-                if (currentRoute.state) {
-                    goto(currentRoute.state);
-                } else if (currentRoute.action) {
-                    $injector.invoke(currentRoute.action);
+            var route = $route.current,
+                params;
+            if (route) {
+                params = {
+                    all: route.params,
+                    path: route.pathParams,
+                    search: route.searchParams
+                };
+
+                if (route.state) {
+                    goto(route.state, params);
+                } else if (route.action) {
+                    $injector.invoke(route.action, { $params: params });
                 }
             } else {
                 goto(root);
@@ -251,37 +279,114 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         //    return match;
         //}
 
-        function buildTransition(to): any {
-            if (angular.isString(to))
-                to = lookupState(to);
-            else
-                to = lookupState(to.fullname);
-            current = to;
+        function compateTarget(one: string, other: string) {
+            var left = one.split('.'),
+                right = other.split('.'),
+                l, r, i = 0;
 
-            return {
-                from: $state.current,
-                to: inherit({ fullname: to.fullname }, to.self),
-                emit: () => { },
-                equals: () => {
+            while (true) {
+                l = left[i]; r = right[i]; i++;
+                if (l !== r) {
+                    if (r === '*' || l === '*')
+                        return true;
                     return false;
                 }
             }
         }
 
-        function goto(to) {
-            var tr = buildTransition(to),
-                event,
-                transaction,
-                promise: ng.IPromise,
-                event;
+        function findHandlers(from: string, to: string): any[] {
+            var current = transition,
+                names = from.split('.'),
+                transitions = [],
+                handlers = [];
 
-            //tr.emit();
+            //If name contains root explicitly, skip that one
+            if (names[0] === 'root') {
+                i++;
+            }
 
-            event = $rootScope.$broadcast('$stateChangeStart', tr.from, tr.to);
+            for (var i = 0; i < names.length; i++) {
+                if ('*' in current.children) {
+                    transitions.push(current.children['*']);
+                }
+
+                if (names[i] in current.children) {
+                    current = current.children[names[i]];
+                    transitions.push(current);
+                } else {
+                    break;
+                }
+            }
+
+            angular.forEach(transitions, (t) => {
+                angular.forEach(t.targets, (target, targetName) => {
+                    if (compateTarget(targetName, to)) {
+                        angular.forEach(target, value => {
+                            handlers.push(value);
+                        });
+                    }
+                });
+            });
+            return handlers;
+        }
+
+        function buildTransition(to, params?: { all; path; search; }): any {
+            var handlers: any[],
+                emitters,
+                toelm;
+
+            if (angular.isString(to)) {
+                to = lookupState(to);
+            } else {
+                to = lookupState(to.fullname);
+            }
+
+            //Note: Copy it so any thing the receiver does to the object dies after.
+            toelm = inherit({}, to.self);
+
+            handlers = findHandlers(($state.current && $state.current.fullname) || 'root', to.fullname);
+
+            function emit(select, transitionControl) {
+                var handler;
+                angular.forEach(handlers, (handlerObj) => {
+                    if (angular.isDefined(handler = select(handlerObj))) {
+                        var locals = {
+                            $to: toelm,
+                            $from: $state.current,
+                            $transition: transitionControl || {
+                                cancel: false
+                            }
+                        };
+                        $injector.invoke(handler, null, locals);
+                        return locals.$transition;
+                    }
+                })
+            }
+
+            return {
+                from: $state.current,
+                to: toelm,
+                emit: {
+                    before: t => emit(h => h.before, t),
+                    between: t => emit(h => h.between, t),
+                    after: t => emit(h => h.after, t)
+                }
+            }
+        }
+
+        function goto(to, params?) {
+            var t = buildTransition(to, params), tr,
+                event, transaction, promise: ng.IPromise;
+
+
+            event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
             if (!event.defaultPrevented) {
-                $state.current = tr.to;
+                tr = t.emit.before(tr);
+                //TODO: Reach to TR.
 
-                promise = $q.when(tr.to);
+                $state.current = t.to;
+
+                promise = $q.when(t.to);
 
                 promise.then(() => {
                     //TODO: var corelation = $view.BeginUpdate(); ??
@@ -289,26 +394,27 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
                     //$view.clear();
 
                     //Should we pin views?
-                    tr.emit();
+                    //tr.emit.between();
 
-                    angular.forEach(tr.to.views, (view, name) => {
+                    angular.forEach(t.to.views, (view, name) => {
                         $view.setOrUpdate(name, view.template, view.controller);
                     });
 
                     //Or let views be overwritten?
-                    tr.emit();
-
+                    t.emit.between(tr);
+                    //TODO: Reach to TR.
 
                     //TODO: $view.EndUpdate(corelation); ??
-                    $rootScope.$broadcast('$stateChangeSuccess', tr.to, tr.from);
+                    $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                     transaction.commit();
 
                 }, (error) => {
-                    $rootScope.$broadcast('$stateChangeError', tr.to, tr.from, error);
+                    $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
                     transaction.cancel();
 
                 }).then(() => {
-                    tr.emit();
+                    t.emit.after(tr);
+                    //TODO: Reach to TR.
                 });
             }
         }

@@ -8,7 +8,7 @@
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'lib/jQuery/impl/jQuery-1.9.1.min.js',
+  'lib/jquery/impl/jquery-1.9.1.js',
   'lib/angular/impl/angular.js',
   'lib/angular/impl/angular-mocks.js',
 

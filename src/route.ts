@@ -446,6 +446,7 @@ function $RouteProvider() {
             var match = inherit(route, {
                 self: inherit(route.self, {
                     params: extend({}, search, params),
+                    searchParams: search,
                     pathParams: params
                 })
             });

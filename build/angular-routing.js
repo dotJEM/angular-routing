@@ -350,6 +350,8 @@ var $StateProvider = [
         }, transition = {
             path: 'root',
             children: {
+            },
+            targets: {
             }
         }, nameValidation = /^\w+(\.\w+)*?$/, targetValiation = /^\w+(\.\w+)*(\.[*])?$/;
         function validateName(name) {
@@ -457,8 +459,19 @@ var $StateProvider = [
             }
         }
         function lookupTransition(names) {
-            var current = transition;
+            var current = transition, name = names;
+            if(names[0] === 'root') {
+                i++;
+            }
             for(var i = 0; i < names.length; i++) {
+                if(!(names[i] in current.children)) {
+                    current.children[names[i]] = {
+                        children: {
+                        },
+                        targets: {
+                        }
+                    };
+                }
                 current = current.children[names[i]];
             }
             return current;
@@ -513,6 +526,11 @@ var $StateProvider = [
                     to = to.fullname;
                 }
                 validateTransition(from, to);
+                transition = lookupTransition(from);
+                if(!(to in transition.targets)) {
+                    transition.targets[to] = [];
+                }
+                transition.targets[to].push(handler);
             }
             return this;
         };
@@ -550,27 +568,21 @@ var $StateProvider = [
                         goto(root);
                     }
                 }
-                function buildTransition(to) {
+                function buildTransition(to, params) {
                     if(angular.isString(to)) {
                         to = lookupState(to);
                     } else {
                         to = lookupState(to.fullname);
                     }
-                    current = to;
                     return {
                         from: $state.current,
-                        to: inherit({
-                            fullname: to.fullname
-                        }, to.self),
+                        to: inherit(to.self),
                         emit: function () {
-                        },
-                        equals: function () {
-                            return false;
                         }
                     };
                 }
-                function goto(to) {
-                    var tr = buildTransition(to), event, transaction, promise, event;
+                function goto(to, params) {
+                    var tr = buildTransition(to, params), event, transaction, promise, event;
                     event = $rootScope.$broadcast('$stateChangeStart', tr.from, tr.to);
                     if(!event.defaultPrevented) {
                         $state.current = tr.to;
