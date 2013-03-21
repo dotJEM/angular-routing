@@ -230,7 +230,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         $view: ui.routing.IViewService) {
 
         var forceReload = false,
-            current,
+            //current,
             $state: any = {
                 root: root,
                 t: transition,
@@ -333,7 +333,8 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         function buildTransition(to, params?: { all; path; search; }): any {
             var handlers: any[],
                 emitters,
-                toelm;
+                toState,
+                fromState = $state.current;
 
             if (angular.isString(to)) {
                 to = lookupState(to);
@@ -342,7 +343,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             }
 
             //Note: Copy it so any thing the receiver does to the object dies after.
-            toelm = inherit({}, to.self);
+            toState = inherit({}, to.self);
 
             handlers = findHandlers(($state.current && $state.current.fullname) || 'root', to.fullname);
 
@@ -350,22 +351,19 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
                 var handler;
                 angular.forEach(handlers, (handlerObj) => {
                     if (angular.isDefined(handler = select(handlerObj))) {
-                        var locals = {
-                            $to: toelm,
-                            $from: $state.current,
-                            $transition: transitionControl || {
-                                cancel: false
-                            }
-                        };
-                        $injector.invoke(handler, null, locals);
-                        return locals.$transition;
+                        $injector.invoke(handler, null, {
+                            $to: toState,
+                            $from: fromState,
+                            $transition: transitionControl 
+                        });
+                        return transitionControl;
                     }
                 })
             }
 
             return {
-                from: $state.current,
-                to: toelm,
+                from: fromState,
+                to: toState,
                 emit: {
                     before: t => emit(h => h.before, t),
                     between: t => emit(h => h.between, t),
@@ -381,6 +379,7 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
 
             event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
             if (!event.defaultPrevented) {
+                tr = { cancel: false };
                 tr = t.emit.before(tr);
                 //TODO: Reach to TR.
 

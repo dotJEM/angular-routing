@@ -467,22 +467,27 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
                 $location.path('/blog/recent');
                 scope.$digest();
 
+                expect($state.current.name).toBe('blog.recent');
+                expect(spy.mostRecentCall.args[2]).toBeUndefined();
+
                 expect(transitions.length).toBe(1);
                 //expect(transitions[0].from.fullname).toBe('root');
-                //expect(transitions[0].to.fullname).toBe('root.blog.recent');
+                expect(transitions[0].to.fullname).toBe('root.blog.recent');
 
                 $location.path('/blog/42');
                 scope.$digest();
 
+                expect($state.current.name).toBe('blog.details');
+                expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
+                
                 expect(transitions.length).toBe(2);
-                //expect(transitions[1].from.fullname).toBe('root.blog.recent');
+                expect(transitions[1].from.fullname).toBe('root.blog.recent');
                 expect(transitions[1].to.fullname).toBe('root.blog.details');
             });
         });
