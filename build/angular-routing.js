@@ -439,7 +439,9 @@ var $StateProvider = [
                 registerExitTransition(state.onexit, fullname);
             }
             at = at.children[name];
-            at.self = state;
+            at.self = extend(state, {
+                fullname: fullname
+            });
             at.fullname = fullname;
             at.parent = parent;
             if(angular.isDefined(route)) {
@@ -504,6 +506,12 @@ var $StateProvider = [
                     _this.transition(from, value, handler);
                 });
             } else {
+                if(angular.isObject(from)) {
+                    from = from.fullname;
+                }
+                if(angular.isObject(to)) {
+                    to = to.fullname;
+                }
                 validateTransition(from, to);
             }
             return this;

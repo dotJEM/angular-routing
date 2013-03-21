@@ -13,9 +13,8 @@ describe('$stateProvider', function () {
         if (angular.isDefined(stateOrTransition.from)) {
             angular.forEach(stateOrTransition.children, (child, name) => {
                 children.push(
-
                     name + stringify(child)
-
+                        
                     );
             });
 
@@ -264,6 +263,7 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
+
 
             });
         });
