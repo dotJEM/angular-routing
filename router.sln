@@ -6,6 +6,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6144C6A0-D37C-4C47-A074-D46B740BB851}"
 	ProjectSection(SolutionItems) = preProject
 		grunt-start.bat = grunt-start.bat
+		test-start.bat = test-start.bat
 	EndProjectSection
 EndProject
 Global

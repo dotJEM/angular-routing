@@ -3,28 +3,31 @@
 describe('$stateProvider', function () {
     'use strict';
     var mock = angular.mock;
-
     var scope: ng.IRootScopeService;
 
-    function stringify(stateOrTransition) {
+    function stringifyTransition(tansition) {
+        var children = [],
+            targets = [];
+
+        angular.forEach(tansition.targets, (target, targetName) => {
+            targets.push(targetName + '+' + target.length);
+        });
+
+        angular.forEach(tansition.children, (child, name) => {
+            children.push(name + stringifyTransition(child));
+        });
+        return '[' + targets.join() + '](' + children.join() + ')';
+    }
+
+    function stringifyState(stateOrTransition) {
         var result = '(',
             children = [],
-            targets = [] ;
-        //{ path: 'root', children: { } , targets: { } }
-        if (angular.isDefined(stateOrTransition.targets)) {
-            angular.forEach(stateOrTransition.children, (child, name) => {
-                angular.forEach(child.targets, (target, targetName) => {
-                    targets.push(targetName + '+' + target.length);
-                });
-                children.push(name + '[' + targets.join()+ ']' + stringify(child));
-            });
+            targets = [];
 
+        angular.forEach(stateOrTransition.children, (child, name) => {
+            children.push(name + stringifyState(child));
+        });
 
-        } else {
-            angular.forEach(stateOrTransition.children, (child, name) => {
-                children.push(name + stringify(child));
-            });
-        }
         return result + children.join() + ')';
     }
 
@@ -73,7 +76,7 @@ describe('$stateProvider', function () {
                 expect(function () { provider.state('almost.valid.', {}); }).toThrow("Invalid name: 'almost.valid.'.");
                 expect(function () { provider.state('.almost.valid', {}); }).toThrow("Invalid name: '.almost.valid'.");
 
-                expect(stringify($state.root)).toBe("()");
+                expect(stringifyState($state.root)).toBe("()");
             });
         });
 
@@ -86,11 +89,11 @@ describe('$stateProvider', function () {
             mock.inject(function ($state: ui.routing.IStateService) {
                 expect(function () { provider.state('valid.sub1', {}); }).toThrow("Could not locate 'valid' under 'root'.");
                 expect(function () { provider.state('another.sub1', {}); }).toThrow("Could not locate 'another' under 'root'.");
-                expect(stringify($state.root)).toBe("()");
+                expect(stringifyState($state.root)).toBe("()");
 
                 provider.state('valid', {});
                 provider.state('another', {});
-                expect(stringify($state.root)).toBe("(valid(),another())");
+                expect(stringifyState($state.root)).toBe("(valid(),another())");
 
                 expect(function () { provider.state('valid.sub1', {}); }).not.toThrow();
                 expect(function () { provider.state('another.sub1', {}); }).not.toThrow();
@@ -98,7 +101,7 @@ describe('$stateProvider', function () {
                 expect(function () { provider.state('valid.sub2.deep', {}); }).toThrow("Could not locate 'sub2' under 'root.valid'.");
                 expect(function () { provider.state('another.sub2.deep', {}); }).toThrow("Could not locate 'sub2' under 'root.another'.");
 
-                expect(stringify($state.root)).toBe("(valid(sub1()),another(sub1()))");
+                expect(stringifyState($state.root)).toBe("(valid(sub1()),another(sub1()))");
             });
         });
     })
@@ -111,7 +114,7 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
-                expect(stringify($state.root)).toBe("(blog())");
+                expect(stringifyState($state.root)).toBe("(blog())");
             });
         });
 
@@ -125,7 +128,7 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
-                expect(stringify($state.root)).toBe("(blog(recent(under()),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
@@ -164,7 +167,7 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
-                expect(stringify($state.root)).toBe("(blog(recent(under()),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
@@ -197,7 +200,7 @@ describe('$stateProvider', function () {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
-                expect(stringify($state.root)).toBe("(blog(recent(under()),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
@@ -223,7 +226,7 @@ describe('$stateProvider', function () {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
-                expect(stringify($state.root)).toBe("(blog(recent(under()),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
@@ -238,7 +241,7 @@ describe('$stateProvider', function () {
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
-                expect(stringify($state.root)).toBe("(blog(recent(),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
             });
         });
     });
@@ -267,7 +270,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2]).toBeUndefined();
+                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
             });
         });
 
@@ -293,7 +296,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2]).toBeUndefined();
+                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
 
                 $location.path('/about');
                 scope.$digest();
@@ -329,7 +332,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2]).toBeUndefined();
+                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
 
                 $location.path('/blog/42');
                 scope.$digest();
@@ -358,7 +361,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2]).toBeUndefined();
+                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
 
                 $location.path('/blog/42');
                 scope.$digest();
@@ -416,42 +419,93 @@ describe('$stateProvider', function () {
                 expect(function () { provider.transition('valid.two', '.one', {}); }).toThrow("Invalid transition - to: '.one'.");
             });
         });
-    });
 
-
-
-    describe("transition $routeChangeSuccess", () => {
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            var wasCalled = "FALSE";
             mock.module(function ($stateProvider: ui.routing.IStateProvider) {
 
                 $stateProvider
-                    .transition('*', '*', () => { wasCalled = "TRUE"; })
+                    .transition('*', '*', () => { })
+                    .transition('blog.*', 'about.*', () => { })
             });
 
             mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-
-                expect(stringify($state.t)).toBe('(*[*+1]())');
-
-                //var spy: jasmine.Spy = jasmine.createSpy('mySpy');
-                //scope.$on('$stateChangeSuccess', <any>spy);
-
-                //$location.path('/blog/recent');
-                //scope.$digest();
-
-                //expect($state.current.name).toBe('blog.recent');
-                //expect(spy.mostRecentCall.args[2]).toBeUndefined();
-
-                //$location.path('/blog/42');
-                //scope.$digest();
-
-                //expect($state.current.name).toBe('blog.details');
-                //expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
-
-                //expect(transitionSpy.callCount).toBe(1);
+                expect(stringifyTransition($state.transition)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
             });
         });
 
+        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+
+                $stateProvider
+                    .transition('*', '*', () => { })
+                    .transition('blog.recent', 'blog.category', () => { })
+                    .transition('blog.archive', 'blog.category', () => { })
+                    .transition('blog.recent', 'blog.archive', () => { })
+                    .transition('blog.category', 'blog.archive', () => { })
+                    .transition('blog.archive', 'blog.recent', () => { })
+                    .transition('blog.category', 'blog.recent', () => { })
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
+                //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
+                //      as well as the source.
+                //
+                //      sources are in a tree, we format this as their name folowwed by (), inside the brackets are all decendants, following
+                //      the same pattern.
+                //
+                //      destinations are inside square brackets ('[]') and the number behind the '+' indicates the number of handlers registered
+                //      with that specific target. Targets are between the source name and it's children.
+                //
+                //      so... 'blog[about+4](...)' shows a source 'blog' which has one target 'about' that has registered 4 handlers.
+                //      the ... denotes children of blog, if any... they follow the same pattern.
+
+                var expected =
+                  '[]('
+                + '  *[*+1]('
+                + '  ),'
+                + '  blog[]('
+                + '    recent  [ blog.category+1, blog.archive+1](),'
+                + '    archive [ blog.category+1, blog.recent+1 ](),'
+                + '    category[ blog.archive+1,  blog.recent+1 ]()'
+                + '  )'
+                + ')';
+
+                expect(stringifyTransition($state.transition))
+                    .toBe(expected.replace(/\s+/g, ''));
+            });
+        });
+
+        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+
+                $stateProvider
+                    .transition('*', '*', () => { })
+                    .transition('blog.recent', 'blog.category', () => { })
+                    .transition('blog.recent', 'blog.category', () => { })
+                    .transition('blog.recent', 'blog.category', () => { })
+                    .transition('blog.recent', 'blog.archive', () => { })
+                    .transition('blog.recent', 'blog.archive', () => { })
+                    .transition('blog.recent', 'blog.archive', () => { })
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                var expected =
+                  '[]('
+                + '  *[*+1]('
+                + '  ),'
+                + '  blog[]('
+                + '    recent  [ blog.category+3, blog.archive+3]()'
+                + '  )'
+                + ')';
+
+                expect(stringifyTransition($state.transition))
+                    .toBe(expected.replace(/\s+/g, ''));
+            });
+        });
+    });
+
+    describe("transition $routeChangeSuccess", () => {
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
             var transitions = [];
             mock.module(function ($stateProvider: ui.routing.IStateProvider) {
@@ -462,8 +516,7 @@ describe('$stateProvider', function () {
                     .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
                     .state('about', { route: '/blog', name: 'about' })
 
-                    .transition('*', '*', [<any>'$from', '$to',
-                        ($from, $to) => { transitions.push({ from: $from, to: $to }); }]);
+                    .transition('*', '*', [<any>'$from', '$to', ($from, $to) => { transitions.push({ from: $from, to: $to }); }]);
             });
 
             mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
@@ -473,19 +526,13 @@ describe('$stateProvider', function () {
                 $location.path('/blog/recent');
                 scope.$digest();
 
-                expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2]).toBeUndefined();
-
                 expect(transitions.length).toBe(1);
-                //expect(transitions[0].from.fullname).toBe('root');
+                expect(transitions[0].from.fullname).toBe('root');
                 expect(transitions[0].to.fullname).toBe('root.blog.recent');
 
                 $location.path('/blog/42');
                 scope.$digest();
 
-                expect($state.current.name).toBe('blog.details');
-                expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
-                
                 expect(transitions.length).toBe(2);
                 expect(transitions[1].from.fullname).toBe('root.blog.recent');
                 expect(transitions[1].to.fullname).toBe('root.blog.details');

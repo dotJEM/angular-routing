@@ -248,6 +248,7 @@ function $RouteProvider() {
                     self: inherit(route.self, {
                         params: extend({
                         }, search, params),
+                        searchParams: search,
                         pathParams: params
                     })
                 });

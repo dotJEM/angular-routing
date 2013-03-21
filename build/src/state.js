@@ -7,9 +7,9 @@ var $StateProvider = [
             children: {
             },
             self: {
+                fullname: 'root'
             }
         }, transition = {
-            path: 'root',
             children: {
             },
             targets: {
@@ -119,8 +119,8 @@ var $StateProvider = [
                 });
             }
         }
-        function lookupTransition(names) {
-            var current = transition, name = names;
+        function lookupTransition(name) {
+            var current = transition, names = name.split('.');
             if(names[0] === 'root') {
                 i++;
             }
@@ -170,7 +170,7 @@ var $StateProvider = [
         };
         this.transition = function (from, to, handler) {
             var _this = this;
-            var transition;
+            var transition, regHandler;
             if(angular.isArray(from)) {
                 angular.forEach(from, function (value) {
                     _this.transition(value, to, handler);
@@ -187,6 +187,11 @@ var $StateProvider = [
                     to = to.fullname;
                 }
                 validateTransition(from, to);
+                if(angular.isFunction(handler) || angular.isArray(handler)) {
+                    handler = {
+                        between: handler
+                    };
+                }
                 transition = lookupTransition(from);
                 if(!(to in transition.targets)) {
                     transition.targets[to] = [];
@@ -202,9 +207,11 @@ var $StateProvider = [
             '$route', 
             '$view', 
             function ($rootScope, $q, $injector, $route, $view) {
-                var forceReload = false, current, $state = {
+                var forceReload = false, $state = {
                     root: root,
-                    troot: transition,
+                    transition: transition,
+                    current: inherit({
+                    }, root),
                     goto: goto,
                     nextSibling: '',
                     prevSibling: '',
@@ -218,50 +225,133 @@ var $StateProvider = [
                 $rootScope.$on('$routeChangeSuccess', update);
                 return $state;
                 function update() {
-                    var currentRoute = $route.current;
-                    if(currentRoute) {
-                        if(currentRoute.state) {
-                            goto(currentRoute.state);
-                        } else if(currentRoute.action) {
-                            $injector.invoke(currentRoute.action);
+                    var route = $route.current, params;
+                    if(route) {
+                        params = {
+                            all: route.params,
+                            path: route.pathParams,
+                            search: route.searchParams
+                        };
+                        if(route.state) {
+                            goto(route.state, params);
+                        } else if(route.action) {
+                            $injector.invoke(route.action, {
+                                $params: params
+                            });
                         }
                     } else {
                         goto(root);
                     }
                 }
+                function compateTarget(one, other) {
+                    var left = one.split('.'), right = other.split('.'), l, r, i = 0;
+                    while(true) {
+                        l = left[i];
+                        r = right[i];
+                        i++;
+                        if(l !== r) {
+                            if(r === '*' || l === '*') {
+                                return true;
+                            }
+                            return false;
+                        }
+                    }
+                }
+                function findHandlers(from, to) {
+                    var current = transition, names = from.split('.'), transitions = [], handlers = [];
+                    if(names[0] === 'root') {
+                        i++;
+                    }
+                    for(var i = 0; i < names.length; i++) {
+                        if('*' in current.children) {
+                            transitions.push(current.children['*']);
+                        }
+                        if(names[i] in current.children) {
+                            current = current.children[names[i]];
+                            transitions.push(current);
+                        } else {
+                            break;
+                        }
+                    }
+                    angular.forEach(transitions, function (t) {
+                        angular.forEach(t.targets, function (target, targetName) {
+                            if(compateTarget(targetName, to)) {
+                                angular.forEach(target, function (value) {
+                                    handlers.push(value);
+                                });
+                            }
+                        });
+                    });
+                    return handlers;
+                }
                 function buildTransition(to, params) {
+                    var handlers, emitters, toState, fromState = $state.current;
                     if(angular.isString(to)) {
                         to = lookupState(to);
                     } else {
                         to = lookupState(to.fullname);
                     }
+                    toState = inherit({
+                    }, to.self);
+                    handlers = findHandlers(($state.current && $state.current.fullname) || 'root', to.fullname);
+                    function emit(select, transitionControl) {
+                        var handler;
+                        angular.forEach(handlers, function (handlerObj) {
+                            if(angular.isDefined(handler = select(handlerObj))) {
+                                $injector.invoke(handler, null, {
+                                    $to: toState,
+                                    $from: fromState,
+                                    $transition: transitionControl
+                                });
+                                return transitionControl;
+                            }
+                        });
+                    }
                     return {
-                        from: $state.current,
-                        to: inherit(to.self),
-                        emit: function () {
+                        from: fromState,
+                        to: toState,
+                        emit: {
+                            before: function (t) {
+                                return emit(function (h) {
+                                    return h.before;
+                                }, t);
+                            },
+                            between: function (t) {
+                                return emit(function (h) {
+                                    return h.between;
+                                }, t);
+                            },
+                            after: function (t) {
+                                return emit(function (h) {
+                                    return h.after;
+                                }, t);
+                            }
                         }
                     };
                 }
                 function goto(to, params) {
-                    var tr = buildTransition(to, params), event, transaction, promise, event;
-                    event = $rootScope.$broadcast('$stateChangeStart', tr.from, tr.to);
+                    var t = buildTransition(to, params), tr, event, transaction, promise;
+                    event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
                     if(!event.defaultPrevented) {
-                        $state.current = tr.to;
-                        promise = $q.when(tr.to);
+                        tr = {
+                            cancel: false
+                        };
+                        tr = t.emit.before(tr);
+                        $state.current = t.to;
+                        promise = $q.when(t.to);
                         promise.then(function () {
                             transaction = $view.beginUpdate();
-                            tr.emit();
-                            angular.forEach(tr.to.views, function (view, name) {
+                            angular.forEach(t.to.views, function (view, name) {
                                 $view.setOrUpdate(name, view.template, view.controller);
                             });
-                            tr.emit();
-                            $rootScope.$broadcast('$stateChangeSuccess', tr.to, tr.from);
+                            t.emit.between(tr);
+                            $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                             transaction.commit();
                         }, function (error) {
-                            $rootScope.$broadcast('$stateChangeError', tr.to, tr.from, error);
+                            $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
                             transaction.cancel();
                         }).then(function () {
-                            tr.emit();
+                            t.emit.after(tr);
                         });
                     }
                 }

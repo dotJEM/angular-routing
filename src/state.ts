@@ -4,7 +4,7 @@
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routing.IRouteProvider) {
-    var root = { fullname: 'root', children: {}, self: {} },
+    var root = { fullname: 'root', children: {}, self: { fullname: 'root' } },
         transition = { children: {}, targets: {} },
         nameValidation = /^\w+(\.\w+)*?$/,
         targetValiation = /^\w+(\.\w+)*(\.[*])?$/;
@@ -130,8 +130,9 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         }
     }
 
-    function lookupTransition(names: string[]) {
-        var current = transition;
+    function lookupTransition(name: string) {
+        var current = transition,
+            names = name.split('.');
 
         //If name contains root explicitly, skip that one
         if (names[0] === 'root')
@@ -233,7 +234,8 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             //current,
             $state: any = {
                 root: root,
-                t: transition,
+                transition: transition,
+                current: inherit({}, root),
                 goto: goto,
 
                 nextSibling: '',
@@ -268,16 +270,6 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
                 goto(root);
             }
         }
-
-        //function buildState(route, params, search) {
-        //    var match = inherit(route, {
-        //        self: inherit(route.self, {
-        //            params: extend({}, search, params),
-        //            pathParams: params
-        //        })
-        //    });
-        //    return match;
-        //}
 
         function compateTarget(one: string, other: string) {
             var left = one.split('.'),
