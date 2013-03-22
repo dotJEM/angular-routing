@@ -32,20 +32,18 @@ function $ViewProvider() {
         }
 
         this.clear = function (name?: string) {
-            if (transaction) {
-                transaction.records[name] = (() => {
-                    this.clear(name);
+            if (angular.isUndefined(name)) {
+                angular.forEach(views, (val, key) => {
+                    this.clear(key);
                 });
-                return;
-            }
-
-            if (angular.isUndefined(name))
-                views = {};
-            else {
-                // Setting the view here to undefined rather than doing a 
-                // real clean lets us know that the view was present at some
-                // point in this pass.
-                views[name] = null;
+            } else {
+                if (transaction) {
+                    transaction.records[name] = (() => {
+                        this.clear(name);
+                    });
+                    return;
+                }
+                delete views[name];
 
                 raiseUpdated(name);
             }
@@ -132,3 +130,4 @@ function $ViewProvider() {
     }];
 }
 angular.module('ui.routing').provider('$view', $ViewProvider);
+

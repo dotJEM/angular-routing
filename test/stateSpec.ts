@@ -19,12 +19,12 @@ describe('$stateProvider', function () {
         return '[' + targets.join() + '](' + children.join() + ')';
     }
 
-    function stringifyState(stateOrTransition) {
+    function stringifyState(state) {
         var result = '(',
             children = [],
             targets = [];
 
-        angular.forEach(stateOrTransition.children, (child, name) => {
+        angular.forEach(state.children, (child, name) => {
             children.push(name + stringifyState(child));
         });
 

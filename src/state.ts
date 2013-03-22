@@ -249,6 +249,9 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
             };
 
         $rootScope.$on('$routeChangeSuccess', update);
+        $rootScope.$on('$routeUpdate', () => {
+            //TODO: Broadcast StateUpdate.
+        });
         return $state;
 
         function update() {
