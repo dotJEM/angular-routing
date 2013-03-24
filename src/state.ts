@@ -368,48 +368,55 @@ var $StateProvider = [<any>'$routeProvider', function ($routeProvider: ui.routin
         }
 
         function goto(to, params?) {
-            var t = buildTransition(to, params), tr,
-                event, transaction, promise: ng.IPromise;
+            var t = buildTransition(to, params),
+                tr,
+                event,
+                transaction,
+                promise: ng.IPromise,
+                cancel;
 
 
             event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
             if (!event.defaultPrevented) {
-                tr = { cancel: false };
+                tr = {
+                    cancel: function () { cancel = true; }
+                };
+
                 tr = t.emit.before(tr);
-                //TODO: Reach to TR.
-
-                $state.current = t.to;
-
                 promise = $q.when(t.to);
+                if (!cancel)
+                {
+                    promise.then(() => {
+                        $state.current = t.to;
+                        //TODO: var corelation = $view.BeginUpdate(); ??
+                        transaction = $view.beginUpdate();
+                        $view.clear();
 
-                promise.then(() => {
-                    //TODO: var corelation = $view.BeginUpdate(); ??
-                    transaction = $view.beginUpdate();
-                    //$view.clear();
+                        //Should we pin views?
+                        //tr.emit.between();
 
-                    //Should we pin views?
-                    //tr.emit.between();
+                        angular.forEach(t.to.views, (view, name) => {
+                            $view.setOrUpdate(name, view.template, view.controller);
+                        });
 
-                    angular.forEach(t.to.views, (view, name) => {
-                        $view.setOrUpdate(name, view.template, view.controller);
+                        //Or let views be overwritten?
+                        t.emit.between(tr);
+                        //TODO: Reach to TR.
+
+                        //TODO: $view.EndUpdate(corelation); ??
+                        $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
+                        transaction.commit();
+
+                    }, (error) => {
+                        $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
+                        transaction.cancel();
+
+                    }).then(() => {
+                        t.emit.after(tr);
+                        //TODO: Reach to TR.
                     });
-
-                    //Or let views be overwritten?
-                    t.emit.between(tr);
-                    //TODO: Reach to TR.
-
-                    //TODO: $view.EndUpdate(corelation); ??
-                    $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
-                    transaction.commit();
-
-                }, (error) => {
-                    $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
-                    transaction.cancel();
-
-                }).then(() => {
-                    t.emit.after(tr);
-                    //TODO: Reach to TR.
-                });
+                }
+                //TODO: Reach to TR.
             }
         }
     }];
