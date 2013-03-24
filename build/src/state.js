@@ -223,6 +223,8 @@ var $StateProvider = [
                     }
                 };
                 $rootScope.$on('$routeChangeSuccess', update);
+                $rootScope.$on('$routeUpdate', function () {
+                });
                 return $state;
                 function update() {
                     var route = $route.current, params;
