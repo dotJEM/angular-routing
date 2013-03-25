@@ -67,9 +67,42 @@ module ui.routing {
         (...args: any[]): any;
     }
 
-    interface IStateProvider {
+    interface IStateProvider extends ITransitionProviderBase {
         state(name: string, state: any): IStateProvider;
+        print(): string;
+    }
 
+    interface IStateService {
+        root: any;
+        transition: any;
+        reload: () => void;
+        current?: any;
+    }
+
+    interface ITransitionService {
+        root: any;
+        find: (from: any, to: any) => any;
+    }
+
+    interface ITransitionProvider extends ITransitionProviderBase {
+        onenter(state: string, handler: ITransitionHandler);
+        onenter(state: string, handler: ITransition);
+        onenter(state: string, handler: any);
+
+        onenter(state: any, handler: ITransitionHandler);
+        onenter(state: any, handler: ITransition);
+        onenter(state: any, handler: any);
+
+        onexit(state: string, handler: ITransitionHandler);
+        onexit(state: string, handler: ITransition);
+        onexit(state: string, handler: any);
+
+        onexit(state: any, handler: ITransitionHandler);
+        onexit(state: any, handler: ITransition);
+        onexit(state: any, handler: any);
+    }
+
+    interface ITransitionProviderBase {
         transition(from: string, to: string, handler: ITransitionHandler): IStateProvider;
         transition(from: string, to: string, handler: ITransition): IStateProvider;
         transition(from: string, to: string, handler: any): IStateProvider;
@@ -89,14 +122,7 @@ module ui.routing {
         transition(from: any, to: any, handler: ITransitionHandler): IStateProvider;
         transition(from: any, to: any, handler: ITransition): IStateProvider;
         transition(from: any, to: any, handler: any): IStateProvider;
-
-        print(): string;
     }
 
-    interface IStateService {
-        root: any;
-        transition: any;
-        reload: () => void;
-        current?: any;
-    }
+
 }

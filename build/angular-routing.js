@@ -339,9 +339,198 @@ angular.module('ui.routing').provider('$route', $RouteProvider).value('$routePar
 });
 
 'use strict';
+function $TransitionProvider() {
+    var root = {
+        children: {
+        },
+        targets: {
+        }
+    }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+    function validate(from, to) {
+        var fromValid = validateTarget(from);
+        var toValid = validateTarget(to);
+        if(fromValid && toValid) {
+            return;
+        }
+        if(fromValid) {
+            throw new Error("Invalid transition - to: '" + to + "'.");
+        }
+        if(toValid) {
+            throw new Error("Invalid transition - from: '" + from + "'.");
+        }
+        throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
+    }
+    function validateTarget(target) {
+        if(target === '*' || validation.test(target)) {
+            return true;
+        }
+        return false;
+    }
+    function registerEnterTransition(onenter, name) {
+        if(angular.isArray(onenter)) {
+            angular.forEach(onenter, function (single) {
+                registerEnterTransition(single, name);
+            });
+        } else if(angular.isObject(onenter)) {
+            this.transition(onenter.from || '*', name, onenter.handler);
+        } else if(angular.isFunction(onenter)) {
+            this.transition('*', name, onenter);
+        }
+    }
+    function registerExitTransition(onexit, name) {
+        if(angular.isArray(onexit)) {
+            angular.forEach(onexit, function (single) {
+                registerExitTransition(single, name);
+            });
+        } else if(angular.isObject(onexit)) {
+            this.transition(name, onexit.to || '*', onexit.handler);
+        } else if(angular.isFunction(onexit)) {
+            this.transition(name, '*', onexit);
+        }
+    }
+    function lookupTransition(name) {
+        var current = root, names = name.split('.');
+        if(names[0] === 'root') {
+            i++;
+        }
+        for(var i = 0; i < names.length; i++) {
+            if(!(names[i] in current.children)) {
+                current.children[names[i]] = {
+                    children: {
+                    },
+                    targets: {
+                    }
+                };
+            }
+            current = current.children[names[i]];
+        }
+        return current;
+    }
+    this.transition = function (from, to, handler) {
+        var _this = this;
+        var transition, regHandler;
+        if(angular.isArray(from)) {
+            angular.forEach(from, function (value) {
+                _this.transition(value, to, handler);
+            });
+        } else if(angular.isArray(to)) {
+            angular.forEach(to, function (value) {
+                _this.transition(from, value, handler);
+            });
+        } else {
+            if(angular.isObject(from)) {
+                from = from.fullname;
+            }
+            if(angular.isObject(to)) {
+                to = to.fullname;
+            }
+            validate(from, to);
+            if(angular.isFunction(handler) || angular.isArray(handler)) {
+                handler = {
+                    between: handler
+                };
+            }
+            transition = lookupTransition(from);
+            if(!(to in transition.targets)) {
+                transition.targets[to] = [];
+            }
+            transition.targets[to].push(handler);
+        }
+        return this;
+    };
+    this.$get = [
+        '$q', 
+        '$injector', 
+        function ($q, $injector) {
+            var $transition = {
+                root: root,
+                find: find
+            };
+            return $transition;
+            function find(from, to) {
+                var transitions = findTransitions(from.fullname), handlers = extractHandlers(transitions, to.fullname), emitters;
+                function emit(select, transitionControl) {
+                    var handler;
+                    angular.forEach(handlers, function (handlerObj) {
+                        if(angular.isDefined(handler = select(handlerObj))) {
+                            $injector.invoke(handler, null, {
+                                $to: to,
+                                $from: from,
+                                $transition: transitionControl
+                            });
+                            return transitionControl;
+                        }
+                    });
+                }
+                return {
+                    before: function (t) {
+                        return emit(function (h) {
+                            return h.before;
+                        }, t);
+                    },
+                    between: function (t) {
+                        return emit(function (h) {
+                            return h.between;
+                        }, t);
+                    },
+                    after: function (t) {
+                        return emit(function (h) {
+                            return h.after;
+                        }, t);
+                    }
+                };
+            }
+            function compare(one, other) {
+                var left = one.split('.'), right = other.split('.'), l, r, i = 0;
+                while(true) {
+                    l = left[i];
+                    r = right[i];
+                    i++;
+                    if(l !== r && !(r === '*' || l === '*') || (i >= left.length || i >= right.length)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            function extractHandlers(transitions, to) {
+                var handlers = [];
+                angular.forEach(transitions, function (t) {
+                    angular.forEach(t.targets, function (target, targetName) {
+                        if(compare(targetName, to)) {
+                            angular.forEach(target, function (value) {
+                                handlers.push(value);
+                            });
+                        }
+                    });
+                });
+                return handlers;
+            }
+            function findTransitions(from) {
+                var current = root, names = from.split('.'), transitions = [], index = names[0] === 'root' ? 1 : 0;
+                for(; index < names.length; index++) {
+                    if('*' in current.children) {
+                        transitions.push(current.children['*']);
+                    }
+                    if(names[index] in current.children) {
+                        current = current.children[names[index]];
+                        transitions.push(current);
+                    } else {
+                        break;
+                    }
+                }
+                return transitions;
+            }
+            function buildTransition(to, params) {
+            }
+        }    ];
+}
+angular.module('ui.routing').provider('$transition', $TransitionProvider);
+
+'use strict';
 var $StateProvider = [
     '$routeProvider', 
-    function ($routeProvider) {
+    '$transitionProvider', 
+    function ($routeProvider, $transitionProvider) {
         var root = {
             fullname: 'root',
             children: {
@@ -349,37 +538,12 @@ var $StateProvider = [
             self: {
                 fullname: 'root'
             }
-        }, transition = {
-            children: {
-            },
-            targets: {
-            }
-        }, nameValidation = /^\w+(\.\w+)*?$/, targetValiation = /^\w+(\.\w+)*(\.[*])?$/;
+        }, nameValidation = /^\w+(\.\w+)*?$/;
         function validateName(name) {
             if(nameValidation.test(name)) {
                 return;
             }
             throw new Error("Invalid name: '" + name + "'.");
-        }
-        function validateTarget(target) {
-            if(target === '*' || targetValiation.test(target)) {
-                return true;
-            }
-            return false;
-        }
-        function validateTransition(from, to) {
-            var fromValid = validateTarget(from);
-            var toValid = validateTarget(to);
-            if(fromValid && toValid) {
-                return;
-            }
-            if(fromValid) {
-                throw new Error("Invalid transition - to: '" + to + "'.");
-            }
-            if(toValid) {
-                throw new Error("Invalid transition - from: '" + from + "'.");
-            }
-            throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
         }
         function createRoute(stateRoute, parrentRoute, stateName, reloadOnSearch) {
             var route;
@@ -459,24 +623,6 @@ var $StateProvider = [
                 });
             }
         }
-        function lookupTransition(name) {
-            var current = transition, names = name.split('.');
-            if(names[0] === 'root') {
-                i++;
-            }
-            for(var i = 0; i < names.length; i++) {
-                if(!(names[i] in current.children)) {
-                    current.children[names[i]] = {
-                        children: {
-                        },
-                        targets: {
-                        }
-                    };
-                }
-                current = current.children[names[i]];
-            }
-            return current;
-        }
         function lookup(names) {
             var current = root, i = 0;
             if(names[0] === 'root') {
@@ -509,35 +655,7 @@ var $StateProvider = [
             return this;
         };
         this.transition = function (from, to, handler) {
-            var _this = this;
-            var transition, regHandler;
-            if(angular.isArray(from)) {
-                angular.forEach(from, function (value) {
-                    _this.transition(value, to, handler);
-                });
-            } else if(angular.isArray(to)) {
-                angular.forEach(to, function (value) {
-                    _this.transition(from, value, handler);
-                });
-            } else {
-                if(angular.isObject(from)) {
-                    from = from.fullname;
-                }
-                if(angular.isObject(to)) {
-                    to = to.fullname;
-                }
-                validateTransition(from, to);
-                if(angular.isFunction(handler) || angular.isArray(handler)) {
-                    handler = {
-                        between: handler
-                    };
-                }
-                transition = lookupTransition(from);
-                if(!(to in transition.targets)) {
-                    transition.targets[to] = [];
-                }
-                transition.targets[to].push(handler);
-            }
+            $transitionProvider.transition(from, to, handler);
             return this;
         };
         this.$get = [
@@ -546,10 +664,10 @@ var $StateProvider = [
             '$injector', 
             '$route', 
             '$view', 
-            function ($rootScope, $q, $injector, $route, $view) {
+            '$transition', 
+            function ($rootScope, $q, $injector, $route, $view, $transition) {
                 var forceReload = false, $state = {
                     root: root,
-                    transition: transition,
                     current: inherit({
                     }, root),
                     goto: goto,
@@ -585,47 +703,6 @@ var $StateProvider = [
                         goto(root);
                     }
                 }
-                function compateTarget(one, other) {
-                    var left = one.split('.'), right = other.split('.'), l, r, i = 0;
-                    while(true) {
-                        l = left[i];
-                        r = right[i];
-                        i++;
-                        if(l !== r) {
-                            if(r === '*' || l === '*') {
-                                return true;
-                            }
-                            return false;
-                        }
-                    }
-                }
-                function findHandlers(from, to) {
-                    var current = transition, names = from.split('.'), transitions = [], handlers = [];
-                    if(names[0] === 'root') {
-                        i++;
-                    }
-                    for(var i = 0; i < names.length; i++) {
-                        if('*' in current.children) {
-                            transitions.push(current.children['*']);
-                        }
-                        if(names[i] in current.children) {
-                            current = current.children[names[i]];
-                            transitions.push(current);
-                        } else {
-                            break;
-                        }
-                    }
-                    angular.forEach(transitions, function (t) {
-                        angular.forEach(t.targets, function (target, targetName) {
-                            if(compateTarget(targetName, to)) {
-                                angular.forEach(target, function (value) {
-                                    handlers.push(value);
-                                });
-                            }
-                        });
-                    });
-                    return handlers;
-                }
                 function buildTransition(to, params) {
                     var handlers, emitters, toState, fromState = $state.current;
                     if(angular.isString(to)) {
@@ -635,40 +712,10 @@ var $StateProvider = [
                     }
                     toState = inherit({
                     }, to.self);
-                    handlers = findHandlers(($state.current && $state.current.fullname) || 'root', to.fullname);
-                    function emit(select, transitionControl) {
-                        var handler;
-                        angular.forEach(handlers, function (handlerObj) {
-                            if(angular.isDefined(handler = select(handlerObj))) {
-                                $injector.invoke(handler, null, {
-                                    $to: toState,
-                                    $from: fromState,
-                                    $transition: transitionControl
-                                });
-                                return transitionControl;
-                            }
-                        });
-                    }
                     return {
                         from: fromState,
                         to: toState,
-                        emit: {
-                            before: function (t) {
-                                return emit(function (h) {
-                                    return h.before;
-                                }, t);
-                            },
-                            between: function (t) {
-                                return emit(function (h) {
-                                    return h.between;
-                                }, t);
-                            },
-                            after: function (t) {
-                                return emit(function (h) {
-                                    return h.after;
-                                }, t);
-                            }
-                        }
+                        emit: $transition.find($state.current, toState)
                     };
                 }
                 function goto(to, params) {
@@ -777,17 +824,18 @@ function $ViewProvider() {
             }
             this.clear = function (name) {
                 var _this = this;
-                if(transaction) {
-                    transaction.records[name] = (function () {
-                        _this.clear(name);
-                    });
-                    return;
-                }
                 if(angular.isUndefined(name)) {
-                    views = {
-                    };
+                    angular.forEach(views, function (val, key) {
+                        _this.clear(key);
+                    });
                 } else {
-                    views[name] = null;
+                    if(transaction) {
+                        transaction.records[name] = (function () {
+                            _this.clear(name);
+                        });
+                        return;
+                    }
+                    delete views[name];
                     raiseUpdated(name);
                 }
             };

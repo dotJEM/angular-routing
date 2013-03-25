@@ -12,9 +12,9 @@ describe('$stateProvider', function () {
         });
         return '[' + targets.join() + '](' + children.join() + ')';
     }
-    function stringifyState(stateOrTransition) {
+    function stringifyState(state) {
         var result = '(', children = [], targets = [];
-        angular.forEach(stateOrTransition.children, function (child, name) {
+        angular.forEach(state.children, function (child, name) {
             children.push(name + stringifyState(child));
         });
         return result + children.join() + ')';
@@ -505,7 +505,7 @@ describe('$stateProvider', function () {
         });
     });
     describe("transition $routeChangeSuccess", function () {
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+        it('Global * -> * transition will be called', function () {
             var transitions = [];
             mock.module(function ($stateProvider) {
                 $stateProvider.state('blog', {
@@ -518,7 +518,7 @@ describe('$stateProvider', function () {
                     route: '/{num:id}',
                     name: 'blog.details'
                 }).state('about', {
-                    route: '/blog',
+                    route: '/about',
                     name: 'about'
                 }).transition('*', '*', [
                     '$from', 
@@ -543,6 +543,63 @@ describe('$stateProvider', function () {
                 expect(transitions.length).toBe(2);
                 expect(transitions[1].from.fullname).toBe('root.blog.recent');
                 expect(transitions[1].to.fullname).toBe('root.blog.details');
+            });
+        });
+        it('Global * -> * transition will be called', function () {
+            var blogAboutTransitions = [];
+            mock.module(function ($stateProvider) {
+                $stateProvider.state('blog', {
+                    route: '/blog',
+                    name: 'blog'
+                }).state('blog.recent', {
+                    route: '/recent',
+                    name: 'blog.recent'
+                }).state('blog.details', {
+                    route: '/{num:id}',
+                    name: 'blog.details'
+                }).state('about', {
+                    route: '/about',
+                    name: 'about'
+                }).state('about.cv', {
+                    route: '/cv',
+                    name: 'about.cv'
+                }).transition('blog.*', 'about.*', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        blogAboutTransitions.push({
+                            from: $from,
+                            to: $to
+                        });
+                    }                ]).transition('blog', 'about.*', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        blogAboutTransitions.push({
+                            from: $from,
+                            to: $to
+                        });
+                    }                ]).transition('blog', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        blogAboutTransitions.push({
+                            from: $from,
+                            to: $to
+                        });
+                    }                ]);
+            });
+            mock.inject(function ($location, $route, $state) {
+                var spy = jasmine.createSpy('mySpy');
+                scope.$on('$stateChangeSuccess', spy);
+                $location.path('/blog');
+                scope.$digest();
+                expect(blogAboutTransitions.length).toBe(0);
+                $location.path('/about');
+                scope.$digest();
+                expect(blogAboutTransitions.length).toBe(1);
+                expect(blogAboutTransitions[1].from.fullname).toBe('root.blog.recent');
+                expect(blogAboutTransitions[1].to.fullname).toBe('root.blog.details');
             });
         });
     });

@@ -12,7 +12,14 @@ files = [
   'lib/angular/impl/angular.js',
   'lib/angular/impl/angular-mocks.js',
 
-  'src/**/*.js',
+  'src/common.js',
+  'src/route.js',
+  'src/transition.js',
+  'src/state.js',
+  'src/template.js',
+  'src/view.js',
+  'src/legacy/templateDecorator.js',
+  'src/directives/jemView.js',
   'test/**/*Spec.js'
 ];
 

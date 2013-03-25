@@ -44,6 +44,7 @@ module.exports = function (grunt) {
             core: {
                 src: [  'build/src/common.js',
                         'build/src/route.js',
+                        'build/src/transition.js',
                         'build/src/state.js',
                         'build/src/template.js',
                         'build/src/view.js',

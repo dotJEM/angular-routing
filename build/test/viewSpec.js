@@ -167,7 +167,7 @@ describe('$view', function () {
                 expect($view.get("sub2")).toBeUndefined();
             });
         });
-        it('with parameters sets view to null', function () {
+        it('with parameters will set view to undefined (delete it)', function () {
             mock.inject(function ($view) {
                 $view.setIfAbsent("root", {
                     html: "root template"
@@ -181,7 +181,7 @@ describe('$view', function () {
                 $view.clear("sub2");
                 expect($view.get("root")).toBeDefined();
                 expect($view.get("sub1")).toBeDefined();
-                expect($view.get("sub2")).toBeNull();
+                expect($view.get("sub2")).toBeUndefined();
             });
         });
         it('clear raises $viewUpdated with viewName for cleared view', function () {
@@ -274,6 +274,35 @@ describe('$view', function () {
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
             });
         });
+    });
+    describe("beginUpdate", function () {
+        it('setIfAbsent does not overwrite even during transactional update', function () {
+            mock.inject(function ($view) {
+                var trx = $view.beginUpdate();
+                $view.setIfAbsent("root", {
+                    html: "root"
+                });
+                $view.setIfAbsent("root", {
+                    html: "fubar"
+                });
+                trx.commit();
+                expect($view.get("root").template).toBe("root");
+            });
+        });
+        it('get returns old state untill commit is called', function () {
+            mock.inject(function ($view) {
+                var trx = $view.beginUpdate();
+                $view.setIfAbsent("root", {
+                    html: "root"
+                });
+                $view.setIfAbsent("root", {
+                    html: "fubar"
+                });
+                expect($view.get("root")).toBeUndefined();
+                trx.commit();
+                expect($view.get("root").template).toBe("root");
+            });
+        });
         it('is not raised until after commit during transactional updates', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
@@ -341,35 +370,6 @@ describe('$view', function () {
                 expect(spy.callCount).toBe(0);
                 trx.cancel();
                 expect(spy.callCount).toBe(0);
-            });
-        });
-    });
-    describe("beginUpdate", function () {
-        it('setIfAbsent does not overwrite even during transactional update', function () {
-            mock.inject(function ($view) {
-                var trx = $view.beginUpdate();
-                $view.setIfAbsent("root", {
-                    html: "root"
-                });
-                $view.setIfAbsent("root", {
-                    html: "fubar"
-                });
-                trx.commit();
-                expect($view.get("root").template).toBe("root");
-            });
-        });
-        it('get returns old state untill commit is called', function () {
-            mock.inject(function ($view) {
-                var trx = $view.beginUpdate();
-                $view.setIfAbsent("root", {
-                    html: "root"
-                });
-                $view.setIfAbsent("root", {
-                    html: "fubar"
-                });
-                expect($view.get("root")).toBeUndefined();
-                trx.commit();
-                expect($view.get("root").template).toBe("root");
             });
         });
     });

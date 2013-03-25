@@ -27,17 +27,18 @@ function $ViewProvider() {
             }
             this.clear = function (name) {
                 var _this = this;
-                if(transaction) {
-                    transaction.records[name] = (function () {
-                        _this.clear(name);
-                    });
-                    return;
-                }
                 if(angular.isUndefined(name)) {
-                    views = {
-                    };
+                    angular.forEach(views, function (val, key) {
+                        _this.clear(key);
+                    });
                 } else {
-                    views[name] = null;
+                    if(transaction) {
+                        transaction.records[name] = (function () {
+                            _this.clear(name);
+                        });
+                        return;
+                    }
+                    delete views[name];
                     raiseUpdated(name);
                 }
             };
