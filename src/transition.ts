@@ -155,27 +155,23 @@ function $TransitionProvider() {
             var left = trimRoot(one.split('.')).reverse(),
                 right = trimRoot(to.split('.')).reverse(),
                 l, r, i = 0;
-            
-            console.log("Comparing " + one + " to " + to);
-            console.log("Comparing " + left.join('.') + " to " + right.join('.'));
-            
 
-            while (l && r) {
+            //console.log("Comparing " + one + " to " + to);
+            //console.log("Comparing " + left.join('.') + " to " + right.join('.'));
+
+            while (true) {
                 l = left.pop();
                 r = right.pop();
 
                 if (r === '*' || l === '*')
-                    break;
+                    return true;
 
-                if (l !== r) {
-                    console.log(" - " + l + " : " + r + " - ");
-                    console.log(" --- FALSE --- ");
-                    console.log("");
+                if (l !== r)
                     return false;
-                }
+
+                if (!isDefined(l) || !isDefined(r))
+                    return true;
             }
-            console.log(" --- TRUE --- ");
-            console.log("");
             return true;
         }
 
@@ -183,6 +179,9 @@ function $TransitionProvider() {
             var handlers = [];
             angular.forEach(transitions, (t) => {
                 angular.forEach(t.targets, (target, targetName) => {
+                    //var result = compare(targetName, to);
+                    //console.log("Comparing " + targetName + " to " + to + " = " + result);
+
                     if (compare(targetName, to)) {
                         angular.forEach(target, value => {
                             handlers.push(value);
@@ -198,23 +197,20 @@ function $TransitionProvider() {
             var current = root,
                 names = from.split('.'),
                 transitions = [],
-                index = names[0] === 'root' ? 1 : 0;
+                index = names[0] === 'root' ? 1: 0;
 
-            for (; index < names.length; index++) {
+            do {
                 if ('*' in current.children) {
-                    console.log('Pushing *: ' + from);
                     transitions.push(current.children['*']);
                 }
 
                 if (names[index] in current.children) {
                     current = current.children[names[index]];
-                    console.log('Pushing '+names[index]+': ' + from);
                     transitions.push(current);
                 } else {
                     break;
                 }
-            }
-
+            } while(index++ < names.length)
             return transitions;
         }
     }];
