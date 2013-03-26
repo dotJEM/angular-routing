@@ -60,6 +60,7 @@ function $TransitionProvider() {
             if (!(to in transition.targets)) {
                 transition.targets[to] = [];
             }
+            handler.name = from + ' -> ' + to;
             transition.targets[to].push(handler);
         }
         return this;
@@ -70,8 +71,8 @@ function $TransitionProvider() {
     }
 
     function validate(from: string, to: string) {
-        var fromValid = validateTarget(from);
-        var toValid = validateTarget(to);
+        var fromValid = validateTarget(from),
+            toValid = validateTarget(to);
         if (fromValid && toValid) // && from !== to
             return;
 
@@ -144,16 +145,37 @@ function $TransitionProvider() {
             };
         }
 
-        function compare(one: string, other: string) {
-            var left = one.split('.'),
-                right = other.split('.'),
-                l, r, i = 0;
+        function trimRoot(path: string[]) {
+            if (path[0] === 'root')
+                path.splice(0,1);
+            return path;
+        }
 
-            while (true) {
-                l = left[i]; r = right[i]; i++;
-                if (l !== r && !(r === '*' || l === '*') || (i >= left.length || i >= right.length))
+        function compare(one: string, to: string) {
+            var left = trimRoot(one.split('.')).reverse(),
+                right = trimRoot(to.split('.')).reverse(),
+                l, r, i = 0;
+            
+            console.log("Comparing " + one + " to " + to);
+            console.log("Comparing " + left.join('.') + " to " + right.join('.'));
+            
+
+            while (l && r) {
+                l = left.pop();
+                r = right.pop();
+
+                if (r === '*' || l === '*')
+                    break;
+
+                if (l !== r) {
+                    console.log(" - " + l + " : " + r + " - ");
+                    console.log(" --- FALSE --- ");
+                    console.log("");
                     return false;
+                }
             }
+            console.log(" --- TRUE --- ");
+            console.log("");
             return true;
         }
 
@@ -168,6 +190,7 @@ function $TransitionProvider() {
                     }
                 });
             });
+
             return handlers;
         }
 
@@ -179,11 +202,13 @@ function $TransitionProvider() {
 
             for (; index < names.length; index++) {
                 if ('*' in current.children) {
+                    console.log('Pushing *: ' + from);
                     transitions.push(current.children['*']);
                 }
 
                 if (names[index] in current.children) {
                     current = current.children[names[index]];
+                    console.log('Pushing '+names[index]+': ' + from);
                     transitions.push(current);
                 } else {
                     break;

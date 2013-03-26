@@ -18,8 +18,11 @@ files = [
   'src/state.js',
   'src/template.js',
   'src/view.js',
+    
   'src/legacy/templateDecorator.js',
+    
   'src/directives/jemView.js',
+    
   'test/**/*Spec.js'
 ];
 

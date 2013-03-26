@@ -3,11 +3,9 @@
 /// <reference path="interfaces.d.ts" />
 
 'use strict';
-var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
+var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
     var root = { fullname: 'root', children: {}, self: { fullname: 'root' } },
-        //transition = { children: {}, targets: {} },
         nameValidation = /^\w+(\.\w+)*?$/;
-        //targetValiation = /^\w+(\.\w+)*(\.[*])?$/;
 
     function validateName(name: string) {
         if (nameValidation.test(name))
@@ -15,30 +13,6 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
         throw new Error("Invalid name: '" + name + "'.");
     }
-
-    //function validateTarget(target: string) {
-    //    if (target === '*' || targetValiation.test(target))
-    //        return true;
-    //    return false;
-    //}
-
-    //function validateTransition(from: string, to: string) {
-    //    var fromValid = validateTarget(from);
-    //    var toValid = validateTarget(to);
-    //    if (fromValid && toValid) // && from !== to
-    //        return;
-
-    //    if (fromValid)
-    //        throw new Error("Invalid transition - to: '" + to + "'.");
-
-    //    if (toValid)
-    //        throw new Error("Invalid transition - from: '" + from + "'.");
-
-    //    //if (from === to && from.indexOf('*') === -1)
-    //    //    throw new Error("Invalid transition - from and to can't be the same.");
-
-    //    throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
-    //}
 
     function createRoute(stateRoute: string, parrentRoute: string, stateName: string, reloadOnSearch: bool) {
         var route;
@@ -60,8 +34,6 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
         return route;
     }
-
-    
 
     function registerState(name, at, state) {
         var fullname = at.fullname + '.' + name,
@@ -106,11 +78,8 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
     function lookup(names: string[]) {
         var current = root,
-            i = 0;
-
-        //If name contains root explicitly, skip that one
-        if (names[0] === 'root')
-            i++;
+            //If name contains root explicitly, skip that one
+            i = names[0] === 'root'?1:0;
 
         for (; i < names.length; i++) {
             if (!(names[i] in current.children))
@@ -234,7 +203,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 promise.then(() => {
                     //TODO: var corelation = $view.BeginUpdate(); ??
                     transaction = $view.beginUpdate();
-                    //$view.clear();
+                    $view.clear();
 
                     //Should we pin views?
                     //tr.emit.between();

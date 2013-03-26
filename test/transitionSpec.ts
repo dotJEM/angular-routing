@@ -27,13 +27,53 @@ describe('$transitionProvider', function () {
 
     describe("find", () => {
         it('returns emitter', function () {
-            var provider: ui.routing.ITransitionProvider;
+            var provider: ui.routing.ITransitionProvider,
+                tr = [];
             mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
-                provider = $transitionProvider;
+                $transitionProvider
+
+                .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {
+                    tr.push({ from: $from, to: $to });
+                }])
+                .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
+                    tr.push({ from: $from, to: $to });
+                }])
+                .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
+                    tr.push({ from: $from, to: $to });
+                }])
+                .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
+                    tr.push({ from: $from, to: $to });
+                }])
+                .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => {
+                    tr.push({ from: $from, to: $to });
+                }])
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            mock.inject(function ($transition: ui.routing.ITransitionService) {
+                var x = $transition.find({ fullname: 'blog' }, { fullname: 'about' });
 
+                x.between({});
+                //expect(x).toBe('');
+            });
+        });
+
+        it('returns emitter', function () {
+            var provider: ui.routing.ITransitionProvider,
+                tr = [];
+            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
+                $transitionProvider
+
+                .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {
+                    tr.push({ from: $from, to: $to });
+                    console.log("HELLO WORLD");
+                }])
+            });
+
+            mock.inject(function ($transition: ui.routing.ITransitionService) {
+                var x = $transition.find({ fullname: 'blog' }, { fullname: 'about' });
+
+                x.between({});
+                //expect(x).toBe('');
             });
         });
     });
@@ -85,7 +125,7 @@ describe('$transitionProvider', function () {
             });
         });
 
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+        it('handlers can be registered on wildcards transitions', function () {
             mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
 
                 $transitionProvider
@@ -98,7 +138,7 @@ describe('$transitionProvider', function () {
             });
         });
 
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+        it('handlers can be registered on specific transitions', function () {
             mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
 
                 $transitionProvider
@@ -141,7 +181,7 @@ describe('$transitionProvider', function () {
             });
         });
 
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+        it('multiple handlers can be registered on the same tansition', function () {
             mock.module(function ($stateProvider: ui.routing.IStateProvider) {
 
                 $stateProvider
@@ -168,5 +208,90 @@ describe('$transitionProvider', function () {
                     .toBe(expected.replace(/\s+/g, ''));
             });
         });
+
+
     });
+
+    describe("transition $routeChangeSuccess", () => {
+        it('Global * -> * transition will be called', function () {
+            var transitions = [];
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+
+                $stateProvider
+                    .state('blog', { route: '/blog', name: 'blog' })
+                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                    .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
+
+                    .transition('*', '*', [<any>'$from', '$to', ($from, $to) => { transitions.push({ from: $from, to: $to }); }]);
+            });
+
+            mock.inject(function ($location, $state: ui.routing.IStateService, $transition: ui.routing.ITransitionService) {
+                //execScript(stringify($transition.root)).toBe('');
+
+                $location.path('/blog/recent');
+                scope.$digest();
+
+                //expect(transitions.length).toBe(1);
+                //expect(transitions[0].from.fullname).toBe('root');
+                //expect(transitions[0].to.fullname).toBe('root.blog.recent2');
+
+                $location.path('/blog/42');
+                scope.$digest();
+
+                //expect(transitions.length).toBe(2);
+                //expect(transitions[1].from.fullname).toBe('root.blog.recent');
+                //expect(transitions[1].to.fullname).toBe('root.blog.details');
+            });
+        });
+
+        it('Global blog -> about transition will be called', function () {
+            var trs = [],
+                message = [];
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+
+                $stateProvider
+                    .state('blog', { route: '/blog', name: 'blog' })
+                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                    .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
+                    .state('about', { route: '/about', name: 'about' })
+                    .state('about.cv', { route: '/cv', name: 'about.cv' })
+
+                    .transition('blog.*', 'about.*', [<any>'$from', '$to', ($from, $to) => {
+                        trs.push({ from: $from, to: $to });
+                        message.push("blog.* > about.*");
+                    }])
+                    .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
+                        trs.push({ from: $from, to: $to });
+                        message.push("blog > about.*");
+                    }])
+                    .transition('blog.*', 'about', [<any>'$from', '$to', ($from, $to) => {
+                        trs.push({ from: $from, to: $to });
+                        message.push("blog.* > about");
+                    }])
+                    .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => {
+                        trs.push({ from: $from, to: $to });
+                        message.push("blog > about");
+                    }])
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                //var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+                //scope.$on('$stateChangeSuccess', <any>spy);
+
+                //$location.path('/blog');
+                //scope.$digest();
+
+                //expect(trs.length).toBe(0);
+
+                //$location.path('/about');
+                //scope.$digest();
+
+                //expect(message.join()).toBe('');
+                //expect(trs.length).toBe(3);
+                //expect(trs[0].from).toBe('root.blog');
+                //expect(trs[0].to).toBe('root.about');
+            });
+        });
+    });
+
 });
