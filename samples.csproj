@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5E0FE3FF-1E71-42E1-BFB4-97192DE09989}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>samplesx</RootNamespace>
+    <AssemblyName>samplesx</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>false</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="samples\obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
+    <Compile Include="samples\obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
+    <Compile Include="samples\obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
+    <Compile Include="samples\obj\Release\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
+    <Compile Include="samples\obj\Release\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
+    <Compile Include="samples\obj\Release\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
+    <Compile Include="samples\Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="build\angular-routing.js" />
+    <Content Include="build\angular-routing.legacy.js" />
+    <Content Include="build\angular-routing.legacy.min.js" />
+    <Content Include="build\angular-routing.min.js" />
+    <Content Include="build\src\common.js" />
+    <Content Include="build\src\directives\jemView.js" />
+    <Content Include="build\src\legacy\templateDecorator.js" />
+    <Content Include="build\src\route.js" />
+    <Content Include="build\src\state.js" />
+    <Content Include="build\src\template.js" />
+    <Content Include="build\src\transition.js" />
+    <Content Include="build\src\view.js" />
+    <Content Include="build\test\legacy\routeLegacySpec.js" />
+    <Content Include="build\test\routeSpec.js" />
+    <Content Include="build\test\stateSpec.js" />
+    <Content Include="build\test\transitionSpec.js" />
+    <Content Include="build\test\viewSpec.js" />
+    <Content Include="lib\angular\angular-1.0.d.ts" />
+    <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
+    <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
+    <Content Include="lib\angular\angular-resource-1.0.d.ts" />
+    <Content Include="lib\angular\angular-sanitize-1.0.d.ts" />
+    <Content Include="lib\angular\impl\angular-bootstrap-prettify.js" />
+    <Content Include="lib\angular\impl\angular-bootstrap.js" />
+    <Content Include="lib\angular\impl\angular-mocks.js" />
+    <Content Include="lib\angular\impl\angular-resource.js" />
+    <Content Include="lib\angular\impl\angular.js" />
+    <Content Include="lib\jasmine\jasmine.d.ts" />
+    <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
+    <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
+    <Content Include="lib\jquery\jquery.d.ts" />
+    <Content Include="samples\bin\samplesx.dll" />
+    <Content Include="samples\bin\samplesx.pdb" />
+    <Content Include="samples\bootstrap.min.css" />
+    <Content Include="samples\configuration.ts" />
+    <Content Include="samples\kp\contacts.detail.html" />
+    <Content Include="samples\kp\contacts.detail.item.edit.html" />
+    <Content Include="samples\kp\contacts.detail.item.html" />
+    <Content Include="samples\kp\contacts.html" />
+    <Content Include="samples\kp\contacts.list.html" />
+    <Content Include="samples\kp\index.html" />
+    <Content Include="samples\obj\Debug\samples.csproj.FileListAbsolute.txt" />
+    <Content Include="samples\obj\Debug\samples.dll" />
+    <Content Include="samples\obj\Debug\samples.pdb" />
+    <Content Include="samples\obj\Release\samples.csproj.FileListAbsolute.txt" />
+    <Content Include="samples\obj\Release\samplesx.dll" />
+    <Content Include="samples\obj\Release\samplesx.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="samples\obj\Debug\samples.csprojResolveAssemblyReference.cache" />
+    <Content Include="samples\obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <Content Include="samples\obj\Release\samples.csprojResolveAssemblyReference.cache" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\jasmine\impl\" />
+    <Folder Include="Properties\" />
+    <Folder Include="samples\actions\" />
+    <Folder Include="samples\legacy\" />
+    <Folder Include="samples\obj\Debug\TempPE\" />
+    <Folder Include="samples\obj\Release\TempPE\" />
+    <Folder Include="samples\simple\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>52008</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>
+          </IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

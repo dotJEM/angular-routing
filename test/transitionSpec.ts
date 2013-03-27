@@ -359,7 +359,6 @@ describe('$transitionProvider', function () {
             });
 
             mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-                //console.log(" ----------------------------------------------------");
 
                 $location.path('/blog/recent');
                 scope.$digest();

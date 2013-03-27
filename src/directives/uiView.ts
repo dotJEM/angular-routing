@@ -11,7 +11,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
         terminal: true,
         link: function (scope, element, attr) {
             var viewScope,
-                name = attr[this.name] || attr.name,
+                name = attr['uiView'] || attr.name,
                 onloadExp = attr.onload || '';
 
             // Find the details of the parent view directive (if any) and use it
@@ -23,7 +23,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
             //   element.data('$uiView', view);
 
             scope.$on('$stateChangeBegin', () => { });
-            scope.$on('$viewChanged', () => { });
+            scope.$on('$viewChanged', update);
             scope.$on('$stateChangeSuccess', update);
             update();
 
@@ -41,14 +41,15 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
 
             function update() {
                 var view = $view.get(name),
-                    controller = view.controller,
+                    controller,
                     version;
 
-                if (view.template) {
+                if (view && view.template) {
                     if (view.version === version)
                         return;
-
+                    controller = view.controller
                     version = view.version;
+
                     view.template.then((html) => {
                         element.html(html);
                         resetScope(scope.$new());

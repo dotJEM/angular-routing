@@ -346,9 +346,63 @@ function $TransitionProvider() {
         targets: {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+    this.onenter = function (state, onenter) {
+        if(angular.isArray(onenter)) {
+            angular.forEach(onenter, function (single) {
+                onenter(single, state);
+            });
+        } else if(angular.isObject(onenter)) {
+            this.transition(onenter.from || '*', state, onenter.handler);
+        } else if(angular.isFunction(onenter)) {
+            this.transition('*', state, onenter);
+        }
+    };
+    this.onexit = function (state, onexit) {
+        var _this = this;
+        if(angular.isArray(onexit)) {
+            angular.forEach(onexit, function (single) {
+                _this.onexit(single, state);
+            });
+        } else if(angular.isObject(onexit)) {
+            this.transition(state, onexit.to || '*', onexit.handler);
+        } else if(angular.isFunction(onexit)) {
+            this.transition(state, '*', onexit);
+        }
+    };
+    this.transition = function (from, to, handler) {
+        var _this = this;
+        var transition, regHandler;
+        if(angular.isArray(from)) {
+            angular.forEach(from, function (value) {
+                _this.transition(value, to, handler);
+            });
+        } else if(angular.isArray(to)) {
+            angular.forEach(to, function (value) {
+                _this.transition(from, value, handler);
+            });
+        } else {
+            from = toName(from);
+            to = toName(to);
+            validate(from, to);
+            if(angular.isFunction(handler) || angular.isArray(handler)) {
+                handler = {
+                    between: handler
+                };
+            }
+            transition = lookup(from);
+            if(!(to in transition.targets)) {
+                transition.targets[to] = [];
+            }
+            handler.name = from + ' -> ' + to;
+            transition.targets[to].push(handler);
+        }
+        return this;
+    };
+    function toName(state) {
+        return angular.isString(state) ? state : state.fullname;
+    }
     function validate(from, to) {
-        var fromValid = validateTarget(from);
-        var toValid = validateTarget(to);
+        var fromValid = validateTarget(from), toValid = validateTarget(to);
         if(fromValid && toValid) {
             return;
         }
@@ -366,34 +420,9 @@ function $TransitionProvider() {
         }
         return false;
     }
-    function registerEnterTransition(onenter, name) {
-        if(angular.isArray(onenter)) {
-            angular.forEach(onenter, function (single) {
-                registerEnterTransition(single, name);
-            });
-        } else if(angular.isObject(onenter)) {
-            this.transition(onenter.from || '*', name, onenter.handler);
-        } else if(angular.isFunction(onenter)) {
-            this.transition('*', name, onenter);
-        }
-    }
-    function registerExitTransition(onexit, name) {
-        if(angular.isArray(onexit)) {
-            angular.forEach(onexit, function (single) {
-                registerExitTransition(single, name);
-            });
-        } else if(angular.isObject(onexit)) {
-            this.transition(name, onexit.to || '*', onexit.handler);
-        } else if(angular.isFunction(onexit)) {
-            this.transition(name, '*', onexit);
-        }
-    }
-    function lookupTransition(name) {
-        var current = root, names = name.split('.');
-        if(names[0] === 'root') {
-            i++;
-        }
-        for(var i = 0; i < names.length; i++) {
+    function lookup(name) {
+        var current = root, names = name.split('.'), i = names[0] === 'root' ? 1 : 0;
+        for(; i < names.length; i++) {
             if(!(names[i] in current.children)) {
                 current.children[names[i]] = {
                     children: {
@@ -406,38 +435,6 @@ function $TransitionProvider() {
         }
         return current;
     }
-    this.transition = function (from, to, handler) {
-        var _this = this;
-        var transition, regHandler;
-        if(angular.isArray(from)) {
-            angular.forEach(from, function (value) {
-                _this.transition(value, to, handler);
-            });
-        } else if(angular.isArray(to)) {
-            angular.forEach(to, function (value) {
-                _this.transition(from, value, handler);
-            });
-        } else {
-            if(angular.isObject(from)) {
-                from = from.fullname;
-            }
-            if(angular.isObject(to)) {
-                to = to.fullname;
-            }
-            validate(from, to);
-            if(angular.isFunction(handler) || angular.isArray(handler)) {
-                handler = {
-                    between: handler
-                };
-            }
-            transition = lookupTransition(from);
-            if(!(to in transition.targets)) {
-                transition.targets[to] = [];
-            }
-            transition.targets[to].push(handler);
-        }
-        return this;
-    };
     this.$get = [
         '$q', 
         '$injector', 
@@ -480,14 +477,25 @@ function $TransitionProvider() {
                     }
                 };
             }
-            function compare(one, other) {
-                var left = one.split('.'), right = other.split('.'), l, r, i = 0;
+            function trimRoot(path) {
+                if(path[0] === 'root') {
+                    path.splice(0, 1);
+                }
+                return path;
+            }
+            function compare(one, to) {
+                var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r, i = 0;
                 while(true) {
-                    l = left[i];
-                    r = right[i];
-                    i++;
-                    if(l !== r && !(r === '*' || l === '*') || (i >= left.length || i >= right.length)) {
+                    l = left.pop();
+                    r = right.pop();
+                    if(r === '*' || l === '*') {
+                        return true;
+                    }
+                    if(l !== r) {
                         return false;
+                    }
+                    if(!isDefined(l) || !isDefined(r)) {
+                        return true;
                     }
                 }
                 return true;
@@ -507,7 +515,7 @@ function $TransitionProvider() {
             }
             function findTransitions(from) {
                 var current = root, names = from.split('.'), transitions = [], index = names[0] === 'root' ? 1 : 0;
-                for(; index < names.length; index++) {
+                do {
                     if('*' in current.children) {
                         transitions.push(current.children['*']);
                     }
@@ -517,10 +525,8 @@ function $TransitionProvider() {
                     } else {
                         break;
                     }
-                }
+                }while(index++ < names.length);
                 return transitions;
-            }
-            function buildTransition(to, params) {
             }
         }    ];
 }
@@ -564,27 +570,11 @@ var $StateProvider = [
             });
             return route;
         }
-        function registerEnterTransition(onenter, name) {
-            if(angular.isArray(onenter)) {
-                angular.forEach(onenter, function (single) {
-                    registerEnterTransition(single, name);
-                });
-            } else if(angular.isObject(onenter)) {
-                this.transition(onenter.from || '*', name, onenter.handler);
-            } else if(angular.isFunction(onenter)) {
-                this.transition('*', name, onenter);
+        function lookupRoute(parent) {
+            while(isDefined(parent) && !isDefined(parent.route)) {
+                parent = parent.parent;
             }
-        }
-        function registerExitTransition(onexit, name) {
-            if(angular.isArray(onexit)) {
-                angular.forEach(onexit, function (single) {
-                    registerExitTransition(single, name);
-                });
-            } else if(angular.isObject(onexit)) {
-                this.transition(name, onexit.to || '*', onexit.handler);
-            } else if(angular.isFunction(onexit)) {
-                this.transition(name, '*', onexit);
-            }
+            return (parent && parent.route) || '';
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, route, parent = at;
@@ -597,13 +587,13 @@ var $StateProvider = [
                 };
             }
             if(angular.isDefined(state.route)) {
-                route = createRoute(state.route, at.fullRoute, fullname, state.reloadOnSearch);
+                route = createRoute(state.route, lookupRoute(at), fullname, state.reloadOnSearch);
             }
             if(angular.isDefined(state.onenter)) {
-                registerEnterTransition(state.onenter, fullname);
+                $transitionProvider.onenter(fullname, state.onexit);
             }
             if(angular.isDefined(state.onexit)) {
-                registerExitTransition(state.onexit, fullname);
+                $transitionProvider.onexit(fullname, state.onexit);
             }
             at = at.children[name];
             at.self = extend(state, {
@@ -612,7 +602,7 @@ var $StateProvider = [
             at.fullname = fullname;
             at.parent = parent;
             if(angular.isDefined(route)) {
-                at.fullRoute = route;
+                at.route = route;
             }
             if(state.children === null) {
                 at.children = {
@@ -624,10 +614,7 @@ var $StateProvider = [
             }
         }
         function lookup(names) {
-            var current = root, i = 0;
-            if(names[0] === 'root') {
-                i++;
-            }
+            var current = root, i = names[0] === 'root' ? 1 : 0;
             for(; i < names.length; i++) {
                 if(!(names[i] in current.children)) {
                     throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -704,7 +691,7 @@ var $StateProvider = [
                     }
                 }
                 function buildTransition(to, params) {
-                    var handlers, emitters, toState, fromState = $state.current;
+                    var handlers, toState, fromState = $state.current;
                     if(angular.isString(to)) {
                         to = lookupState(to);
                     } else {
@@ -719,17 +706,20 @@ var $StateProvider = [
                     };
                 }
                 function goto(to, params) {
-                    var t = buildTransition(to, params), tr, event, transaction, promise;
+                    var t = buildTransition(to, params), tr, cancel, event, transaction, promise;
                     event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
                     if(!event.defaultPrevented) {
                         tr = {
-                            cancel: false
+                            cancel: function () {
+                                cancel = true;
+                            }
                         };
-                        tr = t.emit.before(tr);
+                        t.emit.before(tr);
                         $state.current = t.to;
                         promise = $q.when(t.to);
                         promise.then(function () {
                             transaction = $view.beginUpdate();
+                            $view.clear();
                             angular.forEach(t.to.views, function (view, name) {
                                 $view.setOrUpdate(name, view.template, view.controller);
                             });
@@ -782,7 +772,7 @@ function $TemplateProvider() {
                 if(angular.isString(template)) {
                     return getFromUrl(template);
                 }
-                if(angular.isFunction(template)) {
+                if(angular.isFunction(template) || angular.isArray(template)) {
                     return getFromFunction(template);
                 }
                 if(angular.isObject(template)) {
@@ -924,7 +914,7 @@ var uiViewDirective = [
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, name = attr[this.name] || attr.name, onloadExp = attr.onload || '';
+                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '';
                 scope.$on('$stateChangeBegin', function () {
                 });
                 scope.$on('$viewChanged', function () {
@@ -942,11 +932,12 @@ var uiViewDirective = [
                     resetScope();
                 }
                 function update() {
-                    var view = $view.get(name), controller = view.controller, version;
-                    if(view.template) {
+                    var view = $view.get(name), controller, version;
+                    if(view && view.template) {
                         if(view.version === version) {
                             return;
                         }
+                        controller = view.controller;
                         version = view.version;
                         view.template.then(function (html) {
                             element.html(html);

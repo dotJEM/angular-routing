@@ -32,7 +32,7 @@ function $TemplateProvider() {
                 if(angular.isString(template)) {
                     return getFromUrl(template);
                 }
-                if(angular.isFunction(template)) {
+                if(angular.isFunction(template) || angular.isArray(template)) {
                     return getFromFunction(template);
                 }
                 if(angular.isObject(template)) {

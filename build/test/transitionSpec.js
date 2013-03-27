@@ -17,11 +17,13 @@ describe('$transitionProvider', function () {
             scope = $rootScope;
         };
     }));
-    describe("transition targets", function () {
+    describe("find", function () {
+    });
+    describe("transition validation", function () {
         it('valid passes', function () {
             var provider;
-            mock.module(function ($stateProvider) {
-                provider = $stateProvider;
+            mock.module(function ($transitionProvider) {
+                provider = $transitionProvider;
             });
             mock.inject(function ($state) {
                 provider.transition('*', '*', function () {
@@ -34,8 +36,8 @@ describe('$transitionProvider', function () {
         });
         it('invalid throws errors', function () {
             var provider;
-            mock.module(function ($stateProvider) {
-                provider = $stateProvider;
+            mock.module(function ($transitionProvider) {
+                provider = $transitionProvider;
             });
             mock.inject(function ($state) {
                 expect(function () {
@@ -100,19 +102,19 @@ describe('$transitionProvider', function () {
                 }).toThrow("Invalid transition - to: '.one'.");
             });
         });
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider) {
-                $stateProvider.transition('*', '*', function () {
+        it('handlers can be registered on wildcards transitions', function () {
+            mock.module(function ($transitionProvider) {
+                $transitionProvider.transition('*', '*', function () {
                 }).transition('blog.*', 'about.*', function () {
                 });
             });
-            mock.inject(function ($location, $route, $state) {
-                expect(stringify($state.transition)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
+            mock.inject(function ($transition) {
+                expect(stringify($transition.root)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
             });
         });
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider) {
-                $stateProvider.transition('*', '*', function () {
+        it('handlers can be registered on specific transitions', function () {
+            mock.module(function ($transitionProvider) {
+                $transitionProvider.transition('*', '*', function () {
                 }).transition('blog.recent', 'blog.category', function () {
                 }).transition('blog.archive', 'blog.category', function () {
                 }).transition('blog.recent', 'blog.archive', function () {
@@ -121,12 +123,12 @@ describe('$transitionProvider', function () {
                 }).transition('blog.category', 'blog.recent', function () {
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            mock.inject(function ($transition) {
                 var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+1, blog.archive+1](),' + '    archive [ blog.category+1, blog.recent+1 ](),' + '    category[ blog.archive+1,  blog.recent+1 ]()' + '  )' + ')';
-                expect(stringify($state.transition)).toBe(expected.replace(/\s+/g, ''));
+                expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
             });
         });
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
+        it('multiple handlers can be registered on the same tansition', function () {
             mock.module(function ($stateProvider) {
                 $stateProvider.transition('*', '*', function () {
                 }).transition('blog.recent', 'blog.category', function () {
@@ -137,9 +139,9 @@ describe('$transitionProvider', function () {
                 }).transition('blog.recent', 'blog.archive', function () {
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            mock.inject(function ($transition) {
                 var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+3, blog.archive+3]()' + '  )' + ')';
-                expect(stringify($state.transition)).toBe(expected.replace(/\s+/g, ''));
+                expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
             });
         });
     });
@@ -156,9 +158,6 @@ describe('$transitionProvider', function () {
                 }).state('blog.details', {
                     route: '/{num:id}',
                     name: 'blog.details'
-                }).state('about', {
-                    route: '/about',
-                    name: 'about'
                 }).transition('*', '*', [
                     '$from', 
                     '$to', 
@@ -169,9 +168,7 @@ describe('$transitionProvider', function () {
                         });
                     }                ]);
             });
-            mock.inject(function ($location, $route, $state) {
-                var spy = jasmine.createSpy('mySpy');
-                scope.$on('$stateChangeSuccess', spy);
+            mock.inject(function ($location, $state, $transition) {
                 $location.path('/blog/recent');
                 scope.$digest();
                 expect(transitions.length).toBe(1);
@@ -184,8 +181,8 @@ describe('$transitionProvider', function () {
                 expect(transitions[1].to.fullname).toBe('root.blog.details');
             });
         });
-        it('Global * -> * transition will be called', function () {
-            var blogAboutTransitions = [];
+        it('Global blog -> about transition will be called when entering about', function () {
+            var trs = [], message = [];
             mock.module(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     route: '/blog',
@@ -206,39 +203,186 @@ describe('$transitionProvider', function () {
                     '$from', 
                     '$to', 
                     function ($from, $to) {
-                        blogAboutTransitions.push({
+                        trs.push({
                             from: $from,
                             to: $to
                         });
+                        message.push("blog.* > about.*");
                     }                ]).transition('blog', 'about.*', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
-                        blogAboutTransitions.push({
+                        trs.push({
                             from: $from,
                             to: $to
                         });
+                        message.push("blog > about.*");
+                    }                ]).transition('blog.*', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog.* > about");
                     }                ]).transition('blog', 'about', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
-                        blogAboutTransitions.push({
+                        trs.push({
                             from: $from,
                             to: $to
                         });
+                        message.push("blog > about");
                     }                ]);
             });
             mock.inject(function ($location, $route, $state) {
-                var spy = jasmine.createSpy('mySpy');
-                scope.$on('$stateChangeSuccess', spy);
                 $location.path('/blog');
                 scope.$digest();
-                expect(blogAboutTransitions.length).toBe(0);
+                expect(trs.length).toBe(0);
                 $location.path('/about');
                 scope.$digest();
-                expect(blogAboutTransitions.length).toBe(1);
-                expect(blogAboutTransitions[1].from.fullname).toBe('root.blog.recent');
-                expect(blogAboutTransitions[1].to.fullname).toBe('root.blog.details');
+                expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
+                expect(message.length).toBe(4);
+                expect(trs[0].from.fullname).toBe('root.blog');
+                expect(trs[0].to.fullname).toBe('root.about');
+            });
+        });
+        it('Global blog -> about transition will be called when entering about from other substate', function () {
+            var trs = [], message = [];
+            mock.module(function ($stateProvider) {
+                $stateProvider.state('blog', {
+                    route: '/blog',
+                    name: 'blog'
+                }).state('blog.recent', {
+                    route: '/recent',
+                    name: 'blog.recent'
+                }).state('about', {
+                    route: '/about',
+                    name: 'about'
+                }).state('about.cv', {
+                    route: '/cv',
+                    name: 'about.cv'
+                }).transition('blog.*', 'about.*', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog.* > about.*");
+                    }                ]).transition('blog', 'about.*', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog > about.*");
+                    }                ]).transition('blog.*', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog.* > about");
+                    }                ]).transition('blog', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog > about");
+                    }                ]);
+            });
+            mock.inject(function ($location, $route, $state) {
+                $location.path('/blog/recent');
+                scope.$digest();
+                expect(trs.length).toBe(0);
+                $location.path('/about');
+                scope.$digest();
+                expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
+                expect(message.length).toBe(4);
+                expect(trs[0].from.fullname).toBe('root.blog.recent');
+                expect(trs[0].to.fullname).toBe('root.about');
+            });
+        });
+        it('Global blog -> about transition will be called when entering substate about from other state', function () {
+            var trs = [], message = [];
+            mock.module(function ($stateProvider) {
+                $stateProvider.state('blog', {
+                    route: '/blog',
+                    name: 'blog'
+                }).state('blog.recent', {
+                    route: '/recent',
+                    name: 'blog.recent'
+                }).state('blog.other', {
+                    route: '/other',
+                    name: 'blog.recent'
+                }).state('about', {
+                    route: '/about',
+                    name: 'about'
+                }).state('about.cv', {
+                    route: '/cv',
+                    name: 'about.cv'
+                }).state('about.other', {
+                    route: '/other',
+                    name: 'about.other'
+                }).transition('blog.*', 'about.*', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog.* > about.*");
+                    }                ]).transition('blog', 'about.*', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog > about.*");
+                    }                ]).transition('blog.*', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog.* > about");
+                    }                ]).transition('blog', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        trs.push({
+                            from: $from,
+                            to: $to
+                        });
+                        message.push("blog > about");
+                    }                ]);
+            });
+            mock.inject(function ($location, $route, $state) {
+                $location.path('/blog/recent');
+                scope.$digest();
+                expect(trs.length).toBe(0);
+                $location.path('/about/cv');
+                scope.$digest();
+                expect(message.join()).toBe('blog > about.*,blog.* > about.*');
+                expect(message.length).toBe(2);
+                expect(trs[0].from.fullname).toBe('root.blog.recent');
+                expect(trs[0].to.fullname).toBe('root.about.cv');
             });
         });
     });

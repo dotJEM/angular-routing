@@ -377,229 +377,200 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
             });
         });
-    });
-    describe("transition targets", function () {
-        it('valid passes', function () {
-            var provider;
+        it('can register states with and without routes', function () {
             mock.module(function ($stateProvider) {
-                provider = $stateProvider;
-            });
-            mock.inject(function ($state) {
-                provider.transition('*', '*', function () {
-                }).transition('a', 'b', function () {
-                }).transition('a.1', 'b.1', function () {
-                }).transition('a.*', '*', function () {
-                }).transition('*', 'b.*', function () {
+                $stateProvider.state('top', {
+                    route: '/top',
+                    name: 'top'
+                }).state('top.center', {
+                    name: 'top.center'
+                }).state('top.center.one', {
+                    route: '/one',
+                    name: 'top.center.one'
+                }).state('top.center.two', {
+                    route: '/two',
+                    name: 'top.center.two'
                 });
-            });
-        });
-        it('invalid throws errors', function () {
-            var provider;
-            mock.module(function ($stateProvider) {
-                provider = $stateProvider;
-            });
-            mock.inject(function ($state) {
-                expect(function () {
-                    provider.transition('', '', {
-                    });
-                }).toThrow("Invalid transition - from: '', to: ''.");
-                expect(function () {
-                    provider.transition('.', '.', {
-                    });
-                }).toThrow("Invalid transition - from: '.', to: '.'.");
-                expect(function () {
-                    provider.transition('*.', '*.', {
-                    });
-                }).toThrow("Invalid transition - from: '*.', to: '*.'.");
-                expect(function () {
-                    provider.transition('.one', 'one.', {
-                    });
-                }).toThrow("Invalid transition - from: '.one', to: 'one.'.");
-                expect(function () {
-                    provider.transition('*.one', 'one.*.one', {
-                    });
-                }).toThrow("Invalid transition - from: '*.one', to: 'one.*.one'.");
-                expect(function () {
-                    provider.transition('', '*', {
-                    });
-                }).toThrow("Invalid transition - from: ''.");
-                expect(function () {
-                    provider.transition('.*', 'valid', {
-                    });
-                }).toThrow("Invalid transition - from: '.*'.");
-                expect(function () {
-                    provider.transition('*.*', 'valid.*', {
-                    });
-                }).toThrow("Invalid transition - from: '*.*'.");
-                expect(function () {
-                    provider.transition('one.', 'valid.one', {
-                    });
-                }).toThrow("Invalid transition - from: 'one.'.");
-                expect(function () {
-                    provider.transition('.one', 'valid.two', {
-                    });
-                }).toThrow("Invalid transition - from: '.one'.");
-                expect(function () {
-                    provider.transition('*', '', {
-                    });
-                }).toThrow("Invalid transition - to: ''.");
-                expect(function () {
-                    provider.transition('valid', '.*', {
-                    });
-                }).toThrow("Invalid transition - to: '.*'.");
-                expect(function () {
-                    provider.transition('valid.*', '*.*', {
-                    });
-                }).toThrow("Invalid transition - to: '*.*'.");
-                expect(function () {
-                    provider.transition('valid.one', 'one.', {
-                    });
-                }).toThrow("Invalid transition - to: 'one.'.");
-                expect(function () {
-                    provider.transition('valid.two', '.one', {
-                    });
-                }).toThrow("Invalid transition - to: '.one'.");
-            });
-        });
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider) {
-                $stateProvider.transition('*', '*', function () {
-                }).transition('blog.*', 'about.*', function () {
-                });
-            });
-            mock.inject(function ($location, $route, $state) {
-                expect(stringifyTransition($state.transition)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
-            });
-        });
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider) {
-                $stateProvider.transition('*', '*', function () {
-                }).transition('blog.recent', 'blog.category', function () {
-                }).transition('blog.archive', 'blog.category', function () {
-                }).transition('blog.recent', 'blog.archive', function () {
-                }).transition('blog.category', 'blog.archive', function () {
-                }).transition('blog.archive', 'blog.recent', function () {
-                }).transition('blog.category', 'blog.recent', function () {
-                });
-            });
-            mock.inject(function ($location, $route, $state) {
-                var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+1, blog.archive+1](),' + '    archive [ blog.category+1, blog.recent+1 ](),' + '    category[ blog.archive+1,  blog.recent+1 ]()' + '  )' + ')';
-                expect(stringifyTransition($state.transition)).toBe(expected.replace(/\s+/g, ''));
-            });
-        });
-        it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider) {
-                $stateProvider.transition('*', '*', function () {
-                }).transition('blog.recent', 'blog.category', function () {
-                }).transition('blog.recent', 'blog.category', function () {
-                }).transition('blog.recent', 'blog.category', function () {
-                }).transition('blog.recent', 'blog.archive', function () {
-                }).transition('blog.recent', 'blog.archive', function () {
-                }).transition('blog.recent', 'blog.archive', function () {
-                });
-            });
-            mock.inject(function ($location, $route, $state) {
-                var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+3, blog.archive+3]()' + '  )' + ')';
-                expect(stringifyTransition($state.transition)).toBe(expected.replace(/\s+/g, ''));
-            });
-        });
-    });
-    describe("transition $routeChangeSuccess", function () {
-        it('Global * -> * transition will be called', function () {
-            var transitions = [];
-            mock.module(function ($stateProvider) {
-                $stateProvider.state('blog', {
-                    route: '/blog',
-                    name: 'blog'
-                }).state('blog.recent', {
-                    route: '/recent',
-                    name: 'blog.recent'
-                }).state('blog.details', {
-                    route: '/{num:id}',
-                    name: 'blog.details'
-                }).state('about', {
-                    route: '/about',
-                    name: 'about'
-                }).transition('*', '*', [
-                    '$from', 
-                    '$to', 
-                    function ($from, $to) {
-                        transitions.push({
-                            from: $from,
-                            to: $to
-                        });
-                    }                ]);
             });
             mock.inject(function ($location, $route, $state) {
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
-                $location.path('/blog/recent');
+                $location.path('/top');
                 scope.$digest();
-                expect(transitions.length).toBe(1);
-                expect(transitions[0].from.fullname).toBe('root');
-                expect(transitions[0].to.fullname).toBe('root.blog.recent');
-                $location.path('/blog/42');
+                expect($state.current.name).toBe('top');
+                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+                $location.path('/top/one');
                 scope.$digest();
-                expect(transitions.length).toBe(2);
-                expect(transitions[1].from.fullname).toBe('root.blog.recent');
-                expect(transitions[1].to.fullname).toBe('root.blog.details');
+                expect($state.current.name).toBe('top.center.one');
+                expect(spy.mostRecentCall.args[2].name).toBe('top');
+                $location.path('/top/two');
+                scope.$digest();
+                expect($state.current.name).toBe('top.center.two');
+                expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
             });
         });
-        it('Global * -> * transition will be called', function () {
-            var blogAboutTransitions = [];
+    });
+    describe("$transition $routeChangeSuccess", function () {
+        it('Correct Transitions are called on state change.', function () {
+            var last;
             mock.module(function ($stateProvider) {
-                $stateProvider.state('blog', {
+                $stateProvider.state('home', {
+                    route: '/',
+                    name: 'about'
+                }).state('blog', {
                     route: '/blog',
                     name: 'blog'
                 }).state('blog.recent', {
                     route: '/recent',
                     name: 'blog.recent'
-                }).state('blog.details', {
-                    route: '/{num:id}',
-                    name: 'blog.details'
+                }).state('blog.other', {
+                    route: '/other',
+                    name: 'blog.recent'
                 }).state('about', {
                     route: '/about',
                     name: 'about'
                 }).state('about.cv', {
                     route: '/cv',
                     name: 'about.cv'
-                }).transition('blog.*', 'about.*', [
+                }).state('about.other', {
+                    route: '/other',
+                    name: 'about.other'
+                }).state('gallery', {
+                    route: '/gallery',
+                    name: 'about.cv'
+                }).state('gallery.overview', {
+                    route: '/overview',
+                    name: 'about.other'
+                }).state('gallery.details', {
+                    route: '/details',
+                    name: 'about.other'
+                }).transition('blog', 'about', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
-                        blogAboutTransitions.push({
+                        last = {
+                            name: 'blog->about',
                             from: $from,
                             to: $to
-                        });
-                    }                ]).transition('blog', 'about.*', [
+                        };
+                    }                ]).transition('blog', 'gallery', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
-                        blogAboutTransitions.push({
+                        last = {
+                            name: 'blog->gallery',
                             from: $from,
                             to: $to
-                        });
-                    }                ]).transition('blog', 'about', [
+                        };
+                    }                ]).transition('about', 'blog', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
-                        blogAboutTransitions.push({
+                        last = {
+                            name: 'about->blog',
                             from: $from,
                             to: $to
-                        });
+                        };
+                    }                ]).transition('about', 'gallery', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        last = {
+                            name: 'about->gallery',
+                            from: $from,
+                            to: $to
+                        };
+                    }                ]).transition('gallery', 'about', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        last = {
+                            name: 'gallery->about',
+                            from: $from,
+                            to: $to
+                        };
+                    }                ]).transition('gallery', 'blog', [
+                    '$from', 
+                    '$to', 
+                    function ($from, $to) {
+                        last = {
+                            name: 'gallery->blog',
+                            from: $from,
+                            to: $to
+                        };
                     }                ]);
             });
             mock.inject(function ($location, $route, $state) {
-                var spy = jasmine.createSpy('mySpy');
-                scope.$on('$stateChangeSuccess', spy);
-                $location.path('/blog');
-                scope.$digest();
-                expect(blogAboutTransitions.length).toBe(0);
-                $location.path('/about');
-                scope.$digest();
-                expect(blogAboutTransitions.length).toBe(1);
-                expect(blogAboutTransitions[1].from.fullname).toBe('root.blog.recent');
-                expect(blogAboutTransitions[1].to.fullname).toBe('root.blog.details');
+                function go(path) {
+                    $location.path(path);
+                    scope.$digest();
+                }
+                go('/blog');
+                expect(last).toBeUndefined();
+                go('/about');
+                expect(last.name).toBe('blog->about');
+                go('/gallery');
+                expect(last.name).toBe('about->gallery');
+                go('/blog');
+                expect(last.name).toBe('gallery->blog');
+                go('/gallery');
+                expect(last.name).toBe('blog->gallery');
+                go('/about');
+                expect(last.name).toBe('gallery->about');
+                go('/blog');
+                expect(last.name).toBe('about->blog');
+            });
+        });
+        it('Transitions can be canceled.', function () {
+            mock.module(function ($stateProvider) {
+                $stateProvider.state('home', {
+                    route: '/',
+                    name: 'about'
+                }).state('blog', {
+                    route: '/blog',
+                    name: 'blog'
+                }).state('blog.recent', {
+                    route: '/recent',
+                    name: 'blog.recent'
+                }).state('blog.other', {
+                    route: '/other',
+                    name: 'blog.recent'
+                }).state('about', {
+                    route: '/about',
+                    name: 'about'
+                }).state('about.cv', {
+                    route: '/cv',
+                    name: 'about.cv'
+                }).state('about.other', {
+                    route: '/other',
+                    name: 'about.other'
+                }).state('gallery', {
+                    route: '/gallery',
+                    name: 'about.cv'
+                }).state('gallery.overview', {
+                    route: '/overview',
+                    name: 'about.other'
+                }).state('gallery.details', {
+                    route: '/details',
+                    name: 'about.other'
+                }).state('admin', {
+                    route: '/admin',
+                    name: 'about.other'
+                }).transition('*', 'admin', function ($transition) {
+                    $transition.cancel();
+                });
+            });
+            mock.inject(function ($location, $route, $state) {
+                function go(path) {
+                    $location.path(path);
+                    scope.$digest();
+                }
+                go('/blog');
+                go('/admin');
+                go('/gallery');
+                go('/admin');
+                go('/about');
+                go('/admin');
             });
         });
     });

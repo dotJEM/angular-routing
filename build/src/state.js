@@ -36,27 +36,11 @@ var $StateProvider = [
             });
             return route;
         }
-        function registerEnterTransition(onenter, name) {
-            if(angular.isArray(onenter)) {
-                angular.forEach(onenter, function (single) {
-                    registerEnterTransition(single, name);
-                });
-            } else if(angular.isObject(onenter)) {
-                this.transition(onenter.from || '*', name, onenter.handler);
-            } else if(angular.isFunction(onenter)) {
-                this.transition('*', name, onenter);
+        function lookupRoute(parent) {
+            while(isDefined(parent) && !isDefined(parent.route)) {
+                parent = parent.parent;
             }
-        }
-        function registerExitTransition(onexit, name) {
-            if(angular.isArray(onexit)) {
-                angular.forEach(onexit, function (single) {
-                    registerExitTransition(single, name);
-                });
-            } else if(angular.isObject(onexit)) {
-                this.transition(name, onexit.to || '*', onexit.handler);
-            } else if(angular.isFunction(onexit)) {
-                this.transition(name, '*', onexit);
-            }
+            return (parent && parent.route) || '';
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, route, parent = at;
@@ -69,13 +53,13 @@ var $StateProvider = [
                 };
             }
             if(angular.isDefined(state.route)) {
-                route = createRoute(state.route, at.fullRoute, fullname, state.reloadOnSearch);
+                route = createRoute(state.route, lookupRoute(at), fullname, state.reloadOnSearch);
             }
             if(angular.isDefined(state.onenter)) {
-                registerEnterTransition(state.onenter, fullname);
+                $transitionProvider.onenter(fullname, state.onexit);
             }
             if(angular.isDefined(state.onexit)) {
-                registerExitTransition(state.onexit, fullname);
+                $transitionProvider.onexit(fullname, state.onexit);
             }
             at = at.children[name];
             at.self = extend(state, {
@@ -84,7 +68,7 @@ var $StateProvider = [
             at.fullname = fullname;
             at.parent = parent;
             if(angular.isDefined(route)) {
-                at.fullRoute = route;
+                at.route = route;
             }
             if(state.children === null) {
                 at.children = {
@@ -96,10 +80,7 @@ var $StateProvider = [
             }
         }
         function lookup(names) {
-            var current = root, i = 0;
-            if(names[0] === 'root') {
-                i++;
-            }
+            var current = root, i = names[0] === 'root' ? 1 : 0;
             for(; i < names.length; i++) {
                 if(!(names[i] in current.children)) {
                     throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -176,7 +157,7 @@ var $StateProvider = [
                     }
                 }
                 function buildTransition(to, params) {
-                    var handlers, emitters, toState, fromState = $state.current;
+                    var handlers, toState, fromState = $state.current;
                     if(angular.isString(to)) {
                         to = lookupState(to);
                     } else {
@@ -191,17 +172,20 @@ var $StateProvider = [
                     };
                 }
                 function goto(to, params) {
-                    var t = buildTransition(to, params), tr, event, transaction, promise;
+                    var t = buildTransition(to, params), tr, cancel, event, transaction, promise;
                     event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
                     if(!event.defaultPrevented) {
                         tr = {
-                            cancel: false
+                            cancel: function () {
+                                cancel = true;
+                            }
                         };
-                        tr = t.emit.before(tr);
+                        t.emit.before(tr);
                         $state.current = t.to;
                         promise = $q.when(t.to);
                         promise.then(function () {
                             transaction = $view.beginUpdate();
+                            $view.clear();
                             angular.forEach(t.to.views, function (view, name) {
                                 $view.setOrUpdate(name, view.template, view.controller);
                             });

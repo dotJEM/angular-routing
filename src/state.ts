@@ -35,6 +35,12 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         return route;
     }
 
+    function lookupRoute(parent) {
+        while (isDefined(parent) && !isDefined(parent.route))
+            parent = parent.parent;
+        return (parent && parent.route) || '';
+    }
+
     function registerState(name, at, state) {
         var fullname = at.fullname + '.' + name,
             route: string,
@@ -49,7 +55,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         }
 
         if (angular.isDefined(state.route)) {
-            route = createRoute(state.route, at.fullRoute, fullname, state.reloadOnSearch);
+            route = createRoute(state.route, lookupRoute(at), fullname, state.reloadOnSearch);
         }
 
         if (angular.isDefined(state.onenter)) {
@@ -65,7 +71,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         at.fullname = fullname;
         at.parent = parent;
         if (angular.isDefined(route))
-            at.fullRoute = route;
+            at.route = route;
 
         if (state.children === null) {
             at.children = {};
@@ -167,13 +173,13 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
               
         function buildTransition(to, params?: { all; path; search; }): any {
             var handlers: any[],
-                emitters,
                 toState,
                 fromState = $state.current;
 
             if (angular.isString(to)) {
                 to = lookupState(to);
             } else {
+                //TODO: Make us independant from the state wrapper here?
                 to = lookupState(to.fullname);
             }
 
@@ -187,13 +193,16 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         }
 
         function goto(to, params?) {
-            var t = buildTransition(to, params), tr,
+            var t = buildTransition(to, params), tr, cancel,
                 event, transaction, promise: ng.IPromise;
             
             event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
             if (!event.defaultPrevented) {
-                tr = { cancel: false };
-                tr = t.emit.before(tr);
+                tr = {
+                    cancel: function () { cancel = true; }
+                };
+
+                t.emit.before(tr);
                 //TODO: Reach to TR.
 
                 $state.current = t.to;

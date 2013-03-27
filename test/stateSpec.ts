@@ -370,49 +370,143 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
             });
         });
+
+        it('can register states with and without routes', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', { route: '/top', name: 'top' })
+                    .state('top.center', { name: 'top.center' })
+                    .state('top.center.one', { route: '/one', name: 'top.center.one' })
+                    .state('top.center.two', { route: '/two', name: 'top.center.two' });
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+                scope.$on('$stateChangeSuccess', <any>spy);
+
+                $location.path('/top');
+                scope.$digest();
+
+                expect($state.current.name).toBe('top');
+                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+
+                $location.path('/top/one');
+                scope.$digest();
+
+                expect($state.current.name).toBe('top.center.one');
+                expect(spy.mostRecentCall.args[2].name).toBe('top');
+
+                $location.path('/top/two');
+                scope.$digest();
+
+                expect($state.current.name).toBe('top.center.two');
+                expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
+            });
+        });
     });
 
     //Note: Integration tests between $transition and $state etc.
 
     describe("$transition $routeChangeSuccess", () => {
-        it('Global blog -> about transition will be called when entering about', function () {
-            var message = [];
-
+        it('Correct Transitions are called on state change.', function () {
+            var last;
             mock.module(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
+                    .state('home', { route: '/', name: 'about' })
+
                     .state('blog', { route: '/blog', name: 'blog' })
                     .state('blog.recent', { route: '/recent', name: 'blog.recent' })
-                    .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
+                    .state('blog.other', { route: '/other', name: 'blog.recent' })
+
                     .state('about', { route: '/about', name: 'about' })
                     .state('about.cv', { route: '/cv', name: 'about.cv' })
+                    .state('about.other', { route: '/other', name: 'about.other' })
 
-                    .transition('blog.*', 'about', [<any>'$from', '$to', ($from, $to) => {
-                        message.push("blog.* > about.*");
-                    }])
-                    .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-                        message.push("blog > about.*");
-                    }])
-                    .transition('blog.*', 'about', [<any>'$from', '$to', ($from, $to) => {
-                        message.push("blog.* > about");
-                    }])
-                    .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => {
-                        message.push("blog > about");
-                    }])
+                    .state('gallery', { route: '/gallery', name: 'about.cv' })
+                    .state('gallery.overview', { route: '/overview', name: 'about.other' })
+                    .state('gallery.details', { route: '/details', name: 'about.other' })
+
+                    .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->about', from: $from, to: $to }; }])
+                    .transition('blog', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->gallery', from: $from, to: $to }; }])
+                    .transition('about', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->blog', from: $from, to: $to }; }])
+                    .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
+                    .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
+                    .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
             });
 
             mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-                $location.path('/blog');
-                scope.$digest();
+                function go(path: string) {
+                    $location.path(path);
+                    scope.$digest();
+                }
 
-                expect(message.length).toBe(0);
+                go('/blog');
+                expect(last).toBeUndefined();
 
-                $location.path('/about');
-                scope.$digest();
+                go('/about');
+                expect(last.name).toBe('blog->about');
 
-                expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
-                expect(message.length).toBe(4);
+                go('/gallery');
+                expect(last.name).toBe('about->gallery');
+
+                go('/blog');
+                expect(last.name).toBe('gallery->blog');
+
+                go('/gallery');
+                expect(last.name).toBe('blog->gallery');
+
+                go('/about');
+                expect(last.name).toBe('gallery->about');
+
+                go('/blog');
+                expect(last.name).toBe('about->blog');
             });
         });
+
+        it('Transitions can be canceled.', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('home', { route: '/', name: 'about' })
+
+                    .state('blog', { route: '/blog', name: 'blog' })
+                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                    .state('blog.other', { route: '/other', name: 'blog.recent' })
+
+                    .state('about', { route: '/about', name: 'about' })
+                    .state('about.cv', { route: '/cv', name: 'about.cv' })
+                    .state('about.other', { route: '/other', name: 'about.other' })
+
+                    .state('gallery', { route: '/gallery', name: 'about.cv' })
+                    .state('gallery.overview', { route: '/overview', name: 'about.other' })
+                    .state('gallery.details', { route: '/details', name: 'about.other' })
+
+                    .state('admin', { route: '/admin', name: 'about.other' })
+
+                    .transition('*', 'admin', ($transition) => {
+                        $transition.cancel();
+                    })
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                function go(path: string) {
+                    $location.path(path);
+                    scope.$digest();
+                }
+
+                go('/blog');
+                go('/admin');
+
+                go('/gallery');
+                go('/admin');
+
+
+                go('/about');
+                go('/admin');
+
+                //expect(last.name).toBe('blog->about');
+            });
+        });
+
 
     });
 });

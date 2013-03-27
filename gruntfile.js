@@ -48,7 +48,7 @@ module.exports = function (grunt) {
                         'build/src/state.js',
                         'build/src/template.js',
                         'build/src/view.js',
-                        'build/src/directives/jemView.js'],
+                        'build/src/directives/uiView.js'],
                 dest: 'build/<%= pkg.name %>.js'
             },
             legacy: {
