@@ -67,6 +67,7 @@
     <Content Include="samples\kp\contacts.html" />
     <Content Include="samples\kp\contacts.list.html" />
     <Content Include="samples\kp\index.html" />
+    <Content Include="samples\metro.bootstrap.min.css" />
     <Content Include="src\directives\uiView.js">
       <DependentUpon>uiView.ts</DependentUpon>
     </Content>

@@ -4,7 +4,7 @@
     <title>Simple Sample</title>
 
     <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="../bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="../metro.bootstrap.min.css" />
 
     <script src="../../lib/angular/impl/angular.js"></script>
     <script src="../../lib/angular/impl/angular-bootstrap.js"></script>
@@ -31,21 +31,23 @@
     <div class="container" style="margin-top: 60px" ui-view="main"></div>
 
     <hr>
-
-    <div class="row" ng-controller="PageController">
-        <div class="span8">
+    
+    <div style="text-align: center">
+    <div class="row" ng-controller="PageController" style="text-align: left; display: inline-block">
+        <div class="span6">
             <h2>Routes</h2>
             <pre>{{routes}}</pre>
         </div>
-        <div class="span8">
+        <div class="span6">
             <h2>States</h2>
             <pre>{{states}}</pre>
         </div>
-        <div class="span8">
+        <div class="span6">
             <h2>Transitions</h2>
             <pre>{{transitions}}</pre>
         </div>
+    </div>       
     </div>
-
+ 
 </body>
 </html>
