@@ -47,6 +47,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                 if (view && view.template) {
                     if (view.version === version)
                         return;
+
                     controller = view.controller
                     version = view.version;
 

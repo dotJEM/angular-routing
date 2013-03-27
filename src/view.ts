@@ -49,7 +49,7 @@ function $ViewProvider() {
             }
         };
 
-        this.setOrUpdate = function (name: string, template: any, controller: any) {
+        this.setOrUpdate = function (name: string, template?: any, controller?: any) {
             ensureName(name);
 
             if (transaction) {
@@ -75,7 +75,7 @@ function $ViewProvider() {
             raiseUpdated(name);
         };
 
-        this.setIfAbsent = function (name: string, template: any, controller: any) {
+        this.setIfAbsent = function (name: string, template?: any, controller?: any) {
             ensureName(name);
 
             if (transaction) {

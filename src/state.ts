@@ -226,8 +226,8 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
                     //TODO: Reach to TR.
 
                     //TODO: $view.EndUpdate(corelation); ??
-                    $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                     transaction.commit();
+                    $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
 
                 }, (error) => {
                     $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);

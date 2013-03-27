@@ -724,8 +724,8 @@ var $StateProvider = [
                                 $view.setOrUpdate(name, view.template, view.controller);
                             });
                             t.emit.between(tr);
-                            $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                             transaction.commit();
+                            $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                         }, function (error) {
                             $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
                             transaction.cancel();
@@ -917,8 +917,7 @@ var uiViewDirective = [
                 var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '';
                 scope.$on('$stateChangeBegin', function () {
                 });
-                scope.$on('$viewChanged', function () {
-                });
+                scope.$on('$viewChanged', update);
                 scope.$on('$stateChangeSuccess', update);
                 update();
                 function resetScope(newScope) {

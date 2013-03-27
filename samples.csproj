@@ -57,15 +57,6 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="samples\obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
-    <Compile Include="samples\obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
-    <Compile Include="samples\obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
-    <Compile Include="samples\obj\Release\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
-    <Compile Include="samples\obj\Release\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
-    <Compile Include="samples\obj\Release\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
-    <Compile Include="samples\Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="build\angular-routing.js" />
     <Content Include="build\angular-routing.legacy.js" />
     <Content Include="build\angular-routing.legacy.min.js" />
@@ -97,8 +88,6 @@
     <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
     <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
     <Content Include="lib\jquery\jquery.d.ts" />
-    <Content Include="samples\bin\samplesx.dll" />
-    <Content Include="samples\bin\samplesx.pdb" />
     <Content Include="samples\bootstrap.min.css" />
     <Content Include="samples\configuration.ts" />
     <Content Include="samples\kp\contacts.detail.html" />
@@ -107,26 +96,17 @@
     <Content Include="samples\kp\contacts.html" />
     <Content Include="samples\kp\contacts.list.html" />
     <Content Include="samples\kp\index.html" />
-    <Content Include="samples\obj\Debug\samples.csproj.FileListAbsolute.txt" />
-    <Content Include="samples\obj\Debug\samples.dll" />
-    <Content Include="samples\obj\Debug\samples.pdb" />
-    <Content Include="samples\obj\Release\samples.csproj.FileListAbsolute.txt" />
-    <Content Include="samples\obj\Release\samplesx.dll" />
-    <Content Include="samples\obj\Release\samplesx.pdb" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="samples\obj\Debug\samples.csprojResolveAssemblyReference.cache" />
-    <Content Include="samples\obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
-    <Content Include="samples\obj\Release\samples.csprojResolveAssemblyReference.cache" />
+    <Content Include="samples\legacy\index.html" />
+    <Content Include="samples\legacy\script\application.js" />
+    <Content Include="samples\simple\index.html" />
+    <Content Include="samples\simple\script\application.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="lib\jasmine\impl\" />
     <Folder Include="Properties\" />
     <Folder Include="samples\actions\" />
-    <Folder Include="samples\legacy\" />
-    <Folder Include="samples\obj\Debug\TempPE\" />
-    <Folder Include="samples\obj\Release\TempPE\" />
-    <Folder Include="samples\simple\" />
+    <Folder Include="samples\legacy\tpl\" />
+    <Folder Include="samples\simple\tpl\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

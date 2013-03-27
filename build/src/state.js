@@ -190,8 +190,8 @@ var $StateProvider = [
                                 $view.setOrUpdate(name, view.template, view.controller);
                             });
                             t.emit.between(tr);
-                            $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                             transaction.commit();
+                            $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
                         }, function (error) {
                             $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
                             transaction.cancel();

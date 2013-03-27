@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html ng-app="sample">
+<head>
+    <title>Simple Sample</title>
+
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="../bootstrap.min.css" />
+
+    <script src="../../lib/angular/impl/angular.js"></script>
+    <script src="../../lib/angular/impl/angular-bootstrap.js"></script>
+    <script src="../../lib/angular/impl/angular-bootstrap-prettify.js"></script>
+
+    <script src="../../build/angular-routing.js"></script>
+    <script src="script/application.js"></script>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="#/">ngStates</a>
+                <ul class="nav">
+                    <li><a href="#/one">One</a></li>
+                    <li><a href="#/two">Two</a></li>
+                    <li><a href="#/three">Three</a></li>
+                </ul>
+                <p class="navbar-text pull-right" ui-view="hint">Hint</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 60px" ui-view="main"></div>
+
+    <hr>
+
+    <div class="row" ng-controller="PageController">
+        <div class="span8">
+            <h2>Routes</h2>
+            <pre>{{routes}}</pre>
+        </div>
+        <div class="span8">
+            <h2>States</h2>
+            <pre>{{states}}</pre>
+        </div>
+        <div class="span8">
+            <h2>Transitions</h2>
+            <pre>{{transitions}}</pre>
+        </div>
+    </div>
+
+</body>
+</html>

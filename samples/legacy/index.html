@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html ng-app="sample">
+<head>
+    <title>Legacy Sample</title>
+
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="../bootstrap.min.css" />
+
+    <script src="../../lib/angular/impl/angular.js"></script>
+    <script src="../../lib/angular/impl/angular-bootstrap.js"></script>
+    <script src="../../lib/angular/impl/angular-bootstrap-prettify.js"></script>
+
+    <script src="../../build/angular-routing.js"></script>
+    <script src="../../build/angular-routing.legacy.js"></script>
+    <script src="script/application.js"></script>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="#/">ngStates</a>
+                <ul class="nav">
+                    <li><a href="#/one">One</a></li>
+                    <li><a href="#/two">Two</a></li>
+                    <li><a href="#/three">Tree</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="margin-top: 60px" ng-view></div>
+    
+    <hr>
+
+    <pre>
+        $state = 
+        $stateParams = 
+    </pre>
+
+</body>
+</html>
