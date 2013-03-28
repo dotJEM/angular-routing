@@ -63,13 +63,6 @@
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
     <TypeScriptCompile Include="src\transition.ts" />
-    <Content Include="samples\kp\contacts.detail.html" />
-    <Content Include="samples\kp\contacts.detail.item.edit.html" />
-    <Content Include="samples\kp\contacts.detail.item.html" />
-    <Content Include="samples\kp\contacts.html" />
-    <Content Include="samples\kp\contacts.list.html" />
-    <Content Include="samples\kp\index.html" />
-    <Content Include="samples\metro.bootstrap.min.css" />
     <Content Include="src\directives\uiView.js">
       <DependentUpon>uiView.ts</DependentUpon>
     </Content>
@@ -93,14 +86,6 @@
     <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
     <Content Include="lib\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="src\common.ts" />
-    <TypeScriptCompile Include="samples\configuration.ts" />
-    <Content Include="samples\bootstrap.min.css" />
-    <Content Include="samples\configuration.js">
-      <DependentUpon>configuration.ts</DependentUpon>
-    </Content>
-    <Content Include="samples\configuration.min.js">
-      <DependentUpon>configuration.ts</DependentUpon>
-    </Content>
     <Content Include="src\common.js">
       <DependentUpon>common.ts</DependentUpon>
     </Content>
@@ -159,9 +144,6 @@
   <ItemGroup>
     <Folder Include="doc\turtorials\" />
     <Folder Include="lib\jasmine\impl\" />
-    <Folder Include="samples\actions\" />
-    <Folder Include="samples\legacy\" />
-    <Folder Include="samples\simple\" />
     <Folder Include="test\directives\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

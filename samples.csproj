@@ -91,12 +91,6 @@
     <Content Include="samples\bootstrap.min.css" />
     <Content Include="samples\configuration.ts" />
     <Content Include="samples\index.html" />
-    <Content Include="samples\kp\contacts.detail.html" />
-    <Content Include="samples\kp\contacts.detail.item.edit.html" />
-    <Content Include="samples\kp\contacts.detail.item.html" />
-    <Content Include="samples\kp\contacts.html" />
-    <Content Include="samples\kp\contacts.list.html" />
-    <Content Include="samples\kp\index.html" />
     <Content Include="samples\legacy\index.html" />
     <Content Include="samples\legacy\script\application.js" />
     <Content Include="samples\legacy\tpl\about.html" />
@@ -107,11 +101,20 @@
     <Content Include="samples\simple\tpl\about.html" />
     <Content Include="samples\simple\tpl\code.html" />
     <Content Include="samples\simple\tpl\home.html" />
+    <Content Include="samples\substates\index.html" />
+    <Content Include="samples\substates\script\application.js" />
+    <Content Include="samples\substates\tpl\about.html" />
+    <Content Include="samples\substates\tpl\blog.html" />
+    <Content Include="samples\substates\tpl\blog.post.html" />
+    <Content Include="samples\substates\tpl\home.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="lib\jasmine\impl\" />
     <Folder Include="Properties\" />
     <Folder Include="samples\actions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="samples\substates\tpl\blog.list.html" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
