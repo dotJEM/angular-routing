@@ -4,16 +4,26 @@
         function ($routeProvider) {
             $routeProvider
                 .when('/', {
-                    template: "Home"
+                    templateUrl: "tpl/home.html",
+                    controller: function ($rootScope) {
+                        $rootScope.page = "home";
+                    }
                 })
-                .when('/one', {
-                    template: "Page One"
+                .when('/code', {
+                    templateUrl: "tpl/code.html",
+                    controller: function ($rootScope) {
+                        $rootScope.page = "code";
+                    }
                 })
-                .when('/two', {
-                    template: "Page Two"
-                })
-                .when('/three', {
-                    template: "Page Three"
+                .when('/about', {
+                    templateUrl: "tpl/about.html",
+                    controller: function ($rootScope) {
+                        $rootScope.page = "about";
+                    }
                 })
                 .otherwise({redirectTo: '/'});
         }]);
+
+function PageController($scope, $route) {
+
+}

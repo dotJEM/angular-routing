@@ -90,6 +90,7 @@
     <Content Include="lib\jquery\jquery.d.ts" />
     <Content Include="samples\bootstrap.min.css" />
     <Content Include="samples\configuration.ts" />
+    <Content Include="samples\index.html" />
     <Content Include="samples\kp\contacts.detail.html" />
     <Content Include="samples\kp\contacts.detail.item.edit.html" />
     <Content Include="samples\kp\contacts.detail.item.html" />
@@ -98,15 +99,19 @@
     <Content Include="samples\kp\index.html" />
     <Content Include="samples\legacy\index.html" />
     <Content Include="samples\legacy\script\application.js" />
+    <Content Include="samples\legacy\tpl\about.html" />
+    <Content Include="samples\legacy\tpl\code.html" />
+    <Content Include="samples\legacy\tpl\home.html" />
     <Content Include="samples\simple\index.html" />
     <Content Include="samples\simple\script\application.js" />
+    <Content Include="samples\simple\tpl\about.html" />
+    <Content Include="samples\simple\tpl\code.html" />
+    <Content Include="samples\simple\tpl\home.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="lib\jasmine\impl\" />
     <Folder Include="Properties\" />
     <Folder Include="samples\actions\" />
-    <Folder Include="samples\legacy\tpl\" />
-    <Folder Include="samples\simple\tpl\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

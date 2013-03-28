@@ -1,0 +1,53 @@
+﻿<h2>Sample Code</h2>
+Here you can see the code that is used to configure the states in this simple sample.
+
+<h3>State Provider Configuration</h3>
+<pre>
+$stateProvider
+    .state('home', {
+        route: '/',
+        views: {
+            'main': {
+                template: 'tpl/home.html',
+                controller: function($rootScope) { $rootScope.page = "home"; }
+            },
+            'hint': { template: { html: '@home' } }
+        }
+    })
+    .state('code', {
+        route: '/code',
+        views: {
+            'main': {
+                template: 'tpl/code.html',
+                controller: function($rootScope) { $rootScope.page = "code"; }
+            },
+            'hint': { template: { html: '@one' } }
+        }
+    })
+    .state('about', {
+        route: '/about',
+        views: {
+            'main': {
+                template: 'tpl/about.html',
+                controller: function($rootScope) { $rootScope.page = "about"; }
+            },
+            'hint': { template: { html: '@two' } }
+        }
+    })
+    .transition('*', 'home', function ($rootScope) { $rootScope.transition = "root -> home"; })
+    .transition('*', 'code', function ($rootScope) { $rootScope.transition = "root -> code"; })
+    .transition('*', 'about', function ($rootScope) { $rootScope.transition = "root -> about"; })
+
+    .transition('home', 'code', function ($rootScope) { $rootScope.transition = "home -> code"; })
+    .transition('home', 'about', function($rootScope) { $rootScope.transition = "home -> about"; })
+    .transition('code', 'home', function($rootScope) { $rootScope.transition = "code -> home"; })
+    .transition('code', 'about', function($rootScope) { $rootScope.transition = "code -> about"; })
+    .transition('about', 'home', function($rootScope) { $rootScope.transition = "about -> home"; })
+    .transition('about', 'code', function($rootScope) { $rootScope.transition = "about -> code"; });
+</pre>
+
+<h3>Route Provider Configuration</h3>
+<pre>
+$routeProvider
+    .otherwise({ redirectTo: '/' });
+</pre>

@@ -17,21 +17,22 @@
     <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
-                <a class="brand" href="#/">ngStates</a>
+                <a class="brand" href="../index.html">Angular Routing Samples</a>
                 <ul class="nav">
-                    <li><a href="#/one">One</a></li>
-                    <li><a href="#/two">Two</a></li>
-                    <li><a href="#/three">Three</a></li>
+                    <li ng-class="page == 'home' && 'active' || ''"><a href="#/">Home</a></li>
+                    <li ng-class="page == 'code' && 'active' || ''"><a href="#/code">Code</a></li>
+                    <li ng-class="page == 'about' && 'active' || ''"><a href="#/about">About</a></li>
                 </ul>
                 <p class="navbar-text pull-right" ui-view="hint">Hint</p>
+                <p class="navbar-text pull-right">{{transition}} :&nbsp;</p>
             </div>
         </div>
     </div>
 
     <div class="container" style="margin-top: 60px" ui-view="main"></div>
 
-    <hr>
-    
+    <hr/>
+
     <div style="text-align: center">
     <div class="row" ng-controller="PageController" style="text-align: left; display: inline-block">
         <div class="span6">

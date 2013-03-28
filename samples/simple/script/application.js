@@ -9,46 +9,42 @@ app.config(['$stateProvider', '$routeProvider',
                    route: '/',
                    views: {
                        'main': {
-                           template: { html: '@home' }
+                           template: 'tpl/home.html',
+                           controller: function($rootScope) { $rootScope.page = "home"; }
                        },
-                       'hint': {
-                           template: { html: '@home' }
-                       }
+                       'hint': { template: { html: '@home' } }
                    }
                })
-               .state('one', {
-                   route: '/one',
+               .state('code', {
+                   route: '/code',
                    views: {
                        'main': {
-                           template: { html: '@one' }
+                           template: 'tpl/code.html',
+                           controller: function($rootScope) { $rootScope.page = "code"; }
                        },
-                       'hint': {
-                           template: { html: '@one' }
-                       }
+                       'hint': { template: { html: '@one' } }
                    }
                })
-               .state('two', {
-                   route: '/two',
+               .state('about', {
+                   route: '/about',
                    views: {
                        'main': {
-                           template: { html: '@two' }
+                           template: 'tpl/about.html',
+                           controller: function($rootScope) { $rootScope.page = "about"; }
                        },
-                       'hint': {
-                           template: { html: '@two' }
-                       }
+                       'hint': { template: { html: '@two' } }
                    }
                })
-               .state('three', {
-                   route: '/three',
-                   views: {
-                       'main': {
-                           template: { html: '@three' }
-                       },
-                       'hint': {
-                           template: { html: '@three' }
-                       }
-                   }
-               });
+               .transition('*', 'home', function ($rootScope) { $rootScope.transition = "root -> home"; })
+               .transition('*', 'code', function ($rootScope) { $rootScope.transition = "root -> code"; })
+               .transition('*', 'about', function ($rootScope) { $rootScope.transition = "root -> about"; })
+
+               .transition('home', 'code', function ($rootScope) { $rootScope.transition = "home -> code"; })
+               .transition('home', 'about', function($rootScope) { $rootScope.transition = "home -> about"; })
+               .transition('code', 'home', function($rootScope) { $rootScope.transition = "code -> home"; })
+               .transition('code', 'about', function($rootScope) { $rootScope.transition = "code -> about"; })
+               .transition('about', 'home', function($rootScope) { $rootScope.transition = "about -> home"; })
+               .transition('about', 'code', function($rootScope) { $rootScope.transition = "about -> code"; });
        }]);
 
 function clean(state) {
