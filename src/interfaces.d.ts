@@ -33,9 +33,10 @@ module ui.routing {
     }
 
     interface IRoute {
-        state?: any;
+        state?: string;
         action?: (...args: any[]) => any;
         redirectTo?: any;
+        reloadOnSearch: bool;
     }
 
     interface IRouteProvider {
@@ -55,6 +56,13 @@ module ui.routing {
 
     interface IState {
         children?: any;
+        route?: string;
+        reloadOnSearch?: bool;
+
+        onEnter?: any;
+        onExit?: any;
+
+        views?: any;
     }
 
     interface ITransition {
@@ -79,10 +87,7 @@ module ui.routing {
         current?: any;
     }
 
-    interface ITransitionService {
-        root: any;
-        find: (from: any, to: any) => any;
-    }
+    interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }
 
     interface ITransitionProvider extends ITransitionProviderBase {
         onenter(state: string, handler: ITransitionHandler);
@@ -121,8 +126,5 @@ module ui.routing {
 
         transition(from: any, to: any, handler: ITransitionHandler): IStateProvider;
         transition(from: any, to: any, handler: ITransition): IStateProvider;
-        transition(from: any, to: any, handler: any): IStateProvider;
-    }
-
-
+        transition(from: any, to: any, handler: any): IStateProvider;    }
 }

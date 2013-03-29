@@ -2,9 +2,19 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
+interface IStateWrapper {
+    children: any;
+    self: ui.routing.IState;
+    fullname: string;
+
+    parent?: IStateWrapper;
+    route?: string;
+    params?: string[];
+}
+
 'use strict';
-var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root = { fullname: 'root', children: {}, self: { fullname: 'root' } },
+var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
+    var root: IStateWrapper = { fullname: 'root', children: {}, self: { fullname: 'root' } },
         nameValidation = /^\w+(\.\w+)*?$/;
 
     function validateName(name: string) {
@@ -57,9 +67,8 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         return params;
     }
 
-    function registerState(name, at, state) {
+    function registerState(name, at: IStateWrapper, state: ui.routing.IState) {
         var fullname = at.fullname + '.' + name,
-            route: string,
             parent = at;
 
         if (!at.children) {
@@ -69,25 +78,23 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         if (!(name in at.children)) {
             at.children[name] = {};
         }
-
-        if (angular.isDefined(state.route)) {
-            route = createRoute(state.route, lookupRoute(at), fullname, state.reloadOnSearch);
-        }
-
-        if (angular.isDefined(state.onenter)) {
-            $transitionProvider.onenter(fullname, state.onexit);
-        }
-
-        if (angular.isDefined(state.onexit)) {
-            $transitionProvider.onexit(fullname, state.onexit);
-        }
-
         at = at.children[name];
         at.self = extend(state, { fullname: fullname });
         at.fullname = fullname;
         at.parent = parent;
-        if (angular.isDefined(route))
-            at.route = route;
+
+        if (angular.isDefined(state.route)) {
+            at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
+            at.params = findParams(state.route);
+        }
+
+        if (angular.isDefined(state.onEnter)) {
+            $transitionProvider.onenter(fullname, state.onEnter);
+        } 
+
+        if (angular.isDefined(state.onExit)) {
+            $transitionProvider.onexit(fullname, state.onExit);
+        }
 
         if (state.children === null) {
             at.children = {};
@@ -101,7 +108,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
     function lookup(names: string[]) {
         var current = root,
             //If name contains root explicitly, skip that one
-            i = names[0] === 'root'?1:0;
+            i = names[0] === 'root' ? 1 : 0;
 
         for (; i < names.length; i++) {
             if (!(names[i] in current.children))
@@ -122,7 +129,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         return { at: lookup(names), name: name };
     }
 
-    this.state = function (name: string, state: any) {
+    this.state = function (name: string, state: ui.routing.IState) {
         var pair;
         validateName(name);
 
@@ -136,14 +143,15 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
         return this;
     };
 
-    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$transition',
+    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$transition', '$location',
     function (
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         $injector: ng.auto.IInjectorService,
         $route: ui.routing.IRouteService,
         $view: ui.routing.IViewService,
-        $transition: ui.routing.ITransitionService) {
+        $transition: ui.routing.ITransitionService,
+        $location: ng.ILocationService) {
 
         var forceReload = false,
             $state: any = {
@@ -179,79 +187,91 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider',function ($ro
 
                 if (route.state) {
                     goto(route.state, params);
-                } else if (route.action) {
-                    $injector.invoke(route.action, { $params: params });
                 }
+                //TODO: Move Action to state instead?.
+                //if (route.action) {
+                //    $injector.invoke(route.action, { $params: params });
+                //}
             } else {
                 goto(root);
             }
         }
-              
-        function buildTransition(to, params?: { all; path; search; }): any {
-            var handlers: any[],
-                toState,
-                fromState = $state.current;
 
-            if (angular.isString(to)) {
-                to = lookupState(to);
-            } else {
-                //TODO: Make us independant from the state wrapper here?
-                to = lookupState(to.fullname);
-            }
+        function isChanged(state, params) {
 
-            //Note: Copy it so any thing the receiver does to the object dies after.
-            toState = inherit({}, to.self);
-            return {
-                from: fromState,
-                to: toState,
-                emit: $transition.find($state.current, toState)
+        }
+
+        function changeChain(to: IStateWrapper, params) {
+            var states = [],
+                lastChanged,
+                current = to;
+
+            while (current !== root) {
+                states.push(current);
+                if (isChanged(current, params)) {
+                    lastChanged = states.length - 1;
+                }
+                current = current.parent;
             }
+            return states.slice(0, lastChanged);
         }
 
         function goto(to, params?) {
-            var t = buildTransition(to, params), tr, cancel,
-                event, transaction, promise: ng.IPromise;
-            
-            event = $rootScope.$broadcast('$stateChangeStart', t.from, t.to);
+            var to = lookupState(toName(to)),
+                toState = inherit({}, to.self),
+                fromState = $state.current,
+                emit = $transition.find($state.current, toState),
+
+                cancel,
+                event,
+                transaction;
+
+            event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
-                tr = {
-                    cancel: function () { cancel = true; }
+                event = {
+                    cancel: () => {
+                        cancel = true;
+                    },
+                    goto: (state, params?) => {
+                        cancel = true;
+                        goto(state, params);
+                    }
                 };
 
-                t.emit.before(tr);
+                emit.before(event);
+                if (cancel) {
+                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                    //      That is if this was even triggered by an URL change in teh first place.
+                    return;
+                }
+
                 //TODO: Reach to TR.
 
-                $state.current = t.to;
+                $q.when(toState).then(() => {
+                    $state.current = toState;
 
-                promise = $q.when(t.to);
-
-                promise.then(() => {
-                    //TODO: var corelation = $view.BeginUpdate(); ??
                     transaction = $view.beginUpdate();
                     $view.clear();
 
                     //Should we pin views?
                     //tr.emit.between();
 
-                    angular.forEach(t.to.views, (view, name) => {
+                    angular.forEach(toState.views, (view, name) => {
                         $view.setOrUpdate(name, view.template, view.controller);
                     });
 
                     //Or let views be overwritten?
-                    t.emit.between(tr);
+                    emit.between(event);
                     //TODO: Reach to TR.
 
-                    //TODO: $view.EndUpdate(corelation); ??
                     transaction.commit();
-                    $rootScope.$broadcast('$stateChangeSuccess', t.to, t.from);
-
+                    $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
                 }, (error) => {
-                    $rootScope.$broadcast('$stateChangeError', t.to, t.from, error);
                     transaction.cancel();
-
+                    $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                 }).then(() => {
-                    t.emit.after(tr);
-                    //TODO: Reach to TR.
+                    emit.after(event);
+                    //Note: nothing to do here.
                 });
             }
         }

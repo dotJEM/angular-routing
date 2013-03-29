@@ -20,6 +20,7 @@ function $TransitionProvider() {
             this.transition('*', state, onenter);
         }
     }
+
     this.onexit = function (state: any, onexit) {
         //TODO: Validation
         if (angular.isArray(onexit)) {
@@ -32,6 +33,7 @@ function $TransitionProvider() {
             this.transition(state, '*', onexit);
         }
     }
+
     this.transition = function (from: any, to: any, handler: any) {
         var transition,
             regHandler;
@@ -65,10 +67,6 @@ function $TransitionProvider() {
         }
         return this;
     };
-
-    function toName(state: any) {
-        return angular.isString(state) ? state : state.fullname;
-    }
 
     function validate(from: string, to: string) {
         var fromValid = validateTarget(from),
