@@ -21,7 +21,7 @@ files = [
     
   'src/legacy/templateDecorator.js',
     
-  'src/directives/jemView.js',
+  'src/directives/uiView.js',
     
   'test/**/*Spec.js'
 ];
