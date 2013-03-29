@@ -199,16 +199,16 @@ function $TransitionProvider() {
                 transitions = [],
                 index = names[0] === 'root' ? 1: 0;
 
-            do {
+            do {
                 if ('*' in current.children) {
-                    transitions.push(current.children['*']);
+                    transitions.push(current.children['*']);
                 }
 
-                if (names[index] in current.children) {
+                if (names[index] in current.children) {
                     current = current.children[names[index]];
-                    transitions.push(current);
-                } else {
-                    break;
+                    transitions.push(current);
+                } else {
+                    break;
                 }
             } while(index++ < names.length)
             return transitions;

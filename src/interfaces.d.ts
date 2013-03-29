@@ -79,12 +79,12 @@ module ui.routing {
         current?: any;
     }
 
-    interface ITransitionService {
-        root: any;
-        find: (from: any, to: any) => any;
+    interface ITransitionService {
+        root: any;
+        find: (from: any, to: any) => any;
     }
 
-    interface ITransitionProvider extends ITransitionProviderBase {
+    interface ITransitionProvider extends ITransitionProviderBase {
         onenter(state: string, handler: ITransitionHandler);
         onenter(state: string, handler: ITransition);
         onenter(state: string, handler: any);
@@ -102,7 +102,7 @@ module ui.routing {
         onexit(state: any, handler: any);
     }
 
-    interface ITransitionProviderBase {
+    interface ITransitionProviderBase {
         transition(from: string, to: string, handler: ITransitionHandler): IStateProvider;
         transition(from: string, to: string, handler: ITransition): IStateProvider;
         transition(from: string, to: string, handler: any): IStateProvider;
@@ -121,7 +121,7 @@ module ui.routing {
 
         transition(from: any, to: any, handler: ITransitionHandler): IStateProvider;
         transition(from: any, to: any, handler: ITransition): IStateProvider;
-        transition(from: any, to: any, handler: any): IStateProvider;
+        transition(from: any, to: any, handler: any): IStateProvider;
     }
 
 

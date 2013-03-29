@@ -371,16 +371,16 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('can register states with and without routes', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+        it('can register states with and without routes', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('top', { route: '/top', name: 'top' })
                     .state('top.center', { name: 'top.center' })
                     .state('top.center.one', { route: '/one', name: 'top.center.one' })
-                    .state('top.center.two', { route: '/two', name: 'top.center.two' });
+                    .state('top.center.two', { route: '/two', name: 'top.center.two' });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -400,17 +400,17 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('top.center.two');
-                expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
-            });
+                expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
+            });
         });
     });
 
     //Note: Integration tests between $transition and $state etc.
 
     describe("$transition $routeChangeSuccess", () => {
-        it('Correct Transitions are called on state change.', function () {
+        it('Correct Transitions are called on state change.', function () {
             var last;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('home', { route: '/', name: 'about' })
 
@@ -429,42 +429,42 @@ describe('$stateProvider', function () {
                     .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->about', from: $from, to: $to }; }])
                     .transition('blog', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->gallery', from: $from, to: $to }; }])
                     .transition('about', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->blog', from: $from, to: $to }; }])
-                    .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
-                    .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
-                    .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
+                    .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
+                    .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
+                    .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-                function go(path: string) {
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                function go(path: string) {
                     $location.path(path);
-                    scope.$digest();
-                }
-
+                    scope.$digest();
+                }
+
                 go('/blog');
                 expect(last).toBeUndefined();
 
                 go('/about');
-                expect(last.name).toBe('blog->about');
-
+                expect(last.name).toBe('blog->about');
+
                 go('/gallery');
-                expect(last.name).toBe('about->gallery');
-
+                expect(last.name).toBe('about->gallery');
+
                 go('/blog');
-                expect(last.name).toBe('gallery->blog');
-
+                expect(last.name).toBe('gallery->blog');
+
                 go('/gallery');
-                expect(last.name).toBe('blog->gallery');
-
+                expect(last.name).toBe('blog->gallery');
+
                 go('/about');
-                expect(last.name).toBe('gallery->about');
-
+                expect(last.name).toBe('gallery->about');
+
                 go('/blog');
-                expect(last.name).toBe('about->blog');
-            });
+                expect(last.name).toBe('about->blog');
+            });
         });
 
-        it('Transitions can be canceled.', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+        it('Transitions can be canceled.', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('home', { route: '/', name: 'about' })
 
@@ -481,18 +481,18 @@ describe('$stateProvider', function () {
                     .state('gallery.details', { route: '/details', name: 'about.other' })
 
                     .state('admin', { route: '/admin', name: 'about.other' })
-
-                    .transition('*', 'admin', ($transition) => {
-                        $transition.cancel();
-                    })
+
+                    .transition('*', 'admin', ($transition) => {
+                        $transition.cancel();
+                    })
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-                function go(path: string) {
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+                function go(path: string) {
                     $location.path(path);
-                    scope.$digest();
-                }
-
+                    scope.$digest();
+                }
+
                 go('/blog');
                 go('/admin');
 
@@ -503,10 +503,10 @@ describe('$stateProvider', function () {
                 go('/about');
                 go('/admin');
 
-                //expect(last.name).toBe('blog->about');
-            });
+                //expect(last.name).toBe('blog->about');
+            });
         });
 
-
+
     });
 });

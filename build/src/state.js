@@ -42,6 +42,18 @@ var $StateProvider = [
             }
             return (parent && parent.route) || '';
         }
+        var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
+        function findParams(path) {
+            var match, params = [];
+            if(path === null) {
+                return params;
+            }
+            while((match = re.exec(path)) !== null) {
+                var paramName = match[3] || match[9];
+                params.push(paramName);
+            }
+            return params;
+        }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, route, parent = at;
             if(!at.children) {
