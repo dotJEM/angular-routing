@@ -216,7 +216,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
         function changeChain(to: IStateWrapper, params) {
             var states = [],
-                lastChanged = 0,
+                lastChanged = 1,
                 current = to;
 
             while (current !== root) {
@@ -226,7 +226,10 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 }
                 current = current.parent;
             }
-            return states.slice(0, lastChanged).reverse();
+            return {
+                states: states.reverse(),
+                first: states.length - lastChanged
+            } 
         }
 
         function goto(to, params?) {
@@ -242,7 +245,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 transition,
                 transaction,
 
-                changedStates = changeChain(to, params);
+                changed = changeChain(to, params);
 
             event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
@@ -268,9 +271,13 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                     transaction = $view.beginUpdate();
                     $view.clear();
 
-                    forEach(changedStates, (state) => {
+                    forEach(changed.states, (state, index) => {
                         angular.forEach(state.self.views, (view, name) => {
-                            $view.setOrUpdate(name, view.template, view.controller);
+                            if (index < changed.first) {
+                                $view.setIfAbsent(name, view.template, view.controller);
+                            } else {
+                                $view.setOrUpdate(name, view.template, view.controller);
+                            }
                         });
                     });
 

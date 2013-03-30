@@ -172,7 +172,7 @@ var $StateProvider = [
                     return result;
                 }
                 function changeChain(to, params) {
-                    var states = [], lastChanged = 0, current = to;
+                    var states = [], lastChanged = 1, current = to;
                     while(current !== root) {
                         states.push(current);
                         if(isChanged(current, params)) {
@@ -180,12 +180,15 @@ var $StateProvider = [
                         }
                         current = current.parent;
                     }
-                    return states.slice(0, lastChanged).reverse();
+                    return {
+                        states: states.reverse(),
+                        first: states.length - lastChanged
+                    };
                 }
                 function goto(to, params) {
                     var to = lookupState(toName(to)), toState = inherit({
                         params: params
-                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changedStates = changeChain(to, params);
+                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         transition = {
@@ -204,9 +207,13 @@ var $StateProvider = [
                         $q.when(toState).then(function () {
                             transaction = $view.beginUpdate();
                             $view.clear();
-                            forEach(changedStates, function (state) {
+                            forEach(changed.states, function (state, index) {
                                 angular.forEach(state.self.views, function (view, name) {
-                                    $view.setOrUpdate(name, view.template, view.controller);
+                                    if(index < changed.first) {
+                                        $view.setIfAbsent(name, view.template, view.controller);
+                                    } else {
+                                        $view.setOrUpdate(name, view.template, view.controller);
+                                    }
                                 });
                             });
                             emit.between(transition);

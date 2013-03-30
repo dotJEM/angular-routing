@@ -413,7 +413,7 @@ describe('$stateProvider', function () {
             mock.inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {                function go(path: string) {
                     $location.path(path);
                     scope.$digest();
-                };                //$view.setOrUpdate(name, view.template, view.controller)                var viewSpy = spyOn($view, 'setOrUpdate');                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+            };                //$view.setOrUpdate(name, view.template, view.controller)                var viewSpy = spyOn($view, 'setOrUpdate'); spyOn($view, 'setIfAbsent');                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
                                 
                 go('/top/1');

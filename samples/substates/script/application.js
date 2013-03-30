@@ -10,25 +10,38 @@
                    route: '/blog',                   views: {
                        'main': {
                            template: 'tpl/blog.html',                           controller: function ($rootScope, $scope, blog) {
-                               $rootScope.page = "blog";                               $scope.posts = blog.getAllPosts();                               $scope.categories = blog.getCategories();                               $scope.archives = blog.getArchives();
+                               $rootScope.page = "blog";                               $scope.categories = blog.getCategories();                               $scope.archives = blog.getArchives();
                            }
                        },                       'hint': { template: { html: '@blog' } },                       'content': {
-                           template: 'tpl/blog.list.html'
+                           template: 'tpl/blog.list.html',                           controller: function ($scope, blog) {
+                               $scope.title = "Recent Posts";
+                               $scope.posts = blog.getRecentPosts();
+                           }
                        }
                    }
                })               .state('blog.category', {
                    route: '/category/{category}',                   views: {
                        'hint': { template: { html: '@blog.category' } },                       'content': {
-                           template: 'tpl/blog.list.html'
+                           template: 'tpl/blog.list.html',                           controller: function ($scope, $routeParams, blog) {
+                               $scope.title = $routeParams.category;
+                               $scope.posts = blog.getPostsByCategory($routeParams.category);
+                           }
                        }
                    }
                })               .state('blog.archive', {
-                   route: '/archive/{archive}',                   views: {
-                       'main': {
-                           template: 'tpl/blog.html',                           controller: function ($rootScope, $scope, blog) {
-                               $rootScope.page = "blog";                               $scope.posts = blog.getAllPosts();                               $scope.categories = blog.getCategories();                               $scope.archives = blog.getArchives();
+                   route: '/archive/{archive}',                   views: {                       'hint': { template: { html: '@blog.archive' } },                       'content': {
+                           template: 'tpl/blog.list.html',                           controller: function ($scope, $routeParams, blog) {
+                               $scope.title = $routeParams.archive;
+                               $scope.posts = blog.getPostsByArchive($routeParams.archive);
                            }
-                       },                       'hint': { template: { html: '@blog.archive' } }
+                       }
+                   }
+               })               .state('blog.post', {
+                   route: '/post/{post}',                   views: {                       'hint': { template: { html: '@blog.post' } },                       'content': {
+                           template: 'tpl/blog.post.html',                           controller: function ($scope, $routeParams, blog) {
+                               $scope.post = blog.getPost($routeParams.post);
+                           }
+                       }
                    }
                })               .state('code', {
                    route: '/code',                   views: {
@@ -60,8 +73,29 @@ app.service('blog', function () {
             title: 'Other Config',            content: 'Just another post',            category: 'other',
             date: new Date(),            views: 0
         }    ];
-    this.getAllPosts = function () {
-        return posts;
+    this.getPost = function (title) {
+        var result;
+        angular.forEach(posts, function (post) {
+            if (post.title === title)
+                result = post;
+        });
+        return result;
+    };
+
+    this.getRecentPosts = function () {
+        return posts.slice(0,5);
+    };
+
+    this.getPostsByCategory = function (category) {
+        var result = [];        angular.forEach(posts, function (post) {
+            if (post.category === category)                result.push(post);
+        });        return result;
+    };
+
+    this.getPostsByArchive = function (month) {
+        var result = [];        angular.forEach(posts, function (post) {
+            var postMonth = monthlong[post.date.getMonth()] + ' ' + post.date.getFullYear();            if (postMonth === month)                result.push(post);
+        });        return result;
     };
     this.getArchives = function () {
         var months = [];        angular.forEach(posts, function (post) {

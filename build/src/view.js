@@ -33,9 +33,12 @@ function $ViewProvider() {
                     });
                 } else {
                     if(transaction) {
-                        transaction.records[name] = (function () {
-                            _this.clear(name);
-                        });
+                        transaction.records[name] = {
+                            act: 'clear',
+                            fn: function () {
+                                _this.clear(name);
+                            }
+                        };
                         return;
                     }
                     delete views[name];
@@ -46,9 +49,12 @@ function $ViewProvider() {
                 var _this = this;
                 ensureName(name);
                 if(transaction) {
-                    transaction.records[name] = (function () {
-                        _this.setOrUpdate(name, template, controller);
-                    });
+                    transaction.records[name] = {
+                        act: 'setOrUpdate',
+                        fn: function () {
+                            _this.setOrUpdate(name, template, controller);
+                        }
+                    };
                     return;
                 }
                 if(containsView(views, name)) {
@@ -68,10 +74,13 @@ function $ViewProvider() {
                 var _this = this;
                 ensureName(name);
                 if(transaction) {
-                    if(!containsView(transaction.records, name)) {
-                        transaction.records[name] = (function () {
-                            _this.setIfAbsent(name, template, controller);
-                        });
+                    if(!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
+                        transaction.records[name] = {
+                            act: 'setIfAbsent',
+                            fn: function () {
+                                _this.setIfAbsent(name, template, controller);
+                            }
+                        };
                     }
                     return;
                 }
@@ -101,8 +110,8 @@ function $ViewProvider() {
                 return {
                     commit: function () {
                         transaction = null;
-                        angular.forEach(trx.records, function (fn) {
-                            fn();
+                        angular.forEach(trx.records, function (rec) {
+                            rec.fn();
                         });
                     },
                     cancel: function () {

@@ -690,7 +690,7 @@ var $StateProvider = [
                     return result;
                 }
                 function changeChain(to, params) {
-                    var states = [], lastChanged = 0, current = to;
+                    var states = [], lastChanged = 1, current = to;
                     while(current !== root) {
                         states.push(current);
                         if(isChanged(current, params)) {
@@ -698,12 +698,15 @@ var $StateProvider = [
                         }
                         current = current.parent;
                     }
-                    return states.slice(0, lastChanged).reverse();
+                    return {
+                        states: states.reverse(),
+                        first: states.length - lastChanged
+                    };
                 }
                 function goto(to, params) {
                     var to = lookupState(toName(to)), toState = inherit({
                         params: params
-                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changedStates = changeChain(to, params);
+                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         transition = {
@@ -722,9 +725,13 @@ var $StateProvider = [
                         $q.when(toState).then(function () {
                             transaction = $view.beginUpdate();
                             $view.clear();
-                            forEach(changedStates, function (state) {
+                            forEach(changed.states, function (state, index) {
                                 angular.forEach(state.self.views, function (view, name) {
-                                    $view.setOrUpdate(name, view.template, view.controller);
+                                    if(index < changed.first) {
+                                        $view.setIfAbsent(name, view.template, view.controller);
+                                    } else {
+                                        $view.setOrUpdate(name, view.template, view.controller);
+                                    }
                                 });
                             });
                             emit.between(transition);
@@ -834,9 +841,12 @@ function $ViewProvider() {
                     });
                 } else {
                     if(transaction) {
-                        transaction.records[name] = (function () {
-                            _this.clear(name);
-                        });
+                        transaction.records[name] = {
+                            act: 'clear',
+                            fn: function () {
+                                _this.clear(name);
+                            }
+                        };
                         return;
                     }
                     delete views[name];
@@ -847,9 +857,12 @@ function $ViewProvider() {
                 var _this = this;
                 ensureName(name);
                 if(transaction) {
-                    transaction.records[name] = (function () {
-                        _this.setOrUpdate(name, template, controller);
-                    });
+                    transaction.records[name] = {
+                        act: 'setOrUpdate',
+                        fn: function () {
+                            _this.setOrUpdate(name, template, controller);
+                        }
+                    };
                     return;
                 }
                 if(containsView(views, name)) {
@@ -869,10 +882,13 @@ function $ViewProvider() {
                 var _this = this;
                 ensureName(name);
                 if(transaction) {
-                    if(!containsView(transaction.records, name)) {
-                        transaction.records[name] = (function () {
-                            _this.setIfAbsent(name, template, controller);
-                        });
+                    if(!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
+                        transaction.records[name] = {
+                            act: 'setIfAbsent',
+                            fn: function () {
+                                _this.setIfAbsent(name, template, controller);
+                            }
+                        };
                     }
                     return;
                 }
@@ -902,8 +918,8 @@ function $ViewProvider() {
                 return {
                     commit: function () {
                         transaction = null;
-                        angular.forEach(trx.records, function (fn) {
-                            fn();
+                        angular.forEach(trx.records, function (rec) {
+                            rec.fn();
                         });
                     },
                     cancel: function () {

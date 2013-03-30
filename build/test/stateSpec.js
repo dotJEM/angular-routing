@@ -444,6 +444,7 @@ describe('$stateProvider', function () {
                 }
                 ;
                 var viewSpy = spyOn($view, 'setOrUpdate');
+                spyOn($view, 'setIfAbsent');
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 go('/top/1');

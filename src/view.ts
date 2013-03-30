@@ -38,9 +38,12 @@ function $ViewProvider() {
                 });
             } else {
                 if (transaction) {
-                    transaction.records[name] = (() => {
-                        this.clear(name);
-                    });
+                    transaction.records[name] = {
+                        act: 'clear',
+                        fn: () => {
+                            this.clear(name);
+                        }
+                    };
                     return;
                 }
                 delete views[name];
@@ -53,9 +56,12 @@ function $ViewProvider() {
             ensureName(name);
 
             if (transaction) {
-                transaction.records[name] = (() => {
-                    this.setOrUpdate(name, template, controller);
-                });
+                transaction.records[name] = {
+                    act: 'setOrUpdate',
+                    fn: () => {
+                        this.setOrUpdate(name, template, controller);
+                    }
+                };
                 return;
             }
 
@@ -79,10 +85,13 @@ function $ViewProvider() {
             ensureName(name);
 
             if (transaction) {
-                if (!containsView(transaction.records, name)) {
-                    transaction.records[name] = (() => {
-                        this.setIfAbsent(name, template, controller);
-                    });
+                if (!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
+                    transaction.records[name] = {
+                        act: 'setIfAbsent',
+                        fn: () => {
+                            this.setIfAbsent(name, template, controller);
+                        }
+                    };
                 }
                 return;
             }
@@ -118,7 +127,7 @@ function $ViewProvider() {
             return {
                 commit: function () {
                     transaction = null;
-                    angular.forEach(trx.records, (fn) => { fn(); })
+                    angular.forEach(trx.records, (rec) => { rec.fn(); })
                 },
                 cancel: function () {
                     transaction = null;
