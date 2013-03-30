@@ -90,7 +90,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
         if (angular.isDefined(state.onEnter)) {
             $transitionProvider.onenter(fullname, state.onEnter);
-        } 
+        }
 
         if (angular.isDefined(state.onExit)) {
             $transitionProvider.onexit(fullname, state.onExit);
@@ -197,8 +197,16 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
             }
         }
 
-        function isChanged(state, params) {
+        function isChanged(state: IStateWrapper, params) {
+            var old = $state.current.params,
+                oldPar = old && old.all || {},
+                newPar = params.all;
 
+            forEach(state.params, (name) => {
+                if (oldPar[name] !== newPar[name])
+                    return true;
+            });
+            return false;
         }
 
         function changeChain(to: IStateWrapper, params) {
@@ -218,28 +226,36 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
         function goto(to, params?) {
             var to = lookupState(toName(to)),
-                toState = inherit({}, to.self),
+                toState = inherit({ params: params }, to.self),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
-                cancel,
+                cancel = { should: false },
                 event,
-                transaction;
+                transition,
+                transaction,
+
+                changedStates = changeChain(to, params);
 
             event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
-                event = {
-                    cancel: () => {
-                        cancel = true;
+                transition = {
+                    cancel: function () {
+                        //console.log('Called Cancel');
+                        cancel.should = true;
+                        //console.log('cancel.should:' + cancel.should);
                     },
                     goto: (state, params?) => {
-                        cancel = true;
+                        cancel.should = true;
                         goto(state, params);
                     }
                 };
 
-                emit.before(event);
-                if (cancel) {
+                emit.before(transition);
+
+                //console.log('Value of Cancel: ' + cancel.should);
+
+                if (cancel.should) {
                     //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                     //      That is if this was even triggered by an URL change in teh first place.
                     return;
@@ -261,7 +277,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                     });
 
                     //Or let views be overwritten?
-                    emit.between(event);
+                    emit.between(transition);
                     //TODO: Reach to TR.
 
                     transaction.commit();
@@ -270,7 +286,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                     transaction.cancel();
                     $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                 }).then(() => {
-                    emit.after(event);
+                    emit.after(transition);
                     //Note: nothing to do here.
                 });
             }

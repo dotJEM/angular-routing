@@ -11,7 +11,7 @@ module ui.routing {
         [name: string]: IView;
     }
 
-    interface IViewUpdateTransaction {
+    interface IViewTransaction {
         commit();
         cancel();
     }
@@ -23,7 +23,7 @@ module ui.routing {
         get (viewname: string): IView;
         get (): IViewMap;
 
-        beginUpdate(): IViewUpdateTransaction;
+        beginUpdate(): IViewTransaction;
     }
 
     interface ITemplateService {
@@ -40,11 +40,16 @@ module ui.routing {
     }
 
     interface IRouteProvider {
+        when(path: string, route: any): IRouteProvider;
         when(path: string, route: IRoute): IRouteProvider;
+
         convert(name: string, converter: (...args: any[]) => any): IRouteProvider;
+
         decorate(name: string, decorator: (...args: any[]) => any): IRouteProvider;
         decorate(name: string, decorator: any[]): IRouteProvider;
+
         otherwise(redirectPath: string): IRouteProvider;
+
         ignoreCase(): IRouteProvider;
         matchCase(): IRouteProvider;
     }

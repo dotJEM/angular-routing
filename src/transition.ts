@@ -71,6 +71,7 @@ function $TransitionProvider() {
     function validate(from: string, to: string) {
         var fromValid = validateTarget(from),
             toValid = validateTarget(to);
+
         if (fromValid && toValid) // && from !== to
             return;
 
@@ -91,7 +92,6 @@ function $TransitionProvider() {
             return true;
         return false;
     }
-    
     
     function lookup(name: string) {
         var current = root,
@@ -122,24 +122,23 @@ function $TransitionProvider() {
                 handlers = extractHandlers(transitions, to.fullname),
                 emitters: any[];
 
-            function emit(select, transitionControl) {
+            function emit(select, tc) {
                 var handler;
-                angular.forEach(handlers, (handlerObj) => {
+                forEach(handlers, (handlerObj) => {
                     if (angular.isDefined(handler = select(handlerObj))) {
-                        $injector.invoke(handler, null, {
+                        $injector.invoke(handler, this, {
                             $to: to,
                             $from: from,
-                            $transition: transitionControl
+                            $tc: tc
                         });
-                        return transitionControl;
                     }
-                })
+                });
             }
 
             return {
-                before: t => emit(h => h.before, t),
-                between: t => emit(h => h.between, t),
-                after: t => emit(h => h.after, t)
+                before: function(tc) { emit(h => h.before, tc) },
+                between: function (tc) { emit(h => h.between, tc) },
+                after: function (tc) { emit(h => h.after, tc) },
             };
         }
 
@@ -153,9 +152,6 @@ function $TransitionProvider() {
             var left = trimRoot(one.split('.')).reverse(),
                 right = trimRoot(to.split('.')).reverse(),
                 l, r, i = 0;
-
-            //console.log("Comparing " + one + " to " + to);
-            //console.log("Comparing " + left.join('.') + " to " + right.join('.'));
 
             while (true) {
                 l = left.pop();
@@ -177,9 +173,6 @@ function $TransitionProvider() {
             var handlers = [];
             angular.forEach(transitions, (t) => {
                 angular.forEach(t.targets, (target, targetName) => {
-                    //var result = compare(targetName, to);
-                    //console.log("Comparing " + targetName + " to " + to + " = " + result);
-
                     if (compare(targetName, to)) {
                         angular.forEach(target, value => {
                             handlers.push(value);
@@ -199,8 +192,7 @@ function $TransitionProvider() {
 
             do {
                 if ('*' in current.children) {
-                    transitions.push(current.children['*']);
-                }
+                    transitions.push(current.children['*']);                }
 
                 if (names[index] in current.children) {
                     current = current.children[names[index]];
