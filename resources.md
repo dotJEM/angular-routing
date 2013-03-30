@@ -55,6 +55,7 @@ $&
 ## Other stuff
 
 - http://michaux.ca/articles/lazy-function-definition-pattern
+- http://jsfiddle.net/Q7wR8/8/
 
 ## Continous Ingegration
 
