@@ -6,7 +6,7 @@ function $TransitionProvider() {
         targets: {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
-    this.onenter = function (state, onenter) {
+    this.onEnter = function (state, onenter) {
         if(angular.isArray(onenter)) {
             angular.forEach(onenter, function (single) {
                 onenter(single, state);
@@ -17,7 +17,7 @@ function $TransitionProvider() {
             this.transition('*', state, onenter);
         }
     };
-    this.onexit = function (state, onexit) {
+    this.onExit = function (state, onexit) {
         var _this = this;
         if(angular.isArray(onexit)) {
             angular.forEach(onexit, function (single) {
@@ -58,9 +58,6 @@ function $TransitionProvider() {
         }
         return this;
     };
-    function toName(state) {
-        return angular.isString(state) ? state : state.fullname;
-    }
     function validate(from, to) {
         var fromValid = validateTarget(from), toValid = validateTarget(to);
         if(fromValid && toValid) {
@@ -106,34 +103,34 @@ function $TransitionProvider() {
             return $transition;
             function find(from, to) {
                 var transitions = findTransitions(from.fullname), handlers = extractHandlers(transitions, to.fullname), emitters;
-                function emit(select, transitionControl) {
+                function emit(select, tc) {
+                    var _this = this;
                     var handler;
-                    angular.forEach(handlers, function (handlerObj) {
+                    forEach(handlers, function (handlerObj) {
                         if(angular.isDefined(handler = select(handlerObj))) {
-                            $injector.invoke(handler, null, {
+                            $injector.invoke(handler, _this, {
                                 $to: to,
                                 $from: from,
-                                $transition: transitionControl
+                                $transition: tc
                             });
-                            return transitionControl;
                         }
                     });
                 }
                 return {
-                    before: function (t) {
-                        return emit(function (h) {
+                    before: function (tc) {
+                        emit(function (h) {
                             return h.before;
-                        }, t);
+                        }, tc);
                     },
-                    between: function (t) {
-                        return emit(function (h) {
+                    between: function (tc) {
+                        emit(function (h) {
                             return h.between;
-                        }, t);
+                        }, tc);
                     },
-                    after: function (t) {
-                        return emit(function (h) {
+                    after: function (tc) {
+                        emit(function (h) {
                             return h.after;
-                        }, t);
+                        }, tc);
                     }
                 };
             }

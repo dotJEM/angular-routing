@@ -6,20 +6,7 @@ function inherit(parent, extra) {
         prototype: parent
     }))(), extra);
 }
-function merge(dst) {
-    var args = [];
-    for (var _i = 0; _i < (arguments.length - 1); _i++) {
-        args[_i] = arguments[_i + 1];
-    }
-    forEach(arguments, function (obj) {
-        if(obj !== dst) {
-            forEach(obj, function (value, key) {
-                if(!dst.hasOwnProperty(key)) {
-                    dst[key] = value;
-                }
-            });
-        }
-    });
-    return dst;
+function toName(named) {
+    return isString(named) ? named : named.fullname;
 }
 angular.module('ui.routing', []);

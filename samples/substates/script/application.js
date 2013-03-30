@@ -18,11 +18,7 @@
                    }
                })               .state('blog.category', {
                    route: '/category/{category}',                   views: {
-                       'main': {
-                           template: 'tpl/blog.html',                           controller: function ($rootScope, $scope, blog) {
-                               $rootScope.page = "blog";                               $scope.posts = blog.getAllPosts();                               $scope.categories = blog.getCategories();                               $scope.archives = blog.getArchives();
-                           }
-                       },                       'hint': { template: { html: '@blog.category' } },                       'content': {
+                       'hint': { template: { html: '@blog.category' } },                       'content': {
                            template: 'tpl/blog.list.html'
                        }
                    }

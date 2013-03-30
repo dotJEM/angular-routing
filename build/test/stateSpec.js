@@ -409,6 +409,122 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
             });
         });
+        it('states with parameters get invoked on parameter change', function () {
+            mock.module(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    route: '/top/:top',
+                    name: 'top',
+                    views: {
+                        'top': {
+                            template: "top"
+                        }
+                    }
+                }).state('top.sub', {
+                    route: '/sub/:sub',
+                    name: 'sub',
+                    views: {
+                        'sub': {
+                            template: "sub"
+                        }
+                    }
+                }).state('top.sub.bot', {
+                    route: '/bot/:bot',
+                    name: 'bot',
+                    views: {
+                        'bot': {
+                            template: "bot"
+                        }
+                    }
+                });
+            });
+            mock.inject(function ($location, $route, $state, $view) {
+                function go(path) {
+                    $location.path(path);
+                    scope.$digest();
+                }
+                ;
+                var viewSpy = spyOn($view, 'setOrUpdate');
+                var spy = jasmine.createSpy('mySpy');
+                scope.$on('$stateChangeSuccess', spy);
+                go('/top/1');
+                expect($state.current.name).toBe('top');
+                expect($state.current.params.all.top).toBe('1');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/2');
+                expect($state.current.name).toBe('top');
+                expect($state.current.params.all.top).toBe('2');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/1/sub/1');
+                expect($state.current.name).toBe('sub');
+                expect($state.current.params.all.top).toBe('1');
+                expect($state.current.params.all.sub).toBe('1');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(2);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                expect(viewSpy.calls[1].args[0]).toBe('sub');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/1/sub/2');
+                expect($state.current.name).toBe('sub');
+                expect($state.current.params.all.top).toBe('1');
+                expect($state.current.params.all.sub).toBe('2');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('sub');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/2/sub/2');
+                expect($state.current.name).toBe('sub');
+                expect($state.current.params.all.top).toBe('2');
+                expect($state.current.params.all.sub).toBe('2');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(2);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                expect(viewSpy.calls[1].args[0]).toBe('sub');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/1/sub/1/bot/1');
+                expect($state.current.name).toBe('bot');
+                expect($state.current.params.all.top).toBe('1');
+                expect($state.current.params.all.sub).toBe('1');
+                expect($state.current.params.all.bot).toBe('1');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(3);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                expect(viewSpy.calls[1].args[0]).toBe('sub');
+                expect(viewSpy.calls[2].args[0]).toBe('bot');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/1/sub/1/bot/2');
+                expect($state.current.name).toBe('bot');
+                expect($state.current.params.all.top).toBe('1');
+                expect($state.current.params.all.sub).toBe('1');
+                expect($state.current.params.all.bot).toBe('2');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('bot');
+                spy.reset();
+                viewSpy.reset();
+                go('/top/2/sub/1/bot/2');
+                expect($state.current.name).toBe('bot');
+                expect($state.current.params.all.top).toBe('2');
+                expect($state.current.params.all.sub).toBe('1');
+                expect($state.current.params.all.bot).toBe('2');
+                expect(spy.wasCalled).toBe(true);
+                expect(viewSpy.callCount).toBe(3);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                expect(viewSpy.calls[1].args[0]).toBe('sub');
+                expect(viewSpy.calls[2].args[0]).toBe('bot');
+            });
+        });
     });
     describe("$transition $routeChangeSuccess", function () {
         it('Correct Transitions are called on state change.', function () {
@@ -534,7 +650,7 @@ describe('$stateProvider', function () {
                     name: 'blog.recent'
                 }).state('blog.other', {
                     route: '/other',
-                    name: 'blog.recent'
+                    name: 'blog.other'
                 }).state('about', {
                     route: '/about',
                     name: 'about'
@@ -546,16 +662,16 @@ describe('$stateProvider', function () {
                     name: 'about.other'
                 }).state('gallery', {
                     route: '/gallery',
-                    name: 'about.cv'
+                    name: 'gallery'
                 }).state('gallery.overview', {
                     route: '/overview',
-                    name: 'about.other'
+                    name: 'gallery.overview'
                 }).state('gallery.details', {
                     route: '/details',
-                    name: 'about.other'
+                    name: 'gallery.details'
                 }).state('admin', {
                     route: '/admin',
-                    name: 'about.other'
+                    name: 'admin'
                 }).transition('*', 'admin', function ($transition) {
                     $transition.cancel();
                 });
@@ -567,10 +683,13 @@ describe('$stateProvider', function () {
                 }
                 go('/blog');
                 go('/admin');
+                expect($state.current.name).toBe('blog');
                 go('/gallery');
                 go('/admin');
+                expect($state.current.name).toBe('gallery');
                 go('/about');
                 go('/admin');
+                expect($state.current.name).toBe('about');
             });
         });
     });

@@ -8,7 +8,7 @@ function $TransitionProvider() {
     var root = { children: { }, targets: { } },
         validation = /^\w+(\.\w+)*(\.[*])?$/;
 
-    this.onenter = function (state, onenter) {
+    this.onEnter = function (state, onenter) {
         //TODO: Validation
         if (angular.isArray(onenter)) {
             angular.forEach(onenter, (single) => {
@@ -21,7 +21,7 @@ function $TransitionProvider() {
         }
     }
 
-    this.onexit = function (state: any, onexit) {
+    this.onExit = function (state: any, onexit) {
         //TODO: Validation
         if (angular.isArray(onexit)) {
             angular.forEach(onexit, (single) => {
@@ -129,7 +129,7 @@ function $TransitionProvider() {
                         $injector.invoke(handler, this, {
                             $to: to,
                             $from: from,
-                            $tc: tc
+                            $transition: tc
                         });
                     }
                 });

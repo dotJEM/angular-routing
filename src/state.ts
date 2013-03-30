@@ -89,11 +89,11 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         }
 
         if (angular.isDefined(state.onEnter)) {
-            $transitionProvider.onenter(fullname, state.onEnter);
+            $transitionProvider.onEnter(fullname, state.onEnter);
         }
 
         if (angular.isDefined(state.onExit)) {
-            $transitionProvider.onexit(fullname, state.onExit);
+            $transitionProvider.onExit(fullname, state.onExit);
         }
 
         if (state.children === null) {
@@ -159,6 +159,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 current: inherit({}, root),
                 goto: goto,
 
+                //TODO: Implement functions that return siblings etc.
                 nextSibling: '',
                 prevSibling: '',
                 parrent: '',
@@ -200,37 +201,43 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         function isChanged(state: IStateWrapper, params) {
             var old = $state.current.params,
                 oldPar = old && old.all || {},
-                newPar = params.all;
+                newPar = params.all,
+                result = false;
 
             forEach(state.params, (name) => {
-                if (oldPar[name] !== newPar[name])
-                    return true;
+                //TODO: Implement an equals function that converts towards strings as this could very well
+                //      ignore an change on certain situations.
+                //
+                //      also change to a damn "forEach" where we can break out mid way...
+                result = oldPar[name] != newPar[name];
             });
-            return false;
+            return result;
         }
 
         function changeChain(to: IStateWrapper, params) {
             var states = [],
-                lastChanged,
+                lastChanged = 0,
                 current = to;
 
             while (current !== root) {
                 states.push(current);
                 if (isChanged(current, params)) {
-                    lastChanged = states.length - 1;
+                    lastChanged = states.length;
                 }
                 current = current.parent;
             }
-            return states.slice(0, lastChanged);
+            return states.slice(0, lastChanged).reverse();
         }
 
         function goto(to, params?) {
+            //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
+            //      should try to refactor it if possible.
             var to = lookupState(toName(to)),
                 toState = inherit({ params: params }, to.self),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
-                cancel = { should: false },
+                cancel = false,
                 event,
                 transition,
                 transaction,
@@ -241,44 +248,42 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
             if (!event.defaultPrevented) {
                 transition = {
                     cancel: function () {
-                        //console.log('Called Cancel');
-                        cancel.should = true;
-                        //console.log('cancel.should:' + cancel.should);
+                        cancel = true;
                     },
                     goto: (state, params?) => {
-                        cancel.should = true;
+                        cancel = true;
                         goto(state, params);
                     }
                 };
-
                 emit.before(transition);
 
-                //console.log('Value of Cancel: ' + cancel.should);
-
-                if (cancel.should) {
+                if (cancel) {
                     //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                     //      That is if this was even triggered by an URL change in teh first place.
                     return;
                 }
 
-                //TODO: Reach to TR.
-
                 $q.when(toState).then(() => {
-                    $state.current = toState;
 
                     transaction = $view.beginUpdate();
                     $view.clear();
 
-                    //Should we pin views?
-                    //tr.emit.between();
-
-                    angular.forEach(toState.views, (view, name) => {
-                        $view.setOrUpdate(name, view.template, view.controller);
+                    forEach(changedStates, (state) => {
+                        angular.forEach(state.self.views, (view, name) => {
+                            $view.setOrUpdate(name, view.template, view.controller);
+                        });
                     });
 
-                    //Or let views be overwritten?
                     emit.between(transition);
-                    //TODO: Reach to TR.
+
+                    if (cancel) {
+                        transaction.cancel();
+                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                        //      That is if this was even triggered by an URL change in teh first place.
+                        return;
+                    }
+
+                    $state.current = toState;
 
                     transaction.commit();
                     $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
@@ -286,7 +291,12 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                     transaction.cancel();
                     $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                 }).then(() => {
-                    emit.after(transition);
+                    if (!cancel) {
+                        transition.cancel = function () {
+                            throw Error("Can't cancel transition in after handler");
+                        };
+                        emit.after(transition);
+                    }
                     //Note: nothing to do here.
                 });
             }
