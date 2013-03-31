@@ -3,4 +3,15 @@
 </a>
 {{post.views}}
 <br/>
-{{post.content}}
+<div ui-content="post.content"></div>
+<br/>
+<br/>
+
+<ul>
+    <li ng-repeat="comment in post.comments" class="thumbnail" style="padding: 0 12px; margin: 12px 0">
+        <a href="#/blog/post/{{post.title}}/comments">        
+            <h3>{{comment.title}}</h3>
+        </a>
+        {{comment.content}}
+    </li>
+</ul>

@@ -107,6 +107,7 @@
     <Content Include="samples\simple\tpl\home.html" />
     <Content Include="samples\substates\index.html" />
     <Content Include="samples\substates\script\application.js" />
+    <Content Include="samples\substates\script\blogService.js" />
     <Content Include="samples\substates\script\data.js" />
     <Content Include="samples\substates\tpl\about.html" />
     <Content Include="samples\substates\tpl\blog.html" />
