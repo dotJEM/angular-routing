@@ -10,12 +10,13 @@ var uiViewDirective = [
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '';
+                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version;
                 scope.$on('$stateChangeBegin', function () {
                 });
-                scope.$on('$viewChanged', update);
-                scope.$on('$stateChangeSuccess', update);
-                update();
+                scope.$on('$stateChangeSuccess', function () {
+                    return update('state');
+                });
+                update('load');
                 function resetScope(newScope) {
                     if(viewScope) {
                         viewScope.$destroy();
@@ -26,14 +27,15 @@ var uiViewDirective = [
                     element.html('');
                     resetScope();
                 }
-                function update() {
-                    var view = $view.get(name), controller, version;
+                function update(from) {
+                    var view = $view.get(name), controller;
                     if(view && view.template) {
                         if(view.version === version) {
                             return;
                         }
-                        controller = view.controller;
+                        console.log("Updating view: " + name + " - source: " + from + "  " + view.version + "|" + version);
                         version = view.version;
+                        controller = view.controller;
                         view.template.then(function (html) {
                             element.html(html);
                             resetScope(scope.$new());

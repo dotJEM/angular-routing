@@ -74,6 +74,7 @@
     <Content Include="build\test\stateSpec.js" />
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
+    <Content Include="index.html" />
     <Content Include="lib\angular\angular-1.0.d.ts" />
     <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
     <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
@@ -106,9 +107,11 @@
     <Content Include="samples\simple\tpl\home.html" />
     <Content Include="samples\substates\index.html" />
     <Content Include="samples\substates\script\application.js" />
+    <Content Include="samples\substates\script\data.js" />
     <Content Include="samples\substates\tpl\about.html" />
     <Content Include="samples\substates\tpl\blog.html" />
     <Content Include="samples\substates\tpl\blog.post.html" />
+    <Content Include="samples\substates\tpl\crumbs.html" />
     <Content Include="samples\substates\tpl\home.html" />
   </ItemGroup>
   <ItemGroup>
