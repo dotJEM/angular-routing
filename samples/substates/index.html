@@ -9,6 +9,7 @@
     <script src="../../lib/angular/impl/angular-bootstrap-prettify.js"></script>
 
     <script src="../../build/angular-routing.js"></script>
+    <script src="script/data.js"></script>
     <script src="script/application.js"></script>
 </head>
 <body>
@@ -19,11 +20,9 @@
                 <ul class="nav">
                     <li ng-class="page == 'home' && 'active' || ''"><a href="#/">Home</a></li>
                     <li ng-class="page == 'blog' && 'active' || ''"><a href="#/blog">Blog</a></li>
-                    <li ng-class="page == 'code' && 'active' || ''"><a href="#/code">Code</a></li>
                     <li ng-class="page == 'about' && 'active' || ''"><a href="#/about">About</a></li>
                 </ul>
-                <p class="navbar-text pull-right" ui-view="hint">Hint</p>
-                <p class="navbar-text pull-right">{{transition}} :&nbsp;</p>
+                <p class="navbar-text pull-right" ui-view="crumbs"></p>
             </div>
         </div>
     </div>
