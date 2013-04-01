@@ -50,6 +50,9 @@ function $TransitionProvider() {
             from = toName(from);
             to = toName(to);
 
+            if (to === from && to.indexOf('*') === -1)
+                return this;
+
             validate(from, to);
 
             if (angular.isFunction(handler) || angular.isArray(handler)) {

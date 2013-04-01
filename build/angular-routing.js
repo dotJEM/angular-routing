@@ -1,7 +1,7 @@
 /* THIS IS A BANNER */ 
 (function(window, document, undefined) {
 'use strict';
-var isDefined = angular.isDefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, forEach = angular.forEach, extend = angular.extend, copy = angular.copy;
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -27,7 +27,7 @@ function $RouteProvider() {
     this.when = function (path, route) {
         var normalized = normalizePath(path);
         routes[normalized.name] = {
-            self: angular.extend({
+            self: extend({
                 reloadOnSearch: true
             }, route),
             redirect: createRedirector(route.redirectTo),
@@ -55,7 +55,7 @@ function $RouteProvider() {
     };
     function interpolate(url, params) {
         var result = [];
-        angular.forEach((url || '').split(':'), function (segment, i) {
+        forEach((url || '').split(':'), function (segment, i) {
             if(i == 0) {
                 result.push(segment);
             } else {
@@ -73,7 +73,7 @@ function $RouteProvider() {
         return function ($location, next) {
             if(fn === null) {
                 if(redirectTo) {
-                    if(angular.isString(redirectTo)) {
+                    if(isString(redirectTo)) {
                         fn = function ($location, next) {
                             var interpolated = interpolate(redirectTo, next.params);
                             $location.path(interpolated).search(next.params).replace();
@@ -185,10 +185,10 @@ function $RouteProvider() {
             }, invalidParam;
             if(match) {
                 invalidParam = false;
-                angular.forEach(exp.segments, function (segment, index) {
+                forEach(exp.segments, function (segment, index) {
                     if(!invalidParam) {
                         var param = match[index + 1], value = segment.converter(param);
-                        if(angular.isDefined(value.accept)) {
+                        if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
                             }
@@ -218,12 +218,12 @@ function $RouteProvider() {
     });
     this.convert('regex', function (arg) {
         var exp, flags = '', regex;
-        if(angular.isObject(arg) && angular.isDefined(arg.exp)) {
+        if(isObject(arg) && isDefined(arg.exp)) {
             exp = arg.exp;
-            if(angular.isDefined(arg.flags)) {
+            if(isDefined(arg.flags)) {
                 flags = arg.flags;
             }
-        } else if(angular.isString(arg) && arg.length > 0) {
+        } else if(isString(arg) && arg.length > 0) {
             exp = arg;
         } else {
             throw new Error("The Regular-expression converter was not initialized with a valid object.");
@@ -271,7 +271,7 @@ function $RouteProvider() {
             }
             function findroute(currentPath) {
                 var params, match;
-                angular.forEach(routes, function (route, path) {
+                forEach(routes, function (route, path) {
                     if(!match && (params = route.match(currentPath))) {
                         match = buildmatch(route, params, $location.search());
                     }
@@ -284,7 +284,7 @@ function $RouteProvider() {
                 var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
                 if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                     lastRoute.params = next.params;
-                    angular.copy(nextRoute.params, $routeParams);
+                    copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast('$routeUpdate', lastRoute);
                 } else if(next || lastRoute) {
                     forceReload = false;
@@ -296,7 +296,7 @@ function $RouteProvider() {
                         }
                         var dp = $q.when(nextRoute);
                         if(nextRoute) {
-                            angular.forEach(decorators, function (decorator, name) {
+                            forEach(decorators, function (decorator, name) {
                                 dp = dp.then(function () {
                                     var decorated = $injector.invoke(decorator, nextRoute, {
                                         $next: nextRoute
@@ -335,42 +335,45 @@ function $TransitionProvider() {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
     this.onEnter = function (state, onenter) {
-        if(angular.isArray(onenter)) {
-            angular.forEach(onenter, function (single) {
+        if(isArray(onenter)) {
+            forEach(onenter, function (single) {
                 onenter(single, state);
             });
-        } else if(angular.isObject(onenter)) {
+        } else if(isObject(onenter)) {
             this.transition(onenter.from || '*', state, onenter.handler);
-        } else if(angular.isFunction(onenter)) {
+        } else if(isFunction(onenter)) {
             this.transition('*', state, onenter);
         }
     };
     this.onExit = function (state, onexit) {
         var _this = this;
-        if(angular.isArray(onexit)) {
-            angular.forEach(onexit, function (single) {
+        if(isArray(onexit)) {
+            forEach(onexit, function (single) {
                 _this.onexit(single, state);
             });
-        } else if(angular.isObject(onexit)) {
+        } else if(isObject(onexit)) {
             this.transition(state, onexit.to || '*', onexit.handler);
-        } else if(angular.isFunction(onexit)) {
+        } else if(isFunction(onexit)) {
             this.transition(state, '*', onexit);
         }
     };
     this.transition = function (from, to, handler) {
         var _this = this;
         var transition, regHandler;
-        if(angular.isArray(from)) {
-            angular.forEach(from, function (value) {
+        if(isArray(from)) {
+            forEach(from, function (value) {
                 _this.transition(value, to, handler);
             });
-        } else if(angular.isArray(to)) {
-            angular.forEach(to, function (value) {
+        } else if(isArray(to)) {
+            forEach(to, function (value) {
                 _this.transition(from, value, handler);
             });
         } else {
             from = toName(from);
             to = toName(to);
+            if(to === from && to.indexOf('*') === -1) {
+                return this;
+            }
             validate(from, to);
             if(angular.isFunction(handler) || angular.isArray(handler)) {
                 handler = {
@@ -435,7 +438,7 @@ function $TransitionProvider() {
                     var _this = this;
                     var handler;
                     forEach(handlers, function (handlerObj) {
-                        if(angular.isDefined(handler = select(handlerObj))) {
+                        if(isDefined(handler = select(handlerObj))) {
                             $injector.invoke(handler, _this, {
                                 $to: to,
                                 $from: from,
@@ -487,10 +490,10 @@ function $TransitionProvider() {
             }
             function extractHandlers(transitions, to) {
                 var handlers = [];
-                angular.forEach(transitions, function (t) {
-                    angular.forEach(t.targets, function (target, targetName) {
+                forEach(transitions, function (t) {
+                    forEach(t.targets, function (target, targetName) {
                         if(compare(targetName, to)) {
-                            angular.forEach(target, function (value) {
+                            forEach(target, function (value) {
                                 handlers.push(value);
                             });
                         }
@@ -575,7 +578,7 @@ var $StateProvider = [
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, parent = at;
-            if(!at.children) {
+            if(!isDefined(at.children)) {
                 at.children = {
                 };
             }
@@ -589,21 +592,21 @@ var $StateProvider = [
             });
             at.fullname = fullname;
             at.parent = parent;
-            if(angular.isDefined(state.route)) {
+            if(isDefined(state.route)) {
                 at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
                 at.params = findParams(state.route);
             }
-            if(angular.isDefined(state.onEnter)) {
+            if(isDefined(state.onEnter)) {
                 $transitionProvider.onEnter(fullname, state.onEnter);
             }
-            if(angular.isDefined(state.onExit)) {
+            if(isDefined(state.onExit)) {
                 $transitionProvider.onExit(fullname, state.onExit);
             }
             if(state.children === null) {
                 at.children = {
                 };
             } else {
-                angular.forEach(state.children, function (childState, childName) {
+                forEach(state.children, function (childState, childName) {
                     registerState(childName, at, childState);
                 });
             }
@@ -729,7 +732,7 @@ var $StateProvider = [
                             transaction = $view.beginUpdate();
                             $view.clear();
                             forEach(changed.states, function (state, index) {
-                                angular.forEach(state.self.views, function (view, name) {
+                                forEach(state.self.views, function (view, name) {
                                     if(index < changed.first) {
                                         $view.setIfAbsent(name, view.template, view.controller);
                                     } else {
@@ -781,25 +784,25 @@ function $TemplateProvider() {
                 return $q.when($injector.invoke(fn));
             }
             function getFromObject(obj) {
-                if(angular.isDefined(obj.url)) {
+                if(isDefined(obj.url)) {
                     return getFromUrl(obj.url);
                 }
-                if(angular.isDefined(obj.fn)) {
+                if(isDefined(obj.fn)) {
                     return getFromFunction(obj.fn);
                 }
-                if(angular.isDefined(obj.html)) {
+                if(isDefined(obj.html)) {
                     return $q.when(obj.html);
                 }
                 throw new Error("Object must define url, fn or html.");
             }
             this.get = function (template) {
-                if(angular.isString(template)) {
+                if(isString(template)) {
                     return getFromUrl(template);
                 }
-                if(angular.isFunction(template) || angular.isArray(template)) {
+                if(isFunction(template) || isArray(template)) {
                     return getFromFunction(template);
                 }
-                if(angular.isObject(template)) {
+                if(isObject(template)) {
                     return getFromObject(template);
                 }
                 throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
@@ -838,8 +841,8 @@ function $ViewProvider() {
             }
             this.clear = function (name) {
                 var _this = this;
-                if(angular.isUndefined(name)) {
-                    angular.forEach(views, function (val, key) {
+                if(isUndefined(name)) {
+                    forEach(views, function (val, key) {
                         _this.clear(key);
                     });
                 } else {
@@ -905,7 +908,7 @@ function $ViewProvider() {
                 }
             };
             this.get = function (name) {
-                if(angular.isUndefined(name)) {
+                if(isUndefined(name)) {
                     return views;
                 }
                 return views[name];
@@ -921,7 +924,7 @@ function $ViewProvider() {
                 return {
                     commit: function () {
                         transaction = null;
-                        angular.forEach(trx.records, function (rec) {
+                        forEach(trx.records, function (rec) {
                             rec.fn();
                         });
                     },

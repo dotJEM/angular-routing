@@ -27,8 +27,8 @@ function $ViewProvider() {
             }
             this.clear = function (name) {
                 var _this = this;
-                if(angular.isUndefined(name)) {
-                    angular.forEach(views, function (val, key) {
+                if(isUndefined(name)) {
+                    forEach(views, function (val, key) {
                         _this.clear(key);
                     });
                 } else {
@@ -94,7 +94,7 @@ function $ViewProvider() {
                 }
             };
             this.get = function (name) {
-                if(angular.isUndefined(name)) {
+                if(isUndefined(name)) {
                     return views;
                 }
                 return views[name];
@@ -110,7 +110,7 @@ function $ViewProvider() {
                 return {
                     commit: function () {
                         transaction = null;
-                        angular.forEach(trx.records, function (rec) {
+                        forEach(trx.records, function (rec) {
                             rec.fn();
                         });
                     },

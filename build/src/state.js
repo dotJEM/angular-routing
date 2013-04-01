@@ -56,7 +56,7 @@ var $StateProvider = [
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, parent = at;
-            if(!at.children) {
+            if(!isDefined(at.children)) {
                 at.children = {
                 };
             }
@@ -70,21 +70,21 @@ var $StateProvider = [
             });
             at.fullname = fullname;
             at.parent = parent;
-            if(angular.isDefined(state.route)) {
+            if(isDefined(state.route)) {
                 at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
                 at.params = findParams(state.route);
             }
-            if(angular.isDefined(state.onEnter)) {
+            if(isDefined(state.onEnter)) {
                 $transitionProvider.onEnter(fullname, state.onEnter);
             }
-            if(angular.isDefined(state.onExit)) {
+            if(isDefined(state.onExit)) {
                 $transitionProvider.onExit(fullname, state.onExit);
             }
             if(state.children === null) {
                 at.children = {
                 };
             } else {
-                angular.forEach(state.children, function (childState, childName) {
+                forEach(state.children, function (childState, childName) {
                     registerState(childName, at, childState);
                 });
             }
@@ -210,7 +210,7 @@ var $StateProvider = [
                             transaction = $view.beginUpdate();
                             $view.clear();
                             forEach(changed.states, function (state, index) {
-                                angular.forEach(state.self.views, function (view, name) {
+                                forEach(state.self.views, function (view, name) {
                                     if(index < changed.first) {
                                         $view.setIfAbsent(name, view.template, view.controller);
                                     } else {

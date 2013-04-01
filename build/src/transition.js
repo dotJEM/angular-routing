@@ -7,42 +7,45 @@ function $TransitionProvider() {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
     this.onEnter = function (state, onenter) {
-        if(angular.isArray(onenter)) {
-            angular.forEach(onenter, function (single) {
+        if(isArray(onenter)) {
+            forEach(onenter, function (single) {
                 onenter(single, state);
             });
-        } else if(angular.isObject(onenter)) {
+        } else if(isObject(onenter)) {
             this.transition(onenter.from || '*', state, onenter.handler);
-        } else if(angular.isFunction(onenter)) {
+        } else if(isFunction(onenter)) {
             this.transition('*', state, onenter);
         }
     };
     this.onExit = function (state, onexit) {
         var _this = this;
-        if(angular.isArray(onexit)) {
-            angular.forEach(onexit, function (single) {
+        if(isArray(onexit)) {
+            forEach(onexit, function (single) {
                 _this.onexit(single, state);
             });
-        } else if(angular.isObject(onexit)) {
+        } else if(isObject(onexit)) {
             this.transition(state, onexit.to || '*', onexit.handler);
-        } else if(angular.isFunction(onexit)) {
+        } else if(isFunction(onexit)) {
             this.transition(state, '*', onexit);
         }
     };
     this.transition = function (from, to, handler) {
         var _this = this;
         var transition, regHandler;
-        if(angular.isArray(from)) {
-            angular.forEach(from, function (value) {
+        if(isArray(from)) {
+            forEach(from, function (value) {
                 _this.transition(value, to, handler);
             });
-        } else if(angular.isArray(to)) {
-            angular.forEach(to, function (value) {
+        } else if(isArray(to)) {
+            forEach(to, function (value) {
                 _this.transition(from, value, handler);
             });
         } else {
             from = toName(from);
             to = toName(to);
+            if(to === from && to.indexOf('*') === -1) {
+                return this;
+            }
             validate(from, to);
             if(angular.isFunction(handler) || angular.isArray(handler)) {
                 handler = {
@@ -107,7 +110,7 @@ function $TransitionProvider() {
                     var _this = this;
                     var handler;
                     forEach(handlers, function (handlerObj) {
-                        if(angular.isDefined(handler = select(handlerObj))) {
+                        if(isDefined(handler = select(handlerObj))) {
                             $injector.invoke(handler, _this, {
                                 $to: to,
                                 $from: from,
@@ -159,10 +162,10 @@ function $TransitionProvider() {
             }
             function extractHandlers(transitions, to) {
                 var handlers = [];
-                angular.forEach(transitions, function (t) {
-                    angular.forEach(t.targets, function (target, targetName) {
+                forEach(transitions, function (t) {
+                    forEach(t.targets, function (target, targetName) {
                         if(compare(targetName, to)) {
-                            angular.forEach(target, function (value) {
+                            forEach(target, function (value) {
                                 handlers.push(value);
                             });
                         }

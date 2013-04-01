@@ -98,8 +98,8 @@ describe('$transitionProvider', function () {
 
             mock.inject(function ($state: ui.routing.IStateService) {
                 //Note: Both Invalid
-                expect(function () { provider.transition('', '', {}); }).toThrow("Invalid transition - from: '', to: ''.");
-                expect(function () { provider.transition('.', '.', {}); }).toThrow("Invalid transition - from: '.', to: '.'.");
+                expect(function () { provider.transition('', ' ', {}); }).toThrow("Invalid transition - from: '', to: ' '.");
+                expect(function () { provider.transition('.', '..', {}); }).toThrow("Invalid transition - from: '.', to: '..'.");
                 expect(function () { provider.transition('*.', '*.', {}); }).toThrow("Invalid transition - from: '*.', to: '*.'.");
                 expect(function () { provider.transition('.one', 'one.', {}); }).toThrow("Invalid transition - from: '.one', to: 'one.'.");
                 expect(function () { provider.transition('*.one', 'one.*.one', {}); }).toThrow("Invalid transition - from: '*.one', to: 'one.*.one'.");
@@ -168,6 +168,46 @@ describe('$transitionProvider', function () {
                 + '    recent  [ blog.category+1, blog.archive+1](),'
                 + '    archive [ blog.category+1, blog.recent+1 ](),'
                 + '    category[ blog.archive+1,  blog.recent+1 ]()'
+                + '  )'
+                + ')';
+
+                expect(stringify($transition.root))
+                    .toBe(expected.replace(/\s+/g, ''));
+            });
+        });
+
+        it('same handler can be registered for multiple transitions', function () {
+            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
+
+                $transitionProvider
+                    .transition('*', '*', () => { })
+                    .transition(['blog.recent', 'blog.archive', 'blog.category'], ['blog.recent', 'blog.archive', 'blog.category'], () => { })
+            });
+
+            mock.inject(function ($transition: ui.routing.ITransitionService) {
+                //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
+                //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
+                //      as well as the source.
+                //
+                //      sources are in a tree, we format this as their name folowwed by (), inside the brackets are all decendants, following
+                //      the same pattern.
+                //
+                //      destinations are inside square brackets ('[]') and the number behind the '+' indicates the number of handlers registered
+                //      with that specific target. Targets are between the source name and it's children.
+                //
+                //      so... 'blog[about+4](...)' shows a source 'blog' which has one target 'about' that has registered 4 handlers.
+                //      the ... denotes children of blog, if any... they follow the same pattern.
+
+                //(recent[blog.archive+1,blog.category+1](),archive[blog.recent+1,blog.category+1](),category[blog.recent+1,blog.archive+1]()))
+
+                var expected =
+                  '[]('
+                + '  *[*+1]('
+                + '  ),'
+                + '  blog[]('
+                + '    recent  [ blog.archive+1, blog.category+1](),'
+                + '    archive [ blog.recent+1,  blog.category+1 ](),'
+                + '    category[ blog.recent+1,  blog.archive+1 ]()'
                 + '  )'
                 + ')';
 
@@ -359,7 +399,6 @@ describe('$transitionProvider', function () {
             });
 
             mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-
                 $location.path('/blog/recent');
                 scope.$digest();
 

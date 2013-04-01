@@ -41,13 +41,13 @@ describe('$transitionProvider', function () {
             });
             mock.inject(function ($state) {
                 expect(function () {
-                    provider.transition('', '', {
+                    provider.transition('', ' ', {
                     });
-                }).toThrow("Invalid transition - from: '', to: ''.");
+                }).toThrow("Invalid transition - from: '', to: ' '.");
                 expect(function () {
-                    provider.transition('.', '.', {
+                    provider.transition('.', '..', {
                     });
-                }).toThrow("Invalid transition - from: '.', to: '.'.");
+                }).toThrow("Invalid transition - from: '.', to: '..'.");
                 expect(function () {
                     provider.transition('*.', '*.', {
                     });
@@ -125,6 +125,25 @@ describe('$transitionProvider', function () {
             });
             mock.inject(function ($transition) {
                 var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+1, blog.archive+1](),' + '    archive [ blog.category+1, blog.recent+1 ](),' + '    category[ blog.archive+1,  blog.recent+1 ]()' + '  )' + ')';
+                expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
+            });
+        });
+        it('same handler can be registered for multiple transitions', function () {
+            mock.module(function ($transitionProvider) {
+                $transitionProvider.transition('*', '*', function () {
+                }).transition([
+                    'blog.recent', 
+                    'blog.archive', 
+                    'blog.category'
+                ], [
+                    'blog.recent', 
+                    'blog.archive', 
+                    'blog.category'
+                ], function () {
+                });
+            });
+            mock.inject(function ($transition) {
+                var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.archive+1, blog.category+1](),' + '    archive [ blog.recent+1,  blog.category+1 ](),' + '    category[ blog.recent+1,  blog.archive+1 ]()' + '  )' + ')';
                 expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
             });
         });
