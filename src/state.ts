@@ -71,7 +71,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         var fullname = at.fullname + '.' + name,
             parent = at;
 
-        if (!at.children) {
+        if (!isDefined(at.children)) {
             at.children = {};
         }
 
@@ -83,23 +83,23 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         at.fullname = fullname;
         at.parent = parent;
 
-        if (angular.isDefined(state.route)) {
+        if (isDefined(state.route)) {
             at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
             at.params = findParams(state.route);
         }
 
-        if (angular.isDefined(state.onEnter)) {
+        if (isDefined(state.onEnter)) {
             $transitionProvider.onEnter(fullname, state.onEnter);
         }
 
-        if (angular.isDefined(state.onExit)) {
+        if (isDefined(state.onExit)) {
             $transitionProvider.onExit(fullname, state.onExit);
         }
 
         if (state.children === null) {
             at.children = {};
         } else {
-            angular.forEach(state.children, (childState, childName) => {
+            forEach(state.children, (childState, childName) => {
                 registerState(childName, at, childState);
             });
         }
@@ -186,7 +186,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
 
         $rootScope.$on('$routeChangeSuccess', update);
         $rootScope.$on('$routeUpdate', () => {
-            //TODO: Broadcast StateUpdate.
+            //TODO: Broadcast StateUpdate?
         });
         return $state;
 
@@ -286,7 +286,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                     $view.clear();
 
                     forEach(changed.states, (state, index) => {
-                        angular.forEach(state.self.views, (view, name) => {
+                        forEach(state.self.views, (view, name) => {
                             if (index < changed.first) {
                                 $view.setIfAbsent(name, view.template, view.controller);
                             } else {

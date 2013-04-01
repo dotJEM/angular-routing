@@ -10,26 +10,26 @@ function $TransitionProvider() {
 
     this.onEnter = function (state, onenter) {
         //TODO: Validation
-        if (angular.isArray(onenter)) {
-            angular.forEach(onenter, (single) => {
+        if (isArray(onenter)) {
+            forEach(onenter, (single) => {
                 onenter(single, state);
             })
-        } else if (angular.isObject(onenter)) {
+        } else if (isObject(onenter)) {
             this.transition(onenter.from || '*', state, onenter.handler);
-        } else if (angular.isFunction(onenter)) {
+        } else if (isFunction(onenter)) {
             this.transition('*', state, onenter);
         }
     }
 
     this.onExit = function (state: any, onexit) {
         //TODO: Validation
-        if (angular.isArray(onexit)) {
-            angular.forEach(onexit, (single) => {
+        if (isArray(onexit)) {
+            forEach(onexit, (single) => {
                 this.onexit(single, state);
             })
-        } else if (angular.isObject(onexit)) {
+        } else if (isObject(onexit)) {
             this.transition(state, onexit.to || '*', onexit.handler);
-        } else if (angular.isFunction(onexit)) {
+        } else if (isFunction(onexit)) {
             this.transition(state, '*', onexit);
         }
     }
@@ -38,12 +38,12 @@ function $TransitionProvider() {
         var transition,
             regHandler;
 
-        if (angular.isArray(from)) {
-            angular.forEach(from, (value) => {
+        if (isArray(from)) {
+            forEach(from, (value) => {
                 this.transition(value, to, handler);
             });
-        } else if (angular.isArray(to)) {
-            angular.forEach(to, (value) => {
+        } else if (isArray(to)) {
+            forEach(to, (value) => {
                 this.transition(from, value, handler);
             });
         } else {
@@ -125,7 +125,7 @@ function $TransitionProvider() {
             function emit(select, tc) {
                 var handler;
                 forEach(handlers, (handlerObj) => {
-                    if (angular.isDefined(handler = select(handlerObj))) {
+                    if (isDefined(handler = select(handlerObj))) {
                         $injector.invoke(handler, this, {
                             $to: to,
                             $from: from,
@@ -171,10 +171,10 @@ function $TransitionProvider() {
 
         function extractHandlers(transitions, to) {
             var handlers = [];
-            angular.forEach(transitions, (t) => {
-                angular.forEach(t.targets, (target, targetName) => {
+            forEach(transitions, (t) => {
+                forEach(t.targets, (target, targetName) => {
                     if (compare(targetName, to)) {
-                        angular.forEach(target, value => {
+                        forEach(target, value => {
                             handlers.push(value);
                         });
                     }

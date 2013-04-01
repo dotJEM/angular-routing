@@ -158,7 +158,7 @@ function $RouteProvider() {
     this.when = (path: string, route: ui.routing.IRoute) => {
         var normalized = normalizePath(path);
         routes[normalized.name] = {
-            self: angular.extend({ reloadOnSearch: true }, route),
+            self: extend({ reloadOnSearch: true }, route),
             redirect: createRedirector(route.redirectTo),
             match: createMatcher(path),
             path: path,
@@ -206,7 +206,7 @@ function $RouteProvider() {
     function interpolate(url, params) {
         //TODO: We only support :params here, but that might be ok for now as we are constructing an url.
         var result = [];
-        angular.forEach((url || '').split(':'), function (segment, i) {
+        forEach((url || '').split(':'), function (segment, i) {
             if (i == 0) {
                 result.push(segment);
             } else {
@@ -225,7 +225,7 @@ function $RouteProvider() {
         return function ($location, next) {
             if (fn === null) {
                 if (redirectTo) {
-                    if (angular.isString(redirectTo)) {
+                    if (isString(redirectTo)) {
                         fn = function ($location, next) {
                             var interpolated = interpolate(redirectTo, next.params);
                             $location
@@ -372,11 +372,11 @@ function $RouteProvider() {
 
                 //if (location.match(exp.complete)) {
                 invalidParam = false;
-                angular.forEach(exp.segments, function (segment: ISegment, index) {
+                forEach(exp.segments, function (segment: ISegment, index) {
                     if (!invalidParam) {
                         var param = match[index + 1],
                             value = segment.converter(param);
-                        if (angular.isDefined(value.accept)) {
+                        if (isDefined(value.accept)) {
                             if (!value.accept)
                                 invalidParam = true;
                             dst[segment.name] = value.value;
@@ -415,12 +415,12 @@ function $RouteProvider() {
             flags = '',
             regex;
 
-        if (angular.isObject(arg) && angular.isDefined(arg.exp)) {
+        if (isObject(arg) && isDefined(arg.exp)) {
             exp = arg.exp;
-            if (angular.isDefined(arg.flags))
+            if (isDefined(arg.flags))
                 flags = arg.flags;
 
-        } else if (angular.isString(arg) && arg.length > 0) {
+        } else if (isString(arg) && arg.length > 0) {
             exp = arg;
         } else {
             throw new Error("The Regular-expression converter was not initialized with a valid object.");
@@ -648,7 +648,7 @@ function $RouteProvider() {
             var params,
                 match;
 
-            angular.forEach(routes, (route: IRoute, path: string) => {
+            forEach(routes, (route: IRoute, path: string) => {
                 if (!match && (params = route.match(currentPath))) {
                     match = buildmatch(route, params, $location.search());
                 }
@@ -669,7 +669,7 @@ function $RouteProvider() {
                 && !nextRoute.reloadOnSearch) {
 
                 lastRoute.params = next.params;
-                angular.copy(nextRoute.params, $routeParams);
+                copy(nextRoute.params, $routeParams);
                 $rootScope.$broadcast('$routeUpdate', lastRoute);
             } else if (next || lastRoute) {
                 //TODO: We should always have a next to go to, it may be a null route though.
@@ -683,7 +683,7 @@ function $RouteProvider() {
 
                     var dp: ng.IPromise = $q.when(nextRoute);
                     if (nextRoute) {
-                        angular.forEach(decorators, (decorator, name) => {
+                        forEach(decorators, (decorator, name) => {
                             dp = dp.then(() => {
                                 var decorated = $injector.invoke(decorator, nextRoute, { $next: nextRoute });
                                 return $q.when(decorated);
