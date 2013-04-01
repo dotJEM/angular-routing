@@ -42,13 +42,15 @@ module.exports = function (grunt) {
                 stripBanners: true
             },
             core: {
-                src: [  'build/src/common.js',
+                src: [  'src/prefix',
+                        'build/src/common.js',
                         'build/src/route.js',
                         'build/src/transition.js',
                         'build/src/state.js',
                         'build/src/template.js',
                         'build/src/view.js',
-                        'build/src/directives/uiView.js'],
+                        'build/src/directives/uiView.js',
+                        'src/suffix'],
                 dest: 'build/<%= pkg.name %>.js'
             },
             legacy: {

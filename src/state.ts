@@ -159,6 +159,20 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 current: inherit({}, root),
                 goto: goto,
 
+                
+
+                lookup: function (path) {
+                    // XPath Inspired lookups
+                    //
+                    // /myState -> Selects myState from the root node.
+                    // ./myState -> Selects myState as a child of the current node.
+                    // ../myStaate -> Selects myState as a child of the parent node to this.
+                    // /myState.$1 -> Selects the first child of myState
+                    // /myState.$last -> Selects the last child of myState
+                    // .$next -> Selects the next sibling of current element
+
+                },
+
                 //TODO: Implement functions that return siblings etc.
                 nextSibling: '',
                 prevSibling: '',

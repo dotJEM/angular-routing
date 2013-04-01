@@ -135,6 +135,8 @@ var $StateProvider = [
                     current: inherit({
                     }, root),
                     goto: goto,
+                    lookup: function (path) {
+                    },
                     nextSibling: '',
                     prevSibling: '',
                     parrent: '',

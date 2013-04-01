@@ -1,0 +1,6 @@
+﻿/**
+ * @license dotJEM Angular Routing
+ * (c) 2010-2012 dotJEM (Jens Melgaard)
+ * License: Apache
+ */
+(function(window, document, undefined) {

@@ -1,157 +1,159 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{ADA65F5B-B633-45D1-8EF9-00EDE91E58D5}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>router</RootNamespace>
-    <AssemblyName>router</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <JSLintSkip>\build\angular-ui-states.js|\build\angular-ui-states.min.js|\lib\angular-1.0.4.js|\lib\angular-1.1.2.js|\lib\angular-mocks.js|\lib\jQuery-1.9.1.min.js|\src\common.js|\src\compat.js|\src\stateProvider.js|\src\templateFactory.js|\src\urlMatcherFactory.js|\src\urlRouterProvider.js|\src\viewDirective.js|\src\viewService.js|\test\stateProviderSpec.js|\test\templateFactorySpec.js|\test\test-config.js|\test\urlMatcherFactorySpec.js|\test\urlRouteProviderSpec.js|\test\viewDirectiveSpec.js|\test\viewProviderSpec.js|\test\lib\angular-mocks-1.0.4.js</JSLintSkip>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include=".travis.yml" />
-    <None Include="LICENSE" />
-    <None Include="package.json" />
-    <None Include="README.md" />
-    <None Include="resources.md" />
-    <None Include="version.yaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include=".gitignore" />
-    <Content Include="build\angular-routing.js" />
-    <Content Include="build\angular-routing.legacy.js" />
-    <Content Include="build\angular-routing.legacy.min.js" />
-    <Content Include="build\angular-routing.min.js" />
-    <Content Include="build\src\common.js" />
-    <Content Include="build\src\directives\uiView.js" />
-    <Content Include="build\src\legacy\templateDecorator.js" />
-    <Content Include="build\src\route.js" />
-    <Content Include="build\src\state.js" />
-    <Content Include="build\src\template.js" />
-    <Content Include="build\src\transition.js" />
-    <Content Include="build\src\view.js" />
-    <Content Include="build\test\legacy\routeLegacySpec.js" />
-    <Content Include="build\test\routeSpec.js" />
-    <Content Include="build\test\stateSpec.js" />
-    <Content Include="build\test\transitionSpec.js" />
-    <Content Include="build\test\viewSpec.js" />
-    <TypeScriptCompile Include="src\transition.ts" />
-    <Content Include="src\directives\uiView.js">
-      <DependentUpon>uiView.ts</DependentUpon>
-    </Content>
-    <Content Include="src\transition.js">
-      <DependentUpon>transition.ts</DependentUpon>
-    </Content>
-    <Content Include="test-grunt-config.js" />
-    <Content Include="gruntfile.js" />
-    <Content Include="lib\angular\angular-1.0.d.ts" />
-    <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
-    <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
-    <Content Include="lib\angular\angular-resource-1.0.d.ts" />
-    <Content Include="lib\angular\angular-sanitize-1.0.d.ts" />
-    <Content Include="lib\angular\impl\angular-bootstrap-prettify.js" />
-    <Content Include="lib\angular\impl\angular-bootstrap.js" />
-    <Content Include="lib\angular\impl\angular-mocks.js" />
-    <Content Include="lib\angular\impl\angular-resource.js" />
-    <Content Include="lib\angular\impl\angular.js" />
-    <Content Include="lib\jasmine\jasmine.d.ts" />
-    <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
-    <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
-    <Content Include="lib\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="src\common.ts" />
-    <Content Include="src\common.js">
-      <DependentUpon>common.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="src\directives\uiView.ts" />
-    <TypeScriptCompile Include="src\legacy\templateDecorator.ts" />
-    <TypeScriptCompile Include="src\interfaces.d.ts" />
-    <Content Include="src\interfaces.d.js">
-      <DependentUpon>interfaces.d.ts</DependentUpon>
-    </Content>
-    <Content Include="src\legacy\templateDecorator.js">
-      <DependentUpon>templateDecorator.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="src\route.ts" />
-    <Content Include="src\route.js">
-      <DependentUpon>route.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="src\state.ts" />
-    <Content Include="src\state.js">
-      <DependentUpon>state.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="src\template.ts" />
-    <Content Include="src\template.js">
-      <DependentUpon>template.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="src\view.ts" />
-    <Content Include="src\view.js">
-      <DependentUpon>view.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="test\legacy\routeLegacySpec.ts" />
-    <TypeScriptCompile Include="test\testcommon.ts" />
-    <Content Include="test\legacy\routeLegacySpec.js">
-      <DependentUpon>routeLegacySpec.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="test\routeSpec.ts" />
-    <Content Include="test\routeSpec.js">
-      <DependentUpon>routeSpec.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="test\stateSpec.ts" />
-    <Content Include="test\stateSpec.js">
-      <DependentUpon>stateSpec.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="test\viewSpec.ts" />
-    <Content Include="test\testcommon.js">
-      <DependentUpon>testcommon.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="test\transitionSpec.ts" />
-    <Content Include="test\transitionSpec.js">
-      <DependentUpon>transitionSpec.ts</DependentUpon>
-    </Content>
-    <Content Include="test\viewSpec.js">
-      <DependentUpon>viewSpec.ts</DependentUpon>
-    </Content>
-    <Content Include="files.js" />
-    <Content Include="test-dev-config.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="doc\turtorials\" />
-    <Folder Include="lib\jasmine\impl\" />
-    <Folder Include="test\directives\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{ADA65F5B-B633-45D1-8EF9-00EDE91E58D5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>router</RootNamespace>
+    <AssemblyName>router</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <JSLintSkip>\build\angular-ui-states.js|\build\angular-ui-states.min.js|\lib\angular-1.0.4.js|\lib\angular-1.1.2.js|\lib\angular-mocks.js|\lib\jQuery-1.9.1.min.js|\src\common.js|\src\compat.js|\src\stateProvider.js|\src\templateFactory.js|\src\urlMatcherFactory.js|\src\urlRouterProvider.js|\src\viewDirective.js|\src\viewService.js|\test\stateProviderSpec.js|\test\templateFactorySpec.js|\test\test-config.js|\test\urlMatcherFactorySpec.js|\test\urlRouteProviderSpec.js|\test\viewDirectiveSpec.js|\test\viewProviderSpec.js|\test\lib\angular-mocks-1.0.4.js</JSLintSkip>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include=".travis.yml" />
+    <None Include="LICENSE" />
+    <None Include="package.json" />
+    <None Include="README.md" />
+    <None Include="resources.md" />
+    <None Include="version.yaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="build\angular-routing.js" />
+    <Content Include="build\angular-routing.legacy.js" />
+    <Content Include="build\angular-routing.legacy.min.js" />
+    <Content Include="build\angular-routing.min.js" />
+    <Content Include="build\src\common.js" />
+    <Content Include="build\src\directives\uiView.js" />
+    <Content Include="build\src\legacy\templateDecorator.js" />
+    <Content Include="build\src\route.js" />
+    <Content Include="build\src\state.js" />
+    <Content Include="build\src\template.js" />
+    <Content Include="build\src\transition.js" />
+    <Content Include="build\src\view.js" />
+    <Content Include="build\test\legacy\routeLegacySpec.js" />
+    <Content Include="build\test\routeSpec.js" />
+    <Content Include="build\test\stateSpec.js" />
+    <Content Include="build\test\transitionSpec.js" />
+    <Content Include="build\test\viewSpec.js" />
+    <TypeScriptCompile Include="src\transition.ts" />
+    <Content Include="src\directives\uiView.js">
+      <DependentUpon>uiView.ts</DependentUpon>
+    </Content>
+    <None Include="src\prefix" />
+    <None Include="src\suffix" />
+    <Content Include="src\transition.js">
+      <DependentUpon>transition.ts</DependentUpon>
+    </Content>
+    <Content Include="test-grunt-config.js" />
+    <Content Include="gruntfile.js" />
+    <Content Include="lib\angular\angular-1.0.d.ts" />
+    <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
+    <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
+    <Content Include="lib\angular\angular-resource-1.0.d.ts" />
+    <Content Include="lib\angular\angular-sanitize-1.0.d.ts" />
+    <Content Include="lib\angular\impl\angular-bootstrap-prettify.js" />
+    <Content Include="lib\angular\impl\angular-bootstrap.js" />
+    <Content Include="lib\angular\impl\angular-mocks.js" />
+    <Content Include="lib\angular\impl\angular-resource.js" />
+    <Content Include="lib\angular\impl\angular.js" />
+    <Content Include="lib\jasmine\jasmine.d.ts" />
+    <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
+    <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
+    <Content Include="lib\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="src\common.ts" />
+    <Content Include="src\common.js">
+      <DependentUpon>common.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\directives\uiView.ts" />
+    <TypeScriptCompile Include="src\legacy\templateDecorator.ts" />
+    <TypeScriptCompile Include="src\interfaces.d.ts" />
+    <Content Include="src\interfaces.d.js">
+      <DependentUpon>interfaces.d.ts</DependentUpon>
+    </Content>
+    <Content Include="src\legacy\templateDecorator.js">
+      <DependentUpon>templateDecorator.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\route.ts" />
+    <Content Include="src\route.js">
+      <DependentUpon>route.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state.ts" />
+    <Content Include="src\state.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\template.ts" />
+    <Content Include="src\template.js">
+      <DependentUpon>template.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\view.ts" />
+    <Content Include="src\view.js">
+      <DependentUpon>view.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\legacy\routeLegacySpec.ts" />
+    <TypeScriptCompile Include="test\testcommon.ts" />
+    <Content Include="test\legacy\routeLegacySpec.js">
+      <DependentUpon>routeLegacySpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\routeSpec.ts" />
+    <Content Include="test\routeSpec.js">
+      <DependentUpon>routeSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\stateSpec.ts" />
+    <Content Include="test\stateSpec.js">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\viewSpec.ts" />
+    <Content Include="test\testcommon.js">
+      <DependentUpon>testcommon.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\transitionSpec.ts" />
+    <Content Include="test\transitionSpec.js">
+      <DependentUpon>transitionSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\viewSpec.js">
+      <DependentUpon>viewSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="files.js" />
+    <Content Include="test-dev-config.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="doc\turtorials\" />
+    <Folder Include="lib\jasmine\impl\" />
+    <Folder Include="test\directives\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
   </Target>
-  -->
+  -->
 </Project>
