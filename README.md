@@ -50,3 +50,10 @@ manually.
 
 `$view` manages the current state of all views and will support different update schemes.
 
+#### Samples
+
+Some initial samples can be found at:
+
+ - http://dotjem.github.com/angular-routing/samples/
+
+These are currently "work on progress", but can already demonstrate how things are configured.
