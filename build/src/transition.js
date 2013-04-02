@@ -1,3 +1,6 @@
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
 function $TransitionProvider() {
     var root = {
@@ -7,6 +10,7 @@ function $TransitionProvider() {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
     this.onEnter = function (state, onenter) {
+        //TODO: Validation
         if(isArray(onenter)) {
             forEach(onenter, function (single) {
                 onenter(single, state);
@@ -19,6 +23,7 @@ function $TransitionProvider() {
     };
     this.onExit = function (state, onexit) {
         var _this = this;
+        //TODO: Validation
         if(isArray(onexit)) {
             forEach(onexit, function (single) {
                 _this.onexit(single, state);
@@ -43,6 +48,9 @@ function $TransitionProvider() {
         } else {
             from = toName(from);
             to = toName(to);
+            // We ignore the situation where to and from are the same explicit state.
+            // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
+            // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
             if(to === from && to.indexOf('*') === -1) {
                 return this;
             }
@@ -64,6 +72,7 @@ function $TransitionProvider() {
     function validate(from, to) {
         var fromValid = validateTarget(from), toValid = validateTarget(to);
         if(fromValid && toValid) {
+            // && from !== to
             return;
         }
         if(fromValid) {
@@ -72,6 +81,8 @@ function $TransitionProvider() {
         if(toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
         }
+        //if (from === to && from.indexOf('*') === -1)
+        //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
     function validateTarget(target) {
@@ -81,7 +92,8 @@ function $TransitionProvider() {
         return false;
     }
     function lookup(name) {
-        var current = root, names = name.split('.'), i = names[0] === 'root' ? 1 : 0;
+        var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
+        names[0] === 'root' ? 1 : 0;
         for(; i < names.length; i++) {
             if(!(names[i] in current.children)) {
                 current.children[names[i]] = {

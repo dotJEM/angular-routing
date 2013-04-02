@@ -20,7 +20,8 @@ module.exports = function (grunt) {
                     target: 'es5', //or es3
                     base_path: 'src',
                     sourcemap: false,
-                    declaration: false
+                    declaration: false,
+                    comments: true
                 }
             },
             test: {
@@ -31,7 +32,8 @@ module.exports = function (grunt) {
                     target: 'es5', //or es3
                     base_path: 'test',
                     sourcemap: false,
-                    declaration: false
+                    declaration: false,
+                    comments: true
                 }
             },
         },
@@ -80,6 +82,19 @@ module.exports = function (grunt) {
                 singleRun: true,
                 browsers: ['PhantomJS']
             }
+        },
+        
+        yuidoc: {
+            src: {
+                name: '<%= pkg.name %>',
+                description: '<%= pkg.description %>',
+                version: '<%= pkg.version %>',
+                url: '<%= pkg.homepage %>',
+                options: {
+                    paths: './build/<%= pkg.name %>.js', //.
+                    outdir: './doc/yuidoc/'
+                }
+            }
         }
     });
     
@@ -89,9 +104,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
     
     // Default task.
-    grunt.registerTask('default', ['clean', 'typescript', 'concat', 'uglify', 'karma']);
+    grunt.registerTask('default', ['clean', 'typescript', 'concat', 'uglify', 'karma','yuidoc']);
 };

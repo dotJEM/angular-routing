@@ -90,7 +90,8 @@ var $StateProvider = [
             }
         }
         function lookup(names) {
-            var current = root, i = names[0] === 'root' ? 1 : 0;
+            var current = root, i = //If name contains root explicitly, skip that one
+            names[0] === 'root' ? 1 : 0;
             for(; i < names.length; i++) {
                 if(!(names[i] in current.children)) {
                     throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -136,8 +137,17 @@ var $StateProvider = [
                     }, root),
                     goto: goto,
                     lookup: function (path) {
-                    },
-                    nextSibling: '',
+                        // XPath Inspired lookups
+                        //
+                        // /myState -> Selects myState from the root node.
+                        // ./myState -> Selects myState as a child of the current node.
+                        // ../myStaate -> Selects myState as a child of the parent node to this.
+                        // /myState.$1 -> Selects the first child of myState
+                        // /myState.$last -> Selects the last child of myState
+                        // .$next -> Selects the next sibling of current element
+                                            },
+                    nextSibling: //TODO: Implement functions that return siblings etc.
+                    '',
                     prevSibling: '',
                     parrent: '',
                     children: '',
@@ -148,7 +158,8 @@ var $StateProvider = [
                 };
                 $rootScope.$on('$routeChangeSuccess', update);
                 $rootScope.$on('$routeUpdate', function () {
-                });
+                    //TODO: Broadcast StateUpdate?
+                                    });
                 return $state;
                 function update() {
                     var route = $route.current, params;
@@ -161,7 +172,11 @@ var $StateProvider = [
                         if(route.state) {
                             goto(route.state, params);
                         }
-                    } else {
+                        //TODO: Move Action to state instead?.
+                        //if (route.action) {
+                        //    $injector.invoke(route.action, { $params: params });
+                        //}
+                                            } else {
                         goto(root);
                     }
                 }
@@ -169,6 +184,10 @@ var $StateProvider = [
                     var old = $state.current.params, oldPar = old && old.all || {
                     }, newPar = params.all, result = false;
                     forEach(state.params, function (name) {
+                        //TODO: Implement an equals function that converts towards strings as this could very well
+                        //      ignore an change on certain situations.
+                        //
+                        //      also change to a damn "forEach" where we can break out mid way...
                         result = oldPar[name] != newPar[name];
                     });
                     return result;
@@ -188,7 +207,9 @@ var $StateProvider = [
                     };
                 }
                 function goto(to, params) {
-                    var to = lookupState(toName(to)), toState = inherit({
+                    //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
+                    //      should try to refactor it if possible.
+                                        var to = lookupState(toName(to)), toState = inherit({
                         params: params
                     }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
@@ -204,6 +225,8 @@ var $StateProvider = [
                         };
                         emit.before(transition);
                         if(cancel) {
+                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                            //      That is if this was even triggered by an URL change in teh first place.
                             return;
                         }
                         $q.when(toState).then(function () {
@@ -221,6 +244,8 @@ var $StateProvider = [
                             emit.between(transition);
                             if(cancel) {
                                 transaction.cancel();
+                                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                                //      That is if this was even triggered by an URL change in teh first place.
                                 return;
                             }
                             $state.current = toState;
@@ -236,7 +261,8 @@ var $StateProvider = [
                                 };
                                 emit.after(transition);
                             }
-                        });
+                            //Note: nothing to do here.
+                                                    });
                     }
                 }
             }        ];

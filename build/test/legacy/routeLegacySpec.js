@@ -1,3 +1,4 @@
+/// <reference path="../testcommon.ts" />
 describe('$routeProvider.templateDecorator', function () {
     'use strict';
     var mock = angular.mock;
@@ -265,7 +266,8 @@ describe('$routeProvider.templateDecorator', function () {
             var routeChangeSpy = jasmine.createSpy('route change');
             mock.module(function ($routeProvider) {
                 $routeProvider.when('/one', {
-                });
+                })// no otherwise defined
+                ;
             });
             mock.inject(function ($rootScope, $route, $location) {
                 $rootScope.$on('$routeChangeStart', routeChangeSpy);
@@ -660,6 +662,7 @@ describe('$routeProvider.templateDecorator', function () {
                 expect($routeParams).toEqual({
                 });
                 reloaded.reset();
+                // trigger reload
                 $location.search({
                     foo: 'bar'
                 });
@@ -689,6 +692,7 @@ describe('$routeProvider.templateDecorator', function () {
                 expect(routeChange.callCount).toBe(2);
                 expect(routeUpdate).not.toHaveBeenCalled();
                 routeChange.reset();
+                // don't trigger reload
                 $location.search({
                     foo: 'bar'
                 });
@@ -749,6 +753,7 @@ describe('$routeProvider.templateDecorator', function () {
                 expect(routeParamsWatcher).toHaveBeenCalledWith({
                 });
                 routeParamsWatcher.reset();
+                // trigger reload
                 $location.search({
                     foo: 'bar'
                 });
@@ -764,6 +769,7 @@ describe('$routeProvider.templateDecorator', function () {
                     barId: '123'
                 });
                 routeParamsWatcher.reset();
+                // don't trigger reload
                 $location.search({
                     foo: 'bar'
                 });

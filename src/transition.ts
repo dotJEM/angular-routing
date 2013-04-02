@@ -50,6 +50,9 @@ function $TransitionProvider() {
             from = toName(from);
             to = toName(to);
 
+            // We ignore the situation where to and from are the same explicit state.
+            // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
+            // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
             if (to === from && to.indexOf('*') === -1)
                 return this;
 

@@ -1,5 +1,8 @@
 /* THIS IS A BANNER */ 
 (function(window, document, undefined) {
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/*jshint globalstrict:true*/
+/*global angular:false*/
 'use strict';
 var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy;
 function inherit(parent, extra) {
@@ -13,17 +16,142 @@ function toName(named) {
 }
 angular.module('ui.routing', []);
 
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
+/**
+* @ngdoc object
+* @name ui.routing.$routeProvider
+* @function
+*
+* @description
+*
+* Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+*/
 function $RouteProvider() {
     var _this = this;
     var routes = {
     }, converters = {
     }, decorators = {
     }, caseSensitive = true;
+    //Public Methods
+    /**
+    * @ngdoc method
+    * @name ui.routing.$routeProvider#convert
+    * @methodOf ui.routing.$routeProvider
+    *
+    * @param {string} name Cerverter name, used in the path when registering routes through the
+    *   {@link ui.routing.routeProvider#when when} function.
+    
+    *
+    * @returns {Object} self
+    *
+    *
+    * @description
+    * Adds a new converter or overwrites an existing one.
+    *
+    * By default the folowing converters are precent:
+    *  - `` - default Converter, used on all parameters that doesn't specify a converter.
+    *    Matches any input.
+    *
+    *  - `num` - number converter, used to only mach numeric values.
+    *
+    *  - `regex` - regular expressions converter, used to match a parameter agains a regular
+    *    expression.
+    */
     this.convert = function (name, converter) {
+        //Note: We wan't to allow overwrite
         converters[name] = converter;
         return _this;
     };
+    /**
+    * @ngdoc method
+    * @name ui.routing.$routeProvider#when
+    * @methodOf ui.routing.$routeProvider
+    *
+    * @param {string} path Route path (matched against `$location.path`). If `$location.path`
+    *    contains redundant trailing slash or is missing one, the route will still match.
+    *
+    *    `path` can contain named groups starting with a colon (`:name`) or curly brackets (`{name}`).
+    *    All characters up to the next slash are matched and stored in `$routeParams` under the
+    *    given `name` when the route matches.
+    *
+    *    Further, when using the curly bracket syntax, converters can be used to match only specific
+    *    values, (`{num:name}`) will only match numerical values and (`{regex(\d{1,2}[a-z]+):name}`)
+    *    would only match a parameter starting with one or two digits followed by a number of
+    *    characters between 'a' and 'z'.
+    *
+    *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+    *    function.
+    *
+    * @param {Object} route Mapping information to be assigned to `$route.current` on route
+    *    match.
+    *
+    *    Object properties:
+    *
+    *    - `state` � `{string}` � a state that should be activated when the route is matched.
+    *    - `action` � `{(string|function()=}` � an action that should be performed when the route is matched.
+    *
+    *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}
+    *    module.
+    *
+    *    - `controller` � `{(string|function()=}` � Controller fn that should be associated with newly
+    *      created scope or the name of a {@link angular.Module#controller registered controller}
+    *      if passed as a string.
+    *    - `template` � `{string=|function()=}` � html template as a string or function that returns
+    *      an html template as a string which should be used by {@link ng.directive:ngView ngView} or
+    *      {@link ng.directive:ngInclude ngInclude} directives.
+    *      This property takes precedence over `templateUrl`.
+    *
+    *      If `template` is a function, it will be called with the following parameters:
+    *
+    *      - `{Array.<Object>}` - route parameters extracted from the current
+    *        `$location.path()` by applying the current route
+    *
+    *    - `templateUrl` � `{string=|function()=}` � path or function that returns a path to an html
+    *      template that should be used by {@link ng.directive:ngView ngView}.
+    *
+    *      If `templateUrl` is a function, it will be called with the following parameters:
+    *
+    *      - `{Array.<Object>}` - route parameters extracted from the current
+    *        `$location.path()` by applying the current route
+    *
+    *    - `resolve` - `{Object.<string, function>=}` - An optional map of dependencies which should
+    *      be injected into the controller. If any of these dependencies are promises, they will be
+    *      resolved and converted to a value before the controller is instantiated and the
+    *      `$routeChangeSuccess` event is fired. The map object is:
+    *
+    *      - `key` � `{string}`: a name of a dependency to be injected into the controller.
+    *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
+    *        Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
+    *        and the return value is treated as the dependency. If the result is a promise, it is resolved
+    *        before its value is injected into the controller.
+    *
+    *    - `redirectTo` � {(string|function())=} � value to update
+    *      {@link ng.$location $location} path with and trigger route redirection.
+    *
+    *      If `redirectTo` is a function, it will be called with the following parameters:
+    *
+    *      - `{Object.<string>}` - route parameters extracted from the current
+    *        `$location.path()` by applying the current route templateUrl.
+    *      - `{string}` - current `$location.path()`
+    *      - `{Object}` - current `$location.search()`
+    *
+    *      The custom `redirectTo` function is expected to return a string which will be used
+    *      to update `$location.path()` and `$location.search()`.
+    *
+    *    - `[reloadOnSearch=true]` - {boolean=} - reload route when only $location.search()
+    *    changes.
+    *
+    *      If the option is set to `false` and url in the browser changes, then
+    *      `$routeUpdate` event is broadcasted on the root scope.
+    *
+    * @returns {Object} self
+    *
+    * @description
+    * Adds a new route definition to the `$route` service.
+    */
     this.when = function (path, route) {
         var normalized = normalizePath(path);
         routes[normalized.name] = {
@@ -37,11 +165,24 @@ function $RouteProvider() {
         };
         return _this;
     };
+    /**
+    * @ngdoc method
+    * @name ng.$routeProvider#otherwise
+    * @methodOf ng.$routeProvider
+    *
+    * @description
+    * Sets route definition that will be used on route change when no other route definition
+    * is matched.
+    *
+    * @param {Object} params Mapping information to be assigned to `$route.current`.
+    * @returns {Object} self
+    */
     this.otherwise = function (route) {
         _this.when(null, route);
         return _this;
     };
     this.decorate = function (name, decorator) {
+        //Note: We wan't to allow overwrite
         decorators[name] = decorator;
         return _this;
     };
@@ -53,7 +194,9 @@ function $RouteProvider() {
         caseSensitive = true;
         return _this;
     };
+    //Scoped Methods
     function interpolate(url, params) {
+        //TODO: We only support :params here, but that might be ok for now as we are constructing an url.
         var result = [];
         forEach((url || '').split(':'), function (segment, i) {
             if(i == 0) {
@@ -95,11 +238,12 @@ function $RouteProvider() {
         var cname = match[6] || '', carg = match[8], trimmed;
         if(carg) {
             trimmed = carg.trim();
-            if(trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') {
+            if((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') || (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
                 try  {
                     carg = angular.fromJson(trimmed);
                 } catch (e) {
-                }
+                    //Note: Errors are ok here, we let it remain as a string.
+                                    }
             }
         }
         return {
@@ -111,12 +255,16 @@ function $RouteProvider() {
     function escape(exp) {
         return exp.replace(esc, "\\$&");
     }
+    // NOTE: Hoisting brings the declaration (not assignment) of re to the top. I have left it here
+    //       so it is only used in parseExpression, but defining it inside would case a new re on each
+    //       call to parseExpression, and that is not needed.
     var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
     function parseExpression(path) {
         var regex = "^", segments = [], index = 0, match, flags = '';
         if(path === '/') {
             return {
-                complete: new RegExp('^[\x2F]$', flags),
+                complete: //partial: new RegExp('^[\x2F].*$', flags),
+                new RegExp('^[\x2F]$', flags),
                 segments: []
             };
         }
@@ -134,7 +282,8 @@ function $RouteProvider() {
             regex = regex.substr(0, regex.length - 1);
         }
         return {
-            complete: new RegExp(regex + '\x2F?$', flags),
+            complete: //partial: new RegExp(regex + "\x2F?.*$", flags),
+            new RegExp(regex + '\x2F?$', flags),
             segments: segments
         };
     }
@@ -184,10 +333,13 @@ function $RouteProvider() {
             var exp = expFac(), match = location.match(exp.complete), dst = {
             }, invalidParam;
             if(match) {
+                //if (location.match(exp.complete)) {
                 invalidParam = false;
                 forEach(exp.segments, function (segment, index) {
+                    var param, value;
                     if(!invalidParam) {
-                        var param = match[index + 1], value = segment.converter(param);
+                        param = match[index + 1];
+                        value = segment.converter(param);
                         if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
@@ -204,9 +356,13 @@ function $RouteProvider() {
                 if(!invalidParam) {
                     return dst;
                 }
-            }
+                //} else {
+                //TODO: Match nested routes
+                //}
+                            }
         };
     }
+    //Registration of Default Converters
     this.convert('num', function () {
         return function (param) {
             var accepts = !isNaN(param);
@@ -242,6 +398,7 @@ function $RouteProvider() {
             return true;
         };
     });
+    //Service Factory
     this.$get = [
         '$rootScope', 
         '$location', 
@@ -249,7 +406,181 @@ function $RouteProvider() {
         '$injector', 
         '$routeParams', 
         function ($rootScope, $location, $q, $injector, $routeParams) {
-            var forceReload = false, $route = {
+            /**
+            * @ngdoc object
+            * @name ng.$route
+            * @requires $location
+            * @requires $routeParams
+            *
+            * @property {Object} current Reference to the current route definition.
+            * The route definition contains:
+            *
+            *   - `controller`: The controller constructor as define in route definition.
+            *   - `locals`: A map of locals which is used by {@link ng.$controller $controller} service for
+            *     controller instantiation. The `locals` contain
+            *     the resolved values of the `resolve` map. Additionally the `locals` also contain:
+            *
+            *     - `$scope` - The current route scope.
+            *     - `$template` - The current route template HTML.
+            *
+            * @property {Array.<Object>} routes Array of all configured routes.
+            *
+            * @description
+            * Is used for deep-linking URLs to controllers and views (HTML partials).
+            * It watches `$location.url()` and tries to map the path to an existing route definition.
+            *
+            * You can define routes through {@link ng.$routeProvider $routeProvider}'s API.
+            *
+            * The `$route` service is typically used in conjunction with {@link ng.directive:ngView ngView}
+            * directive and the {@link ng.$routeParams $routeParams} service.
+            *
+            * @example
+            This example shows how changing the URL hash causes the `$route` to match a route against the
+            URL, and the `ngView` pulls in the partial.
+            
+            Note that this example is using {@link ng.directive:script inlined templates}
+            to get it working on jsfiddle as well.
+            
+            <example module="ngView">
+            <file name="index.html">
+            <div ng-controller="MainCntl">
+            Choose:
+            <a href="Book/Moby">Moby</a> |
+            <a href="Book/Moby/ch/1">Moby: Ch1</a> |
+            <a href="Book/Gatsby">Gatsby</a> |
+            <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+            <a href="Book/Scarlet">Scarlet Letter</a><br/>
+            
+            <div ng-view></div>
+            <hr />
+            
+            <pre>$location.path() = {{$location.path()}}</pre>
+            <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
+            <pre>$route.current.params = {{$route.current.params}}</pre>
+            <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
+            <pre>$routeParams = {{$routeParams}}</pre>
+            </div>
+            </file>
+            
+            <file name="book.html">
+            controller: {{name}}<br />
+            Book Id: {{params.bookId}}<br />
+            </file>
+            
+            <file name="chapter.html">
+            controller: {{name}}<br />
+            Book Id: {{params.bookId}}<br />
+            Chapter Id: {{params.chapterId}}
+            </file>
+            
+            <file name="script.js">
+            angular.module('ngView', [], function($routeProvider, $locationProvider) {
+            $routeProvider.when('/Book/:bookId', {
+            templateUrl: 'book.html',
+            controller: BookCntl,
+            resolve: {
+            // I will cause a 1 second delay
+            delay: function($q, $timeout) {
+            var delay = $q.defer();
+            $timeout(delay.resolve, 1000);
+            return delay.promise;
+            }
+            }
+            });
+            $routeProvider.when('/Book/:bookId/ch/:chapterId', {
+            templateUrl: 'chapter.html',
+            controller: ChapterCntl
+            });
+            
+            // configure html5 to get links working on jsfiddle
+            $locationProvider.html5Mode(true);
+            });
+            
+            function MainCntl($scope, $route, $routeParams, $location) {
+            $scope.$route = $route;
+            $scope.$location = $location;
+            $scope.$routeParams = $routeParams;
+            }
+            
+            function BookCntl($scope, $routeParams) {
+            $scope.name = "BookCntl";
+            $scope.params = $routeParams;
+            }
+            
+            function ChapterCntl($scope, $routeParams) {
+            $scope.name = "ChapterCntl";
+            $scope.params = $routeParams;
+            }
+            </file>
+            
+            <file name="scenario.js">
+            it('should load and compile correct template', function() {
+            element('a:contains("Moby: Ch1")').click();
+            var content = element('.doc-example-live [ng-view]').text();
+            expect(content).toMatch(/controller\: ChapterCntl/);
+            expect(content).toMatch(/Book Id\: Moby/);
+            expect(content).toMatch(/Chapter Id\: 1/);
+            
+            element('a:contains("Scarlet")').click();
+            sleep(2); // promises are not part of scenario waiting
+            content = element('.doc-example-live [ng-view]').text();
+            expect(content).toMatch(/controller\: BookCntl/);
+            expect(content).toMatch(/Book Id\: Scarlet/);
+            });
+            </file>
+            </example>
+            */
+            /**
+            * @ngdoc event
+            * @name ng.$route#$routeChangeStart
+            * @eventOf ng.$route
+            * @eventType broadcast on root scope
+            * @description
+            * Broadcasted before a route change. At this  point the route services starts
+            * resolving all of the dependencies needed for the route change to occurs.
+            * Typically this involves fetching the view template as well as any dependencies
+            * defined in `resolve` route property. Once  all of the dependencies are resolved
+            * `$routeChangeSuccess` is fired.
+            *
+            * @param {Route} next Future route information.
+            * @param {Route} current Current route information.
+            */
+            /**
+            * @ngdoc event
+            * @name ng.$route#$routeChangeSuccess
+            * @eventOf ng.$route
+            * @eventType broadcast on root scope
+            * @description
+            * Broadcasted after a route dependencies are resolved.
+            * {@link ng.directive:ngView ngView} listens for the directive
+            * to instantiate the controller and render the view.
+            *
+            * @param {Route} current Current route information.
+            * @param {Route} previous Previous route information.
+            */
+            /**
+            * @ngdoc event
+            * @name ng.$route#$routeChangeError
+            * @eventOf ng.$route
+            * @eventType broadcast on root scope
+            * @description
+            * Broadcasted if any of the resolve promises are rejected.
+            *
+            * @param {Route} current Current route information.
+            * @param {Route} previous Previous route information.
+            * @param {Route} rejection Rejection of the promise. Usually the error of the failed promise.
+            */
+            /**
+            * @ngdoc event
+            * @name ng.$route#$routeUpdate
+            * @eventOf ng.$route
+            * @eventType broadcast on root scope
+            * @description
+            *
+            * The `reloadOnSearch` property has been set to false, and we are reusing the same
+            * instance of the Controller.
+            */
+                        var forceReload = false, $route = {
                 routes: routes,
                 reload: function () {
                     forceReload = true;
@@ -287,6 +618,7 @@ function $RouteProvider() {
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast('$routeUpdate', lastRoute);
                 } else if(next || lastRoute) {
+                    //TODO: We should always have a next to go to, it may be a null route though.
                     forceReload = false;
                     var event = $rootScope.$broadcast('$routeChangeStart', nextRoute, lastRoute);
                     if(!event.defaultPrevented) {
@@ -318,7 +650,10 @@ function $RouteProvider() {
                             }
                         });
                     } else {
-                    }
+                        //TODO: Do we need to do anything if the user cancels?
+                        //       - if the user wants to return to the old url, he should cancel on
+                        //         location change instead?
+                                            }
                 }
             }
         }    ];
@@ -326,6 +661,9 @@ function $RouteProvider() {
 angular.module('ui.routing').provider('$route', $RouteProvider).value('$routeParams', {
 });
 
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
 function $TransitionProvider() {
     var root = {
@@ -335,6 +673,7 @@ function $TransitionProvider() {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
     this.onEnter = function (state, onenter) {
+        //TODO: Validation
         if(isArray(onenter)) {
             forEach(onenter, function (single) {
                 onenter(single, state);
@@ -347,6 +686,7 @@ function $TransitionProvider() {
     };
     this.onExit = function (state, onexit) {
         var _this = this;
+        //TODO: Validation
         if(isArray(onexit)) {
             forEach(onexit, function (single) {
                 _this.onexit(single, state);
@@ -371,6 +711,9 @@ function $TransitionProvider() {
         } else {
             from = toName(from);
             to = toName(to);
+            // We ignore the situation where to and from are the same explicit state.
+            // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
+            // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
             if(to === from && to.indexOf('*') === -1) {
                 return this;
             }
@@ -392,6 +735,7 @@ function $TransitionProvider() {
     function validate(from, to) {
         var fromValid = validateTarget(from), toValid = validateTarget(to);
         if(fromValid && toValid) {
+            // && from !== to
             return;
         }
         if(fromValid) {
@@ -400,6 +744,8 @@ function $TransitionProvider() {
         if(toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
         }
+        //if (from === to && from.indexOf('*') === -1)
+        //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
     function validateTarget(target) {
@@ -409,7 +755,8 @@ function $TransitionProvider() {
         return false;
     }
     function lookup(name) {
-        var current = root, names = name.split('.'), i = names[0] === 'root' ? 1 : 0;
+        var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
+        names[0] === 'root' ? 1 : 0;
         for(; i < names.length; i++) {
             if(!(names[i] in current.children)) {
                 current.children[names[i]] = {
@@ -612,7 +959,8 @@ var $StateProvider = [
             }
         }
         function lookup(names) {
-            var current = root, i = names[0] === 'root' ? 1 : 0;
+            var current = root, i = //If name contains root explicitly, skip that one
+            names[0] === 'root' ? 1 : 0;
             for(; i < names.length; i++) {
                 if(!(names[i] in current.children)) {
                     throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -658,8 +1006,17 @@ var $StateProvider = [
                     }, root),
                     goto: goto,
                     lookup: function (path) {
-                    },
-                    nextSibling: '',
+                        // XPath Inspired lookups
+                        //
+                        // /myState -> Selects myState from the root node.
+                        // ./myState -> Selects myState as a child of the current node.
+                        // ../myStaate -> Selects myState as a child of the parent node to this.
+                        // /myState.$1 -> Selects the first child of myState
+                        // /myState.$last -> Selects the last child of myState
+                        // .$next -> Selects the next sibling of current element
+                                            },
+                    nextSibling: //TODO: Implement functions that return siblings etc.
+                    '',
                     prevSibling: '',
                     parrent: '',
                     children: '',
@@ -670,7 +1027,8 @@ var $StateProvider = [
                 };
                 $rootScope.$on('$routeChangeSuccess', update);
                 $rootScope.$on('$routeUpdate', function () {
-                });
+                    //TODO: Broadcast StateUpdate?
+                                    });
                 return $state;
                 function update() {
                     var route = $route.current, params;
@@ -683,7 +1041,11 @@ var $StateProvider = [
                         if(route.state) {
                             goto(route.state, params);
                         }
-                    } else {
+                        //TODO: Move Action to state instead?.
+                        //if (route.action) {
+                        //    $injector.invoke(route.action, { $params: params });
+                        //}
+                                            } else {
                         goto(root);
                     }
                 }
@@ -691,6 +1053,10 @@ var $StateProvider = [
                     var old = $state.current.params, oldPar = old && old.all || {
                     }, newPar = params.all, result = false;
                     forEach(state.params, function (name) {
+                        //TODO: Implement an equals function that converts towards strings as this could very well
+                        //      ignore an change on certain situations.
+                        //
+                        //      also change to a damn "forEach" where we can break out mid way...
                         result = oldPar[name] != newPar[name];
                     });
                     return result;
@@ -710,7 +1076,9 @@ var $StateProvider = [
                     };
                 }
                 function goto(to, params) {
-                    var to = lookupState(toName(to)), toState = inherit({
+                    //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
+                    //      should try to refactor it if possible.
+                                        var to = lookupState(toName(to)), toState = inherit({
                         params: params
                     }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
@@ -726,6 +1094,8 @@ var $StateProvider = [
                         };
                         emit.before(transition);
                         if(cancel) {
+                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                            //      That is if this was even triggered by an URL change in teh first place.
                             return;
                         }
                         $q.when(toState).then(function () {
@@ -743,6 +1113,8 @@ var $StateProvider = [
                             emit.between(transition);
                             if(cancel) {
                                 transaction.cancel();
+                                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                                //      That is if this was even triggered by an URL change in teh first place.
                                 return;
                             }
                             $state.current = toState;
@@ -758,13 +1130,17 @@ var $StateProvider = [
                                 };
                                 emit.after(transition);
                             }
-                        });
+                            //Note: nothing to do here.
+                                                    });
                     }
                 }
             }        ];
     }];
 angular.module('ui.routing').provider('$state', $StateProvider);
 
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
 function $TemplateProvider() {
     this.$get = [
@@ -796,6 +1172,7 @@ function $TemplateProvider() {
                 throw new Error("Object must define url, fn or html.");
             }
             this.get = function (template) {
+                //TODO: Make a regular expression check?
                 if(isString(template)) {
                     return getFromUrl(template);
                 }
@@ -812,6 +1189,9 @@ function $TemplateProvider() {
 }
 angular.module('ui.routing').provider('$template', $TemplateProvider);
 
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
 function $ViewProvider() {
     this.$get = [
@@ -872,12 +1252,14 @@ function $ViewProvider() {
                     return;
                 }
                 if(containsView(views, name)) {
+                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                     views[name].template = $template.get(template);
                     views[name].controller = controller;
                     views[name].version++;
                 } else {
                     views[name] = {
-                        template: $template.get(template),
+                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                        $template.get(template),
                         controller: controller,
                         version: 0
                     };
@@ -900,7 +1282,8 @@ function $ViewProvider() {
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
-                        template: $template.get(template),
+                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                        $template.get(template),
                         controller: controller,
                         version: 0
                     };
@@ -908,9 +1291,12 @@ function $ViewProvider() {
                 }
             };
             this.get = function (name) {
+                //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
                     return views;
                 }
+                // Ensure checks if the view was defined at any point, not if it is still defined.
+                // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return views[name];
             };
             this.beginUpdate = function () {
@@ -938,6 +1324,9 @@ function $ViewProvider() {
 }
 angular.module('ui.routing').provider('$view', $ViewProvider);
 
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="../common.ts" />
 'use strict';
 var uiViewDirective = [
     '$state', 
@@ -951,6 +1340,13 @@ var uiViewDirective = [
             terminal: true,
             link: function (scope, element, attr) {
                 var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version = -1;
+                // Find the details of the parent view directive (if any) and use it
+                // to derive our own qualified view name, then hang our own details
+                // off the DOM so child directives can find it.
+                //   var parent = element.parent().inheritedData('$uiView');
+                //   name = name + '@' + (parent ? parent.state.name : '');
+                //   var view = { name: name, state: null };
+                //   element.data('$uiView', view);
                 scope.$on('$stateChangeBegin', function () {
                 });
                 scope.$on('$viewChanged', function (event, updatedName) {

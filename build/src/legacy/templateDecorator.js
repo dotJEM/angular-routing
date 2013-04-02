@@ -1,3 +1,5 @@
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
 'use strict';
 angular.module('ui.routing.legacy', [
     'ui.routing', 

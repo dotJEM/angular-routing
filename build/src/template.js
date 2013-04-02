@@ -1,3 +1,6 @@
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
 function $TemplateProvider() {
     this.$get = [
@@ -29,6 +32,7 @@ function $TemplateProvider() {
                 throw new Error("Object must define url, fn or html.");
             }
             this.get = function (template) {
+                //TODO: Make a regular expression check?
                 if(isString(template)) {
                     return getFromUrl(template);
                 }

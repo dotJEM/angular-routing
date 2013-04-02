@@ -255,7 +255,8 @@ function $RouteProvider() {
 
         if (carg) {
             trimmed = carg.trim();
-            if (trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') {
+            if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') ||
+                (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']') ) {
                 try {
                     carg = angular.fromJson(trimmed);
                 } catch (e) {
@@ -373,9 +374,11 @@ function $RouteProvider() {
                 //if (location.match(exp.complete)) {
                 invalidParam = false;
                 forEach(exp.segments, function (segment: ISegment, index) {
+                    var param,
+                        value;
                     if (!invalidParam) {
-                        var param = match[index + 1],
-                            value = segment.converter(param);
+                        param = match[index + 1];
+                        value = segment.converter(param);
                         if (isDefined(value.accept)) {
                             if (!value.accept)
                                 invalidParam = true;
@@ -385,7 +388,6 @@ function $RouteProvider() {
                                 invalidParam = true;
                             dst[segment.name] = param;
                         }
-
                     }
                 });
 
