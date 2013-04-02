@@ -91,7 +91,7 @@ module.exports = function (grunt) {
                 version: '<%= pkg.version %>',
                 url: '<%= pkg.homepage %>',
                 options: {
-                    paths: './build/<%= pkg.name %>.js', //.
+                    paths: './build/src',//'./build/<%= pkg.name %>.js', //.
                     outdir: './doc/yuidoc/'
                 }
             }

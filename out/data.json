@@ -1,10 +1,5 @@
 {
-    "project": {
-        "name": "angular-routing",
-        "description": "State-based routing and view management for AngularJS",
-        "version": "0.1.0",
-        "url": ""
-    },
+    "project": {},
     "files": {
         "build\\src\\route.js": {
             "name": "build\\src\\route.js",

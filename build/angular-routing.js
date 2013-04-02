@@ -21,13 +21,10 @@ angular.module('ui.routing', []);
 /// <reference path="interfaces.d.ts" />
 'use strict';
 /**
-* @ngdoc object
-* @name ui.routing.$routeProvider
-* @function
-*
-* @description
-*
 * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+*
+* @class $RouteProvider
+* @constructor
 */
 function $RouteProvider() {
     var _this = this;
@@ -37,18 +34,6 @@ function $RouteProvider() {
     }, caseSensitive = true;
     //Public Methods
     /**
-    * @ngdoc method
-    * @name ui.routing.$routeProvider#convert
-    * @methodOf ui.routing.$routeProvider
-    *
-    * @param {string} name Cerverter name, used in the path when registering routes through the
-    *   {@link ui.routing.routeProvider#when when} function.
-    
-    *
-    * @returns {Object} self
-    *
-    *
-    * @description
     * Adds a new converter or overwrites an existing one.
     *
     * By default the folowing converters are precent:
@@ -59,6 +44,12 @@ function $RouteProvider() {
     *
     *  - `regex` - regular expressions converter, used to match a parameter agains a regular
     *    expression.
+    *
+    * @method convert
+    * @return {Object} self
+    *
+    * @param {string} name Cerverter name, used in the path when registering routes through the
+    *   {@link ui.routing.routeProvider#when when} function.
     */
     this.convert = function (name, converter) {
         //Note: We wan't to allow overwrite
@@ -66,9 +57,10 @@ function $RouteProvider() {
         return _this;
     };
     /**
-    * @ngdoc method
-    * @name ui.routing.$routeProvider#when
-    * @methodOf ui.routing.$routeProvider
+    * Adds a new route definition to the `$route` service.
+    *
+    * @method when
+    * @returns {Object} self
     *
     * @param {string} path Route path (matched against `$location.path`). If `$location.path`
     *    contains redundant trailing slash or is missing one, the route will still match.
@@ -146,11 +138,6 @@ function $RouteProvider() {
     *
     *      If the option is set to `false` and url in the browser changes, then
     *      `$routeUpdate` event is broadcasted on the root scope.
-    *
-    * @returns {Object} self
-    *
-    * @description
-    * Adds a new route definition to the `$route` service.
     */
     this.when = function (path, route) {
         var normalized = normalizePath(path);
@@ -166,16 +153,13 @@ function $RouteProvider() {
         return _this;
     };
     /**
-    * @ngdoc method
-    * @name ng.$routeProvider#otherwise
-    * @methodOf ng.$routeProvider
-    *
-    * @description
     * Sets route definition that will be used on route change when no other route definition
     * is matched.
     *
+    * @method otherwise
+    * @return {Object} self
+    *
     * @param {Object} params Mapping information to be assigned to `$route.current`.
-    * @returns {Object} self
     */
     this.otherwise = function (route) {
         _this.when(null, route);
@@ -406,181 +390,7 @@ function $RouteProvider() {
         '$injector', 
         '$routeParams', 
         function ($rootScope, $location, $q, $injector, $routeParams) {
-            /**
-            * @ngdoc object
-            * @name ng.$route
-            * @requires $location
-            * @requires $routeParams
-            *
-            * @property {Object} current Reference to the current route definition.
-            * The route definition contains:
-            *
-            *   - `controller`: The controller constructor as define in route definition.
-            *   - `locals`: A map of locals which is used by {@link ng.$controller $controller} service for
-            *     controller instantiation. The `locals` contain
-            *     the resolved values of the `resolve` map. Additionally the `locals` also contain:
-            *
-            *     - `$scope` - The current route scope.
-            *     - `$template` - The current route template HTML.
-            *
-            * @property {Array.<Object>} routes Array of all configured routes.
-            *
-            * @description
-            * Is used for deep-linking URLs to controllers and views (HTML partials).
-            * It watches `$location.url()` and tries to map the path to an existing route definition.
-            *
-            * You can define routes through {@link ng.$routeProvider $routeProvider}'s API.
-            *
-            * The `$route` service is typically used in conjunction with {@link ng.directive:ngView ngView}
-            * directive and the {@link ng.$routeParams $routeParams} service.
-            *
-            * @example
-            This example shows how changing the URL hash causes the `$route` to match a route against the
-            URL, and the `ngView` pulls in the partial.
-            
-            Note that this example is using {@link ng.directive:script inlined templates}
-            to get it working on jsfiddle as well.
-            
-            <example module="ngView">
-            <file name="index.html">
-            <div ng-controller="MainCntl">
-            Choose:
-            <a href="Book/Moby">Moby</a> |
-            <a href="Book/Moby/ch/1">Moby: Ch1</a> |
-            <a href="Book/Gatsby">Gatsby</a> |
-            <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-            <a href="Book/Scarlet">Scarlet Letter</a><br/>
-            
-            <div ng-view></div>
-            <hr />
-            
-            <pre>$location.path() = {{$location.path()}}</pre>
-            <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
-            <pre>$route.current.params = {{$route.current.params}}</pre>
-            <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
-            <pre>$routeParams = {{$routeParams}}</pre>
-            </div>
-            </file>
-            
-            <file name="book.html">
-            controller: {{name}}<br />
-            Book Id: {{params.bookId}}<br />
-            </file>
-            
-            <file name="chapter.html">
-            controller: {{name}}<br />
-            Book Id: {{params.bookId}}<br />
-            Chapter Id: {{params.chapterId}}
-            </file>
-            
-            <file name="script.js">
-            angular.module('ngView', [], function($routeProvider, $locationProvider) {
-            $routeProvider.when('/Book/:bookId', {
-            templateUrl: 'book.html',
-            controller: BookCntl,
-            resolve: {
-            // I will cause a 1 second delay
-            delay: function($q, $timeout) {
-            var delay = $q.defer();
-            $timeout(delay.resolve, 1000);
-            return delay.promise;
-            }
-            }
-            });
-            $routeProvider.when('/Book/:bookId/ch/:chapterId', {
-            templateUrl: 'chapter.html',
-            controller: ChapterCntl
-            });
-            
-            // configure html5 to get links working on jsfiddle
-            $locationProvider.html5Mode(true);
-            });
-            
-            function MainCntl($scope, $route, $routeParams, $location) {
-            $scope.$route = $route;
-            $scope.$location = $location;
-            $scope.$routeParams = $routeParams;
-            }
-            
-            function BookCntl($scope, $routeParams) {
-            $scope.name = "BookCntl";
-            $scope.params = $routeParams;
-            }
-            
-            function ChapterCntl($scope, $routeParams) {
-            $scope.name = "ChapterCntl";
-            $scope.params = $routeParams;
-            }
-            </file>
-            
-            <file name="scenario.js">
-            it('should load and compile correct template', function() {
-            element('a:contains("Moby: Ch1")').click();
-            var content = element('.doc-example-live [ng-view]').text();
-            expect(content).toMatch(/controller\: ChapterCntl/);
-            expect(content).toMatch(/Book Id\: Moby/);
-            expect(content).toMatch(/Chapter Id\: 1/);
-            
-            element('a:contains("Scarlet")').click();
-            sleep(2); // promises are not part of scenario waiting
-            content = element('.doc-example-live [ng-view]').text();
-            expect(content).toMatch(/controller\: BookCntl/);
-            expect(content).toMatch(/Book Id\: Scarlet/);
-            });
-            </file>
-            </example>
-            */
-            /**
-            * @ngdoc event
-            * @name ng.$route#$routeChangeStart
-            * @eventOf ng.$route
-            * @eventType broadcast on root scope
-            * @description
-            * Broadcasted before a route change. At this  point the route services starts
-            * resolving all of the dependencies needed for the route change to occurs.
-            * Typically this involves fetching the view template as well as any dependencies
-            * defined in `resolve` route property. Once  all of the dependencies are resolved
-            * `$routeChangeSuccess` is fired.
-            *
-            * @param {Route} next Future route information.
-            * @param {Route} current Current route information.
-            */
-            /**
-            * @ngdoc event
-            * @name ng.$route#$routeChangeSuccess
-            * @eventOf ng.$route
-            * @eventType broadcast on root scope
-            * @description
-            * Broadcasted after a route dependencies are resolved.
-            * {@link ng.directive:ngView ngView} listens for the directive
-            * to instantiate the controller and render the view.
-            *
-            * @param {Route} current Current route information.
-            * @param {Route} previous Previous route information.
-            */
-            /**
-            * @ngdoc event
-            * @name ng.$route#$routeChangeError
-            * @eventOf ng.$route
-            * @eventType broadcast on root scope
-            * @description
-            * Broadcasted if any of the resolve promises are rejected.
-            *
-            * @param {Route} current Current route information.
-            * @param {Route} previous Previous route information.
-            * @param {Route} rejection Rejection of the promise. Usually the error of the failed promise.
-            */
-            /**
-            * @ngdoc event
-            * @name ng.$route#$routeUpdate
-            * @eventOf ng.$route
-            * @eventType broadcast on root scope
-            * @description
-            *
-            * The `reloadOnSearch` property has been set to false, and we are reusing the same
-            * instance of the Controller.
-            */
-                        var forceReload = false, $route = {
+            var forceReload = false, $route = {
                 routes: routes,
                 reload: function () {
                     forceReload = true;

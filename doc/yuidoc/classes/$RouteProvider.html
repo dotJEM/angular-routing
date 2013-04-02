@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>$RouteProvider - angular-routing</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="..&#x2F;assets/css/logo.png" title="angular-routing"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.1.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/$RouteProvider.html">$RouteProvider</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>$RouteProvider Class</h1>
+<div class="box meta">
+    
+
+    
+
+    
+        <div class="foundat">
+            Defined in: <a href="..&#x2F;files&#x2F;build_src_route.js.html#l5"><code>build\src\route.js:5</code></a>
+        </div>
+    
+
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>Used for configuring routes. See {@link ui.routing.$route $route} for an example.</p>
+</div>
+
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_$RouteProvider" class="method item">
+    <h3 class="name"><code>$RouteProvider</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;build_src_route.js.html#l5"><code>build\src\route.js:5</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+    </div>
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_convert">convert</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_otherwise">otherwise</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_when">when</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+
+            
+
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_convert" class="method item">
+    <h3 class="name"><code>convert</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;build_src_route.js.html#l18"><code>build\src\route.js:18</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Adds a new converter or overwrites an existing one.</p>
+
+<p>By default the folowing converters are precent:
+ - `` - default Converter, used on all parameters that doesn't specify a converter.
+   Matches any input.</p>
+
+<ul>
+<li><p><code>num</code> - number converter, used to only mach numeric values.</p></li>
+<li><p><code>regex</code> - regular expressions converter, used to match a parameter agains a regular
+expression.</p></li>
+</ul>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Cerverter name, used in the path when registering routes through the
+  {@link ui.routing.routeProvider#when when} function.</p>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    self
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_otherwise" class="method item">
+    <h3 class="name"><code>otherwise</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>params</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;build_src_route.js.html#l137"><code>build\src\route.js:137</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets route definition that will be used on route change when no other route definition
+is matched.</p>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">params</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Mapping information to be assigned to <code>$route.current</code>.</p>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    self
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_when" class="method item">
+    <h3 class="name"><code>when</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>path</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>route</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;build_src_route.js.html#l41"><code>build\src\route.js:41</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Adds a new route definition to the <code>$route</code> service.</p>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">path</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Route path (matched against <code>$location.path</code>). If <code>$location.path</code>
+   contains redundant trailing slash or is missing one, the route will still match.</p>
+
+<p><code>path</code> can contain named groups starting with a colon (<code>:name</code>) or curly brackets (<code>{name}</code>).
+   All characters up to the next slash are matched and stored in <code>$routeParams</code> under the
+   given <code>name</code> when the route matches.</p>
+
+<p>Further, when using the curly bracket syntax, converters can be used to match only specific
+   values, (<code>{num:name}</code>) will only match numerical values and (<code>{regex(\d{1,2}[a-z]+):name}</code>)
+   would only match a parameter starting with one or two digits followed by a number of
+   characters between 'a' and 'z'.</p>
+
+<p>More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+   function.</p>
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">route</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Mapping information to be assigned to <code>$route.current</code> on route
+   match.</p>
+
+<p>Object properties:</p>
+
+<ul>
+<li><code>state</code> � <code>{string}</code> � a state that should be activated when the route is matched.</li>
+<li><p><code>action</code> � <code>{(string|function()=}</code> � an action that should be performed when the route is matched.</p>
+
+<p>Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}
+module.</p></li>
+<li><p><code>controller</code> � <code>{(string|function()=}</code> � Controller fn that should be associated with newly
+ created scope or the name of a {@link angular.Module#controller registered controller}
+ if passed as a string.</p></li>
+<li><p><code>template</code> � <code>{string=|function()=}</code> � html template as a string or function that returns
+ an html template as a string which should be used by {@link ng.directive:ngView ngView} or
+ {@link ng.directive:ngInclude ngInclude} directives.
+ This property takes precedence over <code>templateUrl</code>.</p>
+
+<p>If <code>template</code> is a function, it will be called with the following parameters:</p>
+
+<ul><li><code>{Array.&lt;Object&gt;}</code> - route parameters extracted from the current
+<code>$location.path()</code> by applying the current route</li></ul></li>
+<li><p><code>templateUrl</code> � <code>{string=|function()=}</code> � path or function that returns a path to an html
+ template that should be used by {@link ng.directive:ngView ngView}.</p>
+
+<p>If <code>templateUrl</code> is a function, it will be called with the following parameters:</p>
+
+<ul><li><code>{Array.&lt;Object&gt;}</code> - route parameters extracted from the current
+<code>$location.path()</code> by applying the current route</li></ul></li>
+<li><p><code>resolve</code> - <code>{Object.&lt;string, function&gt;=}</code> - An optional map of dependencies which should
+ be injected into the controller. If any of these dependencies are promises, they will be
+ resolved and converted to a value before the controller is instantiated and the
+ <code>$routeChangeSuccess</code> event is fired. The map object is:</p>
+
+<ul><li><code>key</code> � <code>{string}</code>: a name of a dependency to be injected into the controller.</li>
+<li><code>factory</code> - <code>{string|function}</code>: If <code>string</code> then it is an alias for a service.
+Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
+and the return value is treated as the dependency. If the result is a promise, it is resolved
+before its value is injected into the controller.</li></ul></li>
+<li><p><code>redirectTo</code> � {(string|function())=} � value to update
+ {@link ng.$location $location} path with and trigger route redirection.</p>
+
+<p>If <code>redirectTo</code> is a function, it will be called with the following parameters:</p>
+
+<ul><li><code>{Object.&lt;string&gt;}</code> - route parameters extracted from the current
+<code>$location.path()</code> by applying the current route templateUrl.</li>
+<li><code>{string}</code> - current <code>$location.path()</code></li>
+<li><p><code>{Object}</code> - current <code>$location.search()</code></p>
+
+<p>The custom <code>redirectTo</code> function is expected to return a string which will be used
+to update <code>$location.path()</code> and <code>$location.search()</code>.</p></li></ul></li>
+<li><p><code>[reloadOnSearch=true]</code> - {boolean=} - reload route when only $location.search()
+changes.</p>
+
+<p>If the option is set to <code>false</code> and url in the browser changes, then
+ <code>$routeUpdate</code> event is broadcasted on the root scope.</p></li>
+</ul>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    self
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+
+        
+
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>
