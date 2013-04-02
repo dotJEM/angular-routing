@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        banner: '/* THIS IS A BANNER */ \r\n',
+        banner: '',
 
         clean: {
             src: ['build']
@@ -16,8 +16,8 @@ module.exports = function (grunt) {
                 src: ['src/**/*.ts'],
                 dest: 'build/src',
                 options: {
-                    module: 'commonjs', //or commonjs
-                    target: 'es5', //or es3
+                    module: 'commonjs',
+                    target: 'es5',
                     base_path: 'src',
                     sourcemap: false,
                     declaration: false,
@@ -28,8 +28,8 @@ module.exports = function (grunt) {
                 src: ['test/**/*.ts'],
                 dest: 'build/test',
                 options: {
-                    module: 'commonjs', //or commonjs
-                    target: 'es5', //or es3
+                    module: 'commonjs',
+                    target: 'es5',
                     base_path: 'test',
                     sourcemap: false,
                     declaration: false,
@@ -56,7 +56,10 @@ module.exports = function (grunt) {
                 dest: 'build/<%= pkg.name %>.js'
             },
             legacy: {
-                src: [ 'build/src/legacy/templateDecorator.js' ],
+                src: [  'build/src/legacy/prefix',
+                        'build/src/legacy/templateDecorator.js',
+                        'build/src/legacy/suffix'
+                ],
                 dest: 'build/<%= pkg.name %>.legacy.js'
             }
         },
@@ -91,7 +94,7 @@ module.exports = function (grunt) {
                 version: '<%= pkg.version %>',
                 url: '<%= pkg.homepage %>',
                 options: {
-                    paths: './build/src',//'./build/<%= pkg.name %>.js', //.
+                    paths: './build/src',
                     outdir: './doc/yuidoc/'
                 }
             }

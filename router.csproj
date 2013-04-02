@@ -41,6 +41,8 @@
     <None Include="package.json" />
     <None Include="README.md" />
     <None Include="resources.md" />
+    <None Include="src\legacy\prefix" />
+    <None Include="src\legacy\suffix" />
     <None Include="version.yaml" />
   </ItemGroup>
   <ItemGroup>

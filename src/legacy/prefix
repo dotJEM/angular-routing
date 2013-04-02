@@ -3,6 +3,6 @@
  * (c) 2010-2012 dotJEM (Jens Melgaard)
  * License: MIT
  *
- * @module angular-routing
+ * @module angular-routing-legacy
  */
 (function(window, document, undefined) {
