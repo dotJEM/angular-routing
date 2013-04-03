@@ -14,15 +14,6 @@ var uiViewDirective = [
             terminal: true,
             link: function (scope, element, attr) {
                 var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version = -1;
-                // Find the details of the parent view directive (if any) and use it
-                // to derive our own qualified view name, then hang our own details
-                // off the DOM so child directives can find it.
-                //   var parent = element.parent().inheritedData('$uiView');
-                //   name = name + '@' + (parent ? parent.state.name : '');
-                //   var view = { name: name, state: null };
-                //   element.data('$uiView', view);
-                scope.$on('$stateChangeBegin', function () {
-                });
                 scope.$on('$viewChanged', function (event, updatedName) {
                     if(updatedName === name) {
                         update();
@@ -36,10 +27,6 @@ var uiViewDirective = [
                     }
                     viewScope = newScope === 'undefined' ? null : newScope;
                 }
-                function clearContent() {
-                    element.html('');
-                    resetScope();
-                }
                 function update() {
                     var view = $view.get(name), controller;
                     if(view && view.template) {
@@ -49,6 +36,7 @@ var uiViewDirective = [
                         version = view.version;
                         controller = view.controller;
                         view.template.then(function (html) {
+                            element.hide();
                             element.html(html);
                             resetScope(scope.$new());
                             var link = $compile(element.contents());
@@ -61,10 +49,12 @@ var uiViewDirective = [
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
+                            element.slideDown();
                             $anchorScroll();
                         });
                     } else {
-                        clearContent();
+                        element.html('');
+                        resetScope();
                     }
                 }
             }

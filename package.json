@@ -17,8 +17,8 @@
   },
   "licenses": [
     {
-      "type": "N/A",
-      "url": ""
+      "type": "MIT",
+      "url": "https://github.com/dotJEM/angular-routing/blob/master/LICENSE"
     }
   ],
   "dependencies": {},

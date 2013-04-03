@@ -1,4 +1,3 @@
-/* THIS IS A BANNER */ 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />
 'use strict';
