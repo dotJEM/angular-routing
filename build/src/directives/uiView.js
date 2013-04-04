@@ -36,7 +36,6 @@ var uiViewDirective = [
                         version = view.version;
                         controller = view.controller;
                         view.template.then(function (html) {
-                            element.hide();
                             element.html(html);
                             resetScope(scope.$new());
                             var link = $compile(element.contents());
@@ -49,7 +48,6 @@ var uiViewDirective = [
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
-                            element.slideDown();
                             $anchorScroll();
                         });
                     } else {

@@ -1,4 +1,4 @@
-﻿var app = angular.module('sample', ['ui.routing']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
+﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
            $routeProvider               .otherwise({ redirectTo: '/' });
 
             $stateProvider
@@ -150,9 +150,13 @@ function clean(state) {
         newState.children[name] = clean(child);
     });    return newState;
 }
-function PageController($scope, $rootScope, $route, $state, $transition) {
-    $scope.routes = JSON.stringify($route.routes, null, 2);    $scope.states = JSON.stringify(clean($state.root), null, 2);    $scope.transitions = JSON.stringify($transition.root, null, 2);
-
+function PageController($scope, $rootScope, $route, $state, $stateTransition) {
+    $scope.routes = JSON.stringify($route.routes, null, 2);    $scope.states = JSON.stringify(clean($state.root), null, 2);    $scope.transitions = JSON.stringify($stateTransition.root, null, 2);
+    $scope.opts = {
+        backdropFade: true,
+        dialogFade: true
+    };
+    
     $scope.$on('$viewUpdate', function (event,name) {
         printStack("Update event for view received: " + name);
     });
@@ -160,6 +164,17 @@ function PageController($scope, $rootScope, $route, $state, $transition) {
     $scope.$on('$stateChangeSuccess', function () {
         printStack("State Changed: " + $state.current.fullname);
     });
+    $scope.openRoutes = function () {
+        $scope.showRoutes = true;
+    };    $scope.openStates = function () {
+        $scope.showStates = true;
+    };    $scope.openTransitions = function () {
+        $scope.showTransitions = true;
+    };    $scope.close = function () {
+        $scope.showRoutes = false;
+        $scope.showStates = false;
+        $scope.showTransitions = false;
+    };
 }
 
 function printStack(message) {

@@ -4,7 +4,7 @@
 
 'use strict';
 
-function $TransitionProvider() {
+function $StateTransitionProvider() {
     var root = { children: { }, targets: { } },
         validation = /^\w+(\.\w+)*(\.[*])?$/;
 
@@ -211,4 +211,4 @@ function $TransitionProvider() {
         }
     }];
 }
-angular.module('ui.routing').provider('$transition', $TransitionProvider);
+angular.module('ui.routing').provider('$stateTransition', $StateTransitionProvider);

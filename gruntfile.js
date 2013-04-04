@@ -47,7 +47,7 @@ module.exports = function (grunt) {
                 src: [  'src/prefix',
                         'build/src/common.js',
                         'build/src/route.js',
-                        'build/src/transition.js',
+                        'build/src/stateTransition.js',
                         'build/src/state.js',
                         'build/src/template.js',
                         'build/src/view.js',

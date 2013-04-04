@@ -1,6 +1,6 @@
 /// <reference path="testcommon.ts" />
 
-describe('$transitionProvider', function () {
+describe('$stateTransitionProvider', function () {
     'use strict';
     var mock = angular.mock;
     var scope: ng.IRootScopeService;
@@ -76,8 +76,8 @@ describe('$transitionProvider', function () {
     describe("transition validation", () => {
         it('valid passes', function () {
             var provider: ui.routing.ITransitionProvider;
-            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
-                provider = $transitionProvider;
+            mock.module(function ($stateTransitionProvider: ui.routing.ITransitionProvider) {
+                provider = $stateTransitionProvider;
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
@@ -92,8 +92,8 @@ describe('$transitionProvider', function () {
 
         it('invalid throws errors', function () {
             var provider: ui.routing.ITransitionProvider;
-            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
-                provider = $transitionProvider;
+            mock.module(function ($stateTransitionProvider: ui.routing.ITransitionProvider) {
+                provider = $stateTransitionProvider;
             });
 
             mock.inject(function ($state: ui.routing.IStateService) {
@@ -121,22 +121,22 @@ describe('$transitionProvider', function () {
         });
 
         it('handlers can be registered on wildcards transitions', function () {
-            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
+            mock.module(function ($stateTransitionProvider: ui.routing.ITransitionProvider) {
 
-                $transitionProvider
+                $stateTransitionProvider
                     .transition('*', '*', () => { })
                     .transition('blog.*', 'about.*', () => { })
             });
 
-            mock.inject(function ($transition: ui.routing.ITransitionService) {
-                expect(stringify($transition.root)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
+            mock.inject(function ($stateTransition: ui.routing.ITransitionService) {
+                expect(stringify($stateTransition.root)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
             });
         });
 
         it('handlers can be registered on specific transitions', function () {
-            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
+            mock.module(function ($stateTransitionProvider: ui.routing.ITransitionProvider) {
 
-                $transitionProvider
+                $stateTransitionProvider
                     .transition('*', '*', () => { })
                     .transition('blog.recent', 'blog.category', () => { })
                     .transition('blog.archive', 'blog.category', () => { })
@@ -146,7 +146,7 @@ describe('$transitionProvider', function () {
                     .transition('blog.category', 'blog.recent', () => { })
             });
 
-            mock.inject(function ($transition: ui.routing.ITransitionService) {
+            mock.inject(function ($stateTransition: ui.routing.ITransitionService) {
                 //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
                 //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
                 //      as well as the source.
@@ -171,20 +171,20 @@ describe('$transitionProvider', function () {
                 + '  )'
                 + ')';
 
-                expect(stringify($transition.root))
+                expect(stringify($stateTransition.root))
                     .toBe(expected.replace(/\s+/g, ''));
             });
         });
 
         it('same handler can be registered for multiple transitions', function () {
-            mock.module(function ($transitionProvider: ui.routing.ITransitionProvider) {
+            mock.module(function ($stateTransitionProvider: ui.routing.ITransitionProvider) {
 
-                $transitionProvider
+                $stateTransitionProvider
                     .transition('*', '*', () => { })
                     .transition(['blog.recent', 'blog.archive', 'blog.category'], ['blog.recent', 'blog.archive', 'blog.category'], () => { })
             });
 
-            mock.inject(function ($transition: ui.routing.ITransitionService) {
+            mock.inject(function ($stateTransition: ui.routing.ITransitionService) {
                 //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
                 //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
                 //      as well as the source.
@@ -211,15 +211,15 @@ describe('$transitionProvider', function () {
                 + '  )'
                 + ')';
 
-                expect(stringify($transition.root))
+                expect(stringify($stateTransition.root))
                     .toBe(expected.replace(/\s+/g, ''));
             });
         });
 
         it('multiple handlers can be registered on the same tansition', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateTransitionProvider: ui.routing.IStateProvider) {
 
-                $stateProvider
+                $stateTransitionProvider
                     .transition('*', '*', () => { })
                     .transition('blog.recent', 'blog.category', () => { })
                     .transition('blog.recent', 'blog.category', () => { })
@@ -229,7 +229,7 @@ describe('$transitionProvider', function () {
                     .transition('blog.recent', 'blog.archive', () => { })
             });
 
-            mock.inject(function ($transition: ui.routing.ITransitionService) {
+            mock.inject(function ($stateTransition: ui.routing.ITransitionService) {
                 var expected =
                   '[]('
                 + '  *[*+1]('
@@ -239,7 +239,7 @@ describe('$transitionProvider', function () {
                 + '  )'
                 + ')';
 
-                expect(stringify($transition.root))
+                expect(stringify($stateTransition.root))
                     .toBe(expected.replace(/\s+/g, ''));
             });
         });
@@ -262,7 +262,7 @@ describe('$transitionProvider', function () {
                     }]);
             });
 
-            mock.inject(function ($location, $state: ui.routing.IStateService, $transition: ui.routing.ITransitionService) {
+            mock.inject(function ($location, $state: ui.routing.IStateService, $stateTransition: ui.routing.ITransitionService) {
                 $location.path('/blog/recent');
                 scope.$digest();
 

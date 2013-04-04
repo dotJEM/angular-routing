@@ -474,7 +474,7 @@ angular.module('ui.routing').provider('$route', $RouteProvider).value('$routePar
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 'use strict';
-function $TransitionProvider() {
+function $StateTransitionProvider() {
     var root = {
         children: {
         },
@@ -674,12 +674,12 @@ function $TransitionProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$transition', $TransitionProvider);
+angular.module('ui.routing').provider('$stateTransition', $StateTransitionProvider);
 
 'use strict';
 var $StateProvider = [
     '$routeProvider', 
-    '$transitionProvider', 
+    '$stateTransitionProvider', 
     function ($routeProvider, $transitionProvider) {
         var root = {
             fullname: 'root',
@@ -806,7 +806,7 @@ var $StateProvider = [
             '$injector', 
             '$route', 
             '$view', 
-            '$transition', 
+            '$stateTransition', 
             '$location', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = false, $state = {
@@ -1172,7 +1172,6 @@ var uiViewDirective = [
                         version = view.version;
                         controller = view.controller;
                         view.template.then(function (html) {
-                            element.hide();
                             element.html(html);
                             resetScope(scope.$new());
                             var link = $compile(element.contents());
@@ -1185,7 +1184,6 @@ var uiViewDirective = [
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
-                            element.slideDown();
                             $anchorScroll();
                         });
                     } else {

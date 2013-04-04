@@ -89,6 +89,7 @@
     <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
     <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
     <Content Include="lib\jquery\jquery.d.ts" />
+    <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
     <Content Include="samples\bootstrap.min.css" />
     <Content Include="samples\configuration.js">
       <DependentUpon>configuration.ts</DependentUpon>

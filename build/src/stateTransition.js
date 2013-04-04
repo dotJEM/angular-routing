@@ -2,7 +2,7 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 'use strict';
-function $TransitionProvider() {
+function $StateTransitionProvider() {
     var root = {
         children: {
         },
@@ -202,4 +202,4 @@ function $TransitionProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$transition', $TransitionProvider);
+angular.module('ui.routing').provider('$stateTransition', $StateTransitionProvider);

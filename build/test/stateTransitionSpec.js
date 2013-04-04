@@ -1,5 +1,5 @@
 /// <reference path="testcommon.ts" />
-describe('$transitionProvider', function () {
+describe('$stateTransitionProvider', function () {
     'use strict';
     var mock = angular.mock;
     var scope;
@@ -61,8 +61,8 @@ describe('$transitionProvider', function () {
     describe("transition validation", function () {
         it('valid passes', function () {
             var provider;
-            mock.module(function ($transitionProvider) {
-                provider = $transitionProvider;
+            mock.module(function ($stateTransitionProvider) {
+                provider = $stateTransitionProvider;
             });
             mock.inject(function ($state) {
                 provider.transition('*', '*', function () {
@@ -75,8 +75,8 @@ describe('$transitionProvider', function () {
         });
         it('invalid throws errors', function () {
             var provider;
-            mock.module(function ($transitionProvider) {
-                provider = $transitionProvider;
+            mock.module(function ($stateTransitionProvider) {
+                provider = $stateTransitionProvider;
             });
             mock.inject(function ($state) {
                 //Note: Both Invalid
@@ -145,18 +145,18 @@ describe('$transitionProvider', function () {
             });
         });
         it('handlers can be registered on wildcards transitions', function () {
-            mock.module(function ($transitionProvider) {
-                $transitionProvider.transition('*', '*', function () {
+            mock.module(function ($stateTransitionProvider) {
+                $stateTransitionProvider.transition('*', '*', function () {
                 }).transition('blog.*', 'about.*', function () {
                 });
             });
-            mock.inject(function ($transition) {
-                expect(stringify($transition.root)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
+            mock.inject(function ($stateTransition) {
+                expect(stringify($stateTransition.root)).toBe('[](*[*+1](),blog[](*[about.*+1]()))');
             });
         });
         it('handlers can be registered on specific transitions', function () {
-            mock.module(function ($transitionProvider) {
-                $transitionProvider.transition('*', '*', function () {
+            mock.module(function ($stateTransitionProvider) {
+                $stateTransitionProvider.transition('*', '*', function () {
                 }).transition('blog.recent', 'blog.category', function () {
                 }).transition('blog.archive', 'blog.category', function () {
                 }).transition('blog.recent', 'blog.archive', function () {
@@ -165,7 +165,7 @@ describe('$transitionProvider', function () {
                 }).transition('blog.category', 'blog.recent', function () {
                 });
             });
-            mock.inject(function ($transition) {
+            mock.inject(function ($stateTransition) {
                 //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
                 //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
                 //      as well as the source.
@@ -179,12 +179,12 @@ describe('$transitionProvider', function () {
                 //      so... 'blog[about+4](...)' shows a source 'blog' which has one target 'about' that has registered 4 handlers.
                 //      the ... denotes children of blog, if any... they follow the same pattern.
                 var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+1, blog.archive+1](),' + '    archive [ blog.category+1, blog.recent+1 ](),' + '    category[ blog.archive+1,  blog.recent+1 ]()' + '  )' + ')';
-                expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
+                expect(stringify($stateTransition.root)).toBe(expected.replace(/\s+/g, ''));
             });
         });
         it('same handler can be registered for multiple transitions', function () {
-            mock.module(function ($transitionProvider) {
-                $transitionProvider.transition('*', '*', function () {
+            mock.module(function ($stateTransitionProvider) {
+                $stateTransitionProvider.transition('*', '*', function () {
                 }).transition([
                     'blog.recent', 
                     'blog.archive', 
@@ -196,7 +196,7 @@ describe('$transitionProvider', function () {
                 ], function () {
                 });
             });
-            mock.inject(function ($transition) {
+            mock.inject(function ($stateTransition) {
                 //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
                 //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
                 //      as well as the source.
@@ -211,12 +211,12 @@ describe('$transitionProvider', function () {
                 //      the ... denotes children of blog, if any... they follow the same pattern.
                 //(recent[blog.archive+1,blog.category+1](),archive[blog.recent+1,blog.category+1](),category[blog.recent+1,blog.archive+1]()))
                 var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.archive+1, blog.category+1](),' + '    archive [ blog.recent+1,  blog.category+1 ](),' + '    category[ blog.recent+1,  blog.archive+1 ]()' + '  )' + ')';
-                expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
+                expect(stringify($stateTransition.root)).toBe(expected.replace(/\s+/g, ''));
             });
         });
         it('multiple handlers can be registered on the same tansition', function () {
-            mock.module(function ($stateProvider) {
-                $stateProvider.transition('*', '*', function () {
+            mock.module(function ($stateTransitionProvider) {
+                $stateTransitionProvider.transition('*', '*', function () {
                 }).transition('blog.recent', 'blog.category', function () {
                 }).transition('blog.recent', 'blog.category', function () {
                 }).transition('blog.recent', 'blog.category', function () {
@@ -225,9 +225,9 @@ describe('$transitionProvider', function () {
                 }).transition('blog.recent', 'blog.archive', function () {
                 });
             });
-            mock.inject(function ($transition) {
+            mock.inject(function ($stateTransition) {
                 var expected = '[](' + '  *[*+1](' + '  ),' + '  blog[](' + '    recent  [ blog.category+3, blog.archive+3]()' + '  )' + ')';
-                expect(stringify($transition.root)).toBe(expected.replace(/\s+/g, ''));
+                expect(stringify($stateTransition.root)).toBe(expected.replace(/\s+/g, ''));
             });
         });
     });
@@ -255,7 +255,7 @@ describe('$transitionProvider', function () {
                         });
                     }                ]);
             });
-            mock.inject(function ($location, $state, $transition) {
+            mock.inject(function ($location, $state, $stateTransition) {
                 $location.path('/blog/recent');
                 scope.$digest();
                 expect(transitions.length).toBe(1);

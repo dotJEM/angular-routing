@@ -64,15 +64,13 @@
     <Content Include="build\test\stateSpec.js" />
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
-    <TypeScriptCompile Include="src\transition.ts" />
+    <TypeScriptCompile Include="src\stateTransition.ts" />
+    <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
     <Content Include="src\directives\uiView.js">
       <DependentUpon>uiView.ts</DependentUpon>
     </Content>
     <None Include="src\prefix" />
     <None Include="src\suffix" />
-    <Content Include="src\transition.js">
-      <DependentUpon>transition.ts</DependentUpon>
-    </Content>
     <Content Include="test-grunt-config.js" />
     <Content Include="gruntfile.js" />
     <Content Include="lib\angular\angular-1.0.d.ts" />
@@ -132,13 +130,13 @@
       <DependentUpon>stateSpec.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="test\viewSpec.ts" />
+    <Content Include="test\stateTransitionSpec.js">
+      <DependentUpon>stateTransitionSpec.ts</DependentUpon>
+    </Content>
     <Content Include="test\testcommon.js">
       <DependentUpon>testcommon.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="test\transitionSpec.ts" />
-    <Content Include="test\transitionSpec.js">
-      <DependentUpon>transitionSpec.ts</DependentUpon>
-    </Content>
+    <TypeScriptCompile Include="test\stateTransitionSpec.ts" />
     <Content Include="test\viewSpec.js">
       <DependentUpon>viewSpec.ts</DependentUpon>
     </Content>

@@ -1,7 +1,7 @@
 'use strict';
 var $StateProvider = [
     '$routeProvider', 
-    '$transitionProvider', 
+    '$stateTransitionProvider', 
     function ($routeProvider, $transitionProvider) {
         var root = {
             fullname: 'root',
@@ -128,7 +128,7 @@ var $StateProvider = [
             '$injector', 
             '$route', 
             '$view', 
-            '$transition', 
+            '$stateTransition', 
             '$location', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = false, $state = {

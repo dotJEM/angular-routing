@@ -13,7 +13,7 @@ interface IStateWrapper {
 }
 
 'use strict';
-var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
+var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
     var root: IStateWrapper = { fullname: 'root', children: {}, self: { fullname: 'root' } },
         nameValidation = /^\w+(\.\w+)*?$/;
 
@@ -143,7 +143,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         return this;
     };
 
-    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$transition', '$location',
+    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location',
     function (
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
@@ -158,8 +158,6 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 root: root,
                 current: inherit({}, root),
                 goto: goto,
-
-                
 
                 lookup: function (path) {
                     // XPath Inspired lookups
