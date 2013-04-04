@@ -124,8 +124,8 @@ function $StateTransitionProvider() {
         return $transition;
 
         function find(from, to) {
-            var transitions = findTransitions(from.fullname),
-                handlers = extractHandlers(transitions, to.fullname),
+            var transitions = findTransitions(toName(from)),
+                handlers = extractHandlers(transitions, toName(to)),
                 emitters: any[];
 
             function emit(select, tc) {

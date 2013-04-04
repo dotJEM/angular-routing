@@ -270,7 +270,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
             });
         });
 
@@ -296,7 +296,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
 
                 $location.path('/about');
                 scope.$digest();
@@ -332,7 +332,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
 
                 $location.path('/blog/42');
                 scope.$digest();
@@ -361,7 +361,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
 
                 $location.path('/blog/42');
                 scope.$digest();
@@ -388,7 +388,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('top');
-                expect(spy.mostRecentCall.args[2].fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
 
                 $location.path('/top/one');
                 scope.$digest();
@@ -413,7 +413,7 @@ describe('$stateProvider', function () {
             mock.inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {                function go(path: string) {
                     $location.path(path);
                     scope.$digest();
-            };                //$view.setOrUpdate(name, view.template, view.controller)                var viewSpy = spyOn($view, 'setOrUpdate'); spyOn($view, 'setIfAbsent');                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+            };                var viewSpy = spyOn($view, 'setOrUpdate'); spyOn($view, 'setIfAbsent');                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
                                 
                 go('/top/1');

@@ -20,7 +20,7 @@ function inherit(parent, extra?) {
 }
 
 function toName(named: any) {
-    return isString(named) ? named : named.fullname;
+    return isString(named) ? named : named.$fullname || named.fullname;
 }
 
 angular.module('ui.routing', []);

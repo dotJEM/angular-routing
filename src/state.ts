@@ -14,7 +14,7 @@ interface IStateWrapper {
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root: IStateWrapper = { fullname: 'root', children: {}, self: { fullname: 'root' } },
+    var root: IStateWrapper = { fullname: 'root', children: {}, self: { $fullname: 'root' } },
         nameValidation = /^\w+(\.\w+)*?$/;
 
     function validateName(name: string) {
@@ -79,7 +79,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             at.children[name] = {};
         }
         at = at.children[name];
-        at.self = extend(state, { fullname: fullname });
+        at.self = extend({}, state, { $fullname: fullname });
         at.fullname = fullname;
         at.parent = parent;
 
@@ -156,7 +156,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         var forceReload = false,
             $state: any = {
                 root: root,
-                current: inherit({}, root),
+                current: extend({}, root.self),
                 goto: goto,
 
                 lookup: function (path) {
@@ -248,7 +248,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
             var to = lookupState(toName(to)),
-                toState = inherit({ $params: params }, to.self),
+                toState = extend({}, to.self, { $params: params }),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
