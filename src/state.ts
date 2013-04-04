@@ -211,7 +211,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         }
 
         function isChanged(state: IStateWrapper, params) {
-            var old = $state.current.params,
+            var old = $state.current.$params,
                 oldPar = old && old.all || {},
                 newPar = params.all,
                 result = false;
@@ -248,7 +248,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
             var to = lookupState(toName(to)),
-                toState = inherit({ params: params }, to.self),
+                toState = inherit({ $params: params }, to.self),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 

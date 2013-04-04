@@ -418,7 +418,7 @@ describe('$stateProvider', function () {
                                 
                 go('/top/1');
                 expect($state.current.name).toBe('top');
-                expect($state.current.params.all.top).toBe('1');
+                expect($state.current.$params.all.top).toBe('1');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -428,7 +428,7 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2');
                 expect($state.current.name).toBe('top');
-                expect($state.current.params.all.top).toBe('2');
+                expect($state.current.$params.all.top).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -438,8 +438,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.params.all.top).toBe('1');
-                expect($state.current.params.all.sub).toBe('1');
+                expect($state.current.$params.all.top).toBe('1');
+                expect($state.current.$params.all.sub).toBe('1');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(2);
@@ -450,8 +450,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/2');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.params.all.top).toBe('1');
-                expect($state.current.params.all.sub).toBe('2');
+                expect($state.current.$params.all.top).toBe('1');
+                expect($state.current.$params.all.sub).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -461,8 +461,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2/sub/2');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.params.all.top).toBe('2');
-                expect($state.current.params.all.sub).toBe('2');
+                expect($state.current.$params.all.top).toBe('2');
+                expect($state.current.$params.all.sub).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(2);
@@ -473,9 +473,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1/bot/1');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.params.all.top).toBe('1');
-                expect($state.current.params.all.sub).toBe('1');
-                expect($state.current.params.all.bot).toBe('1');
+                expect($state.current.$params.all.top).toBe('1');
+                expect($state.current.$params.all.sub).toBe('1');
+                expect($state.current.$params.all.bot).toBe('1');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(3);
@@ -487,9 +487,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1/bot/2');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.params.all.top).toBe('1');
-                expect($state.current.params.all.sub).toBe('1');
-                expect($state.current.params.all.bot).toBe('2');
+                expect($state.current.$params.all.top).toBe('1');
+                expect($state.current.$params.all.sub).toBe('1');
+                expect($state.current.$params.all.bot).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -499,9 +499,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2/sub/1/bot/2');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.params.all.top).toBe('2');
-                expect($state.current.params.all.sub).toBe('1');
-                expect($state.current.params.all.bot).toBe('2');
+                expect($state.current.$params.all.top).toBe('2');
+                expect($state.current.$params.all.sub).toBe('1');
+                expect($state.current.$params.all.bot).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(3);
