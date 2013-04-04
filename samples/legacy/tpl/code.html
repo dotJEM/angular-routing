@@ -1,26 +1,2 @@
-﻿<h2>Sample Code</h2>
-Here you can see the code that is used to configure the routes in this legacy sample.
-
-<h3>Route Provider Configuration</h3>
-<pre>
-$routeProvider
-    .when('/', {
-        templateUrl: "tpl/home.html",
-        controller: function ($rootScope) {
-            $rootScope.page = "home";
-        }
-    })
-    .when('/code', {
-        templateUrl: "tpl/code.html",
-        controller: function ($rootScope) {
-            $rootScope.page = "code";
-        }
-    })
-    .when('/about', {
-        templateUrl: "tpl/about.html",
-        controller: function ($rootScope) {
-            $rootScope.page = "about";
-        }
-    })
-    .otherwise({redirectTo: '/'});
-</pre>
+﻿<h2>Sample Code</h2>Here you can see the code that is used to configure the routes in this legacy sample.
+<h3>Route Provider Configuration</h3><pre>$routeProvider    .when('/', {        templateUrl: "tpl/home.html",        controller: function ($rootScope) {            $rootScope.page = "home";        }    })    .when('/code', {        templateUrl: "tpl/code.html",        controller: function ($rootScope) {            $rootScope.page = "code";        }    })    .when('/about', {        templateUrl: "tpl/about.html",        controller: function ($rootScope) {            $rootScope.page = "about";        }    })    .otherwise({redirectTo: '/'});</pre>

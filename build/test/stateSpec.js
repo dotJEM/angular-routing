@@ -1,3 +1,4 @@
+/// <reference path="testcommon.ts" />
 describe('$stateProvider', function () {
     'use strict';
     var mock = angular.mock;
@@ -265,6 +266,8 @@ describe('$stateProvider', function () {
             });
         });
     });
+    //Note: These are essentialy integration tests between $location, $route and $state.
+    //      because I haven't been able to sucessfully mock out $route.current for some reason.
     describe("state $routeChangeSuccess", function () {
         it('will broadcast $stateChangeSuccess and set current state', function () {
             mock.module(function ($stateProvider, $routeProvider) {
@@ -442,6 +445,7 @@ describe('$stateProvider', function () {
                     $location.path(path);
                     scope.$digest();
                 }
+                //$view.setOrUpdate(name, view.template, view.controller)
                 ;
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 spyOn($view, 'setIfAbsent');
@@ -527,6 +531,7 @@ describe('$stateProvider', function () {
             });
         });
     });
+    //Note: Integration tests between $transition and $state etc.
     describe("$transition $routeChangeSuccess", function () {
         it('Correct Transitions are called on state change.', function () {
             var last;

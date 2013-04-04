@@ -1,3 +1,4 @@
+/// <reference path="testcommon.ts" />
 describe('$routeProvider', function () {
     'use strict';
     var mock = angular.mock;
@@ -476,7 +477,8 @@ describe('$routeProvider', function () {
         });
     });
     describe("otherwise", function () {
-    });
+        // Tested in legacy specs for now.
+            });
     describe("ignoreCase", function () {
         it('matches an uppercase route whit an lowercase location', function () {
             var converterArgs;

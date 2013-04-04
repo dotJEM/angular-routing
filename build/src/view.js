@@ -1,3 +1,6 @@
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
 'use strict';
 function $ViewProvider() {
     this.$get = [
@@ -27,8 +30,8 @@ function $ViewProvider() {
             }
             this.clear = function (name) {
                 var _this = this;
-                if(angular.isUndefined(name)) {
-                    angular.forEach(views, function (val, key) {
+                if(isUndefined(name)) {
+                    forEach(views, function (val, key) {
                         _this.clear(key);
                     });
                 } else {
@@ -58,12 +61,14 @@ function $ViewProvider() {
                     return;
                 }
                 if(containsView(views, name)) {
+                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                     views[name].template = $template.get(template);
                     views[name].controller = controller;
                     views[name].version++;
                 } else {
                     views[name] = {
-                        template: $template.get(template),
+                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                        $template.get(template),
                         controller: controller,
                         version: 0
                     };
@@ -86,7 +91,8 @@ function $ViewProvider() {
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
-                        template: $template.get(template),
+                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                        $template.get(template),
                         controller: controller,
                         version: 0
                     };
@@ -94,9 +100,12 @@ function $ViewProvider() {
                 }
             };
             this.get = function (name) {
-                if(angular.isUndefined(name)) {
+                //TODO: return copies instead of actuals...
+                if(isUndefined(name)) {
                     return views;
                 }
+                // Ensure checks if the view was defined at any point, not if it is still defined.
+                // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return views[name];
             };
             this.beginUpdate = function () {
@@ -110,7 +119,7 @@ function $ViewProvider() {
                 return {
                     commit: function () {
                         transaction = null;
-                        angular.forEach(trx.records, function (rec) {
+                        forEach(trx.records, function (rec) {
                             rec.fn();
                         });
                     },

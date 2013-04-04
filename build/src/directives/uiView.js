@@ -1,3 +1,6 @@
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="../common.ts" />
 'use strict';
 var uiViewDirective = [
     '$state', 
@@ -10,30 +13,26 @@ var uiViewDirective = [
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version;
-                scope.$on('$stateChangeBegin', function () {
+                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version = -1;
+                scope.$on('$viewChanged', function (event, updatedName) {
+                    if(updatedName === name) {
+                        update();
+                    }
                 });
-                scope.$on('$stateChangeSuccess', function () {
-                    return update('state');
-                });
-                update('load');
+                scope.$on('$stateChangeSuccess', update);
+                update();
                 function resetScope(newScope) {
                     if(viewScope) {
                         viewScope.$destroy();
                     }
                     viewScope = newScope === 'undefined' ? null : newScope;
                 }
-                function clearContent() {
-                    element.html('');
-                    resetScope();
-                }
-                function update(from) {
+                function update() {
                     var view = $view.get(name), controller;
                     if(view && view.template) {
                         if(view.version === version) {
                             return;
                         }
-                        console.log("Updating view: " + name + " - source: " + from + "  " + view.version + "|" + version);
                         version = view.version;
                         controller = view.controller;
                         view.template.then(function (html) {
@@ -52,7 +51,8 @@ var uiViewDirective = [
                             $anchorScroll();
                         });
                     } else {
-                        clearContent();
+                        element.html('');
+                        resetScope();
                     }
                 }
             }

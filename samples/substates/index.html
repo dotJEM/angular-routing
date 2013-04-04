@@ -4,10 +4,14 @@
     <title>Sub States Sample</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../metro.bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="../metro.bootstrap.overwrites.css" />
+    
+    <script src="../../lib/jquery/impl/jquery-1.9.1.min.js"></script>
+
     <script src="../../lib/angular/impl/angular.js"></script>
     <script src="../../lib/angular/impl/angular-bootstrap.js"></script>
     <script src="../../lib/angular/impl/angular-bootstrap-prettify.js"></script>
-
+     <script src="../../lib/ui-bootstrap/impl/ui-bootstrap-tpls-0.2.0.min.js"></script>
     <script src="../../build/angular-routing.js"></script>
     <script src="script/data.js"></script>
     <script src="script/application.js"></script>
@@ -33,19 +37,44 @@
 
     <hr />
 
-    <div style="text-align: center">
-        <div class="row" ng-controller="PageController" style="text-align: left; display: inline-block">
-            <div class="span6">
+    <div ng-controller="PageController">
+        <button class="btn" ng-click="openRoutes()">Show Routes</button>
+        <button class="btn" ng-click="openStates()">Show States</button>
+        <button class="btn" ng-click="openTransitions()">Show Transitions</button>
+
+        <div modal="showRoutes" close="close()" options="opts">
+            <div class="modal-header">
                 <h2>Routes</h2>
+            </div>
+            <div class="modal-body">
                 <pre>{{routes}}</pre>
             </div>
-            <div class="span6">
+            <div class="modal-footer">
+                <button class="btn btn-warning cancel" ng-click="close()">Close</button>
+            </div>
+        </div>
+
+        <div modal="showStates" close="close()" options="opts">
+            <div class="modal-header">
                 <h2>States</h2>
+            </div>
+            <div class="modal-body">
                 <pre>{{states}}</pre>
             </div>
-            <div class="span6">
+            <div class="modal-footer">
+                <button class="btn btn-warning cancel" ng-click="close()">Close</button>
+            </div>
+        </div>
+
+        <div modal="showTransitions" close="close()" options="opts">
+            <div class="modal-header">
                 <h2>Transitions</h2>
+            </div>
+            <div class="modal-body">
                 <pre>{{transitions}}</pre>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning cancel" ng-click="close()">Close</button>
             </div>
         </div>
     </div>
