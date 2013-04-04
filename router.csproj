@@ -71,6 +71,9 @@
     </Content>
     <None Include="src\prefix" />
     <None Include="src\suffix" />
+    <Content Include="src\stateTransition.js">
+      <DependentUpon>stateTransition.ts</DependentUpon>
+    </Content>
     <Content Include="test-grunt-config.js" />
     <Content Include="gruntfile.js" />
     <Content Include="lib\angular\angular-1.0.d.ts" />

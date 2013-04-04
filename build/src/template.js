@@ -3,7 +3,7 @@
 /// <reference path="interfaces.d.ts" />
 'use strict';
 function $TemplateProvider() {
-    //var urlmatcher = new RegExp('^(?:(?:https?|ftp):\/\/)(?:\\S+(?::\\S*)?@)?(?:(?!10(?:\\.\\d{1,3}){3})(?!127(?:\\.\\d{1,3}){3})(?!169\\.254(?:\\.\\d{1,3}){2})(?!192\\.168(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)*(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}]{2,})))(?::\\d{2,5})?(?:\/[^\\s]*)?$', 'i');
+    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))', 'i');
     this.$get = [
         '$http', 
         '$q', 
@@ -33,9 +33,12 @@ function $TemplateProvider() {
                 throw new Error("Object must define url, fn or html.");
             }
             this.get = function (template) {
-                //TODO: Make a regular expression check and if it's not an URL just return it as is?
                 if(isString(template)) {
-                    return getFromUrl(template);
+                    if(urlmatcher.test(template)) {
+                        return getFromUrl(template);
+                    } else {
+                        return template;
+                    }
                 }
                 if(isFunction(template) || isArray(template)) {
                     return getFromFunction(template);
