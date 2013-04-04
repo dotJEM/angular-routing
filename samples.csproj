@@ -101,6 +101,7 @@
     <Content Include="samples\legacy\tpl\about.html" />
     <Content Include="samples\legacy\tpl\code.html" />
     <Content Include="samples\legacy\tpl\home.html" />
+    <Content Include="samples\metro.bootstrap.overwrites.css" />
     <Content Include="samples\simple\index.html" />
     <Content Include="samples\simple\script\application.js" />
     <Content Include="samples\simple\tpl\about.html" />
