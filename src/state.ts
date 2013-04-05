@@ -194,7 +194,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 };
 
                 if (route.state) {
-                    goto(route.state, params);
+                    goto(route.state, params, route);
                 }
                 //TODO: Move Action to state instead?.
                 //if (route.action) {
@@ -239,23 +239,19 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             } 
         }
 
-        function goto(to, params?) {
+        function goto(to, params?, route?) {
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
             var to = lookupState(toName(to)),
-                toState = extend({}, to.self, { $params: params }),
+                toState = extend({}, to.self, { $params: params, $route: route }),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
                 cancel = false,
                 event,
-                transition,
                 transaction,
 
-                changed = changeChain(to, params);
-
-            event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
-            if (!event.defaultPrevented) {
+                changed = changeChain(to, params),
                 transition = {
                     cancel: function () {
                         cancel = true;
@@ -265,14 +261,16 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         goto(state, params);
                     }
                 };
-                emit.before(transition);
 
-                if (cancel) {
-                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                    //      That is if this was even triggered by an URL change in teh first place.
-                    return;
-                }
+            emit.before(transition);
+            if (cancel) {
+                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                //      That is if this was even triggered by an URL change in teh first place.
+                return;
+            }
 
+            event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+            if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
 
                     transaction = $view.beginUpdate();
