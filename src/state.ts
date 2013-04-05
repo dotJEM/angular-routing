@@ -138,11 +138,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         return this;
     };
 
-    this.transition = function (from: any, to: any, handler: any) {
-        $transitionProvider.transition(from, to, handler);
-        return this;
-    };
-
     this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location',
     function (
         $rootScope: ng.IRootScopeService,

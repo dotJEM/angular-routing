@@ -250,13 +250,13 @@ describe('$stateTransitionProvider', function () {
     describe("transition $routeChangeSuccess", () => {
         it('Global * -> * transition will be called', function () {
             var transitions = [];
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider) {
 
                 $stateProvider
                     .state('blog', { route: '/blog', name: 'blog' })
                     .state('blog.recent', { route: '/recent', name: 'blog.recent' })
                     .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
-
+                $stateTransitionProvider
                     .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {                        transitions.push({ from: $from, to: $to });                    }]);
             });
 
@@ -280,14 +280,14 @@ describe('$stateTransitionProvider', function () {
         it('Global blog -> about transition will be called when entering about', function () {
             var trs = [],
                 message = [];
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider) {
                 $stateProvider
                     .state('blog', { route: '/blog', name: 'blog' })
                     .state('blog.recent', { route: '/recent', name: 'blog.recent' })
                     .state('blog.details', { route: '/{num:id}', name: 'blog.details' })
                     .state('about', { route: '/about', name: 'about' })
-                    .state('about.cv', { route: '/cv', name: 'about.cv' })
-
+                    .state('about.cv', { route: '/cv', name: 'about.cv' });
+                $stateTransitionProvider
                     .transition('blog.*', 'about.*', [<any>'$from', '$to', ($from, $to) => {
                         trs.push({ from: $from, to: $to });
                         message.push("blog.* > about.*");
@@ -325,13 +325,13 @@ describe('$stateTransitionProvider', function () {
         it('Global blog -> about transition will be called when entering about from other substate', function () {
             var trs = [],
                 message = [];
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider) {
                 $stateProvider
                     .state('blog', { route: '/blog', name: 'blog' })
                     .state('blog.recent', { route: '/recent', name: 'blog.recent' })
                     .state('about', { route: '/about', name: 'about' })
-                    .state('about.cv', { route: '/cv', name: 'about.cv' })
-
+                    .state('about.cv', { route: '/cv', name: 'about.cv' });
+                $stateTransitionProvider
                     .transition('blog.*', 'about.*', [<any>'$from', '$to', ($from, $to) => {
                         trs.push({ from: $from, to: $to });
                         message.push("blog.* > about.*");
@@ -369,15 +369,15 @@ describe('$stateTransitionProvider', function () {
         it('Global blog -> about transition will be called when entering substate about from other state', function () {
             var trs = [],
                 message = [];
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
                 $stateProvider
                     .state('blog', { route: '/blog', name: 'blog' })
                     .state('blog.recent', { route: '/recent', name: 'blog.recent' })
                     .state('blog.other', { route: '/other', name: 'blog.recent' })
                     .state('about', { route: '/about', name: 'about' })
                     .state('about.cv', { route: '/cv', name: 'about.cv' })
-                    .state('about.other', { route: '/other', name: 'about.other' })
-
+                    .state('about.other', { route: '/other', name: 'about.other' });
+                $stateTransitionProvider
                     .transition('blog.*', 'about.*', [<any>'$from', '$to', ($from, $to) => {
                         trs.push({ from: $from, to: $to });
                         message.push("blog.* > about.*");
