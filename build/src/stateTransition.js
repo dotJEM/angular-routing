@@ -9,28 +9,45 @@ function $StateTransitionProvider() {
         targets: {
         }
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+    function alignHandler(obj) {
+        var result = {
+            handler: {
+            }
+        };
+        if(isDefined(obj.to)) {
+            result.to = obj.to;
+        }
+        if(isDefined(obj.from)) {
+            result.from = obj.from;
+        }
+        if(isDefined(obj.handler)) {
+            result.handler = obj.handler;
+        }
+        if(isDefined(obj.before) && isUndefined(result.handler.before)) {
+            result.handler.before = obj.before;
+        }
+        if(isDefined(obj.between) && isUndefined(result.handler.between)) {
+            result.handler.between = obj.between;
+        }
+        if(isDefined(obj.after) && isUndefined(result.handler.after)) {
+            result.handler.after = obj.after;
+        }
+        return result;
+    }
     this.onEnter = function (state, onenter) {
         //TODO: Validation
-        if(isArray(onenter)) {
-            forEach(onenter, function (single) {
-                onenter(single, state);
-            });
-        } else if(isObject(onenter)) {
-            this.transition(onenter.from || '*', state, onenter.handler);
-        } else if(isFunction(onenter)) {
+        if(isObject(onenter)) {
+            var aligned = alignHandler(onenter);
+            this.transition(aligned.from || '*', state, aligned.handler);
+        } else if(isFunction(onenter) || isArray(onenter)) {
             this.transition('*', state, onenter);
         }
     };
     this.onExit = function (state, onexit) {
-        var _this = this;
-        //TODO: Validation
-        if(isArray(onexit)) {
-            forEach(onexit, function (single) {
-                _this.onexit(single, state);
-            });
-        } else if(isObject(onexit)) {
-            this.transition(state, onexit.to || '*', onexit.handler);
-        } else if(isFunction(onexit)) {
+        if(isObject(onexit)) {
+            var aligned = alignHandler(onexit);
+            this.transition(state, aligned.to || '*', aligned.handler);
+        } else if(isFunction(onexit) || isArray(onexit)) {
             this.transition(state, '*', onexit);
         }
     };
@@ -117,7 +134,7 @@ function $StateTransitionProvider() {
             };
             return $transition;
             function find(from, to) {
-                var transitions = findTransitions(from.fullname), handlers = extractHandlers(transitions, to.fullname), emitters;
+                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
                 function emit(select, tc) {
                     var _this = this;
                     var handler;

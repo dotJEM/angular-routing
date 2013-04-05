@@ -8,7 +8,7 @@ var $StateProvider = [
             children: {
             },
             self: {
-                fullname: 'root'
+                $fullname: 'root'
             }
         }, nameValidation = /^\w+(\.\w+)*?$/;
         function validateName(name) {
@@ -65,8 +65,9 @@ var $StateProvider = [
                 };
             }
             at = at.children[name];
-            at.self = extend(state, {
-                fullname: fullname
+            at.self = extend({
+            }, state, {
+                $fullname: fullname
             });
             at.fullname = fullname;
             at.parent = parent;
@@ -133,8 +134,8 @@ var $StateProvider = [
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = false, $state = {
                     root: root,
-                    current: inherit({
-                    }, root),
+                    current: extend({
+                    }, root.self),
                     goto: goto,
                     lookup: function (path) {
                         // XPath Inspired lookups
@@ -181,7 +182,7 @@ var $StateProvider = [
                     }
                 }
                 function isChanged(state, params) {
-                    var old = $state.current.params, oldPar = old && old.all || {
+                    var old = $state.current.$params, oldPar = old && old.all || {
                     }, newPar = params.all, result = false;
                     forEach(state.params, function (name) {
                         //TODO: Implement an equals function that converts towards strings as this could very well
@@ -209,9 +210,10 @@ var $StateProvider = [
                 function goto(to, params) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var to = lookupState(toName(to)), toState = inherit({
-                        params: params
-                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
+                                        var to = lookupState(toName(to)), toState = extend({
+                    }, to.self, {
+                        $params: params
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         transition = {

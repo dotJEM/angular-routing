@@ -259,13 +259,13 @@ describe('$stateTransitionProvider', function () {
                 $location.path('/blog/recent');
                 scope.$digest();
                 expect(transitions.length).toBe(1);
-                expect(transitions[0].from.fullname).toBe('root');
-                expect(transitions[0].to.fullname).toBe('root.blog.recent');
+                expect(transitions[0].from.$fullname).toBe('root');
+                expect(transitions[0].to.$fullname).toBe('root.blog.recent');
                 $location.path('/blog/42');
                 scope.$digest();
                 expect(transitions.length).toBe(2);
-                expect(transitions[1].from.fullname).toBe('root.blog.recent');
-                expect(transitions[1].to.fullname).toBe('root.blog.details');
+                expect(transitions[1].from.$fullname).toBe('root.blog.recent');
+                expect(transitions[1].to.$fullname).toBe('root.blog.details');
             });
         });
         it('Global blog -> about transition will be called when entering about', function () {
@@ -332,8 +332,8 @@ describe('$stateTransitionProvider', function () {
                 scope.$digest();
                 expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
                 expect(message.length).toBe(4);
-                expect(trs[0].from.fullname).toBe('root.blog');
-                expect(trs[0].to.fullname).toBe('root.about');
+                expect(trs[0].from.$fullname).toBe('root.blog');
+                expect(trs[0].to.$fullname).toBe('root.about');
             });
         });
         it('Global blog -> about transition will be called when entering about from other substate', function () {
@@ -397,8 +397,8 @@ describe('$stateTransitionProvider', function () {
                 scope.$digest();
                 expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
                 expect(message.length).toBe(4);
-                expect(trs[0].from.fullname).toBe('root.blog.recent');
-                expect(trs[0].to.fullname).toBe('root.about');
+                expect(trs[0].from.$fullname).toBe('root.blog.recent');
+                expect(trs[0].to.$fullname).toBe('root.about');
             });
         });
         it('Global blog -> about transition will be called when entering substate about from other state', function () {
@@ -468,8 +468,8 @@ describe('$stateTransitionProvider', function () {
                 scope.$digest();
                 expect(message.join()).toBe('blog > about.*,blog.* > about.*');
                 expect(message.length).toBe(2);
-                expect(trs[0].from.fullname).toBe('root.blog.recent');
-                expect(trs[0].to.fullname).toBe('root.about.cv');
+                expect(trs[0].from.$fullname).toBe('root.blog.recent');
+                expect(trs[0].to.$fullname).toBe('root.about.cv');
             });
         });
     });

@@ -2,7 +2,7 @@
     "project": {
         "name": "angular-routing",
         "description": "State-based routing and view management for AngularJS",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "url": ""
     },
     "files": {
