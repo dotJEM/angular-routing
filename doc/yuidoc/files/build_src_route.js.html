@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.2.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -317,8 +317,7 @@ function $RouteProvider() {
         var regex = &quot;^&quot;, segments = [], index = 0, match, flags = &#x27;&#x27;;
         if(path === &#x27;&#x2F;&#x27;) {
             return {
-                complete: &#x2F;&#x2F;partial: new RegExp(&#x27;^[\x2F].*$&#x27;, flags),
-                new RegExp(&#x27;^[\x2F]$&#x27;, flags),
+                complete: new RegExp(&#x27;^[\x2F]?$&#x27;, flags),
                 segments: []
             };
         }
@@ -336,8 +335,7 @@ function $RouteProvider() {
             regex = regex.substr(0, regex.length - 1);
         }
         return {
-            complete: &#x2F;&#x2F;partial: new RegExp(regex + &quot;\x2F?.*$&quot;, flags),
-            new RegExp(regex + &#x27;\x2F?$&#x27;, flags),
+            complete: new RegExp(regex + &#x27;\x2F?$&#x27;, flags),
             segments: segments
         };
     }

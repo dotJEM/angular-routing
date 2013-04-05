@@ -11,7 +11,7 @@ function inherit(parent, extra) {
     }))(), extra);
 }
 function toName(named) {
-    return isString(named) ? named : named.fullname;
+    return isString(named) ? named : named.$fullname || named.fullname;
 }
 angular.module('ui.routing', []);
 
@@ -246,8 +246,7 @@ function $RouteProvider() {
         var regex = "^", segments = [], index = 0, match, flags = '';
         if(path === '/') {
             return {
-                complete: //partial: new RegExp('^[\x2F].*$', flags),
-                new RegExp('^[\x2F]$', flags),
+                complete: new RegExp('^[\x2F]?$', flags),
                 segments: []
             };
         }
@@ -265,8 +264,7 @@ function $RouteProvider() {
             regex = regex.substr(0, regex.length - 1);
         }
         return {
-            complete: //partial: new RegExp(regex + "\x2F?.*$", flags),
-            new RegExp(regex + '\x2F?$', flags),
+            complete: new RegExp(regex + '\x2F?$', flags),
             segments: segments
         };
     }
@@ -480,29 +478,46 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
-    }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+    function alignHandler(obj) {
+        var result = {
+            handler: {
+            }
+        };
+        if(isDefined(obj.to)) {
+            result.to = obj.to;
+        }
+        if(isDefined(obj.from)) {
+            result.from = obj.from;
+        }
+        if(isDefined(obj.handler)) {
+            result.handler = obj.handler;
+        }
+        if(isDefined(obj.before) && isUndefined(result.handler.before)) {
+            result.handler.before = obj.before;
+        }
+        if(isDefined(obj.between) && isUndefined(result.handler.between)) {
+            result.handler.between = obj.between;
+        }
+        if(isDefined(obj.after) && isUndefined(result.handler.after)) {
+            result.handler.after = obj.after;
+        }
+        return result;
+    }
     this.onEnter = function (state, onenter) {
         //TODO: Validation
-        if(isArray(onenter)) {
-            forEach(onenter, function (single) {
-                onenter(single, state);
-            });
-        } else if(isObject(onenter)) {
-            this.transition(onenter.from || '*', state, onenter.handler);
-        } else if(isFunction(onenter)) {
+        if(isObject(onenter)) {
+            var aligned = alignHandler(onenter);
+            this.transition(aligned.from || '*', state, aligned.handler);
+        } else if(isFunction(onenter) || isArray(onenter)) {
             this.transition('*', state, onenter);
         }
     };
     this.onExit = function (state, onexit) {
-        var _this = this;
-        //TODO: Validation
-        if(isArray(onexit)) {
-            forEach(onexit, function (single) {
-                _this.onexit(single, state);
-            });
-        } else if(isObject(onexit)) {
-            this.transition(state, onexit.to || '*', onexit.handler);
-        } else if(isFunction(onexit)) {
+        if(isObject(onexit)) {
+            var aligned = alignHandler(onexit);
+            this.transition(state, aligned.to || '*', aligned.handler);
+        } else if(isFunction(onexit) || isArray(onexit)) {
             this.transition(state, '*', onexit);
         }
     };
@@ -589,9 +604,8 @@ function $StateTransitionProvider() {
             };
             return $transition;
             function find(from, to) {
-                var transitions = findTransitions(from.fullname), handlers = extractHandlers(transitions, to.fullname), emitters;
+                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
                 function emit(select, tc) {
-                    var _this = this;
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
@@ -686,7 +700,7 @@ var $StateProvider = [
             children: {
             },
             self: {
-                fullname: 'root'
+                $fullname: 'root'
             }
         }, nameValidation = /^\w+(\.\w+)*?$/;
         function validateName(name) {
@@ -743,8 +757,9 @@ var $StateProvider = [
                 };
             }
             at = at.children[name];
-            at.self = extend(state, {
-                fullname: fullname
+            at.self = extend({
+            }, state, {
+                $fullname: fullname
             });
             at.fullname = fullname;
             at.parent = parent;
@@ -796,10 +811,6 @@ var $StateProvider = [
             registerState(pair.name, pair.at, state);
             return this;
         };
-        this.transition = function (from, to, handler) {
-            $transitionProvider.transition(from, to, handler);
-            return this;
-        };
         this.$get = [
             '$rootScope', 
             '$q', 
@@ -811,8 +822,8 @@ var $StateProvider = [
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = false, $state = {
                     root: root,
-                    current: inherit({
-                    }, root),
+                    current: extend({
+                    }, root.self),
                     goto: goto,
                     lookup: function (path) {
                         // XPath Inspired lookups
@@ -848,7 +859,7 @@ var $StateProvider = [
                             search: route.searchParams
                         };
                         if(route.state) {
-                            goto(route.state, params);
+                            goto(route.state, params, route);
                         }
                         //TODO: Move Action to state instead?.
                         //if (route.action) {
@@ -859,7 +870,7 @@ var $StateProvider = [
                     }
                 }
                 function isChanged(state, params) {
-                    var old = $state.current.params, oldPar = old && old.all || {
+                    var old = $state.current.$params, oldPar = old && old.all || {
                     }, newPar = params.all, result = false;
                     forEach(state.params, function (name) {
                         //TODO: Implement an equals function that converts towards strings as this could very well
@@ -884,29 +895,30 @@ var $StateProvider = [
                         first: states.length - lastChanged
                     };
                 }
-                function goto(to, params) {
+                function goto(to, params, route) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var to = lookupState(toName(to)), toState = inherit({
-                        params: params
-                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
+                                        var to = lookupState(toName(to)), toState = extend({
+                    }, to.self, {
+                        $params: params,
+                        $route: route
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = changeChain(to, params), transition = {
+                        cancel: function () {
+                            cancel = true;
+                        },
+                        goto: function (state, params) {
+                            cancel = true;
+                            goto(state, params);
+                        }
+                    };
+                    emit.before(transition);
+                    if(cancel) {
+                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                        //      That is if this was even triggered by an URL change in teh first place.
+                        return;
+                    }
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
-                        transition = {
-                            cancel: function () {
-                                cancel = true;
-                            },
-                            goto: function (state, params) {
-                                cancel = true;
-                                goto(state, params);
-                            }
-                        };
-                        emit.before(transition);
-                        if(cancel) {
-                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                            //      That is if this was even triggered by an URL change in teh first place.
-                            return;
-                        }
                         $q.when(toState).then(function () {
                             transaction = $view.beginUpdate();
                             $view.clear();
@@ -986,7 +998,7 @@ function $TemplateProvider() {
                     if(urlmatcher.test(template)) {
                         return getFromUrl(template);
                     } else {
-                        return template;
+                        return $q.when(template);
                     }
                 }
                 if(isFunction(template) || isArray(template)) {

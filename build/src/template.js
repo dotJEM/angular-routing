@@ -37,7 +37,7 @@ function $TemplateProvider() {
                     if(urlmatcher.test(template)) {
                         return getFromUrl(template);
                     } else {
-                        return template;
+                        return $q.when(template);
                     }
                 }
                 if(isFunction(template) || isArray(template)) {

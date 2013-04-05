@@ -10,6 +10,6 @@ function inherit(parent, extra) {
     }))(), extra);
 }
 function toName(named) {
-    return isString(named) ? named : named.fullname;
+    return isString(named) ? named : named.$fullname || named.fullname;
 }
 angular.module('ui.routing', []);
