@@ -8,7 +8,7 @@ var $StateProvider = [
             children: {
             },
             self: {
-                fullname: 'root'
+                $fullname: 'root'
             }
         }, nameValidation = /^\w+(\.\w+)*?$/;
         function validateName(name) {
@@ -65,8 +65,9 @@ var $StateProvider = [
                 };
             }
             at = at.children[name];
-            at.self = extend(state, {
-                fullname: fullname
+            at.self = extend({
+            }, state, {
+                $fullname: fullname
             });
             at.fullname = fullname;
             at.parent = parent;
@@ -118,10 +119,6 @@ var $StateProvider = [
             registerState(pair.name, pair.at, state);
             return this;
         };
-        this.transition = function (from, to, handler) {
-            $transitionProvider.transition(from, to, handler);
-            return this;
-        };
         this.$get = [
             '$rootScope', 
             '$q', 
@@ -133,8 +130,8 @@ var $StateProvider = [
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = false, $state = {
                     root: root,
-                    current: inherit({
-                    }, root),
+                    current: extend({
+                    }, root.self),
                     goto: goto,
                     lookup: function (path) {
                         // XPath Inspired lookups
@@ -170,7 +167,7 @@ var $StateProvider = [
                             search: route.searchParams
                         };
                         if(route.state) {
-                            goto(route.state, params);
+                            goto(route.state, params, route);
                         }
                         //TODO: Move Action to state instead?.
                         //if (route.action) {
@@ -181,7 +178,7 @@ var $StateProvider = [
                     }
                 }
                 function isChanged(state, params) {
-                    var old = $state.current.params, oldPar = old && old.all || {
+                    var old = $state.current.$params, oldPar = old && old.all || {
                     }, newPar = params.all, result = false;
                     forEach(state.params, function (name) {
                         //TODO: Implement an equals function that converts towards strings as this could very well
@@ -206,29 +203,30 @@ var $StateProvider = [
                         first: states.length - lastChanged
                     };
                 }
-                function goto(to, params) {
+                function goto(to, params, route) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var to = lookupState(toName(to)), toState = inherit({
-                        params: params
-                    }, to.self), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
+                                        var to = lookupState(toName(to)), toState = extend({
+                    }, to.self, {
+                        $params: params,
+                        $route: route
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = changeChain(to, params), transition = {
+                        cancel: function () {
+                            cancel = true;
+                        },
+                        goto: function (state, params) {
+                            cancel = true;
+                            goto(state, params);
+                        }
+                    };
+                    emit.before(transition);
+                    if(cancel) {
+                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                        //      That is if this was even triggered by an URL change in teh first place.
+                        return;
+                    }
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
-                        transition = {
-                            cancel: function () {
-                                cancel = true;
-                            },
-                            goto: function (state, params) {
-                                cancel = true;
-                                goto(state, params);
-                            }
-                        };
-                        emit.before(transition);
-                        if(cancel) {
-                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                            //      That is if this was even triggered by an URL change in teh first place.
-                            return;
-                        }
                         $q.when(toState).then(function () {
                             transaction = $view.beginUpdate();
                             $view.clear();
