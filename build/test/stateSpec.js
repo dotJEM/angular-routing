@@ -534,7 +534,7 @@ describe('$stateProvider', function () {
     describe("$transition $routeChangeSuccess", function () {
         it('Correct Transitions are called on state change.', function () {
             var last;
-            mock.module(function ($stateProvider) {
+            mock.module(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('home', {
                     route: '/',
                     name: 'about'
@@ -565,7 +565,8 @@ describe('$stateProvider', function () {
                 }).state('gallery.details', {
                     route: '/details',
                     name: 'about.other'
-                }).transition('blog', 'about', [
+                });
+                $stateTransitionProvider.transition('blog', 'about', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
@@ -643,7 +644,7 @@ describe('$stateProvider', function () {
             });
         });
         it('Transitions can be canceled.', function () {
-            mock.module(function ($stateProvider) {
+            mock.module(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('home', {
                     route: '/',
                     name: 'about'
@@ -677,7 +678,8 @@ describe('$stateProvider', function () {
                 }).state('admin', {
                     route: '/admin',
                     name: 'admin'
-                }).transition('*', 'admin', function ($transition) {
+                });
+                $stateTransitionProvider.transition('*', 'admin', function ($transition) {
                     $transition.cancel();
                 });
             });

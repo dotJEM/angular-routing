@@ -8,7 +8,11 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
+<<<<<<< HEAD
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+=======
+    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+>>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
     function alignHandler(obj) {
         var result = {
             handler: {
@@ -136,7 +140,6 @@ function $StateTransitionProvider() {
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
                 function emit(select, tc) {
-                    var _this = this;
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {

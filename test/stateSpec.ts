@@ -516,7 +516,7 @@ describe('$stateProvider', function () {
     describe("$transition $routeChangeSuccess", () => {
         it('Correct Transitions are called on state change.', function () {
             var last;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
                 $stateProvider
                         .state('home', { route: '/', name: 'about' })
 
@@ -530,8 +530,9 @@ describe('$stateProvider', function () {
 
                         .state('gallery', { route: '/gallery', name: 'about.cv' })
                         .state('gallery.overview', { route: '/overview', name: 'about.other' })
-                        .state('gallery.details', { route: '/details', name: 'about.other' })
+                        .state('gallery.details', { route: '/details', name: 'about.other' });
 
+                $stateTransitionProvider
                         .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->about', from: $from, to: $to }; }])
                         .transition('blog', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->gallery', from: $from, to: $to }; }])
                         .transition('about', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->blog', from: $from, to: $to }; }])
@@ -563,7 +564,7 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('Transitions can be canceled.', function () {            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+        it('Transitions can be canceled.', function () {            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
                 $stateProvider
                     .state('home', { route: '/', name: 'about' })
 
@@ -579,8 +580,9 @@ describe('$stateProvider', function () {
                     .state('gallery.overview', { route: '/overview', name: 'gallery.overview' })
                     .state('gallery.details', { route: '/details', name: 'gallery.details' })
 
-                    .state('admin', { route: '/admin', name: 'admin' })
+                    .state('admin', { route: '/admin', name: 'admin' });
 
+                $stateTransitionProvider
                     .transition('*', 'admin', ($transition) => {
                         $transition.cancel();
                     });

@@ -246,8 +246,7 @@ function $RouteProvider() {
         var regex = "^", segments = [], index = 0, match, flags = '';
         if(path === '/') {
             return {
-                complete: //partial: new RegExp('^[\x2F].*$', flags),
-                new RegExp('^[\x2F]$', flags),
+                complete: new RegExp('^[\x2F]?$', flags),
                 segments: []
             };
         }
@@ -265,8 +264,7 @@ function $RouteProvider() {
             regex = regex.substr(0, regex.length - 1);
         }
         return {
-            complete: //partial: new RegExp(regex + "\x2F?.*$", flags),
-            new RegExp(regex + '\x2F?$', flags),
+            complete: new RegExp(regex + '\x2F?$', flags),
             segments: segments
         };
     }
@@ -480,7 +478,11 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
+<<<<<<< HEAD
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+=======
+    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+>>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
     function alignHandler(obj) {
         var result = {
             handler: {
@@ -608,7 +610,6 @@ function $StateTransitionProvider() {
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
                 function emit(select, tc) {
-                    var _this = this;
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
@@ -814,10 +815,6 @@ var $StateProvider = [
             registerState(pair.name, pair.at, state);
             return this;
         };
-        this.transition = function (from, to, handler) {
-            $transitionProvider.transition(from, to, handler);
-            return this;
-        };
         this.$get = [
             '$rootScope', 
             '$q', 
@@ -866,7 +863,7 @@ var $StateProvider = [
                             search: route.searchParams
                         };
                         if(route.state) {
-                            goto(route.state, params);
+                            goto(route.state, params, route);
                         }
                         //TODO: Move Action to state instead?.
                         //if (route.action) {
@@ -902,30 +899,35 @@ var $StateProvider = [
                         first: states.length - lastChanged
                     };
                 }
-                function goto(to, params) {
+                function goto(to, params, route) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
                                         var to = lookupState(toName(to)), toState = extend({
                     }, to.self, {
+<<<<<<< HEAD
                         $params: params
                     }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
+=======
+                        $params: params,
+                        $route: route
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = changeChain(to, params), transition = {
+                        cancel: function () {
+                            cancel = true;
+                        },
+                        goto: function (state, params) {
+                            cancel = true;
+                            goto(state, params);
+                        }
+                    };
+                    emit.before(transition);
+                    if(cancel) {
+                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                        //      That is if this was even triggered by an URL change in teh first place.
+                        return;
+                    }
+>>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
-                        transition = {
-                            cancel: function () {
-                                cancel = true;
-                            },
-                            goto: function (state, params) {
-                                cancel = true;
-                                goto(state, params);
-                            }
-                        };
-                        emit.before(transition);
-                        if(cancel) {
-                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                            //      That is if this was even triggered by an URL change in teh first place.
-                            return;
-                        }
                         $q.when(toState).then(function () {
                             transaction = $view.beginUpdate();
                             $view.clear();

@@ -271,8 +271,7 @@ function $RouteProvider() {
             flags = '';
 
         if (path === '/') return {
-            //partial: new RegExp('^[\x2F].*$', flags),
-            complete: new RegExp('^[\x2F]$', flags),
+            complete: new RegExp('^[\x2F]?$', flags),
             segments: []
         };
 
@@ -289,7 +288,6 @@ function $RouteProvider() {
             regex = regex.substr(0, regex.length - 1);
 
         return {
-            //partial: new RegExp(regex + "\x2F?.*$", flags),
             complete: new RegExp(regex + '\x2F?$', flags),
             segments: segments
         };

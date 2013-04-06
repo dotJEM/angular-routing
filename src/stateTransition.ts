@@ -6,7 +6,8 @@
 
 function $StateTransitionProvider() {
     var root = { children: { }, targets: { } },
-        validation = /^\w+(\.\w+)*(\.[*])?$/;
+        validation = /^\w+(\.\w+)*(\.[*])?$/,
+        _this = this;
 
     function alignHandler(obj) {
         var result: any = { handler: {} };
@@ -149,7 +150,7 @@ function $StateTransitionProvider() {
                 var handler;
                 forEach(handlers, (handlerObj) => {
                     if (isDefined(handler = select(handlerObj))) {
-                        $injector.invoke(handler, this, {
+                        $injector.invoke(handler, _this, {
                             $to: to,
                             $from: from,
                             $transition: tc

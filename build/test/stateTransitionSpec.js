@@ -235,7 +235,7 @@ describe('$stateTransitionProvider', function () {
     describe("transition $routeChangeSuccess", function () {
         it('Global * -> * transition will be called', function () {
             var transitions = [];
-            mock.module(function ($stateProvider) {
+            mock.module(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('blog', {
                     route: '/blog',
                     name: 'blog'
@@ -245,7 +245,8 @@ describe('$stateTransitionProvider', function () {
                 }).state('blog.details', {
                     route: '/{num:id}',
                     name: 'blog.details'
-                }).transition('*', '*', [
+                });
+                $stateTransitionProvider.transition('*', '*', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
@@ -270,7 +271,7 @@ describe('$stateTransitionProvider', function () {
         });
         it('Global blog -> about transition will be called when entering about', function () {
             var trs = [], message = [];
-            mock.module(function ($stateProvider) {
+            mock.module(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('blog', {
                     route: '/blog',
                     name: 'blog'
@@ -286,7 +287,8 @@ describe('$stateTransitionProvider', function () {
                 }).state('about.cv', {
                     route: '/cv',
                     name: 'about.cv'
-                }).transition('blog.*', 'about.*', [
+                });
+                $stateTransitionProvider.transition('blog.*', 'about.*', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
@@ -338,7 +340,7 @@ describe('$stateTransitionProvider', function () {
         });
         it('Global blog -> about transition will be called when entering about from other substate', function () {
             var trs = [], message = [];
-            mock.module(function ($stateProvider) {
+            mock.module(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('blog', {
                     route: '/blog',
                     name: 'blog'
@@ -351,7 +353,8 @@ describe('$stateTransitionProvider', function () {
                 }).state('about.cv', {
                     route: '/cv',
                     name: 'about.cv'
-                }).transition('blog.*', 'about.*', [
+                });
+                $stateTransitionProvider.transition('blog.*', 'about.*', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
@@ -403,7 +406,7 @@ describe('$stateTransitionProvider', function () {
         });
         it('Global blog -> about transition will be called when entering substate about from other state', function () {
             var trs = [], message = [];
-            mock.module(function ($stateProvider) {
+            mock.module(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('blog', {
                     route: '/blog',
                     name: 'blog'
@@ -422,7 +425,8 @@ describe('$stateTransitionProvider', function () {
                 }).state('about.other', {
                     route: '/other',
                     name: 'about.other'
-                }).transition('blog.*', 'about.*', [
+                });
+                $stateTransitionProvider.transition('blog.*', 'about.*', [
                     '$from', 
                     '$to', 
                     function ($from, $to) {
