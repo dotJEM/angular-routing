@@ -9,7 +9,11 @@ function $StateTransitionProvider() {
         targets: {
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
     }, validation = /^\w+(\.\w+)*(\.[*])?$/;
+=======
+    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+>>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
 =======
     }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
 >>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4

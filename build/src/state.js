@@ -209,9 +209,12 @@ var $StateProvider = [
                                         var to = lookupState(toName(to)), toState = extend({
                     }, to.self, {
 <<<<<<< HEAD
+<<<<<<< HEAD
                         $params: params
                     }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transition, transaction, changed = changeChain(to, params);
 =======
+=======
+>>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
                         $params: params,
                         $route: route
                     }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = changeChain(to, params), transition = {
@@ -229,6 +232,9 @@ var $StateProvider = [
                         //      That is if this was even triggered by an URL change in teh first place.
                         return;
                     }
+<<<<<<< HEAD
+>>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
+=======
 >>>>>>> cc088d09110acbb5da15e8759d547165bac04fb4
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
