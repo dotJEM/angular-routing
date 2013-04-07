@@ -205,11 +205,57 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
         }
 
+        function buildStateArray(state, params) {
+            function extractParams() {
+                var paramsObj = {};
+                forEach(state.params, (name) => {
+                    paramsObj[name] = params[name];
+                });
+                return paramsObj;
+            }
+
+            var states = [],
+                current;
+            do {
+                states.push({
+                    state: current,
+                    params: extractParams()
+                });
+            } while (current = current.parent)
+            return states;
+        }
+
+        function buildChangeArray(from, to, fromParams, toParams) {
+            var fromArray = buildStateArray(from, fromParams),
+                toArray = buildStateArray(to, toParams),
+                count = Math.max(fromArray.length, toArray.length),
+                fromAtIndex,
+                toAtIndex;
+
+            for (var i = 0; i < count; i++) {
+                fromAtIndex = fromArray[fromArray.length - i - 1];
+                toAtIndex = toArray[toArray.length - i - 1];
+
+                if (isUndefined(fromAtIndex))
+                    toAtIndex.changed = true;
+                else if (isUndefined(toAtIndex))
+                    toArray[toArray.length-1].changed = true; //We wen't up the hierachy.
+                else if (toAtIndex.fullname !== fromAtIndex.fullname)
+                    toAtIndex.changed = true;
+                else if (!equals(toAtIndex.params, fromAtIndex.params))
+                    toAtIndex.changed = true;
+            }
+            return toArray.reverse();
+        }
+
         function isChanged(state: IStateWrapper, params) {
-            var old = $state.current.$params,
-                oldPar = old && old.all || {},
+            var old = $state.current,
+                oldPar = old.$params && old.$params.all || {},
                 newPar = params.all,
                 result = false;
+
+            //if (old.$fullname !== state.fullname)
+            //    return true;
 
             forEach(state.params, (name) => {
                 //TODO: Implement an equals function that converts towards strings as this could very well
@@ -250,8 +296,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 cancel = false,
                 event,
                 transaction,
-
+                //changed = buildChangeArray(lookupState(toName($state.current)), to, $state.current.params.all || {}, params.all || {}),
                 changed = changeChain(to, params),
+
                 transition = {
                     cancel: function () {
                         cancel = true;
@@ -272,9 +319,21 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
+                    //var changed = false;
 
                     transaction = $view.beginUpdate();
                     $view.clear();
+
+                    //forEach(changed, (change, index) => {
+                    //    forEach(change.state.self.views, (view, name) => {
+                    //        if (change.changed || changed) {
+                    //            $view.setOrUpdate(name, view.template, view.controller);
+                    //            changed = true;
+                    //        } else {
+                    //            $view.setIfAbsent(name, view.template, view.controller);
+                    //        }
+                    //    });
+                    //});
 
                     forEach(changed.states, (state, index) => {
                         forEach(state.self.views, (view, name) => {
@@ -285,6 +344,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             }
                         });
                     });
+
 
                     emit.between(transition);
 

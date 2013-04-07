@@ -404,6 +404,56 @@ describe('$stateProvider', function () {
             });
         });
 
+        it('states invoke view service with view on change', function () {
+            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                            .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
+                            .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
+                            .state('top.sub.bot', { route: '/bot', name: 'bot', views: { 'bot': { template: "bot" } } })
+
+                            .state('foo', { route: '/foo', name: 'foo', views: { 'foo': { template: "foo" } } })
+                            .state('foo.bar', { route: '/bar', name: 'bar', views: { 'bar': { template: "bar" } } })
+                            .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
+            });
+
+            mock.inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+                spyOn($view, 'setIfAbsent');
+                var viewSpy = spyOn($view, 'setOrUpdate');
+                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+
+                function reset() { spy.reset(); viewSpy.reset(); }
+                function go(path: string) {
+                    $location.path(path);
+                    scope.$digest();
+                };
+
+                scope.$on('$stateChangeSuccess', <any>spy);
+
+                go('/top');
+                expect($state.current.name).toBe('top');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+
+                reset();
+                go('/top/sub');
+                expect($state.current.name).toBe('sub');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('sub');
+
+                reset();
+                go('/top/sub/bot');
+                expect($state.current.name).toBe('bot');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('bot');
+
+                reset();
+                go('/foo/bar/baz');
+                expect($state.current.name).toBe('baz');
+                //expect(viewSpy.callCount).toBe(3);
+                //expect(viewSpy.calls[3].args[0]).toBe('baz');
+            });
+        });
+
         it('states with parameters get invoked on parameter change', function () {            mock.module(function ($stateProvider: ui.routing.IStateProvider) {                $stateProvider
                     .state('top', { route: '/top/:top', name: 'top', views: { 'top': { template: "top" } } })
                     .state('top.sub', { route: '/sub/:sub', name: 'sub', views: { 'sub': { template: "sub" } } })
