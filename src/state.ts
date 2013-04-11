@@ -208,25 +208,22 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         function buildStateArray(state, params) {
             function extractParams() {
                 var paramsObj = {};
-                forEach(state.params, (name) => {
+                forEach(current.params, (name) => {
                     paramsObj[name] = params[name];
                 });
                 return paramsObj;
             }
 
             var states = [],
-                current;
+                current = state;
             do {
-                states.push({
-                    state: current,
-                    params: extractParams()
-                });
+                states.push({ state: current, params: extractParams() });
             } while (current = current.parent)
             return states;
         }
 
         function buildChangeArray(from, to, fromParams, toParams) {
-            var fromArray = buildStateArray(from, fromParams),
+            var fromArray = buildStateArray(from, fromParams || {}),
                 toArray = buildStateArray(to, toParams),
                 count = Math.max(fromArray.length, toArray.length),
                 fromAtIndex,
@@ -235,54 +232,19 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             for (var i = 0; i < count; i++) {
                 fromAtIndex = fromArray[fromArray.length - i - 1];
                 toAtIndex = toArray[toArray.length - i - 1];
-
+                
                 if (isUndefined(fromAtIndex))
                     toAtIndex.changed = true;
                 else if (isUndefined(toAtIndex))
-                    toArray[toArray.length-1].changed = true; //We wen't up the hierachy.
-                else if (toAtIndex.fullname !== fromAtIndex.fullname)
+                    toArray[0].changed = true; //We wen't up the hierachy.
+                else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname)
                     toAtIndex.changed = true;
                 else if (!equals(toAtIndex.params, fromAtIndex.params))
                     toAtIndex.changed = true;
+                else
+                    toAtIndex.changed = false;
             }
             return toArray.reverse();
-        }
-
-        function isChanged(state: IStateWrapper, params) {
-            var old = $state.current,
-                oldPar = old.$params && old.$params.all || {},
-                newPar = params.all,
-                result = false;
-
-            //if (old.$fullname !== state.fullname)
-            //    return true;
-
-            forEach(state.params, (name) => {
-                //TODO: Implement an equals function that converts towards strings as this could very well
-                //      ignore an change on certain situations.
-                //
-                //      also change to a damn "forEach" where we can break out mid way...
-                result = oldPar[name] != newPar[name];
-            });
-            return result;
-        }
-
-        function changeChain(to: IStateWrapper, params) {
-            var states = [],
-                lastChanged = 1,
-                current = to;
-
-            while (current !== root) {
-                states.push(current);
-                if (isChanged(current, params)) {
-                    lastChanged = states.length;
-                }
-                current = current.parent;
-            }
-            return {
-                states: states.reverse(),
-                first: states.length - lastChanged
-            } 
         }
 
         function goto(to, params?, route?) {
@@ -296,8 +258,11 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 cancel = false,
                 event,
                 transaction,
-                //changed = buildChangeArray(lookupState(toName($state.current)), to, $state.current.params.all || {}, params.all || {}),
-                changed = changeChain(to, params),
+                changed = buildChangeArray(
+                    lookupState(toName($state.current)),
+                    to,
+                    fromState.$params && fromState.$params.all,
+                    params.all || {}),
 
                 transition = {
                     cancel: function () {
@@ -319,32 +284,21 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
-                    //var changed = false;
+                    var useUpdate = false;
 
                     transaction = $view.beginUpdate();
                     $view.clear();
 
-                    //forEach(changed, (change, index) => {
-                    //    forEach(change.state.self.views, (view, name) => {
-                    //        if (change.changed || changed) {
-                    //            $view.setOrUpdate(name, view.template, view.controller);
-                    //            changed = true;
-                    //        } else {
-                    //            $view.setIfAbsent(name, view.template, view.controller);
-                    //        }
-                    //    });
-                    //});
-
-                    forEach(changed.states, (state, index) => {
-                        forEach(state.self.views, (view, name) => {
-                            if (index < changed.first) {
-                                $view.setIfAbsent(name, view.template, view.controller);
-                            } else {
+                    forEach(changed, (change, index) => {
+                        forEach(change.state.self.views, (view, name) => {
+                            if (change.changed || useUpdate) {
                                 $view.setOrUpdate(name, view.template, view.controller);
+                                useUpdate = true;
+                            } else {
+                                $view.setIfAbsent(name, view.template, view.controller);
                             }
                         });
                     });
-
 
                     emit.between(transition);
 
