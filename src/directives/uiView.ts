@@ -12,16 +12,17 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
         link: function (scope, element: JQuery, attr) {
             var viewScope,
                 name = attr['uiView'] || attr.name,
+                doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
                 animate = $animator(scope, attr),
                 version = -1;
 
             scope.$on('$viewChanged', (event, updatedName) => {
                 if (updatedName === name)
-                    update();
+                    update(doAnimate);
             });
-            scope.$on('$stateChangeSuccess', update);
-            update();
+            scope.$on('$stateChangeSuccess', () => update(doAnimate));
+            update(false);
 
             function destroyScope() {
                 if (viewScope) {
@@ -30,12 +31,16 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                 }
             }
 
-            function clearContent() {
-                animate.leave(element.contents(), element);
+            function clearContent(doAnimate) {
+                if (doAnimate)
+                    animate.leave(element.contents(), element);
+                else
+                    element.html('');
+
                 destroyScope();
             }
 
-            function update() {
+            function update(doAnimate) {
                 var view = $view.get(name),
                     controller;
 
@@ -47,11 +52,11 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                     controller = view.controller;
 
                     view.template.then((html) => {
-                        clearContent();
-                        //animate.leave(element.contents(), element);
-                        //element.hide().html(html);
-                        animate.enter(angular.element('<div></div>').html(html).contents(), element);
-                        //animate.enter(element.contents(), element);
+                        clearContent(doAnimate);
+                        if (doAnimate)
+                            animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                        else
+                            element.html(html);
 
                         var link = $compile(element.contents());
 
@@ -68,7 +73,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                         $anchorScroll();
                     });
                 } else {
-                    clearContent();
+                    clearContent(doAnimate);
                 }
             }
         }

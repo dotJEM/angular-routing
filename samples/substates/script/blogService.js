@@ -44,7 +44,7 @@
         var categories = [];        angular.forEach(posts, function (post) {
             if (categories.indexOf(post.category) === -1)                categories.push(post.category);
         });        return $timeout(function () {
-            return result;
-        }, categories);
+            return categories;
+        }, 500);
     };
 });

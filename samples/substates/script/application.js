@@ -142,7 +142,114 @@
                         },
                     }
                 });
-       }]);
+       }]);
+
+app.animation('wave-enter', function ($rootScope, $timeout) {
+    return {
+        setup: function (element) {
+            //this is called before the animation
+            var elm = $(element);
+            var parent = elm.parent();
+            elm.addClass('wave-enter-setup');
+            parent.css({ 'height': elm.height() });
+            parent.addClass('stage');
+
+            return $rootScope.$watch(function () {
+                parent.css({ 'height': elm.height() });
+            });
+
+        },
+        start: function (element, done, memo) {
+            //this is where the animation is expected to be run
+            var elm = $(element);
+            var parent = elm.parent();
+            elm.addClass('wave-enter-start');
+
+            $timeout(function () {
+                memo();
+
+                elm.removeClass('wave-enter-setup');
+                elm.removeClass('wave-enter-start');
+
+                parent.removeClass('stage');
+                parent.css('height', null);
+
+                done();
+            }, 2000);
+
+            //done();
+            //jQuery(element).animate({
+            //    'border-width': 20
+            //}, function () {
+            //    //call done to close when the animation is complete
+            //    done();
+            //});
+        }
+    };
+});
+
+app.animation('wave-leave', function ($rootScope, $timeout) {
+    return {
+        setup: function (element) {
+            //this is called before the animation
+            $(element).addClass('wave-leave-setup');
+        },
+        start: function (element, done, memo) {
+            //this is where the animation is expected to be run
+            $(element).addClass('wave-leave-start');
+
+            $timeout(function () {
+                $(element).removeClass('wave-leave-setup');
+                $(element).removeClass('wave-leave-start');
+                done();
+            }, 2000);
+
+            //done();
+            //jQuery(element).animate({
+            //    'border-width': 20
+            //}, function () {
+            //    //call done to close when the animation is complete
+            //    done();
+            //});
+        }
+    };
+});
+
+//.stage {
+//    position: relative;
+//}
+
+//.wave-enter-setup, .wave-leave-setup {
+//    -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+//    -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+//    -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+//    transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
+//}
+
+//.wave-enter-setup {
+//    position:absolute;
+//    left:100%;
+//    width:100%;
+//}
+
+//.wave-enter-start {
+//    left:0;
+//}
+
+//.wave-leave-setup {
+//    position:absolute;
+//    width:100%;
+//    left:0;
+//}
+
+//.wave-leave-start {
+//    left:-100%;
+//}
+
+
+
+
+
 function clean(state) {
     var newState = {};
     newState.self = state.self;    newState.fullname = state.fullname;    newState.children = {};    if (state.route)        newState.route = state.route;

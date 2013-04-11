@@ -34,8 +34,9 @@
         </div>
     </div>
     
-    <div class="container stage" style="margin-top: 60px;" >
-         <div ui-view="main" ng-animate="'wave'"></div>
+    <div class="container" style="margin-top: 60px;" >
+        <!--<div ui-view="main" ng-animate="'wave'"></div>-->
+        <div ui-view="main" ng-animate="{enter: 'wave-enter', leave: 'wave-leave'}"></div>
     </div>
 
     <hr />
