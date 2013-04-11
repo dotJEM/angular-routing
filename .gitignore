@@ -3,6 +3,7 @@ test/**/*.js
 src/**/*.js
 test/*.js
 src/*.js
+*.js.map
 
 # Local node modules 'yuk'
 node_modules
