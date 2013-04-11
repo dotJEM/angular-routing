@@ -122,3 +122,4 @@ x.State('wizard', {
     function () {
     }
 });
+//@ sourceMappingURL=configuration.js.map

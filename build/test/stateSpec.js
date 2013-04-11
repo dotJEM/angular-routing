@@ -412,6 +412,98 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
             });
         });
+        it('states invoke view service with view on change', function () {
+            mock.module(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    route: '/top',
+                    name: 'top',
+                    views: {
+                        'top': {
+                            template: "top"
+                        }
+                    }
+                }).state('top.sub', {
+                    route: '/sub',
+                    name: 'sub',
+                    views: {
+                        'sub': {
+                            template: "sub"
+                        }
+                    }
+                }).state('top.sub.bot', {
+                    route: '/bot',
+                    name: 'bot',
+                    views: {
+                        'bot': {
+                            template: "bot"
+                        }
+                    }
+                }).state('foo', {
+                    route: '/foo',
+                    name: 'foo',
+                    views: {
+                        'foo': {
+                            template: "foo"
+                        }
+                    }
+                }).state('foo.bar', {
+                    route: '/bar',
+                    name: 'bar',
+                    views: {
+                        'bar': {
+                            template: "bar"
+                        }
+                    }
+                }).state('foo.bar.baz', {
+                    route: '/baz',
+                    name: 'baz',
+                    views: {
+                        'baz': {
+                            template: "baz"
+                        }
+                    }
+                });
+            });
+            mock.inject(function ($location, $route, $state, $view) {
+                spyOn($view, 'setIfAbsent');
+                var viewSpy = spyOn($view, 'setOrUpdate');
+                var spy = jasmine.createSpy('mySpy');
+                function reset() {
+                    spy.reset();
+                    viewSpy.reset();
+                }
+                function go(path) {
+                    $location.path(path);
+                    scope.$digest();
+                }
+                ;
+                scope.$on('$stateChangeSuccess', spy);
+                go('/top');
+                expect($state.current.name).toBe('top');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('top');
+                reset();
+                go('/top/sub');
+                expect($state.current.name).toBe('sub');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('sub');
+                reset();
+                go('/top/sub/bot');
+                expect($state.current.name).toBe('bot');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('bot');
+                reset();
+                go('/foo/bar/baz');
+                expect($state.current.name).toBe('baz');
+                expect(viewSpy.callCount).toBe(3);
+                expect(viewSpy.calls[2].args[0]).toBe('baz');
+                reset();
+                go('/foo/bar');
+                expect($state.current.name).toBe('bar');
+                expect(viewSpy.callCount).toBe(1);
+                expect(viewSpy.calls[0].args[0]).toBe('bar');
+            });
+        });
         it('states with parameters get invoked on parameter change', function () {
             mock.module(function ($stateProvider) {
                 $stateProvider.state('top', {
@@ -441,6 +533,8 @@ describe('$stateProvider', function () {
                 });
             });
             mock.inject(function ($location, $route, $state, $view) {
+                ($state).debug = true;
+                ($state).debug = true;
                 function go(path) {
                     $location.path(path);
                     scope.$digest();

@@ -3,7 +3,7 @@
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy;
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -869,31 +869,44 @@ var $StateProvider = [
                         goto(root);
                     }
                 }
-                function isChanged(state, params) {
-                    var old = $state.current.$params, oldPar = old && old.all || {
-                    }, newPar = params.all, result = false;
-                    forEach(state.params, function (name) {
-                        //TODO: Implement an equals function that converts towards strings as this could very well
-                        //      ignore an change on certain situations.
-                        //
-                        //      also change to a damn "forEach" where we can break out mid way...
-                        result = oldPar[name] != newPar[name];
-                    });
-                    return result;
-                }
-                function changeChain(to, params) {
-                    var states = [], lastChanged = 1, current = to;
-                    while(current !== root) {
-                        states.push(current);
-                        if(isChanged(current, params)) {
-                            lastChanged = states.length;
-                        }
-                        current = current.parent;
+                function buildStateArray(state, params) {
+                    function extractParams() {
+                        var paramsObj = {
+                        };
+                        forEach(current.params, function (name) {
+                            paramsObj[name] = params[name];
+                        });
+                        return paramsObj;
                     }
-                    return {
-                        states: states.reverse(),
-                        first: states.length - lastChanged
-                    };
+                    var states = [], current = state;
+                    do {
+                        states.push({
+                            state: current,
+                            params: extractParams()
+                        });
+                    }while(current = current.parent);
+                    return states;
+                }
+                function buildChangeArray(from, to, fromParams, toParams) {
+                    var fromArray = buildStateArray(from, fromParams || {
+                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex;
+                    for(var i = 0; i < count; i++) {
+                        fromAtIndex = fromArray[fromArray.length - i - 1];
+                        toAtIndex = toArray[toArray.length - i - 1];
+                        if(isUndefined(fromAtIndex)) {
+                            toAtIndex.changed = true;
+                        } else if(isUndefined(toAtIndex)) {
+                            toArray[0].changed = true;
+                        } else //We wen't up the hierachy.
+                        if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
+                            toAtIndex.changed = true;
+                        } else if(!equals(toAtIndex.params, fromAtIndex.params)) {
+                            toAtIndex.changed = true;
+                        } else {
+                            toAtIndex.changed = false;
+                        }
+                    }
+                    return toArray.reverse();
                 }
                 function goto(to, params, route) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -902,7 +915,8 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = changeChain(to, params), transition = {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params.all || {
+                    }), transition = {
                         cancel: function () {
                             cancel = true;
                         },
@@ -920,14 +934,16 @@ var $StateProvider = [
                     event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         $q.when(toState).then(function () {
+                            var useUpdate = false;
                             transaction = $view.beginUpdate();
                             $view.clear();
-                            forEach(changed.states, function (state, index) {
-                                forEach(state.self.views, function (view, name) {
-                                    if(index < changed.first) {
-                                        $view.setIfAbsent(name, view.template, view.controller);
-                                    } else {
+                            forEach(changed, function (change, index) {
+                                forEach(change.state.self.views, function (view, name) {
+                                    if(change.changed || useUpdate) {
                                         $view.setOrUpdate(name, view.template, view.controller);
+                                        useUpdate = true;
+                                    } else {
+                                        $view.setIfAbsent(name, view.template, view.controller);
                                     }
                                 });
                             });
@@ -1159,12 +1175,13 @@ var uiViewDirective = [
     '$compile', 
     '$controller', 
     '$view', 
-    function ($state, $anchorScroll, $compile, $controller, $view) {
+    '$animator', 
+    function ($state, $anchorScroll, $compile, $controller, $view, $animator) {
         return {
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version = -1;
+                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
                 scope.$on('$viewChanged', function (event, updatedName) {
                     if(updatedName === name) {
                         update();
@@ -1172,11 +1189,15 @@ var uiViewDirective = [
                 });
                 scope.$on('$stateChangeSuccess', update);
                 update();
-                function resetScope(newScope) {
+                function destroyScope() {
                     if(viewScope) {
                         viewScope.$destroy();
+                        viewScope = null;
                     }
-                    viewScope = newScope === 'undefined' ? null : newScope;
+                }
+                function clearContent() {
+                    animate.leave(element.contents(), element);
+                    destroyScope();
                 }
                 function update() {
                     var view = $view.get(name), controller;
@@ -1187,9 +1208,13 @@ var uiViewDirective = [
                         version = view.version;
                         controller = view.controller;
                         view.template.then(function (html) {
-                            element.html(html);
-                            resetScope(scope.$new());
+                            clearContent();
+                            //animate.leave(element.contents(), element);
+                            //element.hide().html(html);
+                            animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                            //animate.enter(element.contents(), element);
                             var link = $compile(element.contents());
+                            viewScope = scope.$new();
                             if(controller) {
                                 controller = $controller(controller, {
                                     $scope: viewScope
@@ -1202,8 +1227,7 @@ var uiViewDirective = [
                             $anchorScroll();
                         });
                     } else {
-                        element.html('');
-                        resetScope();
+                        clearContent();
                     }
                 }
             }

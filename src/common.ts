@@ -14,7 +14,8 @@ var isDefined = angular.isDefined,
     forEach = angular.forEach,
     extend = angular.extend,
     copy = angular.copy,
-    equals = angular.equals;
+    equals = angular.equals,
+    element = angular.element;
 
 function inherit(parent, extra?) {
     return extend(new (extend(function () { }, { prototype: parent }))(), extra);

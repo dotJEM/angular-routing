@@ -4,8 +4,8 @@
 
 'use strict';
 
-var uiViewDirective = [<any>'$state', '$anchorScroll', '$compile', '$controller', '$view',
-function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewService) {
+var uiViewDirective = [<any>'$state', '$anchorScroll', '$compile', '$controller', '$view', '$animator',
+function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewService, $animator) {
     return {
         restrict: 'ECA',
         terminal: true,
@@ -13,6 +13,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
             var viewScope,
                 name = attr['uiView'] || attr.name,
                 onloadExp = attr.onload || '',
+                animate = $animator(scope, attr),
                 version = -1;
 
             scope.$on('$viewChanged', (event, updatedName) => {
@@ -22,11 +23,16 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
             scope.$on('$stateChangeSuccess', update);
             update();
 
-            function resetScope(newScope?) {
+            function destroyScope() {
                 if (viewScope) {
                     viewScope.$destroy();
+                    viewScope = null;
                 }
-                viewScope = newScope === 'undefined' ? null : newScope;
+            }
+
+            function clearContent() {
+                animate.leave(element.contents(), element);
+                destroyScope();
             }
 
             function update() {
@@ -41,24 +47,28 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                     controller = view.controller;
 
                     view.template.then((html) => {
-                        element.html(html);
-                        resetScope(scope.$new());
+                        clearContent();
+                        //animate.leave(element.contents(), element);
+                        //element.hide().html(html);
+                        animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                        //animate.enter(element.contents(), element);
 
                         var link = $compile(element.contents());
 
+                        viewScope = scope.$new();
                         if (controller) {
                             controller = $controller(controller, { $scope: viewScope });
                             element.contents().data('$ngControllerController', controller);
                         }
 
                         link(viewScope);
+
                         viewScope.$emit('$viewContentLoaded');
                         viewScope.$eval(onloadExp);
                         $anchorScroll();
                     });
                 } else {
-                    element.html('');
-                    resetScope();
+                    clearContent();
                 }
             }
         }

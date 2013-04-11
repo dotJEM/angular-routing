@@ -8,12 +8,13 @@ var uiViewDirective = [
     '$compile', 
     '$controller', 
     '$view', 
-    function ($state, $anchorScroll, $compile, $controller, $view) {
+    '$animator', 
+    function ($state, $anchorScroll, $compile, $controller, $view, $animator) {
         return {
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', version = -1;
+                var viewScope, name = attr['uiView'] || attr.name, onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
                 scope.$on('$viewChanged', function (event, updatedName) {
                     if(updatedName === name) {
                         update();
@@ -21,11 +22,15 @@ var uiViewDirective = [
                 });
                 scope.$on('$stateChangeSuccess', update);
                 update();
-                function resetScope(newScope) {
+                function destroyScope() {
                     if(viewScope) {
                         viewScope.$destroy();
+                        viewScope = null;
                     }
-                    viewScope = newScope === 'undefined' ? null : newScope;
+                }
+                function clearContent() {
+                    animate.leave(element.contents(), element);
+                    destroyScope();
                 }
                 function update() {
                     var view = $view.get(name), controller;
@@ -36,9 +41,13 @@ var uiViewDirective = [
                         version = view.version;
                         controller = view.controller;
                         view.template.then(function (html) {
-                            element.html(html);
-                            resetScope(scope.$new());
+                            clearContent();
+                            //animate.leave(element.contents(), element);
+                            //element.hide().html(html);
+                            animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                            //animate.enter(element.contents(), element);
                             var link = $compile(element.contents());
+                            viewScope = scope.$new();
                             if(controller) {
                                 controller = $controller(controller, {
                                     $scope: viewScope
@@ -51,8 +60,7 @@ var uiViewDirective = [
                             $anchorScroll();
                         });
                     } else {
-                        element.html('');
-                        resetScope();
+                        clearContent();
                     }
                 }
             }
