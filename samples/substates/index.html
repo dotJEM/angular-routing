@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../metro.bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="../metro.bootstrap.overwrites.css" />
+    <link rel="stylesheet" type="text/css" href="../animations.css" />
     
     <script src="../../lib/jquery/impl/jquery-1.9.1.min.js"></script>
 
@@ -32,8 +33,11 @@
             </div>
         </div>
     </div>
-
-    <div class="container" style="margin-top: 60px" ui-view="main"></div>
+    
+    <div class="container" style="margin-top: 60px;" >
+        <!--<div ui-view="main" ng-animate="'wave'"></div>-->
+        <div ui-view="main" ng-animate="{enter: 'wave-enter', leave: 'wave-leave'}"></div>
+    </div>
 
     <hr />
 

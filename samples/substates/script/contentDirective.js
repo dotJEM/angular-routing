@@ -1,5 +1,5 @@
 ﻿
-angular.module('sample').directive('uiContent', function () {
+angular.module('sample').directive('uiContent', function ($compile, $anchorScroll) {
     return {
         restrict: 'ECA',
         compile: function (elm, attr) {
@@ -25,9 +25,9 @@ angular.module('sample').directive('uiContent', function () {
                         if (childScope) childScope.$destroy();
                         childScope = scope.$new();
                         element.html(src);
-                        this.$compile(element.contents())(childScope);
+                        $compile(element.contents())(childScope);
                         if (angular.isDefined(autoScrollExp) && (!autoScrollExp || scope.$eval(autoScrollExp))) {
-                            this.$anchorScroll();
+                            $anchorScroll();
                         }
                         childScope.$emit('$htmlContentLoaded');
                         scope.$eval(onloadExp);
