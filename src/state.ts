@@ -13,8 +13,8 @@ interface IStateWrapper {
 }
 
 'use strict';
-var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root: IStateWrapper = { fullname: 'root', children: {}, self: { fullname: 'root' } },
+var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
+    var root: IStateWrapper = { fullname: 'root', children: {}, self: { $fullname: 'root' } },
         nameValidation = /^\w+(\.\w+)*?$/;
 
     function validateName(name: string) {
@@ -71,7 +71,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         var fullname = at.fullname + '.' + name,
             parent = at;
 
-        if (!at.children) {
+        if (!isDefined(at.children)) {
             at.children = {};
         }
 
@@ -79,27 +79,27 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
             at.children[name] = {};
         }
         at = at.children[name];
-        at.self = extend(state, { fullname: fullname });
+        at.self = extend({}, state, { $fullname: fullname });
         at.fullname = fullname;
         at.parent = parent;
 
-        if (angular.isDefined(state.route)) {
+        if (isDefined(state.route)) {
             at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
             at.params = findParams(state.route);
         }
 
-        if (angular.isDefined(state.onEnter)) {
+        if (isDefined(state.onEnter)) {
             $transitionProvider.onEnter(fullname, state.onEnter);
         }
 
-        if (angular.isDefined(state.onExit)) {
+        if (isDefined(state.onExit)) {
             $transitionProvider.onExit(fullname, state.onExit);
         }
 
         if (state.children === null) {
             at.children = {};
         } else {
-            angular.forEach(state.children, (childState, childName) => {
+            forEach(state.children, (childState, childName) => {
                 registerState(childName, at, childState);
             });
         }
@@ -138,12 +138,7 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         return this;
     };
 
-    this.transition = function (from: any, to: any, handler: any) {
-        $transitionProvider.transition(from, to, handler);
-        return this;
-    };
-
-    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$transition', '$location',
+    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location',
     function (
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
@@ -153,30 +148,60 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
         $transition: ui.routing.ITransitionService,
         $location: ng.ILocationService) {
 
-        var forceReload = false,
+        var forceReload = null,
+            current = root,
+            currentParams = {},
             $state: any = {
                 root: root,
-                current: inherit({}, root),
-                goto: goto,
+                current: extend({}, root.self),
+                goto: (state, params) => { goto(state, params); },
+
+                lookup: function (path) {
+                    // XPath Inspired lookups
+                    //
+                    // /myState -> Selects myState from the root node.
+                    // ./myState -> Selects myState as a child of the current node.
+                    // ../myStaate -> Selects myState as a child of the parent node to this.
+                    // /myState.$1 -> Selects the first child of myState
+                    // /myState.$last -> Selects the last child of myState
+                    // .$next -> Selects the next sibling of current element
+
+                },
 
                 //TODO: Implement functions that return siblings etc.
                 nextSibling: '',
                 prevSibling: '',
-                parrent: '',
+                parrent: function () {
+                    //TODO: Temporary implementation, we need to enable fetching these tings from current so we can keep navigating up.
+                    return extend({}, current.parent.self, { $params: currentParams, $route: $route.current });
+                },
                 children: '',
-                reload: function () {
-                    forceReload = true;
-                    $rootScope.$evalAsync(update);
+                reload: function (state?) {
+
+                    if (isDefined(state)) {
+                        if (isString(state) || isObject(state)) { 
+                            forceReload = toName(state);
+                            //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
+                            if (forceReload.indexOf('root') !== 0) {
+                                forceReload = 'root.' + forceReload;
+                            }
+                            //console.log('forceReload (toName(state)): ' + forceReload);
+                        } else if (state) {
+                            forceReload = root.fullname;
+                            console.log('forceReload (root.fullname): ' + forceReload);
+                        }
+                    } else {
+                        forceReload = current.fullname;
+                        console.log('forceReload (current.fullname): ' + forceReload);
+                    }
+
+                    $rootScope.$evalAsync(() => {
+                        goto(current, currentParams, $route.current)
+                    });
                 }
             };
 
-        $rootScope.$on('$routeChangeSuccess', update);
-        $rootScope.$on('$routeUpdate', () => {
-            //TODO: Broadcast StateUpdate.
-        });
-        return $state;
-
-        function update() {
+        $rootScope.$on('$routeChangeSuccess', function () {
             var route = $route.current,
                 params;
             if (route) {
@@ -187,68 +212,78 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                 };
 
                 if (route.state) {
-                    goto(route.state, params);
+                    goto(route.state, params, route);
                 }
-                //TODO: Move Action to state instead?.
-                //if (route.action) {
-                //    $injector.invoke(route.action, { $params: params });
-                //}
             } else {
                 goto(root);
             }
-        }
-
-        function isChanged(state: IStateWrapper, params) {
-            var old = $state.current.params,
-                oldPar = old && old.all || {},
-                newPar = params.all,
-                result = false;
-
-            forEach(state.params, (name) => {
-                //TODO: Implement an equals function that converts towards strings as this could very well
-                //      ignore an change on certain situations.
-                //
-                //      also change to a damn "forEach" where we can break out mid way...
-                result = oldPar[name] != newPar[name];
-            });
-            return result;
-        }
-
-        function changeChain(to: IStateWrapper, params) {
-            var states = [],
-                lastChanged = 1,
-                current = to;
-
-            while (current !== root) {
-                states.push(current);
-                if (isChanged(current, params)) {
-                    lastChanged = states.length;
-                }
-                current = current.parent;
+        });
+        $rootScope.$on('$routeUpdate', () => {
+            //TODO: Broadcast StateUpdate?
+        });
+        return $state;
+        
+        function buildStateArray(state, params) {
+            function extractParams() {
+                var paramsObj = {};
+                forEach(current.params, (name) => {
+                    paramsObj[name] = params[name];
+                });
+                return paramsObj;
             }
-            return {
-                states: states.reverse(),
-                first: states.length - lastChanged
-            } 
+
+            var states = [],
+                current = state;
+            do {
+                states.push({ state: current, params: extractParams() });
+            } while (current = current.parent)
+            return states;
         }
 
-        function goto(to, params?) {
+        function buildChangeArray(from, to, fromParams, toParams) {
+            var fromArray = buildStateArray(from, fromParams || {}),
+                toArray = buildStateArray(to, toParams),
+                count = Math.max(fromArray.length, toArray.length),
+                fromAtIndex,
+                toAtIndex;
+
+            for (var i = 0; i < count; i++) {
+                fromAtIndex = fromArray[fromArray.length - i - 1];
+                toAtIndex = toArray[toArray.length - i - 1];
+                
+                if (isUndefined(fromAtIndex))
+                    toAtIndex.changed = true;
+                else if (isUndefined(toAtIndex))
+                    toArray[0].changed = true; //We wen't up the hierachy.
+                else if (forceReload && forceReload == toAtIndex.state.fullname)
+                    toAtIndex.changed = true;
+                else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname)
+                    toAtIndex.changed = true;
+                else if (!equals(toAtIndex.params, fromAtIndex.params))
+                    toAtIndex.changed = true;
+                else
+                    toAtIndex.changed = false;
+            }
+            return toArray.reverse();
+        }
+
+        function goto(to, params?, route?) {
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
             var to = lookupState(toName(to)),
-                toState = inherit({ params: params }, to.self),
+                toState = extend({}, to.self, { $params: params, $route: route }),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
                 cancel = false,
                 event,
-                transition,
                 transaction,
+                changed = buildChangeArray(
+                    lookupState(toName($state.current)),
+                    to,
+                    fromState.$params && fromState.$params.all,
+                    params.all || {}),
 
-                changed = changeChain(to, params);
-
-            event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
-            if (!event.defaultPrevented) {
                 transition = {
                     cancel: function () {
                         cancel = true;
@@ -258,25 +293,30 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                         goto(state, params);
                     }
                 };
-                emit.before(transition);
 
-                if (cancel) {
-                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                    //      That is if this was even triggered by an URL change in teh first place.
-                    return;
-                }
+            emit.before(transition);
+            if (cancel) {
+                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                //      That is if this was even triggered by an URL change in teh first place.
+                return;
+            }
 
+            event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+            if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
+                    var useUpdate = false;
 
                     transaction = $view.beginUpdate();
                     $view.clear();
 
-                    forEach(changed.states, (state, index) => {
-                        angular.forEach(state.self.views, (view, name) => {
-                            if (index < changed.first) {
-                                $view.setIfAbsent(name, view.template, view.controller);
-                            } else {
+                    forEach(changed, (change, index) => {
+                        if (change.changed)
+                            useUpdate = true;
+                        forEach(change.state.self.views, (view, name) => {
+                            if (useUpdate) {
                                 $view.setOrUpdate(name, view.template, view.controller);
+                            } else {
+                                $view.setIfAbsent(name, view.template, view.controller);
                             }
                         });
                     });
@@ -290,6 +330,8 @@ var $StateProvider = [<any>'$routeProvider', '$transitionProvider', function ($r
                         return;
                     }
 
+                    current = to;
+                    currentParams = params;
                     $state.current = toState;
 
                     transaction.commit();

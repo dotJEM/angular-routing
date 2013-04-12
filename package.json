@@ -2,7 +2,7 @@
   "name": "angular-routing",
   "title": "AngularJS Routing",
   "description": "State-based routing and view management for AngularJS",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "homepage": "",
   "author": {
     "name": "dotjem",
@@ -17,8 +17,8 @@
   },
   "licenses": [
     {
-      "type": "N/A",
-      "url": ""
+      "type": "MIT",
+      "url": "https://github.com/dotJEM/angular-routing/blob/master/LICENSE"
     }
   ],
   "dependencies": {},
@@ -31,7 +31,9 @@
     "grunt-contrib-clean": "~0.4.0",
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-watch": "~0.3.1",
-    "grunt-karma": "~0.3.0"
+    "grunt-contrib-yuidoc": "~0.4.0",
+    "grunt-karma": "~0.3.0",
+    "yuidocjs": "~0.3.40"
   },
   "keywords": []
 }

@@ -14,7 +14,7 @@ files = [
 
   'src/common.js',
   'src/route.js',
-  'src/transition.js',
+  'src/stateTransition.js',
   'src/state.js',
   'src/template.js',
   'src/view.js',

@@ -1,4 +1,5 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
 'use strict';
@@ -32,8 +33,8 @@ function $ViewProvider() {
         }
 
         this.clear = function (name?: string) {
-            if (angular.isUndefined(name)) {
-                angular.forEach(views, (val, key) => {
+            if (isUndefined(name)) {
+                forEach(views, (val, key) => {
                     this.clear(key);
                 });
             } else {
@@ -109,7 +110,7 @@ function $ViewProvider() {
 
         this.get = function (name: string) {
             //TODO: return copies instead of actuals...
-            if (angular.isUndefined(name))
+            if (isUndefined(name))
                 return views;
 
             // Ensure checks if the view was defined at any point, not if it is still defined.
@@ -127,7 +128,7 @@ function $ViewProvider() {
             return {
                 commit: function () {
                     transaction = null;
-                    angular.forEach(trx.records, (rec) => { rec.fn(); })
+                    forEach(trx.records, (rec) => { rec.fn(); })
                 },
                 cancel: function () {
                     transaction = null;

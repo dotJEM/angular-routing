@@ -89,7 +89,7 @@
     <Content Include="lib\jquery\impl\jquery-1.9.1.js" />
     <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
     <Content Include="lib\jquery\jquery.d.ts" />
-    <Content Include="samples\bootstrap.min.css" />
+    <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
     <Content Include="samples\configuration.js">
       <DependentUpon>configuration.ts</DependentUpon>
     </Content>
@@ -100,6 +100,8 @@
     <Content Include="samples\legacy\tpl\about.html" />
     <Content Include="samples\legacy\tpl\code.html" />
     <Content Include="samples\legacy\tpl\home.html" />
+    <Content Include="samples\metro.bootstrap.min.css" />
+    <Content Include="samples\metro.bootstrap.overwrites.css" />
     <Content Include="samples\simple\index.html" />
     <Content Include="samples\simple\script\application.js" />
     <Content Include="samples\simple\tpl\about.html" />
@@ -107,12 +109,15 @@
     <Content Include="samples\simple\tpl\home.html" />
     <Content Include="samples\substates\index.html" />
     <Content Include="samples\substates\script\application.js" />
+    <Content Include="samples\substates\script\blogService.js" />
+    <Content Include="samples\substates\script\contentDirective.js" />
     <Content Include="samples\substates\script\data.js" />
     <Content Include="samples\substates\tpl\about.html" />
     <Content Include="samples\substates\tpl\blog.html" />
     <Content Include="samples\substates\tpl\blog.post.html" />
     <Content Include="samples\substates\tpl\crumbs.html" />
     <Content Include="samples\substates\tpl\home.html" />
+    <Content Include="samples\animations.css" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="lib\jasmine\impl\" />
@@ -121,6 +126,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="samples\substates\tpl\blog.list.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="samples\configuration.js.map">
+      <DependentUpon>configuration.ts</DependentUpon>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

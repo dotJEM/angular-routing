@@ -4,46 +4,43 @@
 
 'use strict';
 
-var uiViewDirective = [<any>'$state', '$anchorScroll', '$compile', '$controller', '$view',
-function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewService) {
+var uiViewDirective = [<any>'$state', '$anchorScroll', '$compile', '$controller', '$view', '$animator',
+function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewService, $animator) {
     return {
         restrict: 'ECA',
         terminal: true,
-        link: function (scope, element, attr) {
+        link: function (scope, element: JQuery, attr) {
             var viewScope,
                 name = attr['uiView'] || attr.name,
+                doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
+                animate = $animator(scope, attr),
                 version = -1;
 
-            // Find the details of the parent view directive (if any) and use it
-            // to derive our own qualified view name, then hang our own details
-            // off the DOM so child directives can find it.
-            //   var parent = element.parent().inheritedData('$uiView');
-            //   name = name + '@' + (parent ? parent.state.name : '');
-            //   var view = { name: name, state: null };
-            //   element.data('$uiView', view);
-
-            scope.$on('$stateChangeBegin', () => { });
             scope.$on('$viewChanged', (event, updatedName) => {
                 if (updatedName === name)
-                    update();
+                    update(doAnimate);
             });
-            scope.$on('$stateChangeSuccess', update);
-            update();
+            scope.$on('$stateChangeSuccess', () => update(doAnimate));
+            update(false);
 
-            function resetScope(newScope?) {
+            function destroyScope() {
                 if (viewScope) {
                     viewScope.$destroy();
+                    viewScope = null;
                 }
-                viewScope = newScope === 'undefined' ? null : newScope;
             }
 
-            function clearContent() {
-                element.html('');
-                resetScope();
+            function clearContent(doAnimate) {
+                if (doAnimate)
+                    animate.leave(element.contents(), element);
+                else
+                    element.html('');
+
+                destroyScope();
             }
 
-            function update() {
+            function update(doAnimate) {
                 var view = $view.get(name),
                     controller;
 
@@ -55,24 +52,28 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                     controller = view.controller;
 
                     view.template.then((html) => {
-                        element.html(html);
-                        resetScope(scope.$new());
+                        clearContent(doAnimate);
+                        if (doAnimate)
+                            animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                        else
+                            element.html(html);
 
                         var link = $compile(element.contents());
 
+                        viewScope = scope.$new();
                         if (controller) {
                             controller = $controller(controller, { $scope: viewScope });
                             element.contents().data('$ngControllerController', controller);
                         }
 
                         link(viewScope);
+
                         viewScope.$emit('$viewContentLoaded');
                         viewScope.$eval(onloadExp);
-
                         $anchorScroll();
                     });
                 } else {
-                    clearContent();
+                    clearContent(doAnimate);
                 }
             }
         }

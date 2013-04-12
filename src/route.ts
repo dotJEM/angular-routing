@@ -10,7 +10,6 @@ interface ISegment {
 }
 
 interface IExpression {
-    //partial: RegExp;
     complete: RegExp;
     segments: ISegment[];
 }
@@ -21,14 +20,12 @@ interface IRoute {
     match: (path: string) => any;
 }
 
+
 /**
- * @ngdoc object
- * @name ui.routing.$routeProvider
- * @function
- *
- * @description
- *
  * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+ * 
+ * @class $RouteProvider
+ * @constructor
  */
 function $RouteProvider() {
     var routes = {},
@@ -37,20 +34,7 @@ function $RouteProvider() {
         caseSensitive = true;
 
     //Public Methods
-
     /**
-     * @ngdoc method
-     * @name ui.routing.$routeProvider#convert
-     * @methodOf ui.routing.$routeProvider
-     * 
-     * @param {string} name Cerverter name, used in the path when registering routes through the 
-     *   {@link ui.routing.routeProvider#when when} function.
-
-     * 
-     * @returns {Object} self
-     * 
-     * 
-     * @description
      * Adds a new converter or overwrites an existing one.
      * 
      * By default the folowing converters are precent:
@@ -61,6 +45,12 @@ function $RouteProvider() {
      *
      *  - `regex` - regular expressions converter, used to match a parameter agains a regular
      *    expression.
+     * 
+     * @method convert
+     * @return {Object} self
+     *
+     * @param {string} name Cerverter name, used in the path when registering routes through the 
+     *   {@link ui.routing.routeProvider#when when} function.
      */
     this.convert = (name: string, converter) => {
         //Note: We wan't to allow overwrite
@@ -69,9 +59,10 @@ function $RouteProvider() {
     };
 
     /**
-     * @ngdoc method
-     * @name ui.routing.$routeProvider#when
-     * @methodOf ui.routing.$routeProvider
+     * Adds a new route definition to the `$route` service.
+     *
+     * @method when
+     * @returns {Object} self
      *
      * @param {string} path Route path (matched against `$location.path`). If `$location.path`
      *    contains redundant trailing slash or is missing one, the route will still match.
@@ -149,16 +140,11 @@ function $RouteProvider() {
      *
      *      If the option is set to `false` and url in the browser changes, then
      *      `$routeUpdate` event is broadcasted on the root scope.
-     *
-     * @returns {Object} self
-     *
-     * @description
-     * Adds a new route definition to the `$route` service.
      */
     this.when = (path: string, route: ui.routing.IRoute) => {
         var normalized = normalizePath(path);
         routes[normalized.name] = {
-            self: angular.extend({ reloadOnSearch: true }, route),
+            self: extend({ reloadOnSearch: true }, route),
             redirect: createRedirector(route.redirectTo),
             match: createMatcher(path),
             path: path,
@@ -169,16 +155,13 @@ function $RouteProvider() {
     };
 
     /**
-     * @ngdoc method
-     * @name ng.$routeProvider#otherwise
-     * @methodOf ng.$routeProvider
-     *
-     * @description
      * Sets route definition that will be used on route change when no other route definition
      * is matched.
+     * 
+     * @method otherwise
+     * @return {Object} self
      *
      * @param {Object} params Mapping information to be assigned to `$route.current`.
-     * @returns {Object} self
      */
     this.otherwise = (route: ui.routing.IRoute) => {
         this.when(null, route);
@@ -206,7 +189,7 @@ function $RouteProvider() {
     function interpolate(url, params) {
         //TODO: We only support :params here, but that might be ok for now as we are constructing an url.
         var result = [];
-        angular.forEach((url || '').split(':'), function (segment, i) {
+        forEach((url || '').split(':'), function (segment, i) {
             if (i == 0) {
                 result.push(segment);
             } else {
@@ -225,7 +208,7 @@ function $RouteProvider() {
         return function ($location, next) {
             if (fn === null) {
                 if (redirectTo) {
-                    if (angular.isString(redirectTo)) {
+                    if (isString(redirectTo)) {
                         fn = function ($location, next) {
                             var interpolated = interpolate(redirectTo, next.params);
                             $location
@@ -255,7 +238,8 @@ function $RouteProvider() {
 
         if (carg) {
             trimmed = carg.trim();
-            if (trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') {
+            if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') ||
+                (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']') ) {
                 try {
                     carg = angular.fromJson(trimmed);
                 } catch (e) {
@@ -287,8 +271,7 @@ function $RouteProvider() {
             flags = '';
 
         if (path === '/') return {
-            //partial: new RegExp('^[\x2F].*$', flags),
-            complete: new RegExp('^[\x2F]$', flags),
+            complete: new RegExp('^[\x2F]?$', flags),
             segments: []
         };
 
@@ -305,7 +288,6 @@ function $RouteProvider() {
             regex = regex.substr(0, regex.length - 1);
 
         return {
-            //partial: new RegExp(regex + "\x2F?.*$", flags),
             complete: new RegExp(regex + '\x2F?$', flags),
             segments: segments
         };
@@ -372,11 +354,13 @@ function $RouteProvider() {
 
                 //if (location.match(exp.complete)) {
                 invalidParam = false;
-                angular.forEach(exp.segments, function (segment: ISegment, index) {
+                forEach(exp.segments, function (segment: ISegment, index) {
+                    var param,
+                        value;
                     if (!invalidParam) {
-                        var param = match[index + 1],
-                            value = segment.converter(param);
-                        if (angular.isDefined(value.accept)) {
+                        param = match[index + 1];
+                        value = segment.converter(param);
+                        if (isDefined(value.accept)) {
                             if (!value.accept)
                                 invalidParam = true;
                             dst[segment.name] = value.value;
@@ -385,7 +369,6 @@ function $RouteProvider() {
                                 invalidParam = true;
                             dst[segment.name] = param;
                         }
-
                     }
                 });
 
@@ -415,12 +398,12 @@ function $RouteProvider() {
             flags = '',
             regex;
 
-        if (angular.isObject(arg) && angular.isDefined(arg.exp)) {
+        if (isObject(arg) && isDefined(arg.exp)) {
             exp = arg.exp;
-            if (angular.isDefined(arg.flags))
+            if (isDefined(arg.flags))
                 flags = arg.flags;
 
-        } else if (angular.isString(arg) && arg.length > 0) {
+        } else if (isString(arg) && arg.length > 0) {
             exp = arg;
         } else {
             throw new Error("The Regular-expression converter was not initialized with a valid object.");
@@ -442,184 +425,6 @@ function $RouteProvider() {
 
     this.$get = [<any>'$rootScope', '$location', '$q', '$injector', '$routeParams',
     function ($rootScope: ng.IRootScopeService, $location: ng.ILocationService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $routeParams) {
-        /**
-         * @ngdoc object
-         * @name ng.$route
-         * @requires $location
-         * @requires $routeParams
-         *
-         * @property {Object} current Reference to the current route definition.
-         * The route definition contains:
-         *
-         *   - `controller`: The controller constructor as define in route definition.
-         *   - `locals`: A map of locals which is used by {@link ng.$controller $controller} service for
-         *     controller instantiation. The `locals` contain
-         *     the resolved values of the `resolve` map. Additionally the `locals` also contain:
-         *
-         *     - `$scope` - The current route scope.
-         *     - `$template` - The current route template HTML.
-         *
-         * @property {Array.<Object>} routes Array of all configured routes.
-         *
-         * @description
-         * Is used for deep-linking URLs to controllers and views (HTML partials).
-         * It watches `$location.url()` and tries to map the path to an existing route definition.
-         *
-         * You can define routes through {@link ng.$routeProvider $routeProvider}'s API.
-         *
-         * The `$route` service is typically used in conjunction with {@link ng.directive:ngView ngView}
-         * directive and the {@link ng.$routeParams $routeParams} service.
-         *
-         * @example
-           This example shows how changing the URL hash causes the `$route` to match a route against the
-           URL, and the `ngView` pulls in the partial.
-
-           Note that this example is using {@link ng.directive:script inlined templates}
-           to get it working on jsfiddle as well.
-
-         <example module="ngView">
-           <file name="index.html">
-             <div ng-controller="MainCntl">
-               Choose:
-               <a href="Book/Moby">Moby</a> |
-               <a href="Book/Moby/ch/1">Moby: Ch1</a> |
-               <a href="Book/Gatsby">Gatsby</a> |
-               <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-               <a href="Book/Scarlet">Scarlet Letter</a><br/>
-
-               <div ng-view></div>
-               <hr />
-
-               <pre>$location.path() = {{$location.path()}}</pre>
-               <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
-               <pre>$route.current.params = {{$route.current.params}}</pre>
-               <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
-               <pre>$routeParams = {{$routeParams}}</pre>
-             </div>
-           </file>
-
-           <file name="book.html">
-             controller: {{name}}<br />
-             Book Id: {{params.bookId}}<br />
-           </file>
-
-           <file name="chapter.html">
-             controller: {{name}}<br />
-             Book Id: {{params.bookId}}<br />
-             Chapter Id: {{params.chapterId}}
-           </file>
-
-           <file name="script.js">
-             angular.module('ngView', [], function($routeProvider, $locationProvider) {
-               $routeProvider.when('/Book/:bookId', {
-                 templateUrl: 'book.html',
-                 controller: BookCntl,
-                 resolve: {
-                   // I will cause a 1 second delay
-                   delay: function($q, $timeout) {
-                     var delay = $q.defer();
-                     $timeout(delay.resolve, 1000);
-                     return delay.promise;
-                   }
-                 }
-               });
-               $routeProvider.when('/Book/:bookId/ch/:chapterId', {
-                 templateUrl: 'chapter.html',
-                 controller: ChapterCntl
-               });
-
-               // configure html5 to get links working on jsfiddle
-               $locationProvider.html5Mode(true);
-             });
-
-             function MainCntl($scope, $route, $routeParams, $location) {
-               $scope.$route = $route;
-               $scope.$location = $location;
-               $scope.$routeParams = $routeParams;
-             }
-
-             function BookCntl($scope, $routeParams) {
-               $scope.name = "BookCntl";
-               $scope.params = $routeParams;
-             }
-
-             function ChapterCntl($scope, $routeParams) {
-               $scope.name = "ChapterCntl";
-               $scope.params = $routeParams;
-             }
-           </file>
-
-           <file name="scenario.js">
-             it('should load and compile correct template', function() {
-               element('a:contains("Moby: Ch1")').click();
-               var content = element('.doc-example-live [ng-view]').text();
-               expect(content).toMatch(/controller\: ChapterCntl/);
-               expect(content).toMatch(/Book Id\: Moby/);
-               expect(content).toMatch(/Chapter Id\: 1/);
-
-               element('a:contains("Scarlet")').click();
-               sleep(2); // promises are not part of scenario waiting
-               content = element('.doc-example-live [ng-view]').text();
-               expect(content).toMatch(/controller\: BookCntl/);
-               expect(content).toMatch(/Book Id\: Scarlet/);
-             });
-           </file>
-         </example>
-         */
-
-        /**
-         * @ngdoc event
-         * @name ng.$route#$routeChangeStart
-         * @eventOf ng.$route
-         * @eventType broadcast on root scope
-         * @description
-         * Broadcasted before a route change. At this  point the route services starts
-         * resolving all of the dependencies needed for the route change to occurs.
-         * Typically this involves fetching the view template as well as any dependencies
-         * defined in `resolve` route property. Once  all of the dependencies are resolved
-         * `$routeChangeSuccess` is fired.
-         *
-         * @param {Route} next Future route information.
-         * @param {Route} current Current route information.
-         */
-
-        /**
-         * @ngdoc event
-         * @name ng.$route#$routeChangeSuccess
-         * @eventOf ng.$route
-         * @eventType broadcast on root scope
-         * @description
-         * Broadcasted after a route dependencies are resolved.
-         * {@link ng.directive:ngView ngView} listens for the directive
-         * to instantiate the controller and render the view.
-         *
-         * @param {Route} current Current route information.
-         * @param {Route} previous Previous route information.
-         */
-
-        /**
-         * @ngdoc event
-         * @name ng.$route#$routeChangeError
-         * @eventOf ng.$route
-         * @eventType broadcast on root scope
-         * @description
-         * Broadcasted if any of the resolve promises are rejected.
-         *
-         * @param {Route} current Current route information.
-         * @param {Route} previous Previous route information.
-         * @param {Route} rejection Rejection of the promise. Usually the error of the failed promise.
-         */
-
-        /**
-         * @ngdoc event
-         * @name ng.$route#$routeUpdate
-         * @eventOf ng.$route
-         * @eventType broadcast on root scope
-         * @description
-         *
-         * The `reloadOnSearch` property has been set to false, and we are reusing the same
-         * instance of the Controller.
-         */
 
         var forceReload = false,
             $route: any = {
@@ -648,7 +453,7 @@ function $RouteProvider() {
             var params,
                 match;
 
-            angular.forEach(routes, (route: IRoute, path: string) => {
+            forEach(routes, (route: IRoute, path: string) => {
                 if (!match && (params = route.match(currentPath))) {
                     match = buildmatch(route, params, $location.search());
                 }
@@ -669,7 +474,7 @@ function $RouteProvider() {
                 && !nextRoute.reloadOnSearch) {
 
                 lastRoute.params = next.params;
-                angular.copy(nextRoute.params, $routeParams);
+                copy(nextRoute.params, $routeParams);
                 $rootScope.$broadcast('$routeUpdate', lastRoute);
             } else if (next || lastRoute) {
                 //TODO: We should always have a next to go to, it may be a null route though.
@@ -683,7 +488,7 @@ function $RouteProvider() {
 
                     var dp: ng.IPromise = $q.when(nextRoute);
                     if (nextRoute) {
-                        angular.forEach(decorators, (decorator, name) => {
+                        forEach(decorators, (decorator, name) => {
                             dp = dp.then(() => {
                                 var decorated = $injector.invoke(decorator, nextRoute, { $next: nextRoute });
                                 return $q.when(decorated);

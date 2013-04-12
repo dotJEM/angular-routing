@@ -88,7 +88,7 @@ module ui.routing {
     interface IStateService {
         root: any;
         transition: any;
-        reload: () => void;
+        reload: (state?) => void;
         current?: any;
     }
 

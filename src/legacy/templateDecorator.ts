@@ -1,5 +1,4 @@
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
 /// <reference path="../interfaces.d.ts" />
 
 'use strict';
@@ -14,27 +13,27 @@ angular.module('ui.routing.legacy', ['ui.routing', 'ng'])
                          keys = [],
                          template;
 
-                     forEach(next.resolve || {}, function (value, key) {
+                     angular.forEach(next.resolve || {}, function (value, key) {
                          keys.push(key);
-                         values.push(isString(value) ? $injector.get(value) : $injector.invoke(value));
+                         values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
                      });
 
                      if (angular.isDefined(template = next.template)) {
                          if (angular.isFunction(template)) {
                              template = template(next.params);
                          }
-                     } else if (isDefined(template = next.templateUrl)) {
-                         if (isFunction(template)) {
+                     } else if (angular.isDefined(template = next.templateUrl)) {
+                         if (angular.isFunction(template)) {
                              template = template(next.params);
                          }
-                         if (isDefined(template)) {
+                         if (angular.isDefined(template)) {
                              next.loadedTemplateUrl = template;
                              template = $http.get(template, { cache: $templateCache }).
                                  then(function (response) { return response.data; });
                          }
                      }
 
-                     if (isDefined(template)) {
+                     if (angular.isDefined(template)) {
                          keys.push('$template');
                          values.push(template);
                      }
@@ -42,7 +41,7 @@ angular.module('ui.routing.legacy', ['ui.routing', 'ng'])
                      return $q.all(values)
                          .then(function (values) {
                              var locals = {};
-                             forEach(values, function (value, index) {
+                             angular.forEach(values, function (value, index) {
                                  locals[keys[index]] = value;
                              });
                              return locals;
