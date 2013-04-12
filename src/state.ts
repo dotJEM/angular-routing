@@ -165,7 +165,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     // /myState.$1 -> Selects the first child of myState
                     // /myState.$last -> Selects the last child of myState
                     // .$next -> Selects the next sibling of current element
-
                 },
 
                 //TODO: Implement functions that return siblings etc.
@@ -254,7 +253,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 if (isUndefined(fromAtIndex))
                     toAtIndex.changed = true;
                 else if (isUndefined(toAtIndex))
-                    toArray[0].changed = true; //We wen't up the hierachy.
+                    toArray[0].changed = true; 
+                    // We wen't up the hierachy. for now make the parent dirty.
+                    // however, this reloads the main view... 
                 else if (forceReload && forceReload == toAtIndex.state.fullname)
                     toAtIndex.changed = true;
                 else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname)

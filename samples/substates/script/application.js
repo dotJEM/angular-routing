@@ -1,7 +1,13 @@
-﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
+﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing']);app.config(['$stateProvider', '$routeProvider', '$stateTransitionProvider',       function ($stateProvider, $routeProvider, $stateTransitionProvider) {
            $routeProvider               .otherwise({ redirectTo: '/' });
+           $stateTransitionProvider
+               .transition('blog.*', 'blog', function($view) {
+                   $view.clear('main');
+                   $view.setIfAbsent('main','');
+               });
+           
 
-            $stateProvider
+           $stateProvider
                 .state('home', {
                     route: '/',
                     views: {
@@ -149,7 +155,6 @@ app.controller('blogController', function($rootScope, $scope, blog) {
 app.animation('wave-enter', function ($rootScope, $timeout) {
     return {
         setup: function (element) {
-            //this is called before the animation
             var elm = $(element);
             var parent = elm.parent();
             elm.addClass('wave-enter-setup');
@@ -162,7 +167,6 @@ app.animation('wave-enter', function ($rootScope, $timeout) {
 
         },
         start: function (element, done, memo) {
-            //this is where the animation is expected to be run
             var elm = $(element);
             var parent = elm.parent();
             elm.addClass('wave-enter-start');
@@ -178,14 +182,6 @@ app.animation('wave-enter', function ($rootScope, $timeout) {
 
                 done();
             }, 2000);
-
-            //done();
-            //jQuery(element).animate({
-            //    'border-width': 20
-            //}, function () {
-            //    //call done to close when the animation is complete
-            //    done();
-            //});
         }
     };
 });
@@ -193,64 +189,19 @@ app.animation('wave-enter', function ($rootScope, $timeout) {
 app.animation('wave-leave', function ($rootScope, $timeout) {
     return {
         setup: function (element) {
-            //this is called before the animation
+
             $(element).addClass('wave-leave-setup');
         },
         start: function (element, done, memo) {
-            //this is where the animation is expected to be run
             $(element).addClass('wave-leave-start');
-
             $timeout(function () {
                 $(element).removeClass('wave-leave-setup');
                 $(element).removeClass('wave-leave-start');
                 done();
             }, 2000);
-
-            //done();
-            //jQuery(element).animate({
-            //    'border-width': 20
-            //}, function () {
-            //    //call done to close when the animation is complete
-            //    done();
-            //});
         }
     };
 });
-
-//.stage {
-//    position: relative;
-//}
-
-//.wave-enter-setup, .wave-leave-setup {
-//    -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//    -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//    -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//    transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//}
-
-//.wave-enter-setup {
-//    position:absolute;
-//    left:100%;
-//    width:100%;
-//}
-
-//.wave-enter-start {
-//    left:0;
-//}
-
-//.wave-leave-setup {
-//    position:absolute;
-//    width:100%;
-//    left:0;
-//}
-
-//.wave-leave-start {
-//    left:-100%;
-//}
-
-
-
-
 
 function clean(state) {
     var newState = {};

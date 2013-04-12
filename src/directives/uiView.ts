@@ -10,7 +10,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
         restrict: 'ECA',
         terminal: true,
         link: function (scope, element: JQuery, attr) {
-            var viewScope,
+            var viewScope, controller,
                 name = attr['uiView'] || attr.name,
                 doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
@@ -20,6 +20,15 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
             scope.$on('$viewChanged', (event, updatedName) => {
                 if (updatedName === name)
                     update(doAnimate);
+            });
+            scope.$on('$viewRefresh', (event, refreshName, refreshData) => {
+                if (refreshName === name) {
+                    if (isFunction(viewScope.refresh)) {
+                        viewScope.refresh(refreshData);
+                    } else {
+                        viewScope.broadCast('$refresh', refreshName, refreshData)
+                    }
+                }
             });
             scope.$on('$stateChangeSuccess', () => update(doAnimate));
             update(false);

@@ -28,6 +28,10 @@ function $ViewProvider() {
             $rootScope.$broadcast('$viewUpdate', name);
         }
 
+        function raiseRefresh(name: string, data?: any) {
+            $rootScope.$broadcast('$viewRefresh', name, data);
+        }
+
         function containsView(map: any, name: string) {
             return (name in map) && map[name] !== null;
         }
@@ -117,6 +121,24 @@ function $ViewProvider() {
             // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
             return views[name];
         };
+
+        this.refresh = function (name: string, data?: any) {
+            if (isUndefined(name)) {
+                forEach(views, (val, key) => {
+                    this.clear(key);
+                });
+            } else if (transaction) {
+                transaction.records[name] = {
+                    act: 'refresh',
+                    fn: () => {
+                        this.refresh(name, data);
+                    }
+                };
+                return;
+            } else {
+                raiseRefresh(name, data);
+            }
+        }
 
         this.beginUpdate = function () {
             if (transaction)
