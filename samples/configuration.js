@@ -11,14 +11,12 @@ x.State('blog', {
         'single': {
         }
     },
-    onenter: // These are just shorthands for transitions, in this case the onenter would equal : .transition('about', 'blog', handler)
-    {
+    onenter: {
         from: 'about',
         handler: function () {
         }
     },
-    onexit: // The the onexit would equal : .transition('blog', 'about', handler)
-    {
+    onexit: {
         to: 'about',
         handler: function () {
         }
@@ -30,14 +28,11 @@ x.State('blog', {
         'description': {
         }
     },
-    onenter: //Here we generalize, so onenter is just a function, that is the same as: .transition('*', 'about', handler)
-    function () {
+    onenter: function () {
     },
-    onexit: //Same for on exit, so that is the same as: .transition('about', '*', handler)
-    function () {
+    onexit: function () {
     }
 });
-//Equivalent to:
 x.State('root', {
 });
 x.State('root.blog', {
@@ -64,21 +59,11 @@ x.Tansition('about', '*', function () {
 });
 x.Tansition('*', 'about', function () {
 });
-//TODO: How would this support a Wizard Based set of states?...
-//      Actions might be a solution, but it adds on top of the interface making things harder
-//      and harder to maintain, so the question is if we can make some other implementation to
-//      support it? Could be a simple set of utility methods like:
-//        - nextSibling(), parent(), firstChild(), prevSibling() etc.
-//
-//      Then we could say: "$state.goto($state.getNextSibling())"
 var goto, noop, complete;
 x.State('wizard', {
     goto: 'step1',
     children: {
-        'step1': // Note: If an action is a string starting with '.', it is expected to be a sibling state.
-        //       action can also be a function.
-        // Alternatively we change states to use / seperator and then use simple XPath navigation paradigm
-        {
+        'step1': {
             actions: {
                 next: '.step2',
                 prev: noop
@@ -115,11 +100,8 @@ x.State('wizard', {
             }
         }
     },
-    onenter: //Here we generalize, so onenter is just a function, that is the same as: .transition('*', 'about', handler)
-    function () {
+    onenter: function () {
     },
-    onexit: //Same for on exit, so that is the same as: .transition('about', '*', handler)
-    function () {
+    onexit: function () {
     }
 });
-//@ sourceMappingURL=configuration.js.map

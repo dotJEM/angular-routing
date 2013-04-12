@@ -128,11 +128,14 @@ var $StateProvider = [
             '$stateTransition', 
             '$location', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
-                var forceReload = false, $state = {
+                var forceReload = null, current = root, currentParams = {
+                }, $state = {
                     root: root,
                     current: extend({
                     }, root.self),
-                    goto: goto,
+                    goto: function (state, params) {
+                        goto(state, params);
+                    },
                     lookup: function (path) {
                         // XPath Inspired lookups
                         //
@@ -146,19 +149,38 @@ var $StateProvider = [
                     nextSibling: //TODO: Implement functions that return siblings etc.
                     '',
                     prevSibling: '',
-                    parrent: '',
+                    parrent: function () {
+                        //TODO: Temporary implementation, we need to enable fetching these tings from current so we can keep navigating up.
+                        return extend({
+                        }, current.parent.self, {
+                            $params: currentParams,
+                            $route: $route.current
+                        });
+                    },
                     children: '',
-                    reload: function () {
-                        forceReload = true;
-                        $rootScope.$evalAsync(update);
+                    reload: function (state) {
+                        if(isDefined(state)) {
+                            if(isString(state) || isObject(state)) {
+                                forceReload = toName(state);
+                                //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
+                                if(forceReload.indexOf('root') !== 0) {
+                                    forceReload = 'root.' + forceReload;
+                                }
+                                //console.log('forceReload (toName(state)): ' + forceReload);
+                                                            } else if(state) {
+                                forceReload = root.fullname;
+                                console.log('forceReload (root.fullname): ' + forceReload);
+                            }
+                        } else {
+                            forceReload = current.fullname;
+                            console.log('forceReload (current.fullname): ' + forceReload);
+                        }
+                        $rootScope.$evalAsync(function () {
+                            goto(current, currentParams, $route.current);
+                        });
                     }
                 };
-                $rootScope.$on('$routeChangeSuccess', update);
-                $rootScope.$on('$routeUpdate', function () {
-                    //TODO: Broadcast StateUpdate?
-                                    });
-                return $state;
-                function update() {
+                $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
                     if(route) {
                         params = {
@@ -169,14 +191,14 @@ var $StateProvider = [
                         if(route.state) {
                             goto(route.state, params, route);
                         }
-                        //TODO: Move Action to state instead?.
-                        //if (route.action) {
-                        //    $injector.invoke(route.action, { $params: params });
-                        //}
-                                            } else {
+                    } else {
                         goto(root);
                     }
-                }
+                });
+                $rootScope.$on('$routeUpdate', function () {
+                    //TODO: Broadcast StateUpdate?
+                                    });
+                return $state;
                 function buildStateArray(state, params) {
                     function extractParams() {
                         var paramsObj = {
@@ -206,7 +228,9 @@ var $StateProvider = [
                         } else if(isUndefined(toAtIndex)) {
                             toArray[0].changed = true;
                         } else //We wen't up the hierachy.
-                        if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
+                        if(forceReload && forceReload == toAtIndex.state.fullname) {
+                            toAtIndex.changed = true;
+                        } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
                             toAtIndex.changed = true;
                         } else if(!equals(toAtIndex.params, fromAtIndex.params)) {
                             toAtIndex.changed = true;
@@ -246,10 +270,12 @@ var $StateProvider = [
                             transaction = $view.beginUpdate();
                             $view.clear();
                             forEach(changed, function (change, index) {
+                                if(change.changed) {
+                                    useUpdate = true;
+                                }
                                 forEach(change.state.self.views, function (view, name) {
-                                    if(change.changed || useUpdate) {
+                                    if(useUpdate) {
                                         $view.setOrUpdate(name, view.template, view.controller);
-                                        useUpdate = true;
                                     } else {
                                         $view.setIfAbsent(name, view.template, view.controller);
                                     }
@@ -262,6 +288,8 @@ var $StateProvider = [
                                 //      That is if this was even triggered by an URL change in teh first place.
                                 return;
                             }
+                            current = to;
+                            currentParams = params;
                             $state.current = toState;
                             transaction.commit();
                             $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);

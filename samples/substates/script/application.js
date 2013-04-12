@@ -24,11 +24,7 @@
                     views: {
                         'main': {
                             template: 'tpl/blog.html',
-                            controller: function($rootScope, $scope, blog) {
-                                $rootScope.page = "blog";
-                                $scope.categories = blog.getCategories();
-                                $scope.archives = blog.getArchives();
-                            }
+                            controller: 'blogController'
                         },
                         'crumbs': {
                             template: 'tpl/crumbs.html',
@@ -143,6 +139,12 @@
                     }
                 });
        }]);
+
+app.controller('blogController', function($rootScope, $scope, blog) {
+    $rootScope.page = "blog";
+    $scope.categories = blog.getCategories();
+    $scope.archives = blog.getArchives();
+});
 
 app.animation('wave-enter', function ($rootScope, $timeout) {
     return {
