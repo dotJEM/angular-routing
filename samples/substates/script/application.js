@@ -1,12 +1,13 @@
-﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing']);app.config(['$stateProvider', '$routeProvider', '$stateTransitionProvider',       function ($stateProvider, $routeProvider, $stateTransitionProvider) {
+﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing', 'ui.tree']);app.config(['$stateProvider', '$routeProvider', '$stateTransitionProvider',       function ($stateProvider, $routeProvider, $stateTransitionProvider) {
            $routeProvider               .otherwise({ redirectTo: '/' });
+           
            $stateTransitionProvider
+               //NOTE: Temporary workaround for defect causing all views to reload on the parent state when navigating from a child.
                .transition('blog.*', 'blog', function($view) {
                    $view.clear('main');
                    $view.setIfAbsent('main','');
                });
            
-
            $stateProvider
                 .state('home', {
                     route: '/',
@@ -42,7 +43,7 @@
                         },
                         'content': {
                             template: 'tpl/blog.list.html',
-                            controller: function($scope, blog) {
+                            controller: function ($scope, blog) {
                                 $scope.title = "Recent Posts";
                                 $scope.posts = blog.getRecentPosts();
                             }
@@ -205,13 +206,16 @@ app.animation('wave-leave', function ($rootScope, $timeout) {
 
 function clean(state) {
     var newState = {};
-    newState.self = state.self;    newState.fullname = state.fullname;    newState.children = {};    if (state.route)        newState.route = state.route;
+    newState.self = state.self;    newState.fullname = state.fullname;    newState.$name = state.fullname;    newState.children = [];    if (state.route)        newState.route = state.route;
     angular.forEach(state.children, function (child, name) {
-        newState.children[name] = clean(child);
+        var c = clean(child);
+        c.$name = name;
+        newState.children.push(c);
     });    return newState;
 }
 function PageController($scope, $rootScope, $route, $state, $stateTransition) {
-    $scope.routes = JSON.stringify($route.routes, null, 2);    $scope.states = JSON.stringify(clean($state.root), null, 2);    $scope.transitions = JSON.stringify($stateTransition.root, null, 2);
+    $scope.routes = JSON.stringify($route.routes, null, 2);        $scope.statesStr = JSON.stringify(clean($state.root), null, 2);
+    $scope.states = [clean($state.root)];        $scope.transitions = JSON.stringify($stateTransition.root, null, 2);
     $scope.opts = {
         backdropFade: true,
         dialogFade: true
