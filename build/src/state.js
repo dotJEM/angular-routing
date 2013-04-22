@@ -136,49 +136,16 @@ var $StateProvider = [
                     goto: function (state, params) {
                         goto(state, params);
                     },
-                    lookup: function (path) {
-                        // XPath Inspired lookups
-                        //
-                        // /myState -> Selects myState from the root node.
-                        // ./myState -> Selects myState as a child of the current node.
-                        // ../myStaate -> Selects myState as a child of the parent node to this.
-                        // /myState.$1 -> Selects the first child of myState
-                        // /myState.$last -> Selects the last child of myState
-                        // .$next -> Selects the next sibling of current element
-                                            },
+                    lookup: lookup,
                     nextSibling: //TODO: Implement functions that return siblings etc.
                     '',
                     prevSibling: '',
                     parrent: function () {
                         //TODO: Temporary implementation, we need to enable fetching these tings from current so we can keep navigating up.
-                        return extend({
-                        }, current.parent.self, {
-                            $params: currentParams,
-                            $route: $route.current
-                        });
+                        return lookup("..");
                     },
                     children: '',
-                    reload: function (state) {
-                        if(isDefined(state)) {
-                            if(isString(state) || isObject(state)) {
-                                forceReload = toName(state);
-                                //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                                if(forceReload.indexOf('root') !== 0) {
-                                    forceReload = 'root.' + forceReload;
-                                }
-                                //console.log('forceReload (toName(state)): ' + forceReload);
-                                                            } else if(state) {
-                                forceReload = root.fullname;
-                                console.log('forceReload (root.fullname): ' + forceReload);
-                            }
-                        } else {
-                            forceReload = current.fullname;
-                            console.log('forceReload (current.fullname): ' + forceReload);
-                        }
-                        $rootScope.$evalAsync(function () {
-                            goto(current, currentParams, $route.current);
-                        });
-                    }
+                    reload: reload
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -199,6 +166,70 @@ var $StateProvider = [
                     //TODO: Broadcast StateUpdate?
                                     });
                 return $state;
+                function lookup(path) {
+                    var sections = path.split('/'), selected = current;
+                    forEach(sections, function (sec) {
+                        selected = select(sec, selected);
+                    });
+                    if(selected === root) {
+                        throw new Error("Path expression out of bounds.");
+                    }
+                    return selected && extend({
+                    }, selected.self) || undefined;
+                }
+                ;
+                function select(exp, selected) {
+                    if(exp === '.') {
+                        if(current !== selected) {
+                            throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+                        }
+                        return selected;
+                    }
+                    if(exp === '..') {
+                        if(isUndefined(selected.parent)) {
+                            throw new Error("Path expression out of bounds.");
+                        }
+                        return selected.parent;
+                    }
+                    if(exp === '') {
+                        if(current !== selected) {
+                            throw new Error("Invalid path expression.");
+                        }
+                        return root;
+                    }
+                    var match = exp.match('^\\[(-?\\d+)\\]$');
+                    if(match) {
+                        var index = Number(match[1]), children = [];
+                        forEach(selected.children, function (child) {
+                            children.push(child);
+                        });
+                        if(Math.abs(index) >= children.length) {
+                            throw Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+                        }
+                        return index < 0 ? children[children.length + index] : children[index];
+                    }
+                    if(exp in selected.children) {
+                        return selected.children[exp];
+                    }
+                }
+                function reload(state) {
+                    if(isDefined(state)) {
+                        if(isString(state) || isObject(state)) {
+                            forceReload = toName(state);
+                            //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
+                            if(forceReload.indexOf('root') !== 0) {
+                                forceReload = 'root.' + forceReload;
+                            }
+                        } else if(state) {
+                            forceReload = root.fullname;
+                        }
+                    } else {
+                        forceReload = current.fullname;
+                    }
+                    $rootScope.$evalAsync(function () {
+                        goto(current, currentParams, $route.current);
+                    });
+                }
                 function buildStateArray(state, params) {
                     function extractParams() {
                         var paramsObj = {
@@ -227,7 +258,8 @@ var $StateProvider = [
                             toAtIndex.changed = true;
                         } else if(isUndefined(toAtIndex)) {
                             toArray[0].changed = true;
-                        } else //We wen't up the hierachy.
+                        } else // We wen't up the hierachy. for now make the parent dirty.
+                        // however, this reloads the main view...
                         if(forceReload && forceReload == toAtIndex.state.fullname) {
                             toAtIndex.changed = true;
                         } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
@@ -247,7 +279,7 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }), transition = {
                         cancel: function () {
                             cancel = true;

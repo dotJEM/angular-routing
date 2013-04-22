@@ -14,10 +14,19 @@ var uiViewDirective = [
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, name = attr['uiView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
+                var viewScope, controller, name = attr['uiView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
                 scope.$on('$viewChanged', function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);
+                    }
+                });
+                scope.$on('$viewRefresh', function (event, refreshName, refreshData) {
+                    if(refreshName === name) {
+                        if(isFunction(viewScope.refresh)) {
+                            viewScope.refresh(refreshData);
+                        } else {
+                            viewScope.broadCast('$refresh', refreshName, refreshData);
+                        }
                     }
                 });
                 scope.$on('$stateChangeSuccess', function () {

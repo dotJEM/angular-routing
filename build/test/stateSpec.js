@@ -3,6 +3,7 @@ describe('$stateProvider', function () {
     'use strict';
     var mock = angular.mock;
     var scope;
+    var state;
     function stringifyTransition(tansition) {
         var children = [], targets = [];
         angular.forEach(tansition.targets, function (target, targetName) {
@@ -893,6 +894,283 @@ describe('$stateProvider', function () {
                 go('/about');
                 go('/admin');
                 expect($state.current.name).toBe('about');
+            });
+        });
+    });
+    //Note: Integration tests between $transition and $state etc.
+    describe("$state lookup", function () {
+        beforeEach(mock.module('ui.routing', function ($stateProvider) {
+            $stateProvider.state('state1', {
+            }).state('state1.top1', {
+            }).state('state1.top1.mid1', {
+            }).state('state1.top1.mid1.bot1', {
+            }).state('state1.top1.mid1.bot2', {
+            }).state('state1.top1.mid1.bot3', {
+            }).state('state1.top1.mid2', {
+            }).state('state1.top1.mid2.bot1', {
+            }).state('state1.top1.mid2.bot2', {
+            }).state('state1.top1.mid2.bot3', {
+            }).state('state1.top1.mid3', {
+            }).state('state1.top1.mid3.bot1', {
+            }).state('state1.top1.mid3.bot2', {
+            }).state('state1.top1.mid3.bot3', {
+            }).state('state1.top2', {
+            }).state('state1.top2.mid1', {
+            }).state('state1.top2.mid1.bot1', {
+            }).state('state1.top2.mid1.bot2', {
+            }).state('state1.top2.mid1.bot3', {
+            }).state('state1.top2.mid2', {
+            }).state('state1.top2.mid2.bot1', {
+            }).state('state1.top2.mid2.bot2', {
+            }).state('state1.top2.mid2.bot3', {
+            }).state('state1.top2.mid3', {
+            }).state('state1.top2.mid3.bot1', {
+            }).state('state1.top2.mid3.bot2', {
+            }).state('state1.top2.mid3.bot3', {
+            }).state('state1.top3', {
+            }).state('state1.top3.mid1', {
+            }).state('state1.top3.mid1.bot1', {
+            }).state('state1.top3.mid1.bot2', {
+            }).state('state1.top3.mid1.bot3', {
+            }).state('state1.top3.mid2', {
+            }).state('state1.top3.mid2.bot1', {
+            }).state('state1.top3.mid2.bot2', {
+            }).state('state1.top3.mid2.bot3', {
+            }).state('state1.top3.mid3', {
+            }).state('state1.top3.mid3.bot1', {
+            }).state('state1.top3.mid3.bot2', {
+            }).state('state1.top3.mid3.bot3', {
+            }).state('state2', {
+            }).state('state2.top1', {
+            }).state('state2.top1.mid1', {
+            }).state('state2.top1.mid1.bot1', {
+            }).state('state2.top1.mid1.bot2', {
+            }).state('state2.top1.mid1.bot3', {
+            }).state('state2.top1.mid2', {
+            }).state('state2.top1.mid2.bot1', {
+            }).state('state2.top1.mid2.bot2', {
+            }).state('state2.top1.mid2.bot3', {
+            }).state('state2.top1.mid3', {
+            }).state('state2.top1.mid3.bot1', {
+            }).state('state2.top1.mid3.bot2', {
+            }).state('state2.top1.mid3.bot3', {
+            }).state('state2.top2', {
+            }).state('state2.top2.mid1', {
+            }).state('state2.top2.mid1.bot1', {
+            }).state('state2.top2.mid1.bot2', {
+            }).state('state2.top2.mid1.bot3', {
+            }).state('state2.top2.mid2', {
+            }).state('state2.top2.mid2.bot1', {
+            }).state('state2.top2.mid2.bot2', {
+            }).state('state2.top2.mid2.bot3', {
+            }).state('state2.top2.mid3', {
+            }).state('state2.top2.mid3.bot1', {
+            }).state('state2.top2.mid3.bot2', {
+            }).state('state2.top2.mid3.bot3', {
+            }).state('state2.top3', {
+            }).state('state2.top3.mid1', {
+            }).state('state2.top3.mid1.bot1', {
+            }).state('state2.top3.mid1.bot2', {
+            }).state('state2.top3.mid1.bot3', {
+            }).state('state2.top3.mid2', {
+            }).state('state2.top3.mid2.bot1', {
+            }).state('state2.top3.mid2.bot2', {
+            }).state('state2.top3.mid2.bot3', {
+            }).state('state2.top3.mid3', {
+            }).state('state2.top3.mid3.bot1', {
+            }).state('state2.top3.mid3.bot2', {
+            }).state('state2.top3.mid3.bot3', {
+            }).state('state3', {
+            }).state('state3.top1', {
+            }).state('state3.top1.mid1', {
+            }).state('state3.top1.mid1.bot1', {
+            }).state('state3.top1.mid1.bot2', {
+            }).state('state3.top1.mid1.bot3', {
+            }).state('state3.top1.mid2', {
+            }).state('state3.top1.mid2.bot1', {
+            }).state('state3.top1.mid2.bot2', {
+            }).state('state3.top1.mid2.bot3', {
+            }).state('state3.top1.mid3', {
+            }).state('state3.top1.mid3.bot1', {
+            }).state('state3.top1.mid3.bot2', {
+            }).state('state3.top1.mid3.bot3', {
+            }).state('state3.top2', {
+            }).state('state3.top2.mid1', {
+            }).state('state3.top2.mid1.bot1', {
+            }).state('state3.top2.mid1.bot2', {
+            }).state('state3.top2.mid1.bot3', {
+            }).state('state3.top2.mid2', {
+            }).state('state3.top2.mid2.bot1', {
+            }).state('state3.top2.mid2.bot2', {
+            }).state('state3.top2.mid2.bot3', {
+            }).state('state3.top2.mid3', {
+            }).state('state3.top2.mid3.bot1', {
+            }).state('state3.top2.mid3.bot2', {
+            }).state('state3.top2.mid3.bot3', {
+            }).state('state3.top3', {
+            }).state('state3.top3.mid1', {
+            }).state('state3.top3.mid1.bot1', {
+            }).state('state3.top3.mid1.bot2', {
+            }).state('state3.top3.mid1.bot3', {
+            }).state('state3.top3.mid2', {
+            }).state('state3.top3.mid2.bot1', {
+            }).state('state3.top3.mid2.bot2', {
+            }).state('state3.top3.mid2.bot3', {
+            }).state('state3.top3.mid3', {
+            }).state('state3.top3.mid3.bot1', {
+            }).state('state3.top3.mid3.bot2', {
+            }).state('state3.top3.mid3.bot3', {
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target) {
+            state.goto(target);
+            scope.$digest();
+        }
+        describe('at root', function () {
+            it('lookup state1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("state1");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+            it('lookup ./state1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("./state1");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+            it('lookup /state1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("/state1");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+            it('lookup state1/top3', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("state1/top3");
+                    expect(state.$fullname).toBe('root.state1.top3');
+                });
+            });
+            it('lookup state1/top3/mid2/bot1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("state1/top3/mid2/bot1");
+                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                });
+            });
+            it('lookup [0] returns root.state1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("[0]");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+            it('lookup [-1]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("[-1]");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+            it('lookup [-2]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("[-2]");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+            it('lookup [1]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    var state = $state.lookup("[1]");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+        });
+        describe('at state1', function () {
+            var target = 'state1';
+            it('lookup top1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("top1");
+                    expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+            it('lookup ./top1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("./top1");
+                    expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+            it('lookup top3/mid2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("top3/mid2");
+                    expect(state.$fullname).toBe('root.state1.top3.mid2');
+                });
+            });
+            it('lookup top3/mid2/bot1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("top3/mid2/bot1");
+                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                });
+            });
+            it('lookup [0]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[0]");
+                    expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+            it('lookup [-1]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[-1]");
+                    expect(state.$fullname).toBe('root.state1.top3');
+                });
+            });
+            it('lookup [-2]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[-2]");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+            it('lookup [1]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[1]");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+            it('lookup .', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup(".");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+            it('lookup ../state2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("../state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+            it('lookup ../state2/top2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("../state2/top2");
+                    expect(state.$fullname).toBe('root.state2.top2');
+                });
+            });
+            it('lookup /state2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("/state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
             });
         });
     });

@@ -62,7 +62,7 @@ autoWatchInterval = 0;
 // - Opera
 // - Safari
 // - PhantomJS
-browsers = ['PhantomJS'];
+browsers = ['Chrome'];
 reporters = ['dots' /*, 'junit'*/];
 
 //junitReporter = {

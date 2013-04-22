@@ -90,6 +90,9 @@ module ui.routing {
         transition: any;
         reload: (state?) => void;
         current?: any;
+        lookup(path: string): any;
+        goto(state: string);
+        goto(state: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }

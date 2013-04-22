@@ -25,6 +25,9 @@ function $ViewProvider() {
             function raiseUpdated(name) {
                 $rootScope.$broadcast('$viewUpdate', name);
             }
+            function raiseRefresh(name, data) {
+                $rootScope.$broadcast('$viewRefresh', name, data);
+            }
             function containsView(map, name) {
                 return (name in map) && map[name] !== null;
             }
@@ -107,6 +110,24 @@ function $ViewProvider() {
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return views[name];
+            };
+            this.refresh = function (name, data) {
+                var _this = this;
+                if(isUndefined(name)) {
+                    forEach(views, function (val, key) {
+                        _this.clear(key);
+                    });
+                } else if(transaction) {
+                    transaction.records[name] = {
+                        act: 'refresh',
+                        fn: function () {
+                            _this.refresh(name, data);
+                        }
+                    };
+                    return;
+                } else {
+                    raiseRefresh(name, data);
+                }
             };
             this.beginUpdate = function () {
                 if(transaction) {
