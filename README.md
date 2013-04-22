@@ -1,5 +1,7 @@
 # Angular Routing
 
+[![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
+
 # NOTE: Alpha version 0.2
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
