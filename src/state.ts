@@ -152,19 +152,16 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             current = root,
             currentParams = {},
             $state: any = {
+                // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
                 current: extend({}, root.self),
                 goto: (state, params) => { goto(state, params); },
 
                 lookup: lookup,
-
                 //TODO: Implement functions that return siblings etc.
-                nextSibling: '',
-                prevSibling: '',
-                parrent: function () {
-                    //TODO: Temporary implementation, we need to enable fetching these tings from current so we can keep navigating up.
-                    return lookup("..");
-                },
+                nextSibling: function () { return lookup("$node(1)"); },
+                prevSibling: function () { return lookup("$node(-1)"); },
+                parrent: function () { return lookup(".."); },
                 children: '',
                 reload: reload
             };
@@ -192,12 +189,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         return $state;
 
         function lookup(path) {
-            var sections: string[] = path.split('/'),
-                selected = current;
+            var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'),
+                selected = current,
+                sections: string[];
 
-            forEach(sections, (sec) => {
-                selected = select(sec, selected);
-            });
+            if (match) {
+                selected = selectSibling(Number(match[1]), selected);
+            } else {
+                sections = path.split('/');
+                forEach(sections, (sec) => {
+                    selected = select(sec, selected);
+                });
+            }
 
             if (selected === root)
                 throw new Error("Path expression out of bounds.");
@@ -205,7 +208,20 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             return selected && extend({}, selected.self) || undefined;
         };
 
-        function select(exp: string, selected: IStateWrapper) {
+        function selectSibling(index: number, selected: IStateWrapper): IStateWrapper {
+            var children = [],
+                currentIndex;
+            forEach(selected.parent.children, (child) => {
+                children.push(child);
+                if (selected.fullname === child.fullname)
+                    currentIndex = children.length - 1;
+            });
+            while (index < 0) index += children.length
+            index = (currentIndex + index) % children.length;
+            return children[index];
+        }
+
+        function select(exp: string, selected: IStateWrapper): IStateWrapper {
             if (exp === '.') {
                 if (current !== selected)
                     throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
@@ -237,14 +253,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 });
 
                 if (Math.abs(index) >= children.length) {
-                    throw Error("Index out of bounds, index selecter must not exeed child count or negative childcount")
+                    throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount")
                 }
+                
                 return index < 0 ? children[children.length + index] : children[index];
             }
+
 
             if (exp in selected.children) {
                 return selected.children[exp];
             }
+
+            throw new Error("Could find state for the lookup path.");
         }
         
         function reload(state?) {
