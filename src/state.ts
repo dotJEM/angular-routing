@@ -156,13 +156,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 root: root,
                 current: extend({}, root.self),
                 goto: (state, params) => { goto(state, params); },
-
                 lookup: lookup,
-                //TODO: Implement functions that return siblings etc.
-                nextSibling: function () { return lookup("$node(1)"); },
-                prevSibling: function () { return lookup("$node(-1)"); },
-                parrent: function () { return lookup(".."); },
-                children: '',
                 reload: reload
             };
 
