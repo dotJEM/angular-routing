@@ -822,21 +822,14 @@ var $StateProvider = [
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
-                    root: root,
+                    root: // NOTE: root should not be used in general, it is exposed for testing purposes.
+                    root,
                     current: extend({
                     }, root.self),
                     goto: function (state, params) {
                         goto(state, params);
                     },
                     lookup: lookup,
-                    nextSibling: //TODO: Implement functions that return siblings etc.
-                    '',
-                    prevSibling: '',
-                    parrent: function () {
-                        //TODO: Temporary implementation, we need to enable fetching these tings from current so we can keep navigating up.
-                        return lookup("..");
-                    },
-                    children: '',
                     reload: reload
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
@@ -859,10 +852,15 @@ var $StateProvider = [
                                     });
                 return $state;
                 function lookup(path) {
-                    var sections = path.split('/'), selected = current;
-                    forEach(sections, function (sec) {
-                        selected = select(sec, selected);
-                    });
+                    var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = current, sections;
+                    if(match) {
+                        selected = selectSibling(Number(match[1]), selected);
+                    } else {
+                        sections = path.split('/');
+                        forEach(sections, function (sec) {
+                            selected = select(sec, selected);
+                        });
+                    }
                     if(selected === root) {
                         throw new Error("Path expression out of bounds.");
                     }
@@ -870,6 +868,20 @@ var $StateProvider = [
                     }, selected.self) || undefined;
                 }
                 ;
+                function selectSibling(index, selected) {
+                    var children = [], currentIndex;
+                    forEach(selected.parent.children, function (child) {
+                        children.push(child);
+                        if(selected.fullname === child.fullname) {
+                            currentIndex = children.length - 1;
+                        }
+                    });
+                    while(index < 0) {
+                        index += children.length;
+                    }
+                    index = (currentIndex + index) % children.length;
+                    return children[index];
+                }
                 function select(exp, selected) {
                     if(exp === '.') {
                         if(current !== selected) {
@@ -896,13 +908,14 @@ var $StateProvider = [
                             children.push(child);
                         });
                         if(Math.abs(index) >= children.length) {
-                            throw Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+                            throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
                         }
                         return index < 0 ? children[children.length + index] : children[index];
                     }
                     if(exp in selected.children) {
                         return selected.children[exp];
                     }
+                    throw new Error("Could find state for the lookup path.");
                 }
                 function reload(state) {
                     if(isDefined(state)) {

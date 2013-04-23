@@ -1172,6 +1172,146 @@ describe('$stateProvider', function () {
                     expect(state.$fullname).toBe('root.state2');
                 });
             });
+            it('lookup $node(1)', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("$node(1)");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+            it('lookup $node(-1)', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("$node(-1)");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+            it('lookup $node(5)', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("$node(5)");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+            it('lookup $node(-7)', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("$node(-7)");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+            it('lookup .. throws error', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    expect(function () {
+                        $state.lookup("..");
+                    }).toThrow();
+                });
+            });
+            it('lookup ../.. throws error', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    expect(function () {
+                        $state.lookup("../..");
+                    }).toThrow();
+                });
+            });
+            it('lookup fubar throws error', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    expect(function () {
+                        $state.lookup("fubar");
+                    }).toThrow();
+                });
+            });
+            it('lookup top3/fubar throws error', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    expect(function () {
+                        $state.lookup("top3/fubar");
+                    }).toThrow();
+                });
+            });
+        });
+        describe('at state1.top2.mid2', function () {
+            var target = 'state1.top2.mid2';
+            it('lookup bot1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("bot1");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+            it('lookup ./bot1', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("./bot1");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+            it('lookup [0]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[0]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+            it('lookup [-1]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[-1]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot3');
+                });
+            });
+            it('lookup [-2]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[-2]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                });
+            });
+            it('lookup [1]', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("[1]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                });
+            });
+            it('lookup .', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup(".");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2');
+                });
+            });
+            it('lookup ../../top2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("../../top2");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+            it('lookup ../../../state2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("../../../state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+            it('lookup ../../../state2/top2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("../../../state2/top2");
+                    expect(state.$fullname).toBe('root.state2.top2');
+                });
+            });
+            it('lookup /state2', function () {
+                mock.inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("/state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
         });
     });
 });
