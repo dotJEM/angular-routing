@@ -504,8 +504,9 @@ describe('$routeProvider', function () {
             var converterArgs;
             mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
                 $routeProvider
+                    .ignoreCase()
                     .when('/BOOK', { message: "bookRoute" })
-                    .ignoreCase();
+                    
             });
 
             mock.inject(function ($route, $location) {

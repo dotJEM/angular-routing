@@ -157,7 +157,18 @@ var $StateProvider = [
                 });
                 $rootScope.$on('$routeUpdate', function () {
                     //TODO: Broadcast StateUpdate?
-                                    });
+                                        var route = $route.current, params;
+                    if(route) {
+                        params = {
+                            all: route.params,
+                            path: route.pathParams,
+                            search: route.searchParams
+                        };
+                        //TODO: Refresh current state object with new parameters and raise event.
+                                            } else {
+                        //uhm o.O...
+                                            }
+                });
                 return $state;
                 function lookup(path) {
                     var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = current, sections;

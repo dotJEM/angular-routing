@@ -483,9 +483,9 @@ describe('$routeProvider', function () {
         it('matches an uppercase route whit an lowercase location', function () {
             var converterArgs;
             mock.module(function ($routeProvider) {
-                $routeProvider.when('/BOOK', {
+                $routeProvider.ignoreCase().when('/BOOK', {
                     message: "bookRoute"
-                }).ignoreCase();
+                });
             });
             mock.inject(function ($route, $location) {
                 spyOn($location, 'path').andReturn('/book');

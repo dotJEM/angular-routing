@@ -122,15 +122,15 @@ function $RouteProvider() {
     *      `$routeUpdate` event is broadcasted on the root scope.
     */
     this.when = function (path, route) {
-        var normalized = normalizePath(path);
-        routes[normalized.name] = {
+        var expression = parseExpression(path);
+        routes[expression.name] = {
             self: extend({
                 reloadOnSearch: true
             }, route),
             redirect: createRedirector(route.redirectTo),
-            match: createMatcher(path),
-            path: path,
-            params: normalized.params
+            match: createMatcher(path, expression),
+            params: expression.params,
+            path: path
         };
         return _this;
     };
@@ -200,21 +200,23 @@ function $RouteProvider() {
             return fn($location, next);
         };
     }
-    function createSegment(match) {
-        var cname = match[6] || '', carg = match[8], trimmed;
-        if(carg) {
-            trimmed = carg.trim();
+    function createParameter(name, converter, cargs) {
+        var trimmed;
+        if(cargs) {
+            trimmed = cargs.trim();
             if((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') || (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
                 try  {
-                    carg = angular.fromJson(trimmed);
+                    cargs = angular.fromJson(trimmed);
                 } catch (e) {
                     //Note: Errors are ok here, we let it remain as a string.
                                     }
             }
         }
         return {
-            name: match[3] || match[9],
-            converter: converters[cname](carg)
+            name: name,
+            converter: function () {
+                return converters[converter](cargs);
+            }
         };
     }
     var esc = /[-\/\\^$*+?.()|[\]{}]/g;
@@ -222,37 +224,11 @@ function $RouteProvider() {
         return exp.replace(esc, "\\$&");
     }
     // NOTE: Hoisting brings the declaration (not assignment) of re to the top. I have left it here
-    //       so it is only used in parseExpression, but defining it inside would case a new re on each
+    //       so it is only used in parseExpression, but defining it inside would cause a new re on each
     //       call to parseExpression, and that is not needed.
     var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
     function parseExpression(path) {
-        var regex = "^", segments = [], index = 0, match, flags = '';
-        if(path === '/') {
-            return {
-                complete: new RegExp('^[\x2F]?$', flags),
-                segments: []
-            };
-        }
-        while((match = re.exec(path)) !== null) {
-            regex += escape(path.slice(index, match.index));
-            regex += '/([^\\/]*)';
-            segments.push(createSegment(match));
-            index = re.lastIndex;
-        }
-        regex += escape(path.substr(index));
-        if(!caseSensitive) {
-            flags += 'i';
-        }
-        if(regex[regex.length - 1] === '\x2F') {
-            regex = regex.substr(0, regex.length - 1);
-        }
-        return {
-            complete: new RegExp(regex + '\x2F?$', flags),
-            segments: segments
-        };
-    }
-    function normalizePath(path) {
-        var name = "", index = 0, match, counter = 0, params = {
+        var regex = "^", name = "", segments = [], index = 0, counter = 0, match, flags = '', params = {
         };
         if(path === null) {
             return {
@@ -260,50 +236,93 @@ function $RouteProvider() {
                 params: params
             };
         }
+        if(path === '/') {
+            return {
+                exp: new RegExp('^[\x2F]?$', flags),
+                segments: [],
+                name: name,
+                params: params
+            };
+        }
         while((match = re.exec(path)) !== null) {
             var converter = match[6] || '', paramName = match[3] || match[9];
-            params[paramName] = {
-                id: counter,
-                converter: converter
-            };
+            regex += escape(path.slice(index, match.index));
+            regex += '/([^\\/]*)';
+            var segment = createParameter(paramName, converter, match[8]);
             if(converter !== '') {
                 converter = ":" + converter;
             }
             name += path.slice(index, match.index) + '/$' + (counter++) + converter;
+            params[paramName] = {
+                id: counter,
+                converter: converter
+            };
+            segments.push(segment);
             index = re.lastIndex;
         }
+        regex += escape(path.substr(index));
         name += path.substr(index);
         if(!caseSensitive) {
             name = name.toLowerCase();
+            flags += 'i';
+        }
+        if(regex[regex.length - 1] === '\x2F') {
+            regex = regex.substr(0, regex.length - 1);
         }
         return {
+            exp: new RegExp(regex + '\x2F?$', flags),
+            segments: segments,
             name: name,
             params: params
         };
     }
-    function createMatcher(path) {
+    //function normalizePath(path: string) {
+    //    var name = "",
+    //        index = 0,
+    //        match: RegExpExecArray,
+    //        counter = 0,
+    //        params = {};
+    //    if (path === null)
+    //        return {
+    //            name: null,
+    //            params: params
+    //        };
+    //    while ((match = re.exec(path)) !== null) {
+    //        var converter = match[6] || '',
+    //            paramName = match[3] || match[9];
+    //        params[paramName] = {
+    //            id: counter,
+    //            converter: converter
+    //        };
+    //        if (converter !== '') {
+    //            converter = ":" + converter;
+    //        }
+    //        name += path.slice(index, match.index) + '/$' + (counter++) + converter;
+    //        index = re.lastIndex;
+    //    }
+    //    name += path.substr(index);
+    //    if (!caseSensitive)
+    //        name = name.toLowerCase();
+    //    return {
+    //        name: name,
+    //        params: params
+    //    };
+    //}
+    function createMatcher(path, expression) {
         if(path == null) {
             return function (location) {
             };
         }
-        var expFac = function () {
-            var v = parseExpression(path);
-            expFac = function () {
-                return v;
-            };
-            return expFac();
-        };
         return function (location) {
-            var exp = expFac(), match = location.match(exp.complete), dst = {
+            var match = location.match(expression.exp), dst = {
             }, invalidParam;
             if(match) {
-                //if (location.match(exp.complete)) {
                 invalidParam = false;
-                forEach(exp.segments, function (segment, index) {
+                forEach(expression.segments, function (segment, index) {
                     var param, value;
                     if(!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter(param);
+                        value = segment.converter()(param);
                         if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
@@ -320,10 +339,7 @@ function $RouteProvider() {
                 if(!invalidParam) {
                     return dst;
                 }
-                //} else {
-                //TODO: Match nested routes
-                //}
-                            }
+            }
         };
     }
     //Registration of Default Converters
@@ -375,6 +391,8 @@ function $RouteProvider() {
                 reload: function () {
                     forceReload = true;
                     $rootScope.$evalAsync(update);
+                },
+                replace: function (route, params) {
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);
