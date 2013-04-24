@@ -311,12 +311,8 @@ function $RouteProvider() {
     function escape(exp) {
         return exp.replace(esc, &quot;\\$&amp;&quot;);
     }
-    // NOTE: Hoisting brings the declaration (not assignment) of re to the top. I have left it here
-    //       so it is only used in parseExpression, but defining it inside would cause a new re on each
-    //       call to parseExpression, and that is not needed.
-    var re = new RegExp(&#x27;\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))&#x27;, &#x27;g&#x27;);
     function parseExpression(path) {
-        var regex = &quot;^&quot;, name = &quot;&quot;, segments = [], index = 0, counter = 0, match, flags = &#x27;&#x27;, params = {
+        var regex = &quot;^&quot;, name = &quot;&quot;, segments = [], index = 0, flags = &#x27;&#x27;, params = {
         };
         if(path === null) {
             return {
@@ -332,22 +328,21 @@ function $RouteProvider() {
                 params: params
             };
         }
-        while((match = re.exec(path)) !== null) {
-            var converter = match[6] || &#x27;&#x27;, paramName = match[3] || match[9];
-            regex += escape(path.slice(index, match.index));
+        forEach(parseParams(path), function (param, idx) {
+            var cname = &#x27;&#x27;;
+            regex += escape(path.slice(index, param.index));
             regex += &#x27;/([^\\/]*)&#x27;;
-            var segment = createParameter(paramName, converter, match[8]);
-            if(converter !== &#x27;&#x27;) {
-                converter = &quot;:&quot; + converter;
+            if(param.converter !== &#x27;&#x27;) {
+                cname = &quot;:&quot; + param.converter;
             }
-            name += path.slice(index, match.index) + &#x27;/$&#x27; + (counter++) + converter;
-            params[paramName] = {
-                id: counter,
-                converter: converter
+            name += path.slice(index, param.index) + &#x27;/$&#x27; + idx + cname;
+            params[param.name] = {
+                id: idx,
+                converter: param.converter
             };
-            segments.push(segment);
-            index = re.lastIndex;
-        }
+            segments.push(createParameter(param.name, param.converter, param.args));
+            index = param.lastIndex;
+        });
         regex += escape(path.substr(index));
         name += path.substr(index);
         if(!caseSensitive) {
@@ -364,38 +359,6 @@ function $RouteProvider() {
             params: params
         };
     }
-    //function normalizePath(path: string) {
-    //    var name = &quot;&quot;,
-    //        index = 0,
-    //        match: RegExpExecArray,
-    //        counter = 0,
-    //        params = {};
-    //    if (path === null)
-    //        return {
-    //            name: null,
-    //            params: params
-    //        };
-    //    while ((match = re.exec(path)) !== null) {
-    //        var converter = match[6] || &#x27;&#x27;,
-    //            paramName = match[3] || match[9];
-    //        params[paramName] = {
-    //            id: counter,
-    //            converter: converter
-    //        };
-    //        if (converter !== &#x27;&#x27;) {
-    //            converter = &quot;:&quot; + converter;
-    //        }
-    //        name += path.slice(index, match.index) + &#x27;/$&#x27; + (counter++) + converter;
-    //        index = re.lastIndex;
-    //    }
-    //    name += path.substr(index);
-    //    if (!caseSensitive)
-    //        name = name.toLowerCase();
-    //    return {
-    //        name: name,
-    //        params: params
-    //    };
-    //}
     function createMatcher(path, expression) {
         if(path == null) {
             return function (location) {
