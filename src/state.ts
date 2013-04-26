@@ -51,20 +51,11 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         return (parent && parent.route) || '';
     }
 
-    //var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
     function findParams(path: string) {
-        var //match: RegExpExecArray,
-            params = [];
-        //if (path === null)
-        //    return params;
+        var params = [];
         forEach(parseParams(path), (param) => {
             params.push(param.name);
         });
-        //while ((match = re.exec(path)) !== null) {
-        //    var paramName = match[3] || match[9];
-        //    params.push(paramName);
-        //}
-
         return params;
     }
 
