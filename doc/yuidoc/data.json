@@ -78,7 +78,7 @@
         },
         {
             "file": "build\\src\\route.js",
-            "line": 137,
+            "line": 149,
             "description": "Sets route definition that will be used on route change when no other route definition\nis matched.",
             "itemtype": "method",
             "name": "otherwise",

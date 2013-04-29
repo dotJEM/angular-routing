@@ -166,7 +166,19 @@ function $RouteProvider() {
             params: expression.params,
             path: path
         };
-        return _this;
+        return {
+            convert: _this.convert,
+            when: _this.when,
+            otherwise: _this.otherwise,
+            decorate: _this.decorate,
+            ignoreCase: _this.ignoreCase,
+            matchCase: _this.matchCase,
+            $route: {
+                name: expression.name,
+                params: copy(expression.params),
+                path: path
+            }
+        };
     };
     /**
     * Sets route definition that will be used on route change when no other route definition
@@ -390,6 +402,8 @@ function $RouteProvider() {
                     $rootScope.$evalAsync(update);
                 },
                 replace: function (route, params) {
+                    route = interpolate(route, params);
+                    $location.path(route).search(params).replace();
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);
@@ -720,32 +734,16 @@ var $StateProvider = [
                 route += '/';
             }
             route += stateRoute;
-            $routeProvider.when(route, {
+            return $routeProvider.when(route, {
                 state: stateName,
                 reloadOnSearch: reloadOnSearch
             });
-            return route;
         }
         function lookupRoute(parent) {
             while(isDefined(parent) && !isDefined(parent.route)) {
                 parent = parent.parent;
             }
-            return (parent && parent.route) || '';
-        }
-        //var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
-        function findParams(path) {
-            //match: RegExpExecArray,
-            var params = [];
-            //if (path === null)
-            //    return params;
-            forEach(parseParams(path), function (param) {
-                params.push(param.name);
-            });
-            //while ((match = re.exec(path)) !== null) {
-            //    var paramName = match[3] || match[9];
-            //    params.push(paramName);
-            //}
-            return params;
+            return (parent && parent.route.path) || '';
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, parent = at;
@@ -765,8 +763,7 @@ var $StateProvider = [
             at.fullname = fullname;
             at.parent = parent;
             if(isDefined(state.route)) {
-                at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
-                at.params = findParams(state.route);
+                at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
             }
             if(isDefined(state.onEnter)) {
                 $transitionProvider.onEnter(fullname, state.onEnter);
@@ -951,9 +948,11 @@ var $StateProvider = [
                     function extractParams() {
                         var paramsObj = {
                         };
-                        forEach(current.params, function (name) {
-                            paramsObj[name] = params[name];
-                        });
+                        if(current.route) {
+                            forEach(current.route.params, function (param, name) {
+                                paramsObj[name] = params[name];
+                            });
+                        }
                         return paramsObj;
                     }
                     var states = [], current = state;

@@ -589,23 +589,7 @@ describe('$stateProvider', function () {
                 expect(viewSpy.callCount).toBe(3);
                 reload('top.sub');
                 expect(viewSpy.callCount).toBe(2);
-                //expect(viewSpy.calls[0].args[0]).toBe('sub');
-                //reset();
-                //go('/top/sub/bot');
-                //expect($state.current.name).toBe('bot');
-                //expect(viewSpy.callCount).toBe(1);
-                //expect(viewSpy.calls[0].args[0]).toBe('bot');
-                //reset();
-                //go('/foo/bar/baz');
-                //expect($state.current.name).toBe('baz');
-                //expect(viewSpy.callCount).toBe(3);
-                //expect(viewSpy.calls[2].args[0]).toBe('baz');
-                //reset();
-                //go('/foo/bar');
-                //expect($state.current.name).toBe('bar');
-                //expect(viewSpy.callCount).toBe(1);
-                //expect(viewSpy.calls[0].args[0]).toBe('bar');
-                            });
+            });
         });
         it('states with parameters get invoked on parameter change', function () {
             mock.module(function ($stateProvider) {

@@ -152,7 +152,19 @@ function $RouteProvider() {
             path: path
         };
 
-        return this;
+        return {
+            convert: this.convert,
+            when: this.when,
+            otherwise: this.otherwise,
+            decorate: this.decorate,
+            ignoreCase: this.ignoreCase,
+            matchCase: this.matchCase,
+            $route: {
+                name: expression.name,
+                params: copy(expression.params),
+                path: path
+            }
+        };
     };
 
     /**
@@ -401,7 +413,11 @@ function $RouteProvider() {
                     $rootScope.$evalAsync(update);
                 },
                 replace: function (route: string, params: any) {
-
+                    route = interpolate(route, params);
+                    $location
+                        .path(route)
+                        .search(params)
+                        .replace();
                 }
             };
 

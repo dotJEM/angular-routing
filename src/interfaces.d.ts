@@ -40,8 +40,8 @@ module ui.routing {
     }
 
     interface IRouteProvider {
-        when(path: string, route: any): IRouteProvider;
-        when(path: string, route: IRoute): IRouteProvider;
+        when(path: string, route: any): IWhenRouteProvider;
+        when(path: string, route: IRoute): IWhenRouteProvider;
 
         convert(name: string, converter: (...args: any[]) => any): IRouteProvider;
 
@@ -53,6 +53,11 @@ module ui.routing {
         ignoreCase(): IRouteProvider;
         matchCase(): IRouteProvider;
     }
+
+    interface IWhenRouteProvider extends IRouteProvider {
+        $route: { path: string; params: any; name: string; };
+    }
+
 
     interface IRouteService {
         reload: () => void;

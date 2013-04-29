@@ -8,8 +8,7 @@ interface IStateWrapper {
     fullname: string;
 
     parent?: IStateWrapper;
-    route?: string;
-    params?: string[];
+    route?: any;
 }
 
 'use strict';
@@ -40,23 +39,13 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             route += '/';
         route += stateRoute;
 
-        $routeProvider.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
-
-        return route;
+        return $routeProvider.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
     }
 
     function lookupRoute(parent) {
         while (isDefined(parent) && !isDefined(parent.route))
             parent = parent.parent;
-        return (parent && parent.route) || '';
-    }
-
-    function findParams(path: string) {
-        var params = [];
-        forEach(parseParams(path), (param) => {
-            params.push(param.name);
-        });
-        return params;
+        return (parent && parent.route.path) || '';
     }
 
     function registerState(name, at: IStateWrapper, state: ui.routing.IState) {
@@ -76,8 +65,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         at.parent = parent;
 
         if (isDefined(state.route)) {
-            at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
-            at.params = findParams(state.route);
+            at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
         }
 
         if (isDefined(state.onEnter)) {
@@ -209,12 +197,17 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         function selectSibling(index: number, selected: IStateWrapper): IStateWrapper {
             var children = [],
                 currentIndex;
+
             forEach(selected.parent.children, (child) => {
                 children.push(child);
+
                 if (selected.fullname === child.fullname)
                     currentIndex = children.length - 1;
             });
-            while (index < 0) index += children.length
+
+            while (index < 0)
+                index += children.length
+
             index = (currentIndex + index) % children.length;
             return children[index];
         }
@@ -257,7 +250,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 return index < 0 ? children[children.length + index] : children[index];
             }
 
-
             if (exp in selected.children) {
                 return selected.children[exp];
             }
@@ -288,9 +280,11 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         function buildStateArray(state, params) {
             function extractParams() {
                 var paramsObj = {};
-                forEach(current.params, (name) => {
-                    paramsObj[name] = params[name];
-                });
+                if (current.route) {
+                    forEach(current.route.params, (param, name) => {
+                        paramsObj[name] = params[name];
+                    });
+                }
                 return paramsObj;
             }
 

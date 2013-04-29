@@ -132,7 +132,19 @@ function $RouteProvider() {
             params: expression.params,
             path: path
         };
-        return _this;
+        return {
+            convert: _this.convert,
+            when: _this.when,
+            otherwise: _this.otherwise,
+            decorate: _this.decorate,
+            ignoreCase: _this.ignoreCase,
+            matchCase: _this.matchCase,
+            $route: {
+                name: expression.name,
+                params: copy(expression.params),
+                path: path
+            }
+        };
     };
     /**
     * Sets route definition that will be used on route change when no other route definition
@@ -356,6 +368,8 @@ function $RouteProvider() {
                     $rootScope.$evalAsync(update);
                 },
                 replace: function (route, params) {
+                    route = interpolate(route, params);
+                    $location.path(route).search(params).replace();
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);
