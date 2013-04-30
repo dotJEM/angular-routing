@@ -12,21 +12,21 @@ function inherit(parent, extra) {
 function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
-var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
-function parseParams(path) {
-    var match, params = [];
-    if(path === null) {
-        return params;
-    }
-    while((match = paramsRegex.exec(path)) !== null) {
-        params.push({
-            name: match[3] || match[9],
-            converter: match[6] || '',
-            args: match[8],
-            index: match.index,
-            lastIndex: paramsRegex.lastIndex
-        });
-    }
-    return params;
-}
+//var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
+//function parseParams(path: string): IParam[]{
+//    var match: RegExpExecArray,
+//        params = [];
+//    if (path === null)
+//        return params;
+//    while ((match = paramsRegex.exec(path)) !== null) {
+//        params.push({
+//            name: match[3] || match[9],
+//            converter: match[6] || '',
+//            args: match[8],
+//            index: match.index,
+//            lastIndex: paramsRegex.lastIndex
+//        });
+//    }
+//    return params;
+//}
 angular.module('ui.routing', []);

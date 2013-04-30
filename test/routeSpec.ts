@@ -521,4 +521,85 @@ describe('$routeProvider', function () {
             });
         });
     });
+
+
+
+    describe("change", () => {
+        var location: ng.ILocationService;
+        beforeEach(mock.module('ui.routing', function ($routeProvider: ui.routing.IRouteProvider) {
+            return function ($rootScope, $location) {
+                scope = $rootScope;
+                location = $location;
+            };
+        }));
+
+        function goto(target: string) {
+            location.path(target);
+            scope.$digest();
+        }
+
+        it('without params changes location', function () {
+            var converterArgs;
+            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+                $routeProvider
+                    .when('/book', { message: "bookRoute" })
+                    .when('/look', { message: "lookRoute" })
+            });
+
+            mock.inject(function ($route: ui.routing.IRouteService, $location) {
+                goto('/book');
+                expect($route.current.message).toBe('bookRoute');
+
+                $route.change({ route: '/look' });
+                scope.$digest();
+
+                expect($route.current.message).toBe('lookRoute');
+                expect(location.path()).toBe('/look');
+            });
+        });
+
+        it('with params changes location', function () {
+            var converterArgs;
+            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+                $routeProvider
+                    .when('/book', { message: "bookRoute" })
+                    .when('/book/:id', { message: "bookRouteWithId" })
+                    .when('/look', { message: "lookRoute" })
+                    .when('/look/:id', { message: "lookRouteWithId" })
+            });
+
+            mock.inject(function ($route: ui.routing.IRouteService, $location) {
+                goto('/book');
+                expect($route.current.message).toBe('bookRoute');
+
+                $route.change({ route: '/look/:id', params: { id: 42 } });
+                scope.$digest();
+
+                expect($route.current.message).toBe('lookRouteWithId');
+                expect(location.path()).toBe('/look/42');
+            });
+        });
+
+        it('with params with {x} notation', function () {
+            var converterArgs;
+            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+                $routeProvider
+                    .when('/book', { message: "bookRoute" })
+                    .when('/book/{id}', { message: "bookRouteWithId" })
+                    .when('/look', { message: "lookRoute" })
+                    .when('/look/{id}', { message: "lookRouteWithId" })
+            });
+
+            mock.inject(function ($route: ui.routing.IRouteService, $location) {
+                goto('/book');
+                expect($route.current.message).toBe('bookRoute');
+
+                $route.change({ route: '/look/{id}', params: { id: 42 } });
+                scope.$digest();
+
+                expect($route.current.message).toBe('lookRouteWithId');
+                expect(location.path()).toBe('/look/42');
+            });
+        });
+    });
 });

@@ -105,3 +105,4 @@ x.State('wizard', {
     onexit: function () {
     }
 });
+//@ sourceMappingURL=configuration.js.map

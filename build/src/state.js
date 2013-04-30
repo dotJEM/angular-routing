@@ -39,7 +39,7 @@ var $StateProvider = [
             while(isDefined(parent) && !isDefined(parent.route)) {
                 parent = parent.parent;
             }
-            return (parent && parent.route.path) || '';
+            return (parent && parent.route.route) || '';
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, parent = at;
@@ -121,7 +121,11 @@ var $StateProvider = [
                     current: extend({
                     }, root.self),
                     goto: function (state, params) {
-                        goto(state, params);
+                        goto({
+                            state: state,
+                            params: params,
+                            updateroute: true
+                        });
                     },
                     lookup: lookup,
                     reload: reload
@@ -135,10 +139,16 @@ var $StateProvider = [
                             search: route.searchParams
                         };
                         if(route.state) {
-                            goto(route.state, params, route);
+                            goto({
+                                state: route.state,
+                                params: params,
+                                route: route
+                            });
                         }
                     } else {
-                        goto(root);
+                        goto({
+                            state: root
+                        });
                     }
                 });
                 $rootScope.$on('$routeUpdate', function () {
@@ -237,7 +247,11 @@ var $StateProvider = [
                         forceReload = current.fullname;
                     }
                     $rootScope.$evalAsync(function () {
-                        goto(current, currentParams, $route.current);
+                        goto({
+                            state: current,
+                            params: currentParams,
+                            route: $route.current
+                        });
                     });
                 }
                 function buildStateArray(state, params) {
@@ -284,30 +298,40 @@ var $StateProvider = [
                     }
                     return toArray.reverse();
                 }
-                function goto(to, params, route) {
+                function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var to = lookupState(toName(to)), toState = extend({
+                                        var params = args.params, route = args.route, to = lookupState(toName(args.state)), toState = extend({
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }), transition = {
                         cancel: function () {
                             cancel = true;
                         },
                         goto: function (state, params) {
                             cancel = true;
-                            goto(state, params);
+                            goto({
+                                state: state,
+                                params: params
+                            });
                         }
                     };
+                    if(args.updateroute && to.route) {
+                        $route.change(extend({
+                        }, to.route, {
+                            params: params
+                        }));
+                        return;
+                    }
                     emit.before(transition);
                     if(cancel) {
                         //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                        //      That is if this was even triggered by an URL change in teh first place.
+                        //      That is if this was even triggered by an URL change in the first place.
                         return;
                     }
-                    event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+                    var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         $q.when(toState).then(function () {
                             var useUpdate = false;

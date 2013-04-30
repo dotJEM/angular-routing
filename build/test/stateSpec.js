@@ -2,6 +2,8 @@
 describe('$stateProvider', function () {
     'use strict';
     var mock = angular.mock;
+    var mod = mock['module'];
+    var inject = mock.inject;
     var scope;
     var state;
     function stringifyTransition(tansition) {
@@ -28,7 +30,7 @@ describe('$stateProvider', function () {
         }
         return current;
     }
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mod('ui.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
@@ -36,10 +38,10 @@ describe('$stateProvider', function () {
     describe("state names", function () {
         it('valid passes', function () {
             var provider;
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 provider = $stateProvider;
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 provider.state('valid', {
                 }).state('valid.sub1', {
                 }).state('valid.sub2', {
@@ -50,10 +52,10 @@ describe('$stateProvider', function () {
         });
         it('invalid throws errors', function () {
             var provider;
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 provider = $stateProvider;
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 expect(function () {
                     provider.state('', {
                     });
@@ -79,10 +81,10 @@ describe('$stateProvider', function () {
         });
         it('invalid throws errors', function () {
             var provider;
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 provider = $stateProvider;
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 expect(function () {
                     provider.state('valid.sub1', {
                     });
@@ -119,17 +121,17 @@ describe('$stateProvider', function () {
     });
     describe("state", function () {
         it('can define state', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 expect(stringifyState($state.root)).toBe("(blog())");
             });
         });
         it('can define state hierarchy using . notation', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 }).state('blog.recent', {
@@ -140,12 +142,12 @@ describe('$stateProvider', function () {
                     name: 'item'
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
         it('can overwrite state in hierarchy using . notation', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 }).state('blog.recent', {
@@ -158,14 +160,14 @@ describe('$stateProvider', function () {
                     name: 'recent'
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
             });
         });
         it('can define hierarchy using object notation', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog',
                     children: {
@@ -183,12 +185,12 @@ describe('$stateProvider', function () {
                     }
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
         it('can overwrite state in hierarchy using object notation', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog',
                     children: {
@@ -213,7 +215,7 @@ describe('$stateProvider', function () {
                     }
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -221,7 +223,7 @@ describe('$stateProvider', function () {
             });
         });
         it('can overwrite state in hierarchy using . notation after having used object notation', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog',
                     children: {
@@ -241,7 +243,7 @@ describe('$stateProvider', function () {
                     name: 'recent'
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -249,7 +251,7 @@ describe('$stateProvider', function () {
             });
         });
         it('can clear children under a state using null', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 }).state('blog.recent', {
@@ -262,7 +264,7 @@ describe('$stateProvider', function () {
                     children: null
                 });
             });
-            mock.inject(function ($state) {
+            inject(function ($state) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
             });
         });
@@ -271,7 +273,7 @@ describe('$stateProvider', function () {
     //      because I haven't been able to sucessfully mock out $route.current for some reason.
     describe("state $routeChangeSuccess", function () {
         it('will broadcast $stateChangeSuccess and set current state', function () {
-            mock.module(function ($stateProvider, $routeProvider) {
+            mod(function ($stateProvider, $routeProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 }).state('about', {
@@ -283,7 +285,7 @@ describe('$stateProvider', function () {
                     state: 'about'
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 $location.path('/blog');
@@ -293,7 +295,7 @@ describe('$stateProvider', function () {
             });
         });
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider, $routeProvider) {
+            mod(function ($stateProvider, $routeProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 }).state('about', {
@@ -305,7 +307,7 @@ describe('$stateProvider', function () {
                     state: 'about'
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 $location.path('/blog');
@@ -319,7 +321,7 @@ describe('$stateProvider', function () {
             });
         });
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider, $routeProvider) {
+            mod(function ($stateProvider, $routeProvider) {
                 $stateProvider.state('blog', {
                     name: 'blog'
                 }).state('blog.recent', {
@@ -339,7 +341,7 @@ describe('$stateProvider', function () {
                     state: 'about'
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 $location.path('/blog/recent');
@@ -353,7 +355,7 @@ describe('$stateProvider', function () {
             });
         });
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
                     route: '/blog',
                     name: 'blog'
@@ -368,7 +370,7 @@ describe('$stateProvider', function () {
                     name: 'about'
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 $location.path('/blog/recent');
@@ -382,7 +384,7 @@ describe('$stateProvider', function () {
             });
         });
         it('can register states with and without routes', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('top', {
                     route: '/top',
                     name: 'top'
@@ -396,7 +398,7 @@ describe('$stateProvider', function () {
                     name: 'top.center.two'
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 $location.path('/top');
@@ -414,7 +416,7 @@ describe('$stateProvider', function () {
             });
         });
         it('states invoke view service with view on change', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('top', {
                     route: '/top',
                     name: 'top',
@@ -465,7 +467,7 @@ describe('$stateProvider', function () {
                     }
                 });
             });
-            mock.inject(function ($location, $route, $state, $view) {
+            inject(function ($location, $route, $state, $view) {
                 spyOn($view, 'setIfAbsent');
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 var spy = jasmine.createSpy('mySpy');
@@ -506,7 +508,7 @@ describe('$stateProvider', function () {
             });
         });
         it('can reload state', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('top', {
                     route: '/top',
                     name: 'top',
@@ -557,7 +559,7 @@ describe('$stateProvider', function () {
                     }
                 });
             });
-            mock.inject(function ($location, $route, $state, $view) {
+            inject(function ($location, $route, $state, $view) {
                 spyOn($view, 'setIfAbsent');
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 var spy = jasmine.createSpy('mySpy');
@@ -592,7 +594,7 @@ describe('$stateProvider', function () {
             });
         });
         it('states with parameters get invoked on parameter change', function () {
-            mock.module(function ($stateProvider) {
+            mod(function ($stateProvider) {
                 $stateProvider.state('top', {
                     route: '/top/:top',
                     name: 'top',
@@ -619,7 +621,7 @@ describe('$stateProvider', function () {
                     }
                 });
             });
-            mock.inject(function ($location, $route, $state, $view) {
+            inject(function ($location, $route, $state, $view) {
                 ($state).debug = true;
                 ($state).debug = true;
                 function go(path) {
@@ -715,7 +717,7 @@ describe('$stateProvider', function () {
     describe("$transition $routeChangeSuccess", function () {
         it('Correct Transitions are called on state change.', function () {
             var last;
-            mock.module(function ($stateProvider, $stateTransitionProvider) {
+            mod(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('home', {
                     route: '/',
                     name: 'about'
@@ -803,7 +805,7 @@ describe('$stateProvider', function () {
                         };
                     }                ]);
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 function go(path) {
                     $location.path(path);
                     scope.$digest();
@@ -825,7 +827,7 @@ describe('$stateProvider', function () {
             });
         });
         it('Transitions can be canceled.', function () {
-            mock.module(function ($stateProvider, $stateTransitionProvider) {
+            mod(function ($stateProvider, $stateTransitionProvider) {
                 $stateProvider.state('home', {
                     route: '/',
                     name: 'about'
@@ -864,7 +866,7 @@ describe('$stateProvider', function () {
                     $transition.cancel();
                 });
             });
-            mock.inject(function ($location, $route, $state) {
+            inject(function ($location, $route, $state) {
                 function go(path) {
                     $location.path(path);
                     scope.$digest();
@@ -882,8 +884,59 @@ describe('$stateProvider', function () {
         });
     });
     //Note: Integration tests between $transition and $state etc.
-    describe("$state lookup", function () {
-        beforeEach(mock.module('ui.routing', function ($stateProvider) {
+    describe("goto", function () {
+        it('updates route and location when route is present', function () {
+            mod(function ($stateProvider, $stateTransitionProvider) {
+                $stateProvider.state('home', {
+                    route: '/',
+                    name: 'about'
+                }).state('blog', {
+                    route: '/blog',
+                    name: 'blog'
+                }).state('blog.recent', {
+                    route: '/recent',
+                    name: 'blog.recent'
+                }).state('blog.other', {
+                    route: '/other',
+                    name: 'blog.other'
+                }).state('about', {
+                    route: '/about',
+                    name: 'about'
+                }).state('about.cv', {
+                    route: '/cv',
+                    name: 'about.cv'
+                }).state('about.other', {
+                    route: '/other',
+                    name: 'about.other'
+                }).state('gallery', {
+                    route: '/gallery',
+                    name: 'gallery'
+                }).state('gallery.overview', {
+                    route: '/overview',
+                    name: 'gallery.overview'
+                }).state('gallery.details', {
+                    route: '/details',
+                    name: 'gallery.details'
+                }).state('admin', {
+                    route: '/admin',
+                    name: 'admin'
+                });
+                $stateTransitionProvider.transition('*', 'admin', function ($transition) {
+                    $transition.cancel();
+                });
+            });
+            inject(function ($location, $route, $state) {
+                $state.goto('blog');
+                expect($location.path()).toBe('/blog');
+                $state.goto('blog');
+                expect($location.path()).toBe('/blog');
+                $state.goto('about.other');
+                expect($location.path()).toBe('/about/other');
+            });
+        });
+    });
+    describe("lookup", function () {
+        beforeEach(mod('ui.routing', function ($stateProvider) {
             $stateProvider.state('state1', {
             }).state('state1.top1', {
             }).state('state1.top1.mid1', {
@@ -1016,55 +1069,55 @@ describe('$stateProvider', function () {
         }
         describe('at root', function () {
             it('lookup state1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("state1");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
             it('lookup ./state1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("./state1");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
             it('lookup /state1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("/state1");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
             it('lookup state1/top3', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("state1/top3");
                     expect(state.$fullname).toBe('root.state1.top3');
                 });
             });
             it('lookup state1/top3/mid2/bot1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("state1/top3/mid2/bot1");
                     expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
                 });
             });
             it('lookup [0] returns root.state1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("[0]");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
             it('lookup [-1]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("[-1]");
                     expect(state.$fullname).toBe('root.state3');
                 });
             });
             it('lookup [-2]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("[-2]");
                     expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup [1]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     var state = $state.lookup("[1]");
                     expect(state.$fullname).toBe('root.state2');
                 });
@@ -1073,119 +1126,119 @@ describe('$stateProvider', function () {
         describe('at state1', function () {
             var target = 'state1';
             it('lookup top1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("top1");
                     expect(state.$fullname).toBe('root.state1.top1');
                 });
             });
             it('lookup ./top1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("./top1");
                     expect(state.$fullname).toBe('root.state1.top1');
                 });
             });
             it('lookup top3/mid2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("top3/mid2");
                     expect(state.$fullname).toBe('root.state1.top3.mid2');
                 });
             });
             it('lookup top3/mid2/bot1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("top3/mid2/bot1");
                     expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
                 });
             });
             it('lookup [0]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[0]");
                     expect(state.$fullname).toBe('root.state1.top1');
                 });
             });
             it('lookup [-1]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-1]");
                     expect(state.$fullname).toBe('root.state1.top3');
                 });
             });
             it('lookup [-2]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-2]");
                     expect(state.$fullname).toBe('root.state1.top2');
                 });
             });
             it('lookup [1]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[1]");
                     expect(state.$fullname).toBe('root.state1.top2');
                 });
             });
             it('lookup .', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup(".");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
             it('lookup ../state2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../state2");
                     expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup ../state2/top2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../state2/top2");
                     expect(state.$fullname).toBe('root.state2.top2');
                 });
             });
             it('lookup /state2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("/state2");
                     expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup $node(1)', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(1)");
                     expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup $node(-1)', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(-1)");
                     expect(state.$fullname).toBe('root.state3');
                 });
             });
             it('lookup $node(5)', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(5)");
                     expect(state.$fullname).toBe('root.state3');
                 });
             });
             it('lookup $node(-7)', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(-7)");
                     expect(state.$fullname).toBe('root.state3');
                 });
             });
             it('lookup .. throws error', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     expect(function () {
                         $state.lookup("..");
@@ -1193,7 +1246,7 @@ describe('$stateProvider', function () {
                 });
             });
             it('lookup ../.. throws error', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     expect(function () {
                         $state.lookup("../..");
@@ -1201,7 +1254,7 @@ describe('$stateProvider', function () {
                 });
             });
             it('lookup fubar throws error', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     expect(function () {
                         $state.lookup("fubar");
@@ -1209,7 +1262,7 @@ describe('$stateProvider', function () {
                 });
             });
             it('lookup top3/fubar throws error', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     expect(function () {
                         $state.lookup("top3/fubar");
@@ -1220,77 +1273,77 @@ describe('$stateProvider', function () {
         describe('at state1.top2.mid2', function () {
             var target = 'state1.top2.mid2';
             it('lookup bot1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("bot1");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
                 });
             });
             it('lookup ./bot1', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("./bot1");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
                 });
             });
             it('lookup [0]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[0]");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
                 });
             });
             it('lookup [-1]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-1]");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot3');
                 });
             });
             it('lookup [-2]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-2]");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
                 });
             });
             it('lookup [1]', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[1]");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
                 });
             });
             it('lookup .', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup(".");
                     expect(state.$fullname).toBe('root.state1.top2.mid2');
                 });
             });
             it('lookup ../../top2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../../top2");
                     expect(state.$fullname).toBe('root.state1.top2');
                 });
             });
             it('lookup ../../../state2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../../../state2");
                     expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup ../../../state2/top2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../../../state2/top2");
                     expect(state.$fullname).toBe('root.state2.top2');
                 });
             });
             it('lookup /state2', function () {
-                mock.inject(function ($location, $route, $state) {
+                inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("/state2");
                     expect(state.$fullname).toBe('root.state2');

@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>build\src\route.js - angular-routing</title>
-    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
-    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
-    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
-    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
-    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
 </head>
 <body class="yui3-skin-sam">
 
@@ -15,7 +15,7 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="..&#x2F;assets/css/logo.png" title="angular-routing"></h1>
+                <h1><img src="../assets/css/logo.png" title="angular-routing"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
@@ -41,7 +41,7 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="..&#x2F;classes/$RouteProvider.html">$RouteProvider</a></li>
+                <li><a href="../classes/$RouteProvider.html">$RouteProvider</a></li>
             
             </ul>
 
@@ -86,24 +86,24 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;..&#x2F;lib&#x2F;angular&#x2F;angular-1.0.d.ts&quot; &#x2F;&gt;
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;common.ts&quot; &#x2F;&gt;
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;interfaces.d.ts&quot; &#x2F;&gt;
+/// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;common.ts&quot; /&gt;
+/// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
 &#x27;use strict&#x27;;
-&#x2F;**
+/**
 * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
 *
 * @class $RouteProvider
 * @constructor
-*&#x2F;
+*/
 function $RouteProvider() {
     var _this = this;
     var routes = {
     }, converters = {
     }, decorators = {
     }, caseSensitive = true;
-    &#x2F;&#x2F;Public Methods
-    &#x2F;**
+    //Public Methods
+    /**
     * Adds a new converter or overwrites an existing one.
     *
     * By default the folowing converters are precent:
@@ -120,13 +120,13 @@ function $RouteProvider() {
     *
     * @param {string} name Cerverter name, used in the path when registering routes through the
     *   {@link ui.routing.routeProvider#when when} function.
-    *&#x2F;
+    */
     this.convert = function (name, converter) {
-        &#x2F;&#x2F;Note: We wan&#x27;t to allow overwrite
+        //Note: We wan&#x27;t to allow overwrite
         converters[name] = converter;
         return _this;
     };
-    &#x2F;**
+    /**
     * Adds a new route definition to the &#x60;$route&#x60; service.
     *
     * @method when
@@ -186,7 +186,7 @@ function $RouteProvider() {
     *
     *      - &#x60;key&#x60; � &#x60;{string}&#x60;: a name of a dependency to be injected into the controller.
     *      - &#x60;factory&#x60; - &#x60;{string|function}&#x60;: If &#x60;string&#x60; then it is an alias for a service.
-    *        Otherwise if function, then it is {@link api&#x2F;AUTO.$injector#invoke injected}
+    *        Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
     *        and the return value is treated as the dependency. If the result is a promise, it is resolved
     *        before its value is injected into the controller.
     *
@@ -208,7 +208,7 @@ function $RouteProvider() {
     *
     *      If the option is set to &#x60;false&#x60; and url in the browser changes, then
     *      &#x60;$routeUpdate&#x60; event is broadcasted on the root scope.
-    *&#x2F;
+    */
     this.when = function (path, route) {
         var expression = parseExpression(path);
         routes[expression.name] = {
@@ -230,11 +230,11 @@ function $RouteProvider() {
             $route: {
                 name: expression.name,
                 params: copy(expression.params),
-                path: path
+                route: path
             }
         };
     };
-    &#x2F;**
+    /**
     * Sets route definition that will be used on route change when no other route definition
     * is matched.
     *
@@ -242,13 +242,13 @@ function $RouteProvider() {
     * @return {Object} self
     *
     * @param {Object} params Mapping information to be assigned to &#x60;$route.current&#x60;.
-    *&#x2F;
+    */
     this.otherwise = function (route) {
         _this.when(null, route);
         return _this;
     };
     this.decorate = function (name, decorator) {
-        &#x2F;&#x2F;Note: We wan&#x27;t to allow overwrite
+        //Note: We wan&#x27;t to allow overwrite
         decorators[name] = decorator;
         return _this;
     };
@@ -260,23 +260,7 @@ function $RouteProvider() {
         caseSensitive = true;
         return _this;
     };
-    &#x2F;&#x2F;Scoped Methods
-    function interpolate(url, params) {
-        &#x2F;&#x2F;TODO: We only support :params here, but that might be ok for now as we are constructing an url.
-        var result = [];
-        forEach((url || &#x27;&#x27;).split(&#x27;:&#x27;), function (segment, i) {
-            if(i == 0) {
-                result.push(segment);
-            } else {
-                var segmentMatch = segment.match(&#x2F;(\w+)(.*)&#x2F;);
-                var key = segmentMatch[1];
-                result.push(params[key]);
-                result.push(segmentMatch[2] || &#x27;&#x27;);
-                delete params[key];
-            }
-        });
-        return result.join(&#x27;&#x27;);
-    }
+    //Scoped Methods
     function createRedirector(redirectTo) {
         var fn = null;
         return function ($location, next) {
@@ -308,7 +292,7 @@ function $RouteProvider() {
                 try  {
                     cargs = angular.fromJson(trimmed);
                 } catch (e) {
-                    &#x2F;&#x2F;Note: Errors are ok here, we let it remain as a string.
+                    //Note: Errors are ok here, we let it remain as a string.
                                     }
             }
         }
@@ -319,9 +303,39 @@ function $RouteProvider() {
             }
         };
     }
-    var esc = &#x2F;[-\&#x2F;\\^$*+?.()|[\]{}]&#x2F;g;
+    function interpolate(url, params) {
+        var result = [], name = &quot;&quot;, index = 0;
+        forEach(parseParams(url), function (param, idx) {
+            if(param.converter !== &#x27;&#x27;) {
+                //TODO: use converter to convert param to string.
+                            }
+            name += url.slice(index, param.index) + &#x27;/&#x27; + params[param.name].toString();
+            index = param.lastIndex;
+            delete params[param.name];
+        });
+        name += url.substr(index);
+        return name;
+    }
+    var esc = /[-\/\\^$*+?.()|[\]{}]/g;
     function escape(exp) {
         return exp.replace(esc, &quot;\\$&amp;&quot;);
+    }
+    var paramsRegex = new RegExp(&#x27;\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))&#x27;, &#x27;g&#x27;);
+    function parseParams(path) {
+        var match, params = [];
+        if(path === null) {
+            return params;
+        }
+        while((match = paramsRegex.exec(path)) !== null) {
+            params.push({
+                name: match[3] || match[9],
+                converter: match[6] || &#x27;&#x27;,
+                args: match[8],
+                index: match.index,
+                lastIndex: paramsRegex.lastIndex
+            });
+        }
+        return params;
     }
     function parseExpression(path) {
         var regex = &quot;^&quot;, name = &quot;&quot;, segments = [], index = 0, flags = &#x27;&#x27;, params = {
@@ -332,7 +346,7 @@ function $RouteProvider() {
                 params: params
             };
         }
-        if(path === &#x27;&#x2F;&#x27;) {
+        if(path === &#x27;/&#x27;) {
             return {
                 exp: new RegExp(&#x27;^[\x2F]?$&#x27;, flags),
                 segments: [],
@@ -343,11 +357,11 @@ function $RouteProvider() {
         forEach(parseParams(path), function (param, idx) {
             var cname = &#x27;&#x27;;
             regex += escape(path.slice(index, param.index));
-            regex += &#x27;&#x2F;([^\\&#x2F;]*)&#x27;;
+            regex += &#x27;/([^\\/]*)&#x27;;
             if(param.converter !== &#x27;&#x27;) {
                 cname = &quot;:&quot; + param.converter;
             }
-            name += path.slice(index, param.index) + &#x27;&#x2F;$&#x27; + idx + cname;
+            name += path.slice(index, param.index) + &#x27;/$&#x27; + idx + cname;
             params[param.name] = {
                 id: idx,
                 converter: param.converter
@@ -405,7 +419,7 @@ function $RouteProvider() {
             }
         };
     }
-    &#x2F;&#x2F;Registration of Default Converters
+    //Registration of Default Converters
     this.convert(&#x27;num&#x27;, function () {
         return function (param) {
             var accepts = !isNaN(param);
@@ -441,7 +455,7 @@ function $RouteProvider() {
             return true;
         };
     });
-    &#x2F;&#x2F;Service Factory
+    //Service Factory
     this.$get = [
         &#x27;$rootScope&#x27;, 
         &#x27;$location&#x27;, 
@@ -455,9 +469,13 @@ function $RouteProvider() {
                     forceReload = true;
                     $rootScope.$evalAsync(update);
                 },
-                replace: function (route, params) {
-                    route = interpolate(route, params);
-                    $location.path(route).search(params).replace();
+                change: function (args) {
+                    var params = args.params || {
+                    }, route = interpolate(args.route, params), loc = $location.path(route).search(params || {
+                    });
+                    if(args.replace) {
+                        loc.replace();
+                    }
                 }
             };
             $rootScope.$on(&#x27;$locationChangeSuccess&#x27;, update);
@@ -491,7 +509,7 @@ function $RouteProvider() {
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast(&#x27;$routeUpdate&#x27;, lastRoute);
                 } else if(next || lastRoute) {
-                    &#x2F;&#x2F;TODO: We should always have a next to go to, it may be a null route though.
+                    //TODO: We should always have a next to go to, it may be a null route though.
                     forceReload = false;
                     var event = $rootScope.$broadcast(&#x27;$routeChangeStart&#x27;, nextRoute, lastRoute);
                     if(!event.defaultPrevented) {
@@ -523,9 +541,9 @@ function $RouteProvider() {
                             }
                         });
                     } else {
-                        &#x2F;&#x2F;TODO: Do we need to do anything if the user cancels?
-                        &#x2F;&#x2F;       - if the user wants to return to the old url, he should cancel on
-                        &#x2F;&#x2F;         location change instead?
+                        //TODO: Do we need to do anything if the user cancels?
+                        //       - if the user wants to return to the old url, he should cancel on
+                        //         location change instead?
                                             }
                 }
             }
@@ -543,13 +561,13 @@ angular.module(&#x27;ui.routing&#x27;).provider(&#x27;$route&#x27;, $RouteProvid
         </div>
     </div>
 </div>
-<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
 <script>prettyPrint();</script>
-<script src="..&#x2F;assets/js/yui-prettify.js"></script>
-<script src="..&#x2F;assets/../api.js"></script>
-<script src="..&#x2F;assets/js/api-filter.js"></script>
-<script src="..&#x2F;assets/js/api-list.js"></script>
-<script src="..&#x2F;assets/js/api-search.js"></script>
-<script src="..&#x2F;assets/js/apidocs.js"></script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
 </body>
 </html>

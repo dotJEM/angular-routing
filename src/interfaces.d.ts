@@ -61,6 +61,7 @@ module ui.routing {
 
     interface IRouteService {
         reload: () => void;
+        change: (args: { route: string; params?: any; replace?: bool; }) => void;
         current?: any;
     }
 

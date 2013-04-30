@@ -45,7 +45,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     function lookupRoute(parent) {
         while (isDefined(parent) && !isDefined(parent.route))
             parent = parent.parent;
-        return (parent && parent.route.path) || '';
+        return (parent && parent.route.route) || '';
     }
 
     function registerState(name, at: IStateWrapper, state: ui.routing.IState) {
@@ -135,7 +135,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
                 current: extend({}, root.self),
-                goto: (state, params) => { goto(state, params); },
+                goto: (state, params) => { goto({ state: state, params: params, updateroute: true }); },
                 lookup: lookup,
                 reload: reload
             };
@@ -151,10 +151,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 };
 
                 if (route.state) {
-                    goto(route.state, params, route);
+                    goto({ state: route.state, params: params, route: route });
                 }
             } else {
-                goto(root);
+                goto({ state: root });
             }
         });
         $rootScope.$on('$routeUpdate', () => {
@@ -246,7 +246,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 if (Math.abs(index) >= children.length) {
                     throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount")
                 }
-                
+
                 return index < 0 ? children[children.length + index] : children[index];
             }
 
@@ -256,7 +256,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             throw new Error("Could find state for the lookup path.");
         }
-        
+
         function reload(state?) {
             if (isDefined(state)) {
                 if (isString(state) || isObject(state)) {
@@ -273,7 +273,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
 
             $rootScope.$evalAsync(() => {
-                goto(current, currentParams, $route.current)
+                goto({ state: current, params: currentParams, route: $route.current });
             });
         }
 
@@ -325,16 +325,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             return toArray.reverse();
         }
 
-        function goto(to, params?, route?) {
+        function goto(args: { state; params?; route?; updateroute?; }) {
+
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
-            var to = lookupState(toName(to)),
+            var params = args.params,
+                route = args.route,
+                to = lookupState(toName(args.state)),
                 toState = extend({}, to.self, { $params: params, $route: route }),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
                 cancel = false,
-                event,
                 transaction,
                 changed = buildChangeArray(
                     lookupState(toName($state.current)),
@@ -348,18 +350,24 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     },
                     goto: (state, params?) => {
                         cancel = true;
-                        goto(state, params);
+                        goto({ state: state, params: params });
                     }
                 };
+
+            if (args.updateroute && to.route)
+            {
+                $route.change(extend({}, to.route, { params: params }));
+                return;
+            }
 
             emit.before(transition);
             if (cancel) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                //      That is if this was even triggered by an URL change in teh first place.
+                //      That is if this was even triggered by an URL change in the first place.
                 return;
             }
 
-            event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+            var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
                     var useUpdate = false;
