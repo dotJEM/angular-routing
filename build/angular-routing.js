@@ -1006,9 +1006,9 @@ var $StateProvider = [
                             toAtIndex.changed = true;
                         } else if(isUndefined(toAtIndex)) {
                             toArray[0].changed = true;
-                        } else // We wen't up the hierachy. for now make the parent dirty.
-                        // however, this reloads the main view...
-                        if(forceReload && forceReload == toAtIndex.state.fullname) {
+                            // We wen't up the hierachy. for now make the parent dirty.
+                            // however, this reloads the main view...
+                                                    } else if(forceReload && forceReload == toAtIndex.state.fullname) {
                             toAtIndex.changed = true;
                         } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
                             toAtIndex.changed = true;
@@ -1064,8 +1064,20 @@ var $StateProvider = [
                                     useUpdate = true;
                                 }
                                 forEach(change.state.self.views, function (view, name) {
-                                    if(useUpdate) {
-                                        $view.setOrUpdate(name, view.template, view.controller);
+                                    var sticky;
+                                    if(view.sticky) {
+                                        sticky = view.sticky;
+                                        if(isFunction(sticky) || isArray(sticky)) {
+                                            sticky = $injector.invoke(sticky, sticky, {
+                                                $to: toState,
+                                                $from: fromState
+                                            });
+                                        } else if(!isString(sticky)) {
+                                            sticky = change.state.fullname;
+                                        }
+                                    }
+                                    if(useUpdate || isDefined(sticky)) {
+                                        $view.setOrUpdate(name, view.template, view.controller, sticky);
                                     } else {
                                         $view.setIfAbsent(name, view.template, view.controller);
                                     }
@@ -1174,12 +1186,11 @@ function $ViewProvider() {
                 }
             }
             ;
-            function ensureExists(name) {
-                if(!(name in views)) {
-                    throw new Error('View with name "' + name + '" was not present.');
-                }
-            }
-            ;
+            //function ensureExists(name: string) {
+            //    if (!(name in views)) {
+            //        throw new Error('View with name "' + name + '" was not present.');
+            //    }
+            //};
             function raiseUpdated(name) {
                 $rootScope.$broadcast('$viewUpdate', name);
             }
@@ -1209,14 +1220,14 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setOrUpdate = function (name, template, controller) {
+            this.setOrUpdate = function (name, template, controller, sticky) {
                 var _this = this;
                 ensureName(name);
                 if(transaction) {
                     transaction.records[name] = {
                         act: 'setOrUpdate',
                         fn: function () {
-                            _this.setOrUpdate(name, template, controller);
+                            _this.setOrUpdate(name, template, controller, sticky);
                         }
                     };
                     return;
@@ -1225,16 +1236,23 @@ function $ViewProvider() {
                     //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                     views[name].template = $template.get(template);
                     views[name].controller = controller;
-                    views[name].version++;
                 } else {
                     views[name] = {
                         template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                         $template.get(template),
                         controller: controller,
-                        version: 0
+                        version: -1
                     };
                 }
-                raiseUpdated(name);
+                if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
+                    raiseRefresh(name, {
+                        sticky: true
+                    });
+                } else {
+                    views[name].version++;
+                    views[name].sticky = sticky;
+                    raiseUpdated(name);
+                }
             };
             this.setIfAbsent = function (name, template, controller) {
                 var _this = this;
@@ -1339,7 +1357,7 @@ var uiViewDirective = [
                         if(isFunction(viewScope.refresh)) {
                             viewScope.refresh(refreshData);
                         } else {
-                            viewScope.broadCast('$refresh', refreshName, refreshData);
+                            viewScope.$broadcast('$refresh', refreshName, refreshData);
                         }
                     }
                 });

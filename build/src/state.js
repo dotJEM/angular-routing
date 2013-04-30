@@ -284,9 +284,9 @@ var $StateProvider = [
                             toAtIndex.changed = true;
                         } else if(isUndefined(toAtIndex)) {
                             toArray[0].changed = true;
-                        } else // We wen't up the hierachy. for now make the parent dirty.
-                        // however, this reloads the main view...
-                        if(forceReload && forceReload == toAtIndex.state.fullname) {
+                            // We wen't up the hierachy. for now make the parent dirty.
+                            // however, this reloads the main view...
+                                                    } else if(forceReload && forceReload == toAtIndex.state.fullname) {
                             toAtIndex.changed = true;
                         } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
                             toAtIndex.changed = true;
@@ -342,8 +342,20 @@ var $StateProvider = [
                                     useUpdate = true;
                                 }
                                 forEach(change.state.self.views, function (view, name) {
-                                    if(useUpdate) {
-                                        $view.setOrUpdate(name, view.template, view.controller);
+                                    var sticky;
+                                    if(view.sticky) {
+                                        sticky = view.sticky;
+                                        if(isFunction(sticky) || isArray(sticky)) {
+                                            sticky = $injector.invoke(sticky, sticky, {
+                                                $to: toState,
+                                                $from: fromState
+                                            });
+                                        } else if(!isString(sticky)) {
+                                            sticky = change.state.fullname;
+                                        }
+                                    }
+                                    if(useUpdate || isDefined(sticky)) {
+                                        $view.setOrUpdate(name, view.template, view.controller, sticky);
                                     } else {
                                         $view.setIfAbsent(name, view.template, view.controller);
                                     }

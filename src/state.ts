@@ -307,23 +307,26 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 fromAtIndex = fromArray[fromArray.length - i - 1];
                 toAtIndex = toArray[toArray.length - i - 1];
 
-                if (isUndefined(fromAtIndex))
+                if (isUndefined(fromAtIndex)) {
                     toAtIndex.changed = true;
-                else if (isUndefined(toAtIndex))
+                } else if (isUndefined(toAtIndex)) {
                     toArray[0].changed = true;
                     // We wen't up the hierachy. for now make the parent dirty.
                     // however, this reloads the main view... 
-                else if (forceReload && forceReload == toAtIndex.state.fullname)
+                } else if (forceReload && forceReload == toAtIndex.state.fullname) {
                     toAtIndex.changed = true;
-                else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname)
+                } else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
                     toAtIndex.changed = true;
-                else if (!equals(toAtIndex.params, fromAtIndex.params))
+                } else if (!equals(toAtIndex.params, fromAtIndex.params)) {
                     toAtIndex.changed = true;
-                else
+                } else {
                     toAtIndex.changed = false;
+                }
             }
             return toArray.reverse();
         }
+
+
 
         function goto(args: { state; params?; route?; updateroute?; }) {
 
@@ -354,8 +357,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     }
                 };
 
-            if (args.updateroute && to.route)
-            {
+            if (args.updateroute && to.route) {
                 $route.change(extend({}, to.route, { params: params }));
                 return;
             }
@@ -379,8 +381,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         if (change.changed)
                             useUpdate = true;
                         forEach(change.state.self.views, (view, name) => {
-                            if (useUpdate) {
-                                $view.setOrUpdate(name, view.template, view.controller);
+                            var sticky;
+                            if (view.sticky) {
+                                sticky = view.sticky;
+                                if (isFunction(sticky) || isArray(sticky)) {
+                                    sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
+                                } else if (!isString(sticky)) {
+                                    sticky = change.state.fullname;
+                                }
+                            }
+
+                            if (useUpdate || isDefined(sticky)) {
+                                $view.setOrUpdate(name, view.template, view.controller, sticky);
                             } else {
                                 $view.setIfAbsent(name, view.template, view.controller);
                             }

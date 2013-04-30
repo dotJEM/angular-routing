@@ -1,12 +1,12 @@
 ﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing', 'ui.tree']);app.config(['$stateProvider', '$routeProvider', '$stateTransitionProvider',       function ($stateProvider, $routeProvider, $stateTransitionProvider) {
            $routeProvider               .otherwise({ redirectTo: '/' });
            
-           $stateTransitionProvider
-               //NOTE: Temporary workaround for defect causing all views to reload on the parent state when navigating from a child.
-               .transition('blog.*', 'blog', function($view) {
-                   $view.clear('main');
-                   $view.setIfAbsent('main','');
-               });
+           //$stateTransitionProvider
+           //    //NOTE: Temporary workaround for defect causing all views to reload on the parent state when navigating from a child.
+           //    .transition('blog.*', 'blog', function($view) {
+           //        $view.clear('main');
+           //        $view.setIfAbsent('main','');
+           //    });
            
            $stateProvider
                 .state('home', {
@@ -30,6 +30,7 @@
                     route: '/blog',
                     views: {
                         'main': {
+                            sticky: true,
                             template: 'tpl/blog.html',
                             controller: 'blogController'
                         },
@@ -42,6 +43,7 @@
                             }
                         },
                         'content': {
+                            //method: 'setOrUpdate',
                             template: 'tpl/blog.list.html',
                             controller: function ($scope, blog) {
                                 $scope.title = "Recent Posts";

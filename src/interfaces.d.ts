@@ -18,10 +18,11 @@ module ui.routing {
 
     interface IViewService {
         clear(name?: string);
-        setOrUpdate(viewname: string, template?: any, controller?: any);
+        setOrUpdate(viewname: string, template?: any, controller?: any, sticky?:string);
         setIfAbsent(viewname: string, template?: any, controller?: any);
         get (viewname: string): IView;
         get (): IViewMap;
+        refresh(viewname?: string, data?: any);
 
         beginUpdate(): IViewTransaction;
     }

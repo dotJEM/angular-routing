@@ -25,7 +25,7 @@ var uiViewDirective = [
                         if(isFunction(viewScope.refresh)) {
                             viewScope.refresh(refreshData);
                         } else {
-                            viewScope.broadCast('$refresh', refreshName, refreshData);
+                            viewScope.$broadcast('$refresh', refreshName, refreshData);
                         }
                     }
                 });

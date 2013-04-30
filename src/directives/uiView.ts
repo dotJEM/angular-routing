@@ -4,13 +4,18 @@
 
 'use strict';
 
+interface IViewScope extends ng.IScope {
+    refresh?: (data?: any) => void;
+}
+
 var uiViewDirective = [<any>'$state', '$anchorScroll', '$compile', '$controller', '$view', '$animator',
 function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewService, $animator) {
     return {
         restrict: 'ECA',
         terminal: true,
         link: function (scope, element: JQuery, attr) {
-            var viewScope, controller,
+            var viewScope: IViewScope,
+                controller,
                 name = attr['uiView'] || attr.name,
                 doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
@@ -26,7 +31,7 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                     if (isFunction(viewScope.refresh)) {
                         viewScope.refresh(refreshData);
                     } else {
-                        viewScope.broadCast('$refresh', refreshName, refreshData)
+                        viewScope.$broadcast('$refresh', refreshName, refreshData)
                     }
                 }
             });
