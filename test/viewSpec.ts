@@ -54,31 +54,73 @@ describe('$view', function () {
             });
         });
 
-        it('raises $viewUpdated with viewName', function () {
+        it('raises $viewUpdate with viewName', function () {
             mock.inject(function ($view: ui.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setOrUpdate("name", { html: "fubar" });
                 expect(spy.callCount).toBe(1);
-                expect(spy.mostRecentCall.args[1]).toBe("name");
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "name"]);
 
                 $view.setOrUpdate("name", { html: "template" });
                 expect(spy.callCount).toBe(2);
-                expect(spy.mostRecentCall.args[1]).toBe("name");
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "name"]);
             });
         });
 
-        it('raises $viewUpdated with viewName for each view', function () {
+        it('raises $viewUpdate with viewName for each view', function () {
             mock.inject(function ($view: ui.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setOrUpdate("root", { html: "fubar" });
                 expect(spy.callCount).toBe(1);
-                expect(spy.mostRecentCall.args[1]).toBe("root");
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
                 $view.setOrUpdate("sub", { html: "template" });
                 expect(spy.callCount).toBe(2);
-                expect(spy.mostRecentCall.args[1]).toBe("sub");
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "sub"]);
+            });
+        });
+
+        it('raises $viewRefresh when sticky tag matches', function () {
+            mock.inject(function ($view: ui.routing.IViewService) {
+                var spy = spyOn(scope, '$broadcast');
+
+                $view.setOrUpdate("root", { html: "fubar" }, null, "sticky");
+                expect(spy.callCount).toBe(1);
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
+
+                $view.setOrUpdate("root", { html: "template" }, null, "sticky");
+                expect(spy.callCount).toBe(2);
+                expect(spy.mostRecentCall.args).toEqual([<any>'$viewRefresh', "root", { sticky: true }]);
+            });
+        });
+
+        it('raises $viewUpdate when sticky tag differs', function () {
+            mock.inject(function ($view: ui.routing.IViewService) {
+                var spy = spyOn(scope, '$broadcast');
+
+                $view.setOrUpdate("root", { html: "fubar" }, null, "sticky");
+                expect(spy.callCount).toBe(1);
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
+
+                $view.setOrUpdate("root", { html: "template" }, null, "sticky2");
+                expect(spy.callCount).toBe(2);
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
+            });
+        });
+
+        it('raises $viewUpdate when sticky tag is undefined', function () {
+            mock.inject(function ($view: ui.routing.IViewService) {
+                var spy = spyOn(scope, '$broadcast');
+
+                $view.setOrUpdate("root", { html: "fubar" }, null, undefined);
+                expect(spy.callCount).toBe(1);
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
+
+                $view.setOrUpdate("root", { html: "template" }, null, undefined);
+                expect(spy.callCount).toBe(2);
+                expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
             });
         });
     });

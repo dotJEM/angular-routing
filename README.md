@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
 
-# NOTE: Alpha version 0.2
+# NOTE: Pre-release version 0.2.1 
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
 to provide what I belive is more "true states" where the transitions could be
@@ -28,6 +28,7 @@ take place.
 * `$stateTransitionProvider` to manage state transitions.
 * `$viewProvider` and `$view` to manage view state.
 * `uiView` as a replacement for `ngView`
+* `templateDecorator` for backwards compatiblity (optional)
 
 #### $routeProvider and $route
 

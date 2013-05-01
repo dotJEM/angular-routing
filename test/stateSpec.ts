@@ -376,9 +376,7 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
             });
         });
-
-
-
+        
         it('can register states with and without routes', function () {
             mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
@@ -431,6 +429,7 @@ describe('$stateProvider', function () {
 
                 function reset() { spy.reset(); viewSpy.reset(); }
                 function go(path: string) {
+                    reset();
                     $location.path(path);
                     scope.$digest();
                 };
@@ -442,30 +441,92 @@ describe('$stateProvider', function () {
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
 
-                reset();
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('sub');
 
-                reset();
                 go('/top/sub/bot');
                 expect($state.current.name).toBe('bot');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('bot');
 
-                reset();
                 go('/foo/bar/baz');
                 expect($state.current.name).toBe('baz');
                 expect(viewSpy.callCount).toBe(3);
                 expect(viewSpy.calls[2].args[0]).toBe('baz');
 
-                reset();
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('bar');
 
+            });
+        });
+
+        it('states invoke view service with sticky views', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', {
+                        route: '/top', name: 'top',
+                        views: { 'top': { template: "top tpl", sticky: true } }
+                    })
+                    .state('top.sub', {
+                        route: '/sub', name: 'sub',
+                        views: { 'sub': { template: "sub tpl" } }
+                    })
+
+                    .state('foo', {
+                        route: '/foo', name: 'foo',
+                        views: { 'foo': { template: "foo tpl", sticky: "imSticky" } }
+                    })
+                    .state('foo.bar', {
+                        route: '/bar', name: 'bar',
+                        views: { 'bar': { template: "bar tpl" } }
+                    })
+
+                    .state('ban', {
+                        route: '/ban', name: 'ban',
+                        views: { 'ban': { template: "ban tpl", sticky: [<any>'$to', function (to) { return to.$fullname; } ] } }
+                    })
+                    .state('ban.tar', {
+                        route: '/tar', name: 'tar',
+                        views: { 'tar': { template: "tar tpl" } }
+                    })
+            });
+
+            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+                spyOn($view, 'setIfAbsent');
+                var setOrUpdate = spyOn($view, 'setOrUpdate');
+                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+
+                function reset() { spy.reset(); setOrUpdate.reset(); }
+                function go(path: string) {
+                    reset();
+                    $location.path(path);
+                    scope.$digest();
+                };
+
+
+                go('/top');
+                expect($state.current.name).toBe('top');
+                expect(setOrUpdate.calls[0].args).toEqual(['top','top tpl', undefined,'root.top']);
+
+                go('/top/sub');
+                expect($state.current.name).toBe('sub');
+                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, 'root.top']);
+
+                go('/foo/bar');
+                expect($state.current.name).toBe('bar');
+                expect(setOrUpdate.calls[0].args).toEqual(['foo', 'foo tpl', undefined, 'imSticky']);
+
+                go('/ban');
+                expect($state.current.name).toBe('ban');
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, 'root.ban']);
+
+                go('/ban/tar');
+                expect($state.current.name).toBe('tar');
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, 'root.ban.tar']);
             });
         });
 
@@ -778,129 +839,22 @@ describe('$stateProvider', function () {
 
     describe("lookup", () => {
         beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
-            $stateProvider
-                .state('state1', {})
-                .state('state1.top1', {})
-                .state('state1.top1.mid1', {})
-                .state('state1.top1.mid1.bot1', {})
-                .state('state1.top1.mid1.bot2', {})
-                .state('state1.top1.mid1.bot3', {})
-                .state('state1.top1.mid2', {})
-                .state('state1.top1.mid2.bot1', {})
-                .state('state1.top1.mid2.bot2', {})
-                .state('state1.top1.mid2.bot3', {})
-                .state('state1.top1.mid3', {})
-                .state('state1.top1.mid3.bot1', {})
-                .state('state1.top1.mid3.bot2', {})
-                .state('state1.top1.mid3.bot3', {})
-                .state('state1.top2', {})
-                .state('state1.top2.mid1', {})
-                .state('state1.top2.mid1.bot1', {})
-                .state('state1.top2.mid1.bot2', {})
-                .state('state1.top2.mid1.bot3', {})
-                .state('state1.top2.mid2', {})
-                .state('state1.top2.mid2.bot1', {})
-                .state('state1.top2.mid2.bot2', {})
-                .state('state1.top2.mid2.bot3', {})
-                .state('state1.top2.mid3', {})
-                .state('state1.top2.mid3.bot1', {})
-                .state('state1.top2.mid3.bot2', {})
-                .state('state1.top2.mid3.bot3', {})
-                .state('state1.top3', {})
-                .state('state1.top3.mid1', {})
-                .state('state1.top3.mid1.bot1', {})
-                .state('state1.top3.mid1.bot2', {})
-                .state('state1.top3.mid1.bot3', {})
-                .state('state1.top3.mid2', {})
-                .state('state1.top3.mid2.bot1', {})
-                .state('state1.top3.mid2.bot2', {})
-                .state('state1.top3.mid2.bot3', {})
-                .state('state1.top3.mid3', {})
-                .state('state1.top3.mid3.bot1', {})
-                .state('state1.top3.mid3.bot2', {})
-                .state('state1.top3.mid3.bot3', {})
-
-                .state('state2', {})
-                .state('state2.top1', {})
-                .state('state2.top1.mid1', {})
-                .state('state2.top1.mid1.bot1', {})
-                .state('state2.top1.mid1.bot2', {})
-                .state('state2.top1.mid1.bot3', {})
-                .state('state2.top1.mid2', {})
-                .state('state2.top1.mid2.bot1', {})
-                .state('state2.top1.mid2.bot2', {})
-                .state('state2.top1.mid2.bot3', {})
-                .state('state2.top1.mid3', {})
-                .state('state2.top1.mid3.bot1', {})
-                .state('state2.top1.mid3.bot2', {})
-                .state('state2.top1.mid3.bot3', {})
-                .state('state2.top2', {})
-                .state('state2.top2.mid1', {})
-                .state('state2.top2.mid1.bot1', {})
-                .state('state2.top2.mid1.bot2', {})
-                .state('state2.top2.mid1.bot3', {})
-                .state('state2.top2.mid2', {})
-                .state('state2.top2.mid2.bot1', {})
-                .state('state2.top2.mid2.bot2', {})
-                .state('state2.top2.mid2.bot3', {})
-                .state('state2.top2.mid3', {})
-                .state('state2.top2.mid3.bot1', {})
-                .state('state2.top2.mid3.bot2', {})
-                .state('state2.top2.mid3.bot3', {})
-                .state('state2.top3', {})
-                .state('state2.top3.mid1', {})
-                .state('state2.top3.mid1.bot1', {})
-                .state('state2.top3.mid1.bot2', {})
-                .state('state2.top3.mid1.bot3', {})
-                .state('state2.top3.mid2', {})
-                .state('state2.top3.mid2.bot1', {})
-                .state('state2.top3.mid2.bot2', {})
-                .state('state2.top3.mid2.bot3', {})
-                .state('state2.top3.mid3', {})
-                .state('state2.top3.mid3.bot1', {})
-                .state('state2.top3.mid3.bot2', {})
-                .state('state2.top3.mid3.bot3', {})
-
-                .state('state3', {})
-                .state('state3.top1', {})
-                .state('state3.top1.mid1', {})
-                .state('state3.top1.mid1.bot1', {})
-                .state('state3.top1.mid1.bot2', {})
-                .state('state3.top1.mid1.bot3', {})
-                .state('state3.top1.mid2', {})
-                .state('state3.top1.mid2.bot1', {})
-                .state('state3.top1.mid2.bot2', {})
-                .state('state3.top1.mid2.bot3', {})
-                .state('state3.top1.mid3', {})
-                .state('state3.top1.mid3.bot1', {})
-                .state('state3.top1.mid3.bot2', {})
-                .state('state3.top1.mid3.bot3', {})
-                .state('state3.top2', {})
-                .state('state3.top2.mid1', {})
-                .state('state3.top2.mid1.bot1', {})
-                .state('state3.top2.mid1.bot2', {})
-                .state('state3.top2.mid1.bot3', {})
-                .state('state3.top2.mid2', {})
-                .state('state3.top2.mid2.bot1', {})
-                .state('state3.top2.mid2.bot2', {})
-                .state('state3.top2.mid2.bot3', {})
-                .state('state3.top2.mid3', {})
-                .state('state3.top2.mid3.bot1', {})
-                .state('state3.top2.mid3.bot2', {})
-                .state('state3.top2.mid3.bot3', {})
-                .state('state3.top3', {})
-                .state('state3.top3.mid1', {})
-                .state('state3.top3.mid1.bot1', {})
-                .state('state3.top3.mid1.bot2', {})
-                .state('state3.top3.mid1.bot3', {})
-                .state('state3.top3.mid2', {})
-                .state('state3.top3.mid2.bot1', {})
-                .state('state3.top3.mid2.bot2', {})
-                .state('state3.top3.mid2.bot3', {})
-                .state('state3.top3.mid3', {})
-                .state('state3.top3.mid3.bot1', {})
-                .state('state3.top3.mid3.bot2', {})
-                .state('state3.top3.mid3.bot3', {})
+            for (var sta = 1; sta < 4; sta++) {
+                var stateName = 'state' + sta;
+                $stateProvider.state(stateName, {});
+                for (var top = 1; top < 4; top++) {
+                    var topName = stateName + ".top" + top;
+                    $stateProvider.state(topName, {});
+                    for (var mid = 1; mid < 4; mid++) {
+                        var midName = topName + ".mid" + mid;
+                        $stateProvider.state(midName, {});
+                        for (var bot = 1; bot < 4; bot++) {
+                            var botName = midName + ".bot" + bot;
+                            $stateProvider.state(botName, {});
+                        }
+                    }
+                }
+            }
             return function ($rootScope, $state) {
                 scope = $rootScope;
                 state = $state;
