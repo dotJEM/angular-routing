@@ -800,41 +800,102 @@ describe('$stateProvider', function () {
 
     describe("goto", function () {
 
-        it('updates route and location when route is present', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
-                $stateProvider
-                    .state('home', { route: '/', name: 'about' })
+        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+            $stateProvider
+                .state('home', { route: '/', name: 'about' })
 
-                    .state('blog', { route: '/blog', name: 'blog' })
-                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
-                    .state('blog.other', { route: '/other', name: 'blog.other' })
+                .state('blog', { route: '/blog', name: 'blog' })
+                .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                .state('blog.other', { route: '/other', name: 'blog.other' })
 
-                    .state('about', { route: '/about', name: 'about' })
-                    .state('about.cv', { route: '/cv', name: 'about.cv' })
-                    .state('about.other', { route: '/other', name: 'about.other' })
+                .state('about', { route: '/about', name: 'about' })
+                .state('about.cv', { route: '/cv', name: 'about.cv' })
+                .state('about.other', { route: '/other', name: 'about.other' })
 
-                    .state('gallery', { route: '/gallery', name: 'gallery' })
-                    .state('gallery.overview', { route: '/overview', name: 'gallery.overview' })
-                    .state('gallery.details', { route: '/details', name: 'gallery.details' })
+                .state('gallery', { route: '/gallery/:id', name: 'gallery' })
+                .state('gallery.overview', { route: '/overview', name: 'gallery.overview' })
+                .state('gallery.details', { route: '/details/:page', name: 'gallery.details' })
 
-                    .state('admin', { route: '/admin', name: 'admin' });
+                .state('admin', { route: '/admin', name: 'admin' });
 
-                $stateTransitionProvider
-                    .transition('*', 'admin', ($transition) => {
-                        $transition.cancel();
-                    });
-            });
+            $stateTransitionProvider
+                .transition('*', 'admin', ($transition) => {
+                    $transition.cancel();
+                });
 
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+
+        it('updates location when route is present', function () {
             inject(function ($location: ng.ILocationService,
                                   $route: ng.IRouteService,
                                   $state: ui.routing.IStateService) {
 
                 $state.goto('blog');                expect($location.path()).toBe('/blog');
 
-                $state.goto('blog');                expect($location.path()).toBe('/blog');
                 $state.goto('about.other');                expect($location.path()).toBe('/about/other');            });
         });
 
+        it('updates location when route is present and fills in parameters', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
+
+                $state.goto('gallery', { id: 42 });
+                expect($location.path()).toBe('/gallery/42');
+
+                $state.goto('gallery', { id: 4224 });
+                expect($location.path()).toBe('/gallery/4224');
+
+                $state.goto('gallery.details', { id: 4224, page: 1 });
+                expect($location.path()).toBe('/gallery/4224/details/1');
+            });
+        });
+
+        it('updates location when route is present and fills in parameters and keeps those not defined', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
+
+                $state.goto('gallery', { id: 42 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42');
+
+                $state.goto('gallery.details', { page: 1 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1');
+
+                $state.goto('gallery.details', { id: 2 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/2/details/1');
+
+                $state.goto('gallery.details', { id: 33, page: 42 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/33/details/42');
+            });
+        });
+
+        it('updates location when route is present and puts aditional parameters on search', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
+
+                $state.goto('gallery', { id: 42, search: "woahh" });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42?search=woahh');
+
+                $state.goto('gallery.details', { page: 1 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1');
+
+                $state.goto('gallery.details', { search: "woahh" });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1?search=woahh');
+            });
+        });
     });
 
     describe("lookup", () => {

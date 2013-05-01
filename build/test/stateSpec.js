@@ -476,6 +476,7 @@ describe('$stateProvider', function () {
                     viewSpy.reset();
                 }
                 function go(path) {
+                    reset();
                     $location.path(path);
                     scope.$digest();
                 }
@@ -485,26 +486,137 @@ describe('$stateProvider', function () {
                 expect($state.current.name).toBe('top');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
-                reset();
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('sub');
-                reset();
                 go('/top/sub/bot');
                 expect($state.current.name).toBe('bot');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('bot');
-                reset();
                 go('/foo/bar/baz');
                 expect($state.current.name).toBe('baz');
                 expect(viewSpy.callCount).toBe(3);
                 expect(viewSpy.calls[2].args[0]).toBe('baz');
-                reset();
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('bar');
+            });
+        });
+        it('states invoke view service with sticky views', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    route: '/top',
+                    name: 'top',
+                    views: {
+                        'top': {
+                            template: "top tpl",
+                            sticky: true
+                        }
+                    }
+                }).state('top.sub', {
+                    route: '/sub',
+                    name: 'sub',
+                    views: {
+                        'sub': {
+                            template: "sub tpl"
+                        }
+                    }
+                }).state('foo', {
+                    route: '/foo',
+                    name: 'foo',
+                    views: {
+                        'foo': {
+                            template: "foo tpl",
+                            sticky: "imSticky"
+                        }
+                    }
+                }).state('foo.bar', {
+                    route: '/bar',
+                    name: 'bar',
+                    views: {
+                        'bar': {
+                            template: "bar tpl"
+                        }
+                    }
+                }).state('ban', {
+                    route: '/ban',
+                    name: 'ban',
+                    views: {
+                        'ban': {
+                            template: "ban tpl",
+                            sticky: [
+                                '$to', 
+                                function (to) {
+                                    return to.$fullname;
+                                }                            ]
+                        }
+                    }
+                }).state('ban.tar', {
+                    route: '/tar',
+                    name: 'tar',
+                    views: {
+                        'tar': {
+                            template: "tar tpl"
+                        }
+                    }
+                });
+            });
+            inject(function ($location, $route, $state, $view) {
+                spyOn($view, 'setIfAbsent');
+                var setOrUpdate = spyOn($view, 'setOrUpdate');
+                var spy = jasmine.createSpy('mySpy');
+                function reset() {
+                    spy.reset();
+                    setOrUpdate.reset();
+                }
+                function go(path) {
+                    reset();
+                    $location.path(path);
+                    scope.$digest();
+                }
+                ;
+                go('/top');
+                expect($state.current.name).toBe('top');
+                expect(setOrUpdate.calls[0].args).toEqual([
+                    'top', 
+                    'top tpl', 
+                    undefined, 
+                    'root.top'
+                ]);
+                go('/top/sub');
+                expect($state.current.name).toBe('sub');
+                expect(setOrUpdate.calls[0].args).toEqual([
+                    'top', 
+                    'top tpl', 
+                    undefined, 
+                    'root.top'
+                ]);
+                go('/foo/bar');
+                expect($state.current.name).toBe('bar');
+                expect(setOrUpdate.calls[0].args).toEqual([
+                    'foo', 
+                    'foo tpl', 
+                    undefined, 
+                    'imSticky'
+                ]);
+                go('/ban');
+                expect($state.current.name).toBe('ban');
+                expect(setOrUpdate.calls[0].args).toEqual([
+                    'ban', 
+                    'ban tpl', 
+                    undefined, 
+                    'root.ban'
+                ]);
+                go('/ban/tar');
+                expect($state.current.name).toBe('tar');
+                expect(setOrUpdate.calls[0].args).toEqual([
+                    'ban', 
+                    'ban tpl', 
+                    undefined, 
+                    'root.ban.tar'
+                ]);
             });
         });
         it('can reload state', function () {
@@ -885,179 +997,142 @@ describe('$stateProvider', function () {
     });
     //Note: Integration tests between $transition and $state etc.
     describe("goto", function () {
-        it('updates route and location when route is present', function () {
-            mod(function ($stateProvider, $stateTransitionProvider) {
-                $stateProvider.state('home', {
-                    route: '/',
-                    name: 'about'
-                }).state('blog', {
-                    route: '/blog',
-                    name: 'blog'
-                }).state('blog.recent', {
-                    route: '/recent',
-                    name: 'blog.recent'
-                }).state('blog.other', {
-                    route: '/other',
-                    name: 'blog.other'
-                }).state('about', {
-                    route: '/about',
-                    name: 'about'
-                }).state('about.cv', {
-                    route: '/cv',
-                    name: 'about.cv'
-                }).state('about.other', {
-                    route: '/other',
-                    name: 'about.other'
-                }).state('gallery', {
-                    route: '/gallery',
-                    name: 'gallery'
-                }).state('gallery.overview', {
-                    route: '/overview',
-                    name: 'gallery.overview'
-                }).state('gallery.details', {
-                    route: '/details',
-                    name: 'gallery.details'
-                }).state('admin', {
-                    route: '/admin',
-                    name: 'admin'
-                });
-                $stateTransitionProvider.transition('*', 'admin', function ($transition) {
-                    $transition.cancel();
-                });
+        beforeEach(mod('ui.routing', function ($stateProvider, $stateTransitionProvider) {
+            $stateProvider.state('home', {
+                route: '/',
+                name: 'about'
+            }).state('blog', {
+                route: '/blog',
+                name: 'blog'
+            }).state('blog.recent', {
+                route: '/recent',
+                name: 'blog.recent'
+            }).state('blog.other', {
+                route: '/other',
+                name: 'blog.other'
+            }).state('about', {
+                route: '/about',
+                name: 'about'
+            }).state('about.cv', {
+                route: '/cv',
+                name: 'about.cv'
+            }).state('about.other', {
+                route: '/other',
+                name: 'about.other'
+            }).state('gallery', {
+                route: '/gallery/:id',
+                name: 'gallery'
+            }).state('gallery.overview', {
+                route: '/overview',
+                name: 'gallery.overview'
+            }).state('gallery.details', {
+                route: '/details/:page',
+                name: 'gallery.details'
+            }).state('admin', {
+                route: '/admin',
+                name: 'admin'
             });
+            $stateTransitionProvider.transition('*', 'admin', function ($transition) {
+                $transition.cancel();
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        it('updates location when route is present', function () {
             inject(function ($location, $route, $state) {
-                $state.goto('blog');
-                expect($location.path()).toBe('/blog');
                 $state.goto('blog');
                 expect($location.path()).toBe('/blog');
                 $state.goto('about.other');
                 expect($location.path()).toBe('/about/other');
             });
         });
+        it('updates location when route is present and fills in parameters', function () {
+            inject(function ($location, $route, $state) {
+                $state.goto('gallery', {
+                    id: 42
+                });
+                expect($location.path()).toBe('/gallery/42');
+                $state.goto('gallery', {
+                    id: 4224
+                });
+                expect($location.path()).toBe('/gallery/4224');
+                $state.goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($location.path()).toBe('/gallery/4224/details/1');
+            });
+        });
+        it('updates location when route is present and fills in parameters and keeps those not defined', function () {
+            inject(function ($location, $route, $state) {
+                $state.goto('gallery', {
+                    id: 42
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42');
+                $state.goto('gallery.details', {
+                    page: 1
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1');
+                $state.goto('gallery.details', {
+                    id: 2
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/2/details/1');
+                $state.goto('gallery.details', {
+                    id: 33,
+                    page: 42
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/33/details/42');
+            });
+        });
+        it('updates location when route is present and puts aditional parameters on search', function () {
+            inject(function ($location, $route, $state) {
+                $state.goto('gallery', {
+                    id: 42,
+                    search: "woahh"
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42?search=woahh');
+                $state.goto('gallery.details', {
+                    page: 1
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1');
+                $state.goto('gallery.details', {
+                    search: "woahh"
+                });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1?search=woahh');
+            });
+        });
     });
     describe("lookup", function () {
         beforeEach(mod('ui.routing', function ($stateProvider) {
-            $stateProvider.state('state1', {
-            }).state('state1.top1', {
-            }).state('state1.top1.mid1', {
-            }).state('state1.top1.mid1.bot1', {
-            }).state('state1.top1.mid1.bot2', {
-            }).state('state1.top1.mid1.bot3', {
-            }).state('state1.top1.mid2', {
-            }).state('state1.top1.mid2.bot1', {
-            }).state('state1.top1.mid2.bot2', {
-            }).state('state1.top1.mid2.bot3', {
-            }).state('state1.top1.mid3', {
-            }).state('state1.top1.mid3.bot1', {
-            }).state('state1.top1.mid3.bot2', {
-            }).state('state1.top1.mid3.bot3', {
-            }).state('state1.top2', {
-            }).state('state1.top2.mid1', {
-            }).state('state1.top2.mid1.bot1', {
-            }).state('state1.top2.mid1.bot2', {
-            }).state('state1.top2.mid1.bot3', {
-            }).state('state1.top2.mid2', {
-            }).state('state1.top2.mid2.bot1', {
-            }).state('state1.top2.mid2.bot2', {
-            }).state('state1.top2.mid2.bot3', {
-            }).state('state1.top2.mid3', {
-            }).state('state1.top2.mid3.bot1', {
-            }).state('state1.top2.mid3.bot2', {
-            }).state('state1.top2.mid3.bot3', {
-            }).state('state1.top3', {
-            }).state('state1.top3.mid1', {
-            }).state('state1.top3.mid1.bot1', {
-            }).state('state1.top3.mid1.bot2', {
-            }).state('state1.top3.mid1.bot3', {
-            }).state('state1.top3.mid2', {
-            }).state('state1.top3.mid2.bot1', {
-            }).state('state1.top3.mid2.bot2', {
-            }).state('state1.top3.mid2.bot3', {
-            }).state('state1.top3.mid3', {
-            }).state('state1.top3.mid3.bot1', {
-            }).state('state1.top3.mid3.bot2', {
-            }).state('state1.top3.mid3.bot3', {
-            }).state('state2', {
-            }).state('state2.top1', {
-            }).state('state2.top1.mid1', {
-            }).state('state2.top1.mid1.bot1', {
-            }).state('state2.top1.mid1.bot2', {
-            }).state('state2.top1.mid1.bot3', {
-            }).state('state2.top1.mid2', {
-            }).state('state2.top1.mid2.bot1', {
-            }).state('state2.top1.mid2.bot2', {
-            }).state('state2.top1.mid2.bot3', {
-            }).state('state2.top1.mid3', {
-            }).state('state2.top1.mid3.bot1', {
-            }).state('state2.top1.mid3.bot2', {
-            }).state('state2.top1.mid3.bot3', {
-            }).state('state2.top2', {
-            }).state('state2.top2.mid1', {
-            }).state('state2.top2.mid1.bot1', {
-            }).state('state2.top2.mid1.bot2', {
-            }).state('state2.top2.mid1.bot3', {
-            }).state('state2.top2.mid2', {
-            }).state('state2.top2.mid2.bot1', {
-            }).state('state2.top2.mid2.bot2', {
-            }).state('state2.top2.mid2.bot3', {
-            }).state('state2.top2.mid3', {
-            }).state('state2.top2.mid3.bot1', {
-            }).state('state2.top2.mid3.bot2', {
-            }).state('state2.top2.mid3.bot3', {
-            }).state('state2.top3', {
-            }).state('state2.top3.mid1', {
-            }).state('state2.top3.mid1.bot1', {
-            }).state('state2.top3.mid1.bot2', {
-            }).state('state2.top3.mid1.bot3', {
-            }).state('state2.top3.mid2', {
-            }).state('state2.top3.mid2.bot1', {
-            }).state('state2.top3.mid2.bot2', {
-            }).state('state2.top3.mid2.bot3', {
-            }).state('state2.top3.mid3', {
-            }).state('state2.top3.mid3.bot1', {
-            }).state('state2.top3.mid3.bot2', {
-            }).state('state2.top3.mid3.bot3', {
-            }).state('state3', {
-            }).state('state3.top1', {
-            }).state('state3.top1.mid1', {
-            }).state('state3.top1.mid1.bot1', {
-            }).state('state3.top1.mid1.bot2', {
-            }).state('state3.top1.mid1.bot3', {
-            }).state('state3.top1.mid2', {
-            }).state('state3.top1.mid2.bot1', {
-            }).state('state3.top1.mid2.bot2', {
-            }).state('state3.top1.mid2.bot3', {
-            }).state('state3.top1.mid3', {
-            }).state('state3.top1.mid3.bot1', {
-            }).state('state3.top1.mid3.bot2', {
-            }).state('state3.top1.mid3.bot3', {
-            }).state('state3.top2', {
-            }).state('state3.top2.mid1', {
-            }).state('state3.top2.mid1.bot1', {
-            }).state('state3.top2.mid1.bot2', {
-            }).state('state3.top2.mid1.bot3', {
-            }).state('state3.top2.mid2', {
-            }).state('state3.top2.mid2.bot1', {
-            }).state('state3.top2.mid2.bot2', {
-            }).state('state3.top2.mid2.bot3', {
-            }).state('state3.top2.mid3', {
-            }).state('state3.top2.mid3.bot1', {
-            }).state('state3.top2.mid3.bot2', {
-            }).state('state3.top2.mid3.bot3', {
-            }).state('state3.top3', {
-            }).state('state3.top3.mid1', {
-            }).state('state3.top3.mid1.bot1', {
-            }).state('state3.top3.mid1.bot2', {
-            }).state('state3.top3.mid1.bot3', {
-            }).state('state3.top3.mid2', {
-            }).state('state3.top3.mid2.bot1', {
-            }).state('state3.top3.mid2.bot2', {
-            }).state('state3.top3.mid2.bot3', {
-            }).state('state3.top3.mid3', {
-            }).state('state3.top3.mid3.bot1', {
-            }).state('state3.top3.mid3.bot2', {
-            }).state('state3.top3.mid3.bot3', {
-            });
+            for(var sta = 1; sta < 4; sta++) {
+                var stateName = 'state' + sta;
+                $stateProvider.state(stateName, {
+                });
+                for(var top = 1; top < 4; top++) {
+                    var topName = stateName + ".top" + top;
+                    $stateProvider.state(topName, {
+                    });
+                    for(var mid = 1; mid < 4; mid++) {
+                        var midName = topName + ".mid" + mid;
+                        $stateProvider.state(midName, {
+                        });
+                        for(var bot = 1; bot < 4; bot++) {
+                            var botName = midName + ".bot" + bot;
+                            $stateProvider.state(botName, {
+                            });
+                        }
+                    }
+                }
+            }
             return function ($rootScope, $state) {
                 scope = $rootScope;
                 state = $state;

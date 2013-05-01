@@ -98,8 +98,8 @@ module ui.routing {
         reload: (state?) => void;
         current?: any;
         lookup(path: string): any;
-        goto(state: string);
-        goto(state: any);
+        goto(state: string, params?: any);
+        goto(state: any, params?: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }

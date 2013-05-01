@@ -845,7 +845,9 @@ var $StateProvider = [
                     goto: function (state, params) {
                         goto({
                             state: state,
-                            params: params,
+                            params: {
+                                all: params
+                            },
                             updateroute: true
                         });
                     },
@@ -877,11 +879,6 @@ var $StateProvider = [
                     //TODO: Broadcast StateUpdate?
                                         var route = $route.current, params;
                     if(route) {
-                        params = {
-                            all: route.params,
-                            path: route.pathParams,
-                            search: route.searchParams
-                        };
                         //TODO: Refresh current state object with new parameters and raise event.
                                             } else {
                         //uhm o.O...
@@ -1036,14 +1033,27 @@ var $StateProvider = [
                             cancel = true;
                             goto({
                                 state: state,
-                                params: params
+                                params: {
+                                    all: params
+                                }
                             });
                         }
                     };
                     if(args.updateroute && to.route) {
+                        //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+                        //      maybe we can refactor those together
+                                                var paramsObj = {
+                        }, allFrom = (fromState.$params && fromState.$params.all) || {
+                        };
+                        forEach(to.route.params, function (param, name) {
+                            if(name in allFrom) {
+                                paramsObj[name] = allFrom[name];
+                            }
+                        });
+                        var mergedParams = extend(paramsObj, (params && params.all));
                         $route.change(extend({
                         }, to.route, {
-                            params: params
+                            params: mergedParams
                         }));
                         return;
                     }

@@ -135,7 +135,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
                 current: extend({}, root.self),
-                goto: (state, params) => { goto({ state: state, params: params, updateroute: true }); },
+                goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
                 lookup: lookup,
                 reload: reload
             };
@@ -162,11 +162,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             var route = $route.current,
                 params;
             if (route) {
-                params = {
-                    all: route.params,
-                    path: route.pathParams,
-                    search: route.searchParams
-                };
+
                 //TODO: Refresh current state object with new parameters and raise event.
             } else {
                 //uhm o.O...
@@ -325,9 +321,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
             return toArray.reverse();
         }
-
-
-
+        
         function goto(args: { state; params?; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -353,12 +347,20 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     },
                     goto: (state, params?) => {
                         cancel = true;
-                        goto({ state: state, params: params });
+                        goto({ state: state, params: { all: params } });
                     }
                 };
-
+            
             if (args.updateroute && to.route) {
-                $route.change(extend({}, to.route, { params: params }));
+                //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+                //      maybe we can refactor those together
+                var paramsObj = {}, allFrom = (fromState.$params && fromState.$params.all) || {};
+                forEach(to.route.params, (param, name) => {
+                    if(name in allFrom) paramsObj[name] = allFrom[name];
+                });
+
+                var mergedParams = extend(paramsObj, (params && params.all))
+                $route.change(extend({}, to.route, { params: mergedParams }));
                 return;
             }
 
