@@ -6,12 +6,14 @@
 
 interface ISegment {
     name: string;
-    converter: (arg: any) => any;
+    converter: () => (arg: any) => any;
 }
 
 interface IExpression {
-    complete: RegExp;
-    segments: ISegment[];
+    exp?: RegExp;
+    segments?: ISegment[];
+    params?: any;
+    name?: string;
 }
 
 interface IRoute {
@@ -19,7 +21,6 @@ interface IRoute {
     redirect: ($location, params) => any;
     match: (path: string) => any;
 }
-
 
 /**
  * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
@@ -142,16 +143,28 @@ function $RouteProvider() {
      *      `$routeUpdate` event is broadcasted on the root scope.
      */
     this.when = (path: string, route: ui.routing.IRoute) => {
-        var normalized = normalizePath(path);
-        routes[normalized.name] = {
+        var expression = parseExpression(path);
+        routes[expression.name] = {
             self: extend({ reloadOnSearch: true }, route),
             redirect: createRedirector(route.redirectTo),
-            match: createMatcher(path),
-            path: path,
-            params: normalized.params
+            match: createMatcher(path, expression),
+            params: expression.params,
+            path: path
         };
 
-        return this;
+        return {
+            convert: this.convert,
+            when: this.when,
+            otherwise: this.otherwise,
+            decorate: this.decorate,
+            ignoreCase: this.ignoreCase,
+            matchCase: this.matchCase,
+            $route: {
+                name: expression.name,
+                params: copy(expression.params),
+                route: path
+            }
+        };
     };
 
     /**
@@ -186,23 +199,6 @@ function $RouteProvider() {
 
     //Scoped Methods
 
-    function interpolate(url, params) {
-        //TODO: We only support :params here, but that might be ok for now as we are constructing an url.
-        var result = [];
-        forEach((url || '').split(':'), function (segment, i) {
-            if (i == 0) {
-                result.push(segment);
-            } else {
-                var segmentMatch = segment.match(/(\w+)(.*)/);
-                var key = segmentMatch[1];
-                result.push(params[key]);
-                result.push(segmentMatch[2] || '');
-                delete params[key];
-            }
-        });
-        return result.join('');
-    }
-
     function createRedirector(redirectTo: any): any {
         var fn = null;
         return function ($location, next) {
@@ -231,27 +227,39 @@ function $RouteProvider() {
         };
     }
 
-    function createSegment(match: RegExpExecArray) {
-        var cname = match[6] || '',
-            carg = match[8],
-            trimmed;
+    function createParameter(name, converter, cargs) {
+        var trimmed;
 
-        if (carg) {
-            trimmed = carg.trim();
+        if (cargs) {
+            trimmed = cargs.trim();
             if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') ||
                 (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']') ) {
                 try {
-                    carg = angular.fromJson(trimmed);
+                    cargs = angular.fromJson(trimmed);
                 } catch (e) {
-                //Note: Errors are ok here, we let it remain as a string.
+                    //Note: Errors are ok here, we let it remain as a string.
                 }
             }
         }
 
         return {
-            name: match[3] || match[9],
-            converter: converters[cname](carg)
+            name: name,
+            converter: function () { return converters[converter](cargs); }
         }
+    }
+
+    function interpolate(url, params) {
+        var result = [], name = "", index = 0;
+        forEach(parseParams(url), (param: IParam, idx) => {
+            if (param.converter !== '') {
+                //TODO: use converter to convert param to string.
+            }
+            name += url.slice(index, param.index) + '/' + params[param.name].toString();
+            index = param.lastIndex;
+            delete params[param.name];
+        });
+        name += url.substr(index);
+        return name;
     }
 
     var esc = /[-\/\\^$*+?.()|[\]{}]/g;
@@ -259,107 +267,99 @@ function $RouteProvider() {
         return exp.replace(esc, "\\$&");
     }
 
-    // NOTE: Hoisting brings the declaration (not assignment) of re to the top. I have left it here
-    //       so it is only used in parseExpression, but defining it inside would case a new re on each
-    //       call to parseExpression, and that is not needed.
-    var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
+    var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
+    function parseParams(path: string): IParam[] {
+        var match: RegExpExecArray,
+            params = [];
+
+        if (path === null)
+            return params;
+
+        while ((match = paramsRegex.exec(path)) !== null) {
+            params.push({
+                name: match[3] || match[9],
+                converter: match[6] || '',
+                args: match[8],
+                index: match.index,
+                lastIndex: paramsRegex.lastIndex
+            });
+        }
+
+        return params;
+    }
+
     function parseExpression(path: string): IExpression {
         var regex = "^",
+            name = "",
             segments = [],
             index = 0,
-            match: RegExpExecArray,
-            flags = '';
+            flags = '',
+            params = {};
 
-        if (path === '/') return {
-            complete: new RegExp('^[\x2F]?$', flags),
-            segments: []
-        };
+        if (path === null) return { name: null, params: params };
+        if (path === '/')
+            return {
+                exp: new RegExp('^[\x2F]?$', flags),
+                segments: [],
+                name: name,
+                params: params
+            };
 
-        while ((match = re.exec(path)) !== null) {
-            regex += escape(path.slice(index, match.index));
+        forEach(parseParams(path), (param: IParam, idx) => {
+            var cname = '';
+
+            regex += escape(path.slice(index, param.index));
             regex += '/([^\\/]*)';
-            segments.push(createSegment(match));
-            index = re.lastIndex;
-        }
-        regex += escape(path.substr(index));
+            
+            if (param.converter !== '')
+                cname = ":" + param.converter;
+            
+            name += path.slice(index, param.index) + '/$' + idx + cname;
 
-        if (!caseSensitive) flags += 'i';
+            params[param.name] = {
+                id: idx,
+                converter: param.converter
+            };
+
+            segments.push(createParameter(param.name, param.converter, param.args));
+            index = param.lastIndex;
+        });
+
+        regex += escape(path.substr(index));
+        name += path.substr(index);
+        if (!caseSensitive) {
+            name = name.toLowerCase();
+            flags += 'i';
+        }
+
         if (regex[regex.length - 1] === '\x2F')
             regex = regex.substr(0, regex.length - 1);
 
         return {
-            complete: new RegExp(regex + '\x2F?$', flags),
-            segments: segments
-        };
-    }
-
-    function normalizePath(path: string) {
-        var name = "",
-            index = 0,
-            match: RegExpExecArray,
-            counter = 0,
-            params = {};
-
-        if (path === null)
-            return {
-                name: null,
-                params: params
-            };
-
-        while ((match = re.exec(path)) !== null) {
-            var converter = match[6] || '',
-                paramName = match[3] || match[9];
-
-            params[paramName] = {
-                id: counter,
-                converter: converter
-            };
-
-            if (converter !== '') {
-                converter = ":" + converter;
-            }
-            name += path.slice(index, match.index) + '/$' + (counter++) + converter;
-            index = re.lastIndex;
-        }
-        name += path.substr(index);
-
-        if (!caseSensitive)
-            name = name.toLowerCase();
-
-        return {
+            exp: new RegExp(regex + '\x2F?$', flags),
+            segments: segments,
             name: name,
             params: params
         };
     }
 
-    function createMatcher(path: string) {
+    function createMatcher(path: string, expression: IExpression) {
         if (path == null)
             return (location: string) => { }
 
-        var expFac = () => {
-            var v = parseExpression(path);
-            expFac = () => {
-                return v;
-            }
-            return expFac();
-        }
-
         return (location: string) => {
-            var exp: IExpression = expFac(),
-                match = location.match(exp.complete),
+            var match = location.match(expression.exp),
                 dst = {},
                 invalidParam;
 
             if (match) {
-
-                //if (location.match(exp.complete)) {
                 invalidParam = false;
-                forEach(exp.segments, function (segment: ISegment, index) {
+                forEach(expression.segments, function (segment: ISegment, index) {
                     var param,
                         value;
                     if (!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter(param);
+                        value = segment.converter()(param);
                         if (isDefined(value.accept)) {
                             if (!value.accept)
                                 invalidParam = true;
@@ -374,9 +374,6 @@ function $RouteProvider() {
 
                 if (!invalidParam)
                     return dst;
-                //} else {
-                //TODO: Match nested routes
-                //}
             }
         }
     }
@@ -432,6 +429,16 @@ function $RouteProvider() {
                 reload: function () {
                     forceReload = true;
                     $rootScope.$evalAsync(update);
+                },
+                change: function (args: { route: string; params?: any; replace?: bool; }) {
+                    var params = args.params || {},
+                        route = interpolate(args.route, params),
+                        loc = $location
+                            .path(route)
+                            .search(params || {});
+
+                    if(args.replace)
+                        loc.replace();
                 }
             };
 

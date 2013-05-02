@@ -1,9 +1,15 @@
 /// <reference path="testcommon.ts" />
 
+
+
 describe('$stateProvider', function () {
     'use strict';
     var mock = angular.mock;
+    var mod = mock['module'];
+    var inject = mock.inject;
+
     var scope: ng.IRootScopeService;
+    var state: ui.routing.IStateService;
 
     function stringifyTransition(tansition) {
         var children = [],
@@ -40,7 +46,7 @@ describe('$stateProvider', function () {
         return current;
     }
 
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mod('ui.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
@@ -49,11 +55,11 @@ describe('$stateProvider', function () {
     describe("state names", () => {
         it('valid passes', function () {
             var provider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 provider = $stateProvider;
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 provider
                     .state('valid', {})
                     .state('valid.sub1', {})
@@ -65,11 +71,11 @@ describe('$stateProvider', function () {
 
         it('invalid throws errors', function () {
             var provider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 provider = $stateProvider;
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 expect(function () { provider.state('', {}); }).toThrow("Invalid name: ''.");
                 expect(function () { provider.state('.!"#', {}); }).toThrow("Invalid name: '.!\"#'.");
                 expect(function () { provider.state('.', {}); }).toThrow("Invalid name: '.'.");
@@ -82,11 +88,11 @@ describe('$stateProvider', function () {
 
         it('invalid throws errors', function () {
             var provider;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 provider = $stateProvider;
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 expect(function () { provider.state('valid.sub1', {}); }).toThrow("Could not locate 'valid' under 'root'.");
                 expect(function () { provider.state('another.sub1', {}); }).toThrow("Could not locate 'another' under 'root'.");
                 expect(stringifyState($state.root)).toBe("()");
@@ -108,18 +114,18 @@ describe('$stateProvider', function () {
 
     describe("state", () => {
         it('can define state', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog())");
             });
         });
 
         it('can define state hierarchy using . notation', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('blog.recent', { name: 'recent' })
@@ -127,13 +133,13 @@ describe('$stateProvider', function () {
                     .state('blog.item', { name: 'item' })
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
         it('can overwrite state in hierarchy using . notation', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('blog.recent', { name: 'xrecent' })
@@ -142,7 +148,7 @@ describe('$stateProvider', function () {
                     .state('blog.recent', { name: 'recent' });
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -150,7 +156,7 @@ describe('$stateProvider', function () {
         });
 
         it('can define hierarchy using object notation', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', {
                         name: 'blog',
@@ -166,13 +172,13 @@ describe('$stateProvider', function () {
                     })
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
         it('can overwrite state in hierarchy using object notation', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', {
                         name: 'blog',
@@ -196,7 +202,7 @@ describe('$stateProvider', function () {
                     });
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -205,7 +211,7 @@ describe('$stateProvider', function () {
         });
 
         it('can overwrite state in hierarchy using . notation after having used object notation', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', {
                         name: 'blog',
@@ -222,7 +228,7 @@ describe('$stateProvider', function () {
                     .state('blog.recent', { name: 'recent' });
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -231,7 +237,7 @@ describe('$stateProvider', function () {
         });
 
         it('can clear children under a state using null', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('blog.recent', { name: 'recent' })
@@ -240,7 +246,7 @@ describe('$stateProvider', function () {
                     .state('blog.recent', { children: null });
             });
 
-            mock.inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: ui.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
             });
         });
@@ -251,7 +257,7 @@ describe('$stateProvider', function () {
 
     describe("state $routeChangeSuccess", () => {
         it('will broadcast $stateChangeSuccess and set current state', function () {
-            mock.module(function (
+            mod(function (
                 $stateProvider: ui.routing.IStateProvider,
                 $routeProvider: ui.routing.IRouteProvider) {
                 $stateProvider
@@ -262,9 +268,7 @@ describe('$stateProvider', function () {
                     .when('/about', { state: 'about' });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
-                
-
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -277,7 +281,7 @@ describe('$stateProvider', function () {
         });
 
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function (
+            mod(function (
                 $stateProvider: ui.routing.IStateProvider,
                 $routeProvider: ui.routing.IRouteProvider) {
 
@@ -290,7 +294,7 @@ describe('$stateProvider', function () {
                     .when('/about', { state: 'about' });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -309,7 +313,7 @@ describe('$stateProvider', function () {
         });
 
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function (
+            mod(function (
                 $stateProvider: ui.routing.IStateProvider,
                 $routeProvider: ui.routing.IRouteProvider) {
 
@@ -326,7 +330,7 @@ describe('$stateProvider', function () {
                     .when('/about', { state: 'about' });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -345,7 +349,7 @@ describe('$stateProvider', function () {
         });
 
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
-            mock.module(function (
+            mod(function (
                 $stateProvider: ui.routing.IStateProvider) {
 
                 $stateProvider
@@ -355,7 +359,7 @@ describe('$stateProvider', function () {
                     .state('about', { route: '/blog', name: 'about' });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -372,9 +376,9 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
             });
         });
-
+        
         it('can register states with and without routes', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                     .state('top', { route: '/top', name: 'top' })
                     .state('top.center', { name: 'top.center' })
@@ -382,7 +386,7 @@ describe('$stateProvider', function () {
                     .state('top.center.two', { route: '/two', name: 'top.center.two' });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -402,11 +406,12 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('top.center.two');
-                expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');            });
+                expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
+            });
         });
 
         it('states invoke view service with view on change', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                             .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
                             .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
@@ -417,13 +422,14 @@ describe('$stateProvider', function () {
                             .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
                 spyOn($view, 'setIfAbsent');
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); viewSpy.reset(); }
                 function go(path: string) {
+                    reset();
                     $location.path(path);
                     scope.$digest();
                 };
@@ -435,25 +441,21 @@ describe('$stateProvider', function () {
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
 
-                reset();
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('sub');
 
-                reset();
                 go('/top/sub/bot');
                 expect($state.current.name).toBe('bot');
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('bot');
 
-                reset();
                 go('/foo/bar/baz');
                 expect($state.current.name).toBe('baz');
                 expect(viewSpy.callCount).toBe(3);
                 expect(viewSpy.calls[2].args[0]).toBe('baz');
 
-                reset();
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(viewSpy.callCount).toBe(1);
@@ -462,8 +464,74 @@ describe('$stateProvider', function () {
             });
         });
 
+        it('states invoke view service with sticky views', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', {
+                        route: '/top', name: 'top',
+                        views: { 'top': { template: "top tpl", sticky: true } }
+                    })
+                    .state('top.sub', {
+                        route: '/sub', name: 'sub',
+                        views: { 'sub': { template: "sub tpl" } }
+                    })
+
+                    .state('foo', {
+                        route: '/foo', name: 'foo',
+                        views: { 'foo': { template: "foo tpl", sticky: "imSticky" } }
+                    })
+                    .state('foo.bar', {
+                        route: '/bar', name: 'bar',
+                        views: { 'bar': { template: "bar tpl" } }
+                    })
+
+                    .state('ban', {
+                        route: '/ban', name: 'ban',
+                        views: { 'ban': { template: "ban tpl", sticky: [<any>'$to', function (to) { return to.$fullname; } ] } }
+                    })
+                    .state('ban.tar', {
+                        route: '/tar', name: 'tar',
+                        views: { 'tar': { template: "tar tpl" } }
+                    })
+            });
+
+            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+                spyOn($view, 'setIfAbsent');
+                var setOrUpdate = spyOn($view, 'setOrUpdate');
+                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+
+                function reset() { spy.reset(); setOrUpdate.reset(); }
+                function go(path: string) {
+                    reset();
+                    $location.path(path);
+                    scope.$digest();
+                };
+
+
+                go('/top');
+                expect($state.current.name).toBe('top');
+                expect(setOrUpdate.calls[0].args).toEqual(['top','top tpl', undefined,'root.top']);
+
+                go('/top/sub');
+                expect($state.current.name).toBe('sub');
+                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, 'root.top']);
+
+                go('/foo/bar');
+                expect($state.current.name).toBe('bar');
+                expect(setOrUpdate.calls[0].args).toEqual(['foo', 'foo tpl', undefined, 'imSticky']);
+
+                go('/ban');
+                expect($state.current.name).toBe('ban');
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, 'root.ban']);
+
+                go('/ban/tar');
+                expect($state.current.name).toBe('tar');
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, 'root.ban.tar']);
+            });
+        });
+
         it('can reload state', function () {
-            mock.module(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
                             .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
                             .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
@@ -474,7 +542,7 @@ describe('$stateProvider', function () {
                             .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
                 spyOn($view, 'setIfAbsent');
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
@@ -511,37 +579,19 @@ describe('$stateProvider', function () {
 
                 reload('top.sub');
                 expect(viewSpy.callCount).toBe(2);
-
-                //expect(viewSpy.calls[0].args[0]).toBe('sub');
-
-                //reset();
-                //go('/top/sub/bot');
-                //expect($state.current.name).toBe('bot');
-                //expect(viewSpy.callCount).toBe(1);
-                //expect(viewSpy.calls[0].args[0]).toBe('bot');
-
-                //reset();
-                //go('/foo/bar/baz');
-                //expect($state.current.name).toBe('baz');
-                //expect(viewSpy.callCount).toBe(3);
-                //expect(viewSpy.calls[2].args[0]).toBe('baz');
-
-                //reset();
-                //go('/foo/bar');
-                //expect($state.current.name).toBe('bar');
-                //expect(viewSpy.callCount).toBe(1);
-                //expect(viewSpy.calls[0].args[0]).toBe('bar');
-
             });
         });
 
-        it('states with parameters get invoked on parameter change', function () {            mock.module(function ($stateProvider: ui.routing.IStateProvider) {                $stateProvider
-                    .state('top', { route: '/top/:top', name: 'top', views: { 'top': { template: "top" } } })
-                    .state('top.sub', { route: '/sub/:sub', name: 'sub', views: { 'sub': { template: "sub" } } })
-                    .state('top.sub.bot', { route: '/bot/:bot', name: 'bot', views: { 'bot': { template: "bot" } } })
+        it('states with parameters get invoked on parameter change', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                            .state('top', { route: '/top/:top', name: 'top', views: { 'top': { template: "top" } } })
+                            .state('top.sub', { route: '/sub/:sub', name: 'sub', views: { 'sub': { template: "sub" } } })
+                            .state('top.sub.bot', { route: '/bot/:bot', name: 'bot', views: { 'bot': { template: "bot" } } })
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) { (<any>$state).debug = true;
+            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+                (<any>$state).debug = true;
                 (<any>$state).debug = true;
                 function go(path: string) {
                     $location.path(path);
@@ -550,7 +600,7 @@ describe('$stateProvider', function () {
 
                 var viewSpy = spyOn($view, 'setOrUpdate'); spyOn($view, 'setIfAbsent'); var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
-                                
+
                 go('/top/1');
                 expect($state.current.name).toBe('top');
                 expect($state.current.$params.all.top).toBe('1');
@@ -643,7 +693,8 @@ describe('$stateProvider', function () {
                 expect(viewSpy.calls[0].args[0]).toBe('top');
                 expect(viewSpy.calls[1].args[0]).toBe('sub');
                 expect(viewSpy.calls[2].args[0]).toBe('bot');
-            });        });
+            });
+        });
     });
 
     //Note: Integration tests between $transition and $state etc.
@@ -651,7 +702,7 @@ describe('$stateProvider', function () {
     describe("$transition $routeChangeSuccess", () => {
         it('Correct Transitions are called on state change.', function () {
             var last;
-            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+            mod(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
                 $stateProvider
                         .state('home', { route: '/', name: 'about' })
 
@@ -676,7 +727,7 @@ describe('$stateProvider', function () {
                         .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
@@ -699,7 +750,8 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('Transitions can be canceled.', function () {            mock.module(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+        it('Transitions can be canceled.', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
                 $stateProvider
                     .state('home', { route: '/', name: 'about' })
 
@@ -723,7 +775,7 @@ describe('$stateProvider', function () {
                     });
             });
 
-            mock.inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: ui.routing.IStateService) {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
@@ -740,6 +792,493 @@ describe('$stateProvider', function () {
                 go('/admin');
                 expect($state.current.name).toBe('about');
 
+            });
+        });
+    });
+
+    //Note: Integration tests between $transition and $state etc.
+
+    describe("goto", function () {
+
+        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+            $stateProvider
+                .state('home', { route: '/', name: 'about' })
+
+                .state('blog', { route: '/blog', name: 'blog' })
+                .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                .state('blog.other', { route: '/other', name: 'blog.other' })
+
+                .state('about', { route: '/about', name: 'about' })
+                .state('about.cv', { route: '/cv', name: 'about.cv' })
+                .state('about.other', { route: '/other', name: 'about.other' })
+
+                .state('gallery', { route: '/gallery/:id', name: 'gallery' })
+                .state('gallery.overview', { route: '/overview', name: 'gallery.overview' })
+                .state('gallery.details', { route: '/details/:page', name: 'gallery.details' })
+
+                .state('admin', { route: '/admin', name: 'admin' });
+
+            $stateTransitionProvider
+                .transition('*', 'admin', ($transition) => {
+                    $transition.cancel();
+                });
+
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+
+        it('updates location when route is present', function () {
+            inject(function ($location: ng.ILocationService,
+                                  $route: ng.IRouteService,
+                                  $state: ui.routing.IStateService) {
+
+                $state.goto('blog');                expect($location.path()).toBe('/blog');
+
+                $state.goto('about.other');                expect($location.path()).toBe('/about/other');            });
+        });
+
+        it('updates location when route is present and fills in parameters', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
+
+                $state.goto('gallery', { id: 42 });
+                expect($location.path()).toBe('/gallery/42');
+
+                $state.goto('gallery', { id: 4224 });
+                expect($location.path()).toBe('/gallery/4224');
+
+                $state.goto('gallery.details', { id: 4224, page: 1 });
+                expect($location.path()).toBe('/gallery/4224/details/1');
+            });
+        });
+
+        it('updates location when route is present and fills in parameters and keeps those not defined', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
+
+                $state.goto('gallery', { id: 42 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42');
+
+                $state.goto('gallery.details', { page: 1 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1');
+
+                $state.goto('gallery.details', { id: 2 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/2/details/1');
+
+                $state.goto('gallery.details', { id: 33, page: 42 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/33/details/42');
+            });
+        });
+
+        it('updates location when route is present and puts aditional parameters on search', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
+
+                $state.goto('gallery', { id: 42, search: "woahh" });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42?search=woahh');
+
+                $state.goto('gallery.details', { page: 1 });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1');
+
+                $state.goto('gallery.details', { search: "woahh" });
+                scope.$digest();
+                expect($location.url()).toBe('/gallery/42/details/1?search=woahh');
+            });
+        });
+    });
+
+    describe("lookup", () => {
+        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
+            for (var sta = 1; sta < 4; sta++) {
+                var stateName = 'state' + sta;
+                $stateProvider.state(stateName, {});
+                for (var top = 1; top < 4; top++) {
+                    var topName = stateName + ".top" + top;
+                    $stateProvider.state(topName, {});
+                    for (var mid = 1; mid < 4; mid++) {
+                        var midName = topName + ".mid" + mid;
+                        $stateProvider.state(midName, {});
+                        for (var bot = 1; bot < 4; bot++) {
+                            var botName = midName + ".bot" + bot;
+                            $stateProvider.state(botName, {});
+                        }
+                    }
+                }
+            }
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+
+        function goto(target: string) {
+            state.goto(target);
+            scope.$digest();
+        }
+
+        describe('at root', function () {
+
+            it('lookup state1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("state1");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+
+            it('lookup ./state1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("./state1");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+
+            it('lookup /state1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("/state1");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+
+            it('lookup state1/top3', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("state1/top3");
+                    expect(state.$fullname).toBe('root.state1.top3');
+                });
+            });
+
+            it('lookup state1/top3/mid2/bot1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("state1/top3/mid2/bot1");
+                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                });
+            });
+
+            it('lookup [0] returns root.state1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("[0]");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+
+            it('lookup [-1]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("[-1]");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+
+            it('lookup [-2]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("[-2]");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+
+            it('lookup [1]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    var state = $state.lookup("[1]");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+        });
+
+
+        describe('at state1', function () {
+            var target = 'state1';
+
+            it('lookup top1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("top1");
+                    expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+
+            it('lookup ./top1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("./top1");
+                    expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+
+            it('lookup top3/mid2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("top3/mid2");
+                    expect(state.$fullname).toBe('root.state1.top3.mid2');
+                });
+            });
+
+            it('lookup top3/mid2/bot1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("top3/mid2/bot1");
+                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                });
+            });
+
+            it('lookup [0]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[0]");
+                    expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+
+            it('lookup [-1]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[-1]");
+                    expect(state.$fullname).toBe('root.state1.top3');
+                });
+            });
+
+            it('lookup [-2]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[-2]");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+
+            it('lookup [1]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[1]");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+
+            it('lookup .', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup(".");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
+
+            it('lookup ../state2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("../state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+
+            it('lookup ../state2/top2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("../state2/top2");
+                    expect(state.$fullname).toBe('root.state2.top2');
+                });
+            });
+
+            it('lookup /state2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("/state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+
+            it('lookup $node(1)', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("$node(1)");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+
+            it('lookup $node(-1)', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("$node(-1)");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+
+            it('lookup $node(5)', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("$node(5)");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+
+            it('lookup $node(-7)', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("$node(-7)");
+                    expect(state.$fullname).toBe('root.state3');
+                });
+            });
+
+            it('lookup .. throws error', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    expect(function () { $state.lookup(".."); })
+                        .toThrow();
+                });
+            });
+
+            it('lookup ../.. throws error', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    expect(function () { $state.lookup("../.."); })
+                        .toThrow();
+                });
+            });
+
+            it('lookup fubar throws error', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    expect(function () { $state.lookup("fubar"); })
+                        .toThrow();
+                });
+            });
+
+            it('lookup top3/fubar throws error', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    expect(function () { $state.lookup("top3/fubar"); })
+                        .toThrow();
+                });
+            });
+        });
+
+
+        describe('at state1.top2.mid2', function () {
+            var target = 'state1.top2.mid2';
+
+            it('lookup bot1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("bot1");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+
+            it('lookup ./bot1', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("./bot1");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+
+            it('lookup [0]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[0]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+
+            it('lookup [-1]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[-1]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot3');
+                });
+            });
+
+            it('lookup [-2]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[-2]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                });
+            });
+
+            it('lookup [1]', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("[1]");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                });
+            });
+
+            it('lookup .', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup(".");
+                    expect(state.$fullname).toBe('root.state1.top2.mid2');
+                });
+            });
+
+            it('lookup ../../top2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("../../top2");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+
+            it('lookup ../../../state2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("../../../state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
+            });
+
+            it('lookup ../../../state2/top2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("../../../state2/top2");
+                    expect(state.$fullname).toBe('root.state2.top2');
+                });
+            });
+
+            it('lookup /state2', function () {
+                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                    goto(target);
+
+                    var state = $state.lookup("/state2");
+                    expect(state.$fullname).toBe('root.state2');
+                });
             });
         });
     });

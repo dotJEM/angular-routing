@@ -483,9 +483,9 @@ describe('$routeProvider', function () {
         it('matches an uppercase route whit an lowercase location', function () {
             var converterArgs;
             mock.module(function ($routeProvider) {
-                $routeProvider.when('/BOOK', {
+                $routeProvider.ignoreCase().when('/BOOK', {
                     message: "bookRoute"
-                }).ignoreCase();
+                });
             });
             mock.inject(function ($route, $location) {
                 spyOn($location, 'path').andReturn('/book');
@@ -496,6 +496,93 @@ describe('$routeProvider', function () {
                 scope.$digest();
                 expect(next).toBeDefined();
                 expect(next.message).toBe('bookRoute');
+            });
+        });
+    });
+    describe("change", function () {
+        var location;
+        beforeEach(mock.module('ui.routing', function ($routeProvider) {
+            return function ($rootScope, $location) {
+                scope = $rootScope;
+                location = $location;
+            };
+        }));
+        function goto(target) {
+            location.path(target);
+            scope.$digest();
+        }
+        it('without params changes location', function () {
+            var converterArgs;
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/book', {
+                    message: "bookRoute"
+                }).when('/look', {
+                    message: "lookRoute"
+                });
+            });
+            mock.inject(function ($route, $location) {
+                goto('/book');
+                expect($route.current.message).toBe('bookRoute');
+                $route.change({
+                    route: '/look'
+                });
+                scope.$digest();
+                expect($route.current.message).toBe('lookRoute');
+                expect(location.path()).toBe('/look');
+            });
+        });
+        it('with params changes location', function () {
+            var converterArgs;
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/book', {
+                    message: "bookRoute"
+                }).when('/book/:id', {
+                    message: "bookRouteWithId"
+                }).when('/look', {
+                    message: "lookRoute"
+                }).when('/look/:id', {
+                    message: "lookRouteWithId"
+                });
+            });
+            mock.inject(function ($route, $location) {
+                goto('/book');
+                expect($route.current.message).toBe('bookRoute');
+                $route.change({
+                    route: '/look/:id',
+                    params: {
+                        id: 42
+                    }
+                });
+                scope.$digest();
+                expect($route.current.message).toBe('lookRouteWithId');
+                expect(location.path()).toBe('/look/42');
+            });
+        });
+        it('with params with {x} notation', function () {
+            var converterArgs;
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/book', {
+                    message: "bookRoute"
+                }).when('/book/{id}', {
+                    message: "bookRouteWithId"
+                }).when('/look', {
+                    message: "lookRoute"
+                }).when('/look/{id}', {
+                    message: "lookRouteWithId"
+                });
+            });
+            mock.inject(function ($route, $location) {
+                goto('/book');
+                expect($route.current.message).toBe('bookRoute');
+                $route.change({
+                    route: '/look/{id}',
+                    params: {
+                        id: 42
+                    }
+                });
+                scope.$digest();
+                expect($route.current.message).toBe('lookRouteWithId');
+                expect(location.path()).toBe('/look/42');
             });
         });
     });

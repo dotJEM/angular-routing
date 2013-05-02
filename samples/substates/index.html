@@ -12,8 +12,10 @@
     <script src="../../lib/angular/impl/angular.js"></script>
     <script src="../../lib/angular/impl/angular-bootstrap.js"></script>
     <script src="../../lib/angular/impl/angular-bootstrap-prettify.js"></script>
-     <script src="../../lib/ui-bootstrap/impl/ui-bootstrap-tpls-0.2.0.min.js"></script>
+    <script src="../../lib/ui-bootstrap/impl/ui-bootstrap-tpls-0.2.0.min.js"></script>
     <script src="../../build/angular-routing.js"></script>
+    <script src="../../lib/angular-tree/impl/angular-tree.js"></script>
+
     <script src="script/data.js"></script>
     <script src="script/application.js"></script>
     <script src="script/blogService.js"></script>
@@ -63,7 +65,17 @@
                 <h2>States</h2>
             </div>
             <div class="modal-body">
-                <pre>{{states}}</pre>
+<!--                <ul ui-tree="states">
+                    <li>
+                        <span class="badge badge-success">{{item.$name}}</span>
+                        
+                        <div class="well">
+                            - {{item.fullname}}
+                        </div>
+                    </li>
+                </ul>-->
+                <pre>{{statesStr}}</pre>
+
             </div>
             <div class="modal-footer">
                 <button class="btn btn-warning cancel" ng-click="close()">Close</button>

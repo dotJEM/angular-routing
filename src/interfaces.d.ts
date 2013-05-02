@@ -18,10 +18,11 @@ module ui.routing {
 
     interface IViewService {
         clear(name?: string);
-        setOrUpdate(viewname: string, template?: any, controller?: any);
+        setOrUpdate(viewname: string, template?: any, controller?: any, sticky?:string);
         setIfAbsent(viewname: string, template?: any, controller?: any);
         get (viewname: string): IView;
         get (): IViewMap;
+        refresh(viewname?: string, data?: any);
 
         beginUpdate(): IViewTransaction;
     }
@@ -40,8 +41,8 @@ module ui.routing {
     }
 
     interface IRouteProvider {
-        when(path: string, route: any): IRouteProvider;
-        when(path: string, route: IRoute): IRouteProvider;
+        when(path: string, route: any): IWhenRouteProvider;
+        when(path: string, route: IRoute): IWhenRouteProvider;
 
         convert(name: string, converter: (...args: any[]) => any): IRouteProvider;
 
@@ -54,8 +55,14 @@ module ui.routing {
         matchCase(): IRouteProvider;
     }
 
+    interface IWhenRouteProvider extends IRouteProvider {
+        $route: { path: string; params: any; name: string; };
+    }
+
+
     interface IRouteService {
         reload: () => void;
+        change: (args: { route: string; params?: any; replace?: bool; }) => void;
         current?: any;
     }
 
@@ -90,6 +97,9 @@ module ui.routing {
         transition: any;
         reload: (state?) => void;
         current?: any;
+        lookup(path: string): any;
+        goto(state: string, params?: any);
+        goto(state: any, params?: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }

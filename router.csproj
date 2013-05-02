@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <None Include="banner" />
     <Content Include="build\angular-routing.js" />
     <Content Include="build\angular-routing.legacy.js" />
     <Content Include="build\angular-routing.legacy.min.js" />

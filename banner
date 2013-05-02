@@ -5,4 +5,3 @@
  *
  * @module angular-routing
  */
-(function(window, document, undefined) {

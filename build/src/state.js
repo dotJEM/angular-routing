@@ -26,33 +26,20 @@ var $StateProvider = [
             if(route !== '' && route[route.length - 1] === '/') {
                 route = route.substr(0, route.length - 1);
             }
-            if(stateRoute[0] !== '/') {
+            if(stateRoute[0] !== '/' && stateRoute !== '') {
                 route += '/';
             }
             route += stateRoute;
-            $routeProvider.when(route, {
+            return $routeProvider.when(route, {
                 state: stateName,
                 reloadOnSearch: reloadOnSearch
             });
-            return route;
         }
         function lookupRoute(parent) {
             while(isDefined(parent) && !isDefined(parent.route)) {
                 parent = parent.parent;
             }
-            return (parent && parent.route) || '';
-        }
-        var re = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
-        function findParams(path) {
-            var match, params = [];
-            if(path === null) {
-                return params;
-            }
-            while((match = re.exec(path)) !== null) {
-                var paramName = match[3] || match[9];
-                params.push(paramName);
-            }
-            return params;
+            return (parent && parent.route.route) || '';
         }
         function registerState(name, at, state) {
             var fullname = at.fullname + '.' + name, parent = at;
@@ -72,8 +59,7 @@ var $StateProvider = [
             at.fullname = fullname;
             at.parent = parent;
             if(isDefined(state.route)) {
-                at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch);
-                at.params = findParams(state.route);
+                at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
             }
             if(isDefined(state.onEnter)) {
                 $transitionProvider.onEnter(fullname, state.onEnter);
@@ -130,55 +116,21 @@ var $StateProvider = [
             function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
-                    root: root,
+                    root: // NOTE: root should not be used in general, it is exposed for testing purposes.
+                    root,
                     current: extend({
                     }, root.self),
                     goto: function (state, params) {
-                        goto(state, params);
-                    },
-                    lookup: function (path) {
-                        // XPath Inspired lookups
-                        //
-                        // /myState -> Selects myState from the root node.
-                        // ./myState -> Selects myState as a child of the current node.
-                        // ../myStaate -> Selects myState as a child of the parent node to this.
-                        // /myState.$1 -> Selects the first child of myState
-                        // /myState.$last -> Selects the last child of myState
-                        // .$next -> Selects the next sibling of current element
-                                            },
-                    nextSibling: //TODO: Implement functions that return siblings etc.
-                    '',
-                    prevSibling: '',
-                    parrent: function () {
-                        //TODO: Temporary implementation, we need to enable fetching these tings from current so we can keep navigating up.
-                        return extend({
-                        }, current.parent.self, {
-                            $params: currentParams,
-                            $route: $route.current
+                        goto({
+                            state: state,
+                            params: {
+                                all: params
+                            },
+                            updateroute: true
                         });
                     },
-                    children: '',
-                    reload: function (state) {
-                        if(isDefined(state)) {
-                            if(isString(state) || isObject(state)) {
-                                forceReload = toName(state);
-                                //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                                if(forceReload.indexOf('root') !== 0) {
-                                    forceReload = 'root.' + forceReload;
-                                }
-                                //console.log('forceReload (toName(state)): ' + forceReload);
-                                                            } else if(state) {
-                                forceReload = root.fullname;
-                                console.log('forceReload (root.fullname): ' + forceReload);
-                            }
-                        } else {
-                            forceReload = current.fullname;
-                            console.log('forceReload (current.fullname): ' + forceReload);
-                        }
-                        $rootScope.$evalAsync(function () {
-                            goto(current, currentParams, $route.current);
-                        });
-                    }
+                    lookup: lookup,
+                    reload: reload
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -189,23 +141,125 @@ var $StateProvider = [
                             search: route.searchParams
                         };
                         if(route.state) {
-                            goto(route.state, params, route);
+                            goto({
+                                state: route.state,
+                                params: params,
+                                route: route
+                            });
                         }
                     } else {
-                        goto(root);
+                        goto({
+                            state: root
+                        });
                     }
                 });
                 $rootScope.$on('$routeUpdate', function () {
                     //TODO: Broadcast StateUpdate?
-                                    });
+                                        var route = $route.current, params;
+                    if(route) {
+                        //TODO: Refresh current state object with new parameters and raise event.
+                                            } else {
+                        //uhm o.O...
+                                            }
+                });
                 return $state;
+                function lookup(path) {
+                    var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = current, sections;
+                    if(match) {
+                        selected = selectSibling(Number(match[1]), selected);
+                    } else {
+                        sections = path.split('/');
+                        forEach(sections, function (sec) {
+                            selected = select(sec, selected);
+                        });
+                    }
+                    if(selected === root) {
+                        throw new Error("Path expression out of bounds.");
+                    }
+                    return selected && extend({
+                    }, selected.self) || undefined;
+                }
+                ;
+                function selectSibling(index, selected) {
+                    var children = [], currentIndex;
+                    forEach(selected.parent.children, function (child) {
+                        children.push(child);
+                        if(selected.fullname === child.fullname) {
+                            currentIndex = children.length - 1;
+                        }
+                    });
+                    while(index < 0) {
+                        index += children.length;
+                    }
+                    index = (currentIndex + index) % children.length;
+                    return children[index];
+                }
+                function select(exp, selected) {
+                    if(exp === '.') {
+                        if(current !== selected) {
+                            throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+                        }
+                        return selected;
+                    }
+                    if(exp === '..') {
+                        if(isUndefined(selected.parent)) {
+                            throw new Error("Path expression out of bounds.");
+                        }
+                        return selected.parent;
+                    }
+                    if(exp === '') {
+                        if(current !== selected) {
+                            throw new Error("Invalid path expression.");
+                        }
+                        return root;
+                    }
+                    var match = exp.match('^\\[(-?\\d+)\\]$');
+                    if(match) {
+                        var index = Number(match[1]), children = [];
+                        forEach(selected.children, function (child) {
+                            children.push(child);
+                        });
+                        if(Math.abs(index) >= children.length) {
+                            throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+                        }
+                        return index < 0 ? children[children.length + index] : children[index];
+                    }
+                    if(exp in selected.children) {
+                        return selected.children[exp];
+                    }
+                    throw new Error("Could find state for the lookup path.");
+                }
+                function reload(state) {
+                    if(isDefined(state)) {
+                        if(isString(state) || isObject(state)) {
+                            forceReload = toName(state);
+                            //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
+                            if(forceReload.indexOf('root') !== 0) {
+                                forceReload = 'root.' + forceReload;
+                            }
+                        } else if(state) {
+                            forceReload = root.fullname;
+                        }
+                    } else {
+                        forceReload = current.fullname;
+                    }
+                    $rootScope.$evalAsync(function () {
+                        goto({
+                            state: current,
+                            params: currentParams,
+                            route: $route.current
+                        });
+                    });
+                }
                 function buildStateArray(state, params) {
                     function extractParams() {
                         var paramsObj = {
                         };
-                        forEach(current.params, function (name) {
-                            paramsObj[name] = params[name];
-                        });
+                        if(current.route) {
+                            forEach(current.route.params, function (param, name) {
+                                paramsObj[name] = params[name];
+                            });
+                        }
                         return paramsObj;
                     }
                     var states = [], current = state;
@@ -227,8 +281,9 @@ var $StateProvider = [
                             toAtIndex.changed = true;
                         } else if(isUndefined(toAtIndex)) {
                             toArray[0].changed = true;
-                        } else //We wen't up the hierachy.
-                        if(forceReload && forceReload == toAtIndex.state.fullname) {
+                            // We wen't up the hierachy. for now make the parent dirty.
+                            // however, this reloads the main view...
+                                                    } else if(forceReload && forceReload == toAtIndex.state.fullname) {
                             toAtIndex.changed = true;
                         } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
                             toAtIndex.changed = true;
@@ -240,30 +295,53 @@ var $StateProvider = [
                     }
                     return toArray.reverse();
                 }
-                function goto(to, params, route) {
+                function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var to = lookupState(toName(to)), toState = extend({
+                                        var params = args.params, route = args.route, to = lookupState(toName(args.state)), toState = extend({
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, event, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }), transition = {
                         cancel: function () {
                             cancel = true;
                         },
                         goto: function (state, params) {
                             cancel = true;
-                            goto(state, params);
+                            goto({
+                                state: state,
+                                params: {
+                                    all: params
+                                }
+                            });
                         }
                     };
+                    if(args.updateroute && to.route) {
+                        //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+                        //      maybe we can refactor those together
+                                                var paramsObj = {
+                        }, allFrom = (fromState.$params && fromState.$params.all) || {
+                        };
+                        forEach(to.route.params, function (param, name) {
+                            if(name in allFrom) {
+                                paramsObj[name] = allFrom[name];
+                            }
+                        });
+                        var mergedParams = extend(paramsObj, (params && params.all));
+                        $route.change(extend({
+                        }, to.route, {
+                            params: mergedParams
+                        }));
+                        return;
+                    }
                     emit.before(transition);
                     if(cancel) {
                         //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                        //      That is if this was even triggered by an URL change in teh first place.
+                        //      That is if this was even triggered by an URL change in the first place.
                         return;
                     }
-                    event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+                    var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         $q.when(toState).then(function () {
                             var useUpdate = false;
@@ -274,8 +352,20 @@ var $StateProvider = [
                                     useUpdate = true;
                                 }
                                 forEach(change.state.self.views, function (view, name) {
-                                    if(useUpdate) {
-                                        $view.setOrUpdate(name, view.template, view.controller);
+                                    var sticky;
+                                    if(view.sticky) {
+                                        sticky = view.sticky;
+                                        if(isFunction(sticky) || isArray(sticky)) {
+                                            sticky = $injector.invoke(sticky, sticky, {
+                                                $to: toState,
+                                                $from: fromState
+                                            });
+                                        } else if(!isString(sticky)) {
+                                            sticky = change.state.fullname;
+                                        }
+                                    }
+                                    if(useUpdate || isDefined(sticky)) {
+                                        $view.setOrUpdate(name, view.template, view.controller, sticky);
                                     } else {
                                         $view.setIfAbsent(name, view.template, view.controller);
                                     }

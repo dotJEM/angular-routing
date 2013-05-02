@@ -1,7 +1,7 @@
-﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
+﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing', 'ui.tree']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
            $routeProvider               .otherwise({ redirectTo: '/' });
-
-            $stateProvider
+           
+           $stateProvider
                 .state('home', {
                     route: '/',
                     views: {
@@ -25,10 +25,15 @@
                         'main': {
                             template: 'tpl/blog.html',
                             controller: 'blogController'
-                        },
+                        }
+                    }
+                })
+                .state('blog.default', {
+                    route: '',
+                    views: {
                         'crumbs': {
                             template: 'tpl/crumbs.html',
-                            controller: function($scope) {
+                            controller: function ($scope) {
                                 $scope.crumbs = [
                                     { link: '#/blog', title: 'blog' }
                                 ];
@@ -36,7 +41,7 @@
                         },
                         'content': {
                             template: 'tpl/blog.list.html',
-                            controller: function($scope, blog) {
+                            controller: function ($scope, blog) {
                                 $scope.title = "Recent Posts";
                                 $scope.posts = blog.getRecentPosts();
                             }
@@ -149,7 +154,6 @@ app.controller('blogController', function($rootScope, $scope, blog) {
 app.animation('wave-enter', function ($rootScope, $timeout) {
     return {
         setup: function (element) {
-            //this is called before the animation
             var elm = $(element);
             var parent = elm.parent();
             elm.addClass('wave-enter-setup');
@@ -162,7 +166,6 @@ app.animation('wave-enter', function ($rootScope, $timeout) {
 
         },
         start: function (element, done, memo) {
-            //this is where the animation is expected to be run
             var elm = $(element);
             var parent = elm.parent();
             elm.addClass('wave-enter-start');
@@ -178,14 +181,6 @@ app.animation('wave-enter', function ($rootScope, $timeout) {
 
                 done();
             }, 2000);
-
-            //done();
-            //jQuery(element).animate({
-            //    'border-width': 20
-            //}, function () {
-            //    //call done to close when the animation is complete
-            //    done();
-            //});
         }
     };
 });
@@ -193,74 +188,32 @@ app.animation('wave-enter', function ($rootScope, $timeout) {
 app.animation('wave-leave', function ($rootScope, $timeout) {
     return {
         setup: function (element) {
-            //this is called before the animation
+
             $(element).addClass('wave-leave-setup');
         },
         start: function (element, done, memo) {
-            //this is where the animation is expected to be run
             $(element).addClass('wave-leave-start');
-
             $timeout(function () {
                 $(element).removeClass('wave-leave-setup');
                 $(element).removeClass('wave-leave-start');
                 done();
             }, 2000);
-
-            //done();
-            //jQuery(element).animate({
-            //    'border-width': 20
-            //}, function () {
-            //    //call done to close when the animation is complete
-            //    done();
-            //});
         }
     };
 });
 
-//.stage {
-//    position: relative;
-//}
-
-//.wave-enter-setup, .wave-leave-setup {
-//    -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//    -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//    -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//    transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
-//}
-
-//.wave-enter-setup {
-//    position:absolute;
-//    left:100%;
-//    width:100%;
-//}
-
-//.wave-enter-start {
-//    left:0;
-//}
-
-//.wave-leave-setup {
-//    position:absolute;
-//    width:100%;
-//    left:0;
-//}
-
-//.wave-leave-start {
-//    left:-100%;
-//}
-
-
-
-
-
 function clean(state) {
     var newState = {};
-    newState.self = state.self;    newState.fullname = state.fullname;    newState.children = {};    if (state.route)        newState.route = state.route;
+    newState.self = state.self;    newState.fullname = state.fullname;    newState.$name = state.fullname;    newState.children = [];    if (state.route)        newState.route = state.route;
     angular.forEach(state.children, function (child, name) {
-        newState.children[name] = clean(child);
+        var c = clean(child);
+        c.$name = name;
+        newState.children.push(c);
     });    return newState;
 }
 function PageController($scope, $rootScope, $route, $state, $stateTransition) {
-    $scope.routes = JSON.stringify($route.routes, null, 2);    $scope.states = JSON.stringify(clean($state.root), null, 2);    $scope.transitions = JSON.stringify($stateTransition.root, null, 2);
+    $scope.routes = JSON.stringify($route.routes, null, 2);        $scope.statesStr = JSON.stringify(clean($state.root), null, 2);
+    $scope.states = [clean($state.root)];        $scope.transitions = JSON.stringify($stateTransition.root, null, 2);
     $scope.opts = {
         backdropFade: true,
         dialogFade: true

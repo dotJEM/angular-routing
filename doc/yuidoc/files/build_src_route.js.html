@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>build\src\route.js - angular-routing</title>
-    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
-    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
-    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
-    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
-    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
 </head>
 <body class="yui3-skin-sam">
 
@@ -15,11 +15,11 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="..&#x2F;assets/css/logo.png" title="angular-routing"></h1>
+                <h1><img src="../assets/css/logo.png" title="angular-routing"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.2.0</em>
+            <em>API Docs for: 0.2.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -41,7 +41,7 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="..&#x2F;classes/$RouteProvider.html">$RouteProvider</a></li>
+                <li><a href="../classes/$RouteProvider.html">$RouteProvider</a></li>
             
             </ul>
 
@@ -86,24 +86,24 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;..&#x2F;lib&#x2F;angular&#x2F;angular-1.0.d.ts&quot; &#x2F;&gt;
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;common.ts&quot; &#x2F;&gt;
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;interfaces.d.ts&quot; &#x2F;&gt;
+/// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;common.ts&quot; /&gt;
+/// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
 &#x27;use strict&#x27;;
-&#x2F;**
+/**
 * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
 *
 * @class $RouteProvider
 * @constructor
-*&#x2F;
+*/
 function $RouteProvider() {
     var _this = this;
     var routes = {
     }, converters = {
     }, decorators = {
     }, caseSensitive = true;
-    &#x2F;&#x2F;Public Methods
-    &#x2F;**
+    //Public Methods
+    /**
     * Adds a new converter or overwrites an existing one.
     *
     * By default the folowing converters are precent:
@@ -120,13 +120,13 @@ function $RouteProvider() {
     *
     * @param {string} name Cerverter name, used in the path when registering routes through the
     *   {@link ui.routing.routeProvider#when when} function.
-    *&#x2F;
+    */
     this.convert = function (name, converter) {
-        &#x2F;&#x2F;Note: We wan&#x27;t to allow overwrite
+        //Note: We wan&#x27;t to allow overwrite
         converters[name] = converter;
         return _this;
     };
-    &#x2F;**
+    /**
     * Adds a new route definition to the &#x60;$route&#x60; service.
     *
     * @method when
@@ -186,7 +186,7 @@ function $RouteProvider() {
     *
     *      - &#x60;key&#x60; � &#x60;{string}&#x60;: a name of a dependency to be injected into the controller.
     *      - &#x60;factory&#x60; - &#x60;{string|function}&#x60;: If &#x60;string&#x60; then it is an alias for a service.
-    *        Otherwise if function, then it is {@link api&#x2F;AUTO.$injector#invoke injected}
+    *        Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
     *        and the return value is treated as the dependency. If the result is a promise, it is resolved
     *        before its value is injected into the controller.
     *
@@ -208,21 +208,33 @@ function $RouteProvider() {
     *
     *      If the option is set to &#x60;false&#x60; and url in the browser changes, then
     *      &#x60;$routeUpdate&#x60; event is broadcasted on the root scope.
-    *&#x2F;
+    */
     this.when = function (path, route) {
-        var normalized = normalizePath(path);
-        routes[normalized.name] = {
+        var expression = parseExpression(path);
+        routes[expression.name] = {
             self: extend({
                 reloadOnSearch: true
             }, route),
             redirect: createRedirector(route.redirectTo),
-            match: createMatcher(path),
-            path: path,
-            params: normalized.params
+            match: createMatcher(path, expression),
+            params: expression.params,
+            path: path
         };
-        return _this;
+        return {
+            convert: _this.convert,
+            when: _this.when,
+            otherwise: _this.otherwise,
+            decorate: _this.decorate,
+            ignoreCase: _this.ignoreCase,
+            matchCase: _this.matchCase,
+            $route: {
+                name: expression.name,
+                params: copy(expression.params),
+                route: path
+            }
+        };
     };
-    &#x2F;**
+    /**
     * Sets route definition that will be used on route change when no other route definition
     * is matched.
     *
@@ -230,13 +242,13 @@ function $RouteProvider() {
     * @return {Object} self
     *
     * @param {Object} params Mapping information to be assigned to &#x60;$route.current&#x60;.
-    *&#x2F;
+    */
     this.otherwise = function (route) {
         _this.when(null, route);
         return _this;
     };
     this.decorate = function (name, decorator) {
-        &#x2F;&#x2F;Note: We wan&#x27;t to allow overwrite
+        //Note: We wan&#x27;t to allow overwrite
         decorators[name] = decorator;
         return _this;
     };
@@ -248,23 +260,7 @@ function $RouteProvider() {
         caseSensitive = true;
         return _this;
     };
-    &#x2F;&#x2F;Scoped Methods
-    function interpolate(url, params) {
-        &#x2F;&#x2F;TODO: We only support :params here, but that might be ok for now as we are constructing an url.
-        var result = [];
-        forEach((url || &#x27;&#x27;).split(&#x27;:&#x27;), function (segment, i) {
-            if(i == 0) {
-                result.push(segment);
-            } else {
-                var segmentMatch = segment.match(&#x2F;(\w+)(.*)&#x2F;);
-                var key = segmentMatch[1];
-                result.push(params[key]);
-                result.push(segmentMatch[2] || &#x27;&#x27;);
-                delete params[key];
-            }
-        });
-        return result.join(&#x27;&#x27;);
-    }
+    //Scoped Methods
     function createRedirector(redirectTo) {
         var fn = null;
         return function ($location, next) {
@@ -288,59 +284,61 @@ function $RouteProvider() {
             return fn($location, next);
         };
     }
-    function createSegment(match) {
-        var cname = match[6] || &#x27;&#x27;, carg = match[8], trimmed;
-        if(carg) {
-            trimmed = carg.trim();
+    function createParameter(name, converter, cargs) {
+        var trimmed;
+        if(cargs) {
+            trimmed = cargs.trim();
             if((trimmed[0] === &#x27;{&#x27; &amp;&amp; trimmed[trimmed.length - 1] === &#x27;}&#x27;) || (trimmed[0] === &#x27;[&#x27; &amp;&amp; trimmed[trimmed.length - 1] === &#x27;]&#x27;)) {
                 try  {
-                    carg = angular.fromJson(trimmed);
+                    cargs = angular.fromJson(trimmed);
                 } catch (e) {
-                    &#x2F;&#x2F;Note: Errors are ok here, we let it remain as a string.
+                    //Note: Errors are ok here, we let it remain as a string.
                                     }
             }
         }
         return {
-            name: match[3] || match[9],
-            converter: converters[cname](carg)
+            name: name,
+            converter: function () {
+                return converters[converter](cargs);
+            }
         };
     }
-    var esc = &#x2F;[-\&#x2F;\\^$*+?.()|[\]{}]&#x2F;g;
+    function interpolate(url, params) {
+        var result = [], name = &quot;&quot;, index = 0;
+        forEach(parseParams(url), function (param, idx) {
+            if(param.converter !== &#x27;&#x27;) {
+                //TODO: use converter to convert param to string.
+                            }
+            name += url.slice(index, param.index) + &#x27;/&#x27; + params[param.name].toString();
+            index = param.lastIndex;
+            delete params[param.name];
+        });
+        name += url.substr(index);
+        return name;
+    }
+    var esc = /[-\/\\^$*+?.()|[\]{}]/g;
     function escape(exp) {
         return exp.replace(esc, &quot;\\$&amp;&quot;);
     }
-    &#x2F;&#x2F; NOTE: Hoisting brings the declaration (not assignment) of re to the top. I have left it here
-    &#x2F;&#x2F;       so it is only used in parseExpression, but defining it inside would case a new re on each
-    &#x2F;&#x2F;       call to parseExpression, and that is not needed.
-    var re = new RegExp(&#x27;\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))&#x27;, &#x27;g&#x27;);
-    function parseExpression(path) {
-        var regex = &quot;^&quot;, segments = [], index = 0, match, flags = &#x27;&#x27;;
-        if(path === &#x27;&#x2F;&#x27;) {
-            return {
-                complete: new RegExp(&#x27;^[\x2F]?$&#x27;, flags),
-                segments: []
-            };
+    var paramsRegex = new RegExp(&#x27;\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))&#x27;, &#x27;g&#x27;);
+    function parseParams(path) {
+        var match, params = [];
+        if(path === null) {
+            return params;
         }
-        while((match = re.exec(path)) !== null) {
-            regex += escape(path.slice(index, match.index));
-            regex += &#x27;&#x2F;([^\\&#x2F;]*)&#x27;;
-            segments.push(createSegment(match));
-            index = re.lastIndex;
+        while((match = paramsRegex.exec(path)) !== null) {
+            params.push({
+                name: match[3] || match[9],
+                converter: match[6] || &#x27;&#x27;,
+                args: match[8],
+                index: match.index,
+                lastIndex: paramsRegex.lastIndex
+            });
         }
-        regex += escape(path.substr(index));
-        if(!caseSensitive) {
-            flags += &#x27;i&#x27;;
-        }
-        if(regex[regex.length - 1] === &#x27;\x2F&#x27;) {
-            regex = regex.substr(0, regex.length - 1);
-        }
-        return {
-            complete: new RegExp(regex + &#x27;\x2F?$&#x27;, flags),
-            segments: segments
-        };
+        return params;
     }
-    function normalizePath(path) {
-        var name = &quot;&quot;, index = 0, match, counter = 0, params = {
+    function parseExpression(path) {
+        var regex = &quot;^&quot;, name = &quot;&quot;, segments = [], index = 0, flags = &#x27;&#x27;, params = {
         };
         if(path === null) {
             return {
@@ -348,50 +346,60 @@ function $RouteProvider() {
                 params: params
             };
         }
-        while((match = re.exec(path)) !== null) {
-            var converter = match[6] || &#x27;&#x27;, paramName = match[3] || match[9];
-            params[paramName] = {
-                id: counter,
-                converter: converter
+        if(path === &#x27;/&#x27;) {
+            return {
+                exp: new RegExp(&#x27;^[\x2F]?$&#x27;, flags),
+                segments: [],
+                name: name,
+                params: params
             };
-            if(converter !== &#x27;&#x27;) {
-                converter = &quot;:&quot; + converter;
-            }
-            name += path.slice(index, match.index) + &#x27;&#x2F;$&#x27; + (counter++) + converter;
-            index = re.lastIndex;
         }
+        forEach(parseParams(path), function (param, idx) {
+            var cname = &#x27;&#x27;;
+            regex += escape(path.slice(index, param.index));
+            regex += &#x27;/([^\\/]*)&#x27;;
+            if(param.converter !== &#x27;&#x27;) {
+                cname = &quot;:&quot; + param.converter;
+            }
+            name += path.slice(index, param.index) + &#x27;/$&#x27; + idx + cname;
+            params[param.name] = {
+                id: idx,
+                converter: param.converter
+            };
+            segments.push(createParameter(param.name, param.converter, param.args));
+            index = param.lastIndex;
+        });
+        regex += escape(path.substr(index));
         name += path.substr(index);
         if(!caseSensitive) {
             name = name.toLowerCase();
+            flags += &#x27;i&#x27;;
+        }
+        if(regex[regex.length - 1] === &#x27;\x2F&#x27;) {
+            regex = regex.substr(0, regex.length - 1);
         }
         return {
+            exp: new RegExp(regex + &#x27;\x2F?$&#x27;, flags),
+            segments: segments,
             name: name,
             params: params
         };
     }
-    function createMatcher(path) {
+    function createMatcher(path, expression) {
         if(path == null) {
             return function (location) {
             };
         }
-        var expFac = function () {
-            var v = parseExpression(path);
-            expFac = function () {
-                return v;
-            };
-            return expFac();
-        };
         return function (location) {
-            var exp = expFac(), match = location.match(exp.complete), dst = {
+            var match = location.match(expression.exp), dst = {
             }, invalidParam;
             if(match) {
-                &#x2F;&#x2F;if (location.match(exp.complete)) {
                 invalidParam = false;
-                forEach(exp.segments, function (segment, index) {
+                forEach(expression.segments, function (segment, index) {
                     var param, value;
                     if(!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter(param);
+                        value = segment.converter()(param);
                         if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
@@ -408,13 +416,10 @@ function $RouteProvider() {
                 if(!invalidParam) {
                     return dst;
                 }
-                &#x2F;&#x2F;} else {
-                &#x2F;&#x2F;TODO: Match nested routes
-                &#x2F;&#x2F;}
-                            }
+            }
         };
     }
-    &#x2F;&#x2F;Registration of Default Converters
+    //Registration of Default Converters
     this.convert(&#x27;num&#x27;, function () {
         return function (param) {
             var accepts = !isNaN(param);
@@ -450,7 +455,7 @@ function $RouteProvider() {
             return true;
         };
     });
-    &#x2F;&#x2F;Service Factory
+    //Service Factory
     this.$get = [
         &#x27;$rootScope&#x27;, 
         &#x27;$location&#x27;, 
@@ -463,6 +468,14 @@ function $RouteProvider() {
                 reload: function () {
                     forceReload = true;
                     $rootScope.$evalAsync(update);
+                },
+                change: function (args) {
+                    var params = args.params || {
+                    }, route = interpolate(args.route, params), loc = $location.path(route).search(params || {
+                    });
+                    if(args.replace) {
+                        loc.replace();
+                    }
                 }
             };
             $rootScope.$on(&#x27;$locationChangeSuccess&#x27;, update);
@@ -496,7 +509,7 @@ function $RouteProvider() {
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast(&#x27;$routeUpdate&#x27;, lastRoute);
                 } else if(next || lastRoute) {
-                    &#x2F;&#x2F;TODO: We should always have a next to go to, it may be a null route though.
+                    //TODO: We should always have a next to go to, it may be a null route though.
                     forceReload = false;
                     var event = $rootScope.$broadcast(&#x27;$routeChangeStart&#x27;, nextRoute, lastRoute);
                     if(!event.defaultPrevented) {
@@ -528,9 +541,9 @@ function $RouteProvider() {
                             }
                         });
                     } else {
-                        &#x2F;&#x2F;TODO: Do we need to do anything if the user cancels?
-                        &#x2F;&#x2F;       - if the user wants to return to the old url, he should cancel on
-                        &#x2F;&#x2F;         location change instead?
+                        //TODO: Do we need to do anything if the user cancels?
+                        //       - if the user wants to return to the old url, he should cancel on
+                        //         location change instead?
                                             }
                 }
             }
@@ -548,13 +561,13 @@ angular.module(&#x27;ui.routing&#x27;).provider(&#x27;$route&#x27;, $RouteProvid
         </div>
     </div>
 </div>
-<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
 <script>prettyPrint();</script>
-<script src="..&#x2F;assets/js/yui-prettify.js"></script>
-<script src="..&#x2F;assets/../api.js"></script>
-<script src="..&#x2F;assets/js/api-filter.js"></script>
-<script src="..&#x2F;assets/js/api-list.js"></script>
-<script src="..&#x2F;assets/js/api-search.js"></script>
-<script src="..&#x2F;assets/js/apidocs.js"></script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
 </body>
 </html>
