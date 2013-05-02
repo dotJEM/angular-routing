@@ -755,7 +755,7 @@ var $StateProvider = [
             if(route !== '' && route[route.length - 1] === '/') {
                 route = route.substr(0, route.length - 1);
             }
-            if(stateRoute[0] !== '/') {
+            if(stateRoute[0] !== '/' && stateRoute !== '') {
                 route += '/';
             }
             route += stateRoute;

@@ -35,7 +35,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             route = route.substr(0, route.length - 1);
         }
 
-        if (stateRoute[0] !== '/')
+        if (stateRoute[0] !== '/' && stateRoute !== '')
             route += '/';
         route += stateRoute;
 

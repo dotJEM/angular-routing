@@ -33,17 +33,21 @@
                             sticky: true,
                             template: 'tpl/blog.html',
                             controller: 'blogController'
-                        },
+                        }
+                    }
+                })
+                .state('blog.default', {
+                    route: '',
+                    views: {
                         'crumbs': {
                             template: 'tpl/crumbs.html',
-                            controller: function($scope) {
+                            controller: function ($scope) {
                                 $scope.crumbs = [
                                     { link: '#/blog', title: 'blog' }
                                 ];
                             }
                         },
                         'content': {
-                            //method: 'setOrUpdate',
                             template: 'tpl/blog.list.html',
                             controller: function ($scope, blog) {
                                 $scope.title = "Recent Posts";
