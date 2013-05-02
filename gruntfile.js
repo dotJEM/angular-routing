@@ -5,8 +5,7 @@ module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        banner: '',
-
+        banner: grunt.file.read('banner'),
         clean: {
             src: ['build']
         },

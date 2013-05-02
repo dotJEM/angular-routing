@@ -1,3 +1,10 @@
+/**
+ * @license dotJEM Angular Routing
+ * (c) 2012-2013 dotJEM (Jens Melgaard)
+ * License: MIT
+ *
+ * @module angular-routing
+ */
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />
 'use strict';
