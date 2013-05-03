@@ -185,21 +185,6 @@ describe('$stateTransitionProvider', function () {
             });
 
             mock.inject(function ($stateTransition: ui.routing.ITransitionService) {
-                //Note: I know this is a bit freaky, but trying to create a short format for how the "transition" tree looks.
-                //      and it is not as easy as with the states them self as we need to symbolize the targets of a transition handler
-                //      as well as the source.
-                //
-                //      sources are in a tree, we format this as their name folowwed by (), inside the brackets are all decendants, following
-                //      the same pattern.
-                //
-                //      destinations are inside square brackets ('[]') and the number behind the '+' indicates the number of handlers registered
-                //      with that specific target. Targets are between the source name and it's children.
-                //
-                //      so... 'blog[about+4](...)' shows a source 'blog' which has one target 'about' that has registered 4 handlers.
-                //      the ... denotes children of blog, if any... they follow the same pattern.
-
-                //(recent[blog.archive+1,blog.category+1](),archive[blog.recent+1,blog.category+1](),category[blog.recent+1,blog.archive+1]()))
-
                 var expected =
                   '[]('
                 + '  *[*+1]('

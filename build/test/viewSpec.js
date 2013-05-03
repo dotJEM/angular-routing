@@ -98,7 +98,7 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 $view.setOrUpdate("root", {
                     html: "fubar"
-                }, null, "sticky");
+                }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -106,7 +106,7 @@ describe('$view', function () {
                 ]);
                 $view.setOrUpdate("root", {
                     html: "template"
-                }, null, "sticky");
+                }, null, null, "sticky");
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewRefresh', 
@@ -122,7 +122,7 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 $view.setOrUpdate("root", {
                     html: "fubar"
-                }, null, "sticky");
+                }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -130,7 +130,7 @@ describe('$view', function () {
                 ]);
                 $view.setOrUpdate("root", {
                     html: "template"
-                }, null, "sticky2");
+                }, null, null, "sticky2");
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -143,7 +143,7 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 $view.setOrUpdate("root", {
                     html: "fubar"
-                }, null, undefined);
+                }, null, null, undefined);
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -151,7 +151,7 @@ describe('$view', function () {
                 ]);
                 $view.setOrUpdate("root", {
                     html: "template"
-                }, null, undefined);
+                }, null, null, undefined);
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 

@@ -297,26 +297,22 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 toArray = buildStateArray(to, toParams),
                 count = Math.max(fromArray.length, toArray.length),
                 fromAtIndex,
-                toAtIndex;
+                toAtIndex,
+                c;
 
             for (var i = 0; i < count; i++) {
                 fromAtIndex = fromArray[fromArray.length - i - 1];
                 toAtIndex = toArray[toArray.length - i - 1];
 
-                if (isUndefined(fromAtIndex)) {
-                    toAtIndex.changed = true;
-                } else if (isUndefined(toAtIndex)) {
-                    toArray[0].changed = true;
-                    // We wen't up the hierachy. for now make the parent dirty.
-                    // however, this reloads the main view... 
-                } else if (forceReload && forceReload == toAtIndex.state.fullname) {
-                    toAtIndex.changed = true;
-                } else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
-                    toAtIndex.changed = true;
-                } else if (!equals(toAtIndex.params, fromAtIndex.params)) {
-                    toAtIndex.changed = true;
+                if (isUndefined(toAtIndex)) {
+                    toArray[0].isChanged = true;
+                } else if (isUndefined(fromAtIndex)
+                        || (forceReload && forceReload == toAtIndex.state.fullname)
+                        || toAtIndex.state.fullname !== fromAtIndex.state.fullname
+                        || !equals(toAtIndex.params, fromAtIndex.params)) {
+                    toAtIndex.isChanged = true;
                 } else {
-                    toAtIndex.changed = false;
+                    toAtIndex.isChanged = false;
                 }
             }
             return toArray.reverse();
@@ -374,48 +370,74 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
-                    var useUpdate = false;
+                    var useUpdate = false,
+                        locals = {},
+                        promises = [];
 
                     transaction = $view.beginUpdate();
                     $view.clear();
 
-                    forEach(changed, (change, index) => {
-                        if (change.changed)
-                            useUpdate = true;
-                        forEach(change.state.self.views, (view, name) => {
-                            var sticky;
-                            if (view.sticky) {
-                                sticky = view.sticky;
-                                if (isFunction(sticky) || isArray(sticky)) {
-                                    sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
-                                } else if (!isString(sticky)) {
-                                    sticky = change.state.fullname;
-                                }
-                            }
-
-                            if (useUpdate || isDefined(sticky)) {
-                                $view.setOrUpdate(name, view.template, view.controller, sticky);
-                            } else {
-                                $view.setIfAbsent(name, view.template, view.controller);
-                            }
+                    function resolve(args) {
+                        var values = [],
+                            keys = [];
+                        angular.forEach(args || {}, function (value, key) {
+                            keys.push(key);
+                            values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
                         });
-                    });
 
-                    emit.between(transition);
-
-                    if (cancel) {
-                        transaction.cancel();
-                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                        //      That is if this was even triggered by an URL change in teh first place.
-                        return;
+                        return $q.all(values).then(function (values) {
+                            angular.forEach(values, function (value, index) {
+                                locals[keys[index]] = value;
+                            });
+                            return locals;
+                        });
                     }
 
-                    current = to;
-                    currentParams = params;
-                    $state.current = toState;
+                    var promise = $q.when(0);
+                    forEach(changed, (state, index) => {
+                        promise = promise.then(function () {
+                            return resolve(state.resolve);
+                        }).then(function (locals) {
 
-                    transaction.commit();
-                    $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                            if (state.isChanged)
+                                useUpdate = true;
+
+                            forEach(state.state.self.views, (view, name) => {
+                                var sticky;
+                                if (view.sticky) {
+                                    sticky = view.sticky;
+                                    if (isFunction(sticky) || isArray(sticky)) {
+                                        sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
+                                    } else if (!isString(sticky)) {
+                                        sticky = state.state.fullname;
+                                    }
+                                }
+
+                                if (useUpdate || isDefined(sticky)) {
+                                    $view.setOrUpdate(name, view.template, view.controller, locals, sticky);
+                                } else {
+                                    $view.setIfAbsent(name, view.template, view.controller, locals);
+                                }
+                            });
+                        });
+                    });
+                    return promise.then(function () => {
+                        emit.between(transition);
+
+                        if (cancel) {
+                            transaction.cancel();
+                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                            //      That is if this was even triggered by an URL change in teh first place.
+                            return;
+                        }
+
+                        current = to;
+                        currentParams = params;
+                        $state.current = toState;
+
+                        transaction.commit();
+                        $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                    })
                 }, (error) => {
                     transaction.cancel();
                     $rootScope.$broadcast('$stateChangeError', toState, fromState, error);

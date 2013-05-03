@@ -16,11 +16,6 @@ function $ViewProvider() {
                 }
             }
             ;
-            //function ensureExists(name: string) {
-            //    if (!(name in views)) {
-            //        throw new Error('View with name "' + name + '" was not present.');
-            //    }
-            //};
             function raiseUpdated(name) {
                 $rootScope.$broadcast('$viewUpdate', name);
             }
@@ -50,8 +45,19 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setOrUpdate = function (name, template, controller, sticky) {
+            function isArgs(args) {
+                return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
+            }
+            //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+            this.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
                 var _this = this;
+                var template = templateOrArgs;
+                if(isArgs(templateOrArgs)) {
+                    template = templateOrArgs.template;
+                    controller = templateOrArgs.controller;
+                    locals = templateOrArgs.locals;
+                    sticky = templateOrArgs.sticky;
+                }
                 ensureName(name);
                 if(transaction) {
                     transaction.records[name] = {
@@ -62,18 +68,15 @@ function $ViewProvider() {
                     };
                     return;
                 }
-                if(containsView(views, name)) {
-                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                    views[name].template = $template.get(template);
-                    views[name].controller = controller;
-                } else {
+                if(!containsView(views, name)) {
                     views[name] = {
-                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                        $template.get(template),
-                        controller: controller,
                         version: -1
                     };
                 }
+                //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                views[name].template = $template.get(template);
+                views[name].controller = controller;
+                views[name].locals = locals;
                 if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                     raiseRefresh(name, {
                         sticky: true
@@ -84,8 +87,15 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setIfAbsent = function (name, template, controller) {
+            //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+            this.setIfAbsent = function (name, templateOrArgs, controller, locals) {
                 var _this = this;
+                var template = templateOrArgs;
+                if(isArgs(templateOrArgs)) {
+                    template = templateOrArgs.template;
+                    controller = templateOrArgs.controller;
+                    locals = templateOrArgs.locals;
+                }
                 ensureName(name);
                 if(transaction) {
                     if(!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
@@ -103,6 +113,7 @@ function $ViewProvider() {
                         template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                         $template.get(template),
                         controller: controller,
+                        locals: locals,
                         version: 0
                     };
                     raiseUpdated(name);

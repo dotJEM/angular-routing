@@ -72,11 +72,15 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
                         else
                             element.html(html);
 
-                        var link = $compile(element.contents());
+                        var link = $compile(element.contents()),
+                            locals;
 
                         viewScope = scope.$new();
                         if (controller) {
-                            controller = $controller(controller, { $scope: viewScope });
+                            locals = copy(view.locals);
+                            locals.$scope = viewScope;
+
+                            controller = $controller(controller, locals);
                             element.contents().data('$ngControllerController', controller);
                         }
 

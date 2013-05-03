@@ -2,9 +2,10 @@
 
 module ui.routing {
     interface IView {
-        template: ng.IPromise;
-        controller: any;
+        template?: ng.IPromise;
+        controller?: any;
         version: number;
+        locals?: any;
     }
 
     interface IViewMap {
@@ -18,11 +19,15 @@ module ui.routing {
 
     interface IViewService {
         clear(name?: string);
-        setOrUpdate(viewname: string, template?: any, controller?: any, sticky?:string);
-        setIfAbsent(viewname: string, template?: any, controller?: any);
-        get (viewname: string): IView;
+        
+        setOrUpdate(name: string, template?: any, controller?: any, locals?: any, sticky?: string);
+        setOrUpdate(name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; });
+
+        setIfAbsent(name: string, template?: any, controller?: any, locals?: any);
+        setIfAbsent(name: string, args: { template?: any; controller?: any; locals?: any; });
+        get (name: string): IView;
         get (): IViewMap;
-        refresh(viewname?: string, data?: any);
+        refresh(name?: string, data?: any);
 
         beginUpdate(): IViewTransaction;
     }

@@ -1002,24 +1002,16 @@ var $StateProvider = [
                 }
                 function buildChangeArray(from, to, fromParams, toParams) {
                     var fromArray = buildStateArray(from, fromParams || {
-                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex;
+                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c;
                     for(var i = 0; i < count; i++) {
                         fromAtIndex = fromArray[fromArray.length - i - 1];
                         toAtIndex = toArray[toArray.length - i - 1];
-                        if(isUndefined(fromAtIndex)) {
-                            toAtIndex.changed = true;
-                        } else if(isUndefined(toAtIndex)) {
-                            toArray[0].changed = true;
-                            // We wen't up the hierachy. for now make the parent dirty.
-                            // however, this reloads the main view...
-                                                    } else if(forceReload && forceReload == toAtIndex.state.fullname) {
-                            toAtIndex.changed = true;
-                        } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
-                            toAtIndex.changed = true;
-                        } else if(!equals(toAtIndex.params, fromAtIndex.params)) {
-                            toAtIndex.changed = true;
+                        if(isUndefined(toAtIndex)) {
+                            toArray[0].isChanged = true;
+                        } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+                            toAtIndex.isChanged = true;
                         } else {
-                            toAtIndex.changed = false;
+                            toAtIndex.isChanged = false;
                         }
                     }
                     return toArray.reverse();
@@ -1073,45 +1065,67 @@ var $StateProvider = [
                     var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         $q.when(toState).then(function () {
-                            var useUpdate = false;
+                            var useUpdate = false, locals = {
+                            }, promises = [];
                             transaction = $view.beginUpdate();
                             $view.clear();
-                            forEach(changed, function (change, index) {
-                                if(change.changed) {
-                                    useUpdate = true;
-                                }
-                                forEach(change.state.self.views, function (view, name) {
-                                    var sticky;
-                                    if(view.sticky) {
-                                        sticky = view.sticky;
-                                        if(isFunction(sticky) || isArray(sticky)) {
-                                            sticky = $injector.invoke(sticky, sticky, {
-                                                $to: toState,
-                                                $from: fromState
-                                            });
-                                        } else if(!isString(sticky)) {
-                                            sticky = change.state.fullname;
+                            function resolve(args) {
+                                var values = [], keys = [];
+                                angular.forEach(args || {
+                                }, function (value, key) {
+                                    keys.push(key);
+                                    values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
+                                });
+                                return $q.all(values).then(function (values) {
+                                    angular.forEach(values, function (value, index) {
+                                        locals[keys[index]] = value;
+                                    });
+                                    return locals;
+                                });
+                            }
+                            var promise = $q.when(0);
+                            forEach(changed, function (state, index) {
+                                promise = promise.then(function () {
+                                    return resolve(state.resolve);
+                                }).then(function (locals) {
+                                    if(state.isChanged) {
+                                        useUpdate = true;
+                                    }
+                                    forEach(state.state.self.views, function (view, name) {
+                                        var sticky;
+                                        if(view.sticky) {
+                                            sticky = view.sticky;
+                                            if(isFunction(sticky) || isArray(sticky)) {
+                                                sticky = $injector.invoke(sticky, sticky, {
+                                                    $to: toState,
+                                                    $from: fromState
+                                                });
+                                            } else if(!isString(sticky)) {
+                                                sticky = state.state.fullname;
+                                            }
                                         }
-                                    }
-                                    if(useUpdate || isDefined(sticky)) {
-                                        $view.setOrUpdate(name, view.template, view.controller, sticky);
-                                    } else {
-                                        $view.setIfAbsent(name, view.template, view.controller);
-                                    }
+                                        if(useUpdate || isDefined(sticky)) {
+                                            $view.setOrUpdate(name, view.template, view.controller, locals, sticky);
+                                        } else {
+                                            $view.setIfAbsent(name, view.template, view.controller, locals);
+                                        }
+                                    });
                                 });
                             });
-                            emit.between(transition);
-                            if(cancel) {
-                                transaction.cancel();
-                                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                                //      That is if this was even triggered by an URL change in teh first place.
-                                return;
-                            }
-                            current = to;
-                            currentParams = params;
-                            $state.current = toState;
-                            transaction.commit();
-                            $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                            return promise.then(function () {
+                                emit.between(transition);
+                                if(cancel) {
+                                    transaction.cancel();
+                                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                                    //      That is if this was even triggered by an URL change in teh first place.
+                                    return;
+                                }
+                                current = to;
+                                currentParams = params;
+                                $state.current = toState;
+                                transaction.commit();
+                                $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                            });
                         }, function (error) {
                             transaction.cancel();
                             $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
@@ -1203,11 +1217,6 @@ function $ViewProvider() {
                 }
             }
             ;
-            //function ensureExists(name: string) {
-            //    if (!(name in views)) {
-            //        throw new Error('View with name "' + name + '" was not present.');
-            //    }
-            //};
             function raiseUpdated(name) {
                 $rootScope.$broadcast('$viewUpdate', name);
             }
@@ -1237,8 +1246,19 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setOrUpdate = function (name, template, controller, sticky) {
+            function isArgs(args) {
+                return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
+            }
+            //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+            this.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
                 var _this = this;
+                var template = templateOrArgs;
+                if(isArgs(templateOrArgs)) {
+                    template = templateOrArgs.template;
+                    controller = templateOrArgs.controller;
+                    locals = templateOrArgs.locals;
+                    sticky = templateOrArgs.sticky;
+                }
                 ensureName(name);
                 if(transaction) {
                     transaction.records[name] = {
@@ -1249,18 +1269,15 @@ function $ViewProvider() {
                     };
                     return;
                 }
-                if(containsView(views, name)) {
-                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                    views[name].template = $template.get(template);
-                    views[name].controller = controller;
-                } else {
+                if(!containsView(views, name)) {
                     views[name] = {
-                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                        $template.get(template),
-                        controller: controller,
                         version: -1
                     };
                 }
+                //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                views[name].template = $template.get(template);
+                views[name].controller = controller;
+                views[name].locals = locals;
                 if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                     raiseRefresh(name, {
                         sticky: true
@@ -1271,8 +1288,15 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setIfAbsent = function (name, template, controller) {
+            //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+            this.setIfAbsent = function (name, templateOrArgs, controller, locals) {
                 var _this = this;
+                var template = templateOrArgs;
+                if(isArgs(templateOrArgs)) {
+                    template = templateOrArgs.template;
+                    controller = templateOrArgs.controller;
+                    locals = templateOrArgs.locals;
+                }
                 ensureName(name);
                 if(transaction) {
                     if(!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
@@ -1290,6 +1314,7 @@ function $ViewProvider() {
                         template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                         $template.get(template),
                         controller: controller,
+                        locals: locals,
                         version: 0
                     };
                     raiseUpdated(name);
@@ -1411,12 +1436,12 @@ var uiViewDirective = [
                             } else {
                                 element.html(html);
                             }
-                            var link = $compile(element.contents());
+                            var link = $compile(element.contents()), locals;
                             viewScope = scope.$new();
                             if(controller) {
-                                controller = $controller(controller, {
-                                    $scope: viewScope
-                                });
+                                locals = copy(view.locals);
+                                locals.$scope = viewScope;
+                                controller = $controller(controller, locals);
                                 element.contents().data('$ngControllerController', controller);
                             }
                             link(viewScope);

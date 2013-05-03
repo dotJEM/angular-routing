@@ -583,6 +583,8 @@ describe('$stateProvider', function () {
                     'top', 
                     'top tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.top'
                 ]);
                 go('/top/sub');
@@ -591,6 +593,8 @@ describe('$stateProvider', function () {
                     'top', 
                     'top tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.top'
                 ]);
                 go('/foo/bar');
@@ -599,6 +603,8 @@ describe('$stateProvider', function () {
                     'foo', 
                     'foo tpl', 
                     undefined, 
+                    {
+                    }, 
                     'imSticky'
                 ]);
                 go('/ban');
@@ -607,6 +613,8 @@ describe('$stateProvider', function () {
                     'ban', 
                     'ban tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.ban'
                 ]);
                 go('/ban/tar');
@@ -615,6 +623,8 @@ describe('$stateProvider', function () {
                     'ban', 
                     'ban tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.ban.tar'
                 ]);
             });

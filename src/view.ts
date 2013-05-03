@@ -18,12 +18,6 @@ function $ViewProvider() {
             }
         };
 
-        //function ensureExists(name: string) {
-        //    if (!(name in views)) {
-        //        throw new Error('View with name "' + name + '" was not present.');
-        //    }
-        //};
-
         function raiseUpdated(name: string) {
             $rootScope.$broadcast('$viewUpdate', name);
         }
@@ -56,8 +50,24 @@ function $ViewProvider() {
                 raiseUpdated(name);
             }
         };
+        function isArgs(args) {
+            return isObject(args)
+                && (isDefined(args.template)
+                    || isDefined(args.controller)
+                    || isDefined(args.locals)
+                    || isDefined(args.sticky));
+        }
 
-        this.setOrUpdate = function (name: string, template?: any, controller?: any, sticky?: string) {
+        //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+        this.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
+            var template = templateOrArgs;
+            if (isArgs(templateOrArgs)) {
+                template = templateOrArgs.template;
+                controller = templateOrArgs.controller;
+                locals = templateOrArgs.locals;
+                sticky = templateOrArgs.sticky;
+            }
+
             ensureName(name);
 
             if (transaction) {
@@ -70,19 +80,16 @@ function $ViewProvider() {
                 return;
             }
 
-            if (containsView(views, name)) {
-                //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
-                views[name].template = $template.get(template);
-                views[name].controller = controller;
-            } else {
-                views[name] = {
-                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
-                    template: $template.get(template),
-                    controller: controller,
-                    version: -1
-                };
+            if (!containsView(views, name)) {
+                views[name] = { version: -1 };
             }
+            
+            //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
+            views[name].template = $template.get(template);
+            views[name].controller = controller;
+            views[name].locals = locals;
 
+            
             if (isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                 raiseRefresh(name, { sticky: true });
             } else {
@@ -92,8 +99,15 @@ function $ViewProvider() {
                 raiseUpdated(name);
             }
         };
+        //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+        this.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
+            var template = templateOrArgs;
+            if (isArgs(templateOrArgs)) {
+                template = templateOrArgs.template;
+                controller = templateOrArgs.controller;
+                locals = templateOrArgs.locals;
+            }
 
-        this.setIfAbsent = function (name: string, template?: any, controller?: any) {
             ensureName(name);
 
             if (transaction) {
@@ -113,6 +127,7 @@ function $ViewProvider() {
                     //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
                     template: $template.get(template),
                     controller: controller,
+                    locals: locals,
                     version: 0
                 };
                 raiseUpdated(name);

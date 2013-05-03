@@ -510,23 +510,23 @@ describe('$stateProvider', function () {
 
                 go('/top');
                 expect($state.current.name).toBe('top');
-                expect(setOrUpdate.calls[0].args).toEqual(['top','top tpl', undefined,'root.top']);
+                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, 'root.top']);
 
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
-                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, 'root.top']);
+                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, 'root.top']);
 
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
-                expect(setOrUpdate.calls[0].args).toEqual(['foo', 'foo tpl', undefined, 'imSticky']);
+                expect(setOrUpdate.calls[0].args).toEqual(['foo', 'foo tpl', undefined, {}, 'imSticky']);
 
                 go('/ban');
                 expect($state.current.name).toBe('ban');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, 'root.ban']);
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {},'root.ban']);
 
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, 'root.ban.tar']);
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, 'root.ban.tar']);
             });
         });
 
