@@ -63,7 +63,7 @@ function $ViewProvider() {
                     transaction.records[name] = {
                         act: 'setOrUpdate',
                         fn: function () {
-                            _this.setOrUpdate(name, template, controller, sticky);
+                            _this.setOrUpdate(name, template, controller, locals, sticky);
                         }
                     };
                     return;
@@ -102,7 +102,7 @@ function $ViewProvider() {
                         transaction.records[name] = {
                             act: 'setIfAbsent',
                             fn: function () {
-                                _this.setIfAbsent(name, template, controller);
+                                _this.setIfAbsent(name, template, controller, locals);
                             }
                         };
                     }

@@ -21,6 +21,13 @@
                 })
                 .state('blog', {
                     route: '/blog',
+                    resolve: {
+                        rarg1: function ($timeout) {
+                            return $timeout(function () {
+                                return 42;
+                            }, 300);
+                        }
+                    },
                     views: {
                         'main': {
                             template: 'tpl/blog.html',
@@ -50,6 +57,13 @@
                 })
                 .state('blog.category', {
                     route: '/category/{category}',
+                    resolve: {
+                        rarg2: function ($timeout) {
+                            return $timeout(function () {
+                                return " ponies";
+                            }, 300);
+                        }
+                    },
                     views: {
                         'crumbs': {
                             template: 'tpl/crumbs.html',
@@ -62,9 +76,10 @@
                         },
                         'content': {
                             template: 'tpl/blog.list.html',
-                            controller: function($scope, $routeParams, blog) {
+                            controller: function($scope, $routeParams, blog, rarg1, rarg2) {
                                 $scope.title = $routeParams.category;
                                 $scope.posts = blog.getPostsByCategory($routeParams.category);
+                                $scope.resolved = rarg1 + rarg2;
                             }
                         }
                     }

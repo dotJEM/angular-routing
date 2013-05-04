@@ -355,14 +355,14 @@ var $StateProvider = [
                                 });
                             }
                             var promise = $q.when(0);
-                            forEach(changed, function (state, index) {
+                            forEach(changed, function (change, index) {
                                 promise = promise.then(function () {
-                                    return resolve(state.resolve);
+                                    return resolve(change.state.self.resolve);
                                 }).then(function (locals) {
-                                    if(state.isChanged) {
+                                    if(change.isChanged) {
                                         useUpdate = true;
                                     }
-                                    forEach(state.state.self.views, function (view, name) {
+                                    forEach(change.state.self.views, function (view, name) {
                                         var sticky;
                                         if(view.sticky) {
                                             sticky = view.sticky;
@@ -372,7 +372,7 @@ var $StateProvider = [
                                                     $from: fromState
                                                 });
                                             } else if(!isString(sticky)) {
-                                                sticky = state.state.fullname;
+                                                sticky = change.state.fullname;
                                             }
                                         }
                                         if(useUpdate || isDefined(sticky)) {

@@ -394,22 +394,22 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     }
 
                     var promise = $q.when(0);
-                    forEach(changed, (state, index) => {
+                    forEach(changed, (change, index) => {
                         promise = promise.then(function () {
-                            return resolve(state.resolve);
+                            return resolve(change.state.self.resolve);
                         }).then(function (locals) {
 
-                            if (state.isChanged)
+                            if (change.isChanged)
                                 useUpdate = true;
 
-                            forEach(state.state.self.views, (view, name) => {
+                            forEach(change.state.self.views, (view, name) => {
                                 var sticky;
                                 if (view.sticky) {
                                     sticky = view.sticky;
                                     if (isFunction(sticky) || isArray(sticky)) {
                                         sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
                                     } else if (!isString(sticky)) {
-                                        sticky = state.state.fullname;
+                                        sticky = change.state.fullname;
                                     }
                                 }
 

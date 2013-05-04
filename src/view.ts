@@ -74,7 +74,7 @@ function $ViewProvider() {
                 transaction.records[name] = {
                     act: 'setOrUpdate',
                     fn: () => {
-                        this.setOrUpdate(name, template, controller, sticky);
+                        this.setOrUpdate(name, template, controller, locals, sticky);
                     }
                 };
                 return;
@@ -115,7 +115,7 @@ function $ViewProvider() {
                     transaction.records[name] = {
                         act: 'setIfAbsent',
                         fn: () => {
-                            this.setIfAbsent(name, template, controller);
+                            this.setIfAbsent(name, template, controller, locals);
                         }
                     };
                 }
