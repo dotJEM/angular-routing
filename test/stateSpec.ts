@@ -376,7 +376,7 @@ describe('$stateProvider', function () {
                 expect(spy.mostRecentCall.args[2].name).toBe('blog.recent');
             });
         });
-        
+
         it('can register states with and without routes', function () {
             mod(function ($stateProvider: ui.routing.IStateProvider) {
                 $stateProvider
@@ -487,7 +487,7 @@ describe('$stateProvider', function () {
 
                     .state('ban', {
                         route: '/ban', name: 'ban',
-                        views: { 'ban': { template: "ban tpl", sticky: [<any>'$to', function (to) { return to.$fullname; } ] } }
+                        views: { 'ban': { template: "ban tpl", sticky: [<any>'$to', function (to) { return to.$fullname; }] } }
                     })
                     .state('ban.tar', {
                         route: '/tar', name: 'tar',
@@ -522,7 +522,7 @@ describe('$stateProvider', function () {
 
                 go('/ban');
                 expect($state.current.name).toBe('ban');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {},'root.ban']);
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, 'root.ban']);
 
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
@@ -591,14 +591,14 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
-                (<any>$state).debug = true;
-                (<any>$state).debug = true;
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
                 };
 
-                var viewSpy = spyOn($view, 'setOrUpdate'); spyOn($view, 'setIfAbsent'); var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+                var viewSpy = spyOn($view, 'setOrUpdate');
+                spyOn($view, 'setIfAbsent');
+                var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
                 go('/top/1');
@@ -831,12 +831,13 @@ describe('$stateProvider', function () {
 
         it('updates location when route is present', function () {
             inject(function ($location: ng.ILocationService,
-                                  $route: ng.IRouteService,
-                                  $state: ui.routing.IStateService) {
+                $route: ng.IRouteService,
+                $state: ui.routing.IStateService) {
 
-                $state.goto('blog');                expect($location.path()).toBe('/blog');
+                $state.goto('blog'); expect($location.path()).toBe('/blog');
 
-                $state.goto('about.other');                expect($location.path()).toBe('/about/other');            });
+                $state.goto('about.other'); expect($location.path()).toBe('/about/other');
+            });
         });
 
         it('updates location when route is present and fills in parameters', function () {
@@ -1281,5 +1282,117 @@ describe('$stateProvider', function () {
                 });
             });
         });
+    });
+
+
+    describe("resolve", () => {
+        var loc;
+        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
+            return function ($rootScope, $state, $view) {
+                loc = []
+                spyOn($view, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
+                    loc.push(locals);
+                });
+                spyOn($view, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
+                    loc.push(locals);
+                });
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+
+        function goto(target: string) {
+            loc = [];
+            state.goto(target);
+            scope.$digest();
+        }
+
+        it('single resolve provides value', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('home', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { home: function () { return 42; } }
+                    })
+            });
+
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto("home");
+                expect(loc[0]).toEqual({ home: 42 });
+            });
+        });
+
+        it('multiple resolve provides values', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { top: function () { return "top stuff"; } }
+                    })
+                    .state('top.mid', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { mid: function () { return "middle"; } }
+                    })
+                    .state('top.mid.low', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { low: function () { return "lowser"; } }
+                    })
+            });
+
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({ top: 'top stuff' });
+                expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle' });
+                expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser' });
+            });
+        });
+
+        it('multiple resolve with same name gets overwritten', function () {
+            mod(function ($stateProvider: ui.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { top: () => { return "top stuff"; }, extra: () => { return "top"; } }
+                    })
+                    .state('top.mid', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { mid: () => { return "middle"; }, extra: () => { return "mid"; } }
+                    })
+                    .state('top.mid.low', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { low: () => { return "lowser"; }, extra: () => { return "low"; } }
+                    })
+            });
+
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({ top: 'top stuff', extra: 'top' });
+                expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle', extra: 'mid' });
+                expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser', extra: 'low' });
+            });
+        });
+
+        //TODO: Promises are actually no fully resolved as of now.
+        //it('resolve will resolve promise if one is returned', function () {
+        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
+        //        $stateProvider
+        //            .state('home', {
+        //                views: { 'tpl': { template: "tpl" } },
+        //                resolve: {
+        //                    home: function ($timeout) {
+        //                        return $timeout(function () {
+        //                            return 42;
+        //                        }, 300);
+        //                    }
+        //                }
+        //            });
+        //    });
+
+        //    inject(function ($view, $state: ui.routing.IStateService) {
+        //        goto("home");
+        //        scope.$digest();
+        //        expect(loc).toEqual({ home: 42 });
+        //    });
+        //});
     });
 });

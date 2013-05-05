@@ -1076,15 +1076,24 @@ var $StateProvider = [
                                     keys.push(key);
                                     values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
                                 });
-                                return $q.all(values).then(function (values) {
+                                var def = $q.defer();
+                                $q.all(values).then(function (values) {
                                     angular.forEach(values, function (value, index) {
                                         locals[keys[index]] = value;
                                     });
-                                    return locals;
+                                    def.resolve(locals);
                                 });
+                                return def.promise;
                             }
                             var promise = $q.when(0);
                             forEach(changed, function (change, index) {
+                                //var def = $q.defer();
+                                //promise.then(function () {
+                                //    resolve(change.state.self.resolve).then(function (locals) {
+                                //        def.resolve(locals);
+                                //    });
+                                //});
+                                //def.promise.then(function (locals) {
                                 promise = promise.then(function () {
                                     return resolve(change.state.self.resolve);
                                 }).then(function (locals) {
@@ -1105,9 +1114,9 @@ var $StateProvider = [
                                             }
                                         }
                                         if(useUpdate || isDefined(sticky)) {
-                                            $view.setOrUpdate(name, view.template, view.controller, locals, sticky);
+                                            $view.setOrUpdate(name, view.template, view.controller, copy(locals), sticky);
                                         } else {
-                                            $view.setIfAbsent(name, view.template, view.controller, locals);
+                                            $view.setIfAbsent(name, view.template, view.controller, copy(locals));
                                         }
                                     });
                                 });

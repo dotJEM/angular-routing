@@ -744,8 +744,6 @@ describe('$stateProvider', function () {
                 });
             });
             inject(function ($location, $route, $state, $view) {
-                ($state).debug = true;
-                ($state).debug = true;
                 function go(path) {
                     $location.path(path);
                     scope.$digest();
@@ -1436,4 +1434,186 @@ describe('$stateProvider', function () {
             });
         });
     });
+    describe("resolve", function () {
+        var loc;
+        beforeEach(mod('ui.routing', function ($stateProvider) {
+            return function ($rootScope, $state, $view) {
+                loc = [];
+                spyOn($view, 'setOrUpdate').andCallFake(function (name, template, controller, locals, sticky) {
+                    loc.push(locals);
+                });
+                spyOn($view, 'setIfAbsent').andCallFake(function (name, template, controller, locals) {
+                    loc.push(locals);
+                });
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target) {
+            loc = [];
+            state.goto(target);
+            scope.$digest();
+        }
+        it('single resolve provides value', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('home', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        home: function () {
+                            return 42;
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("home");
+                expect(loc[0]).toEqual({
+                    home: 42
+                });
+            });
+        });
+        it('multiple resolve provides values', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        top: function () {
+                            return "top stuff";
+                        }
+                    }
+                }).state('top.mid', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        mid: function () {
+                            return "middle";
+                        }
+                    }
+                }).state('top.mid.low', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        low: function () {
+                            return "lowser";
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({
+                    top: 'top stuff'
+                });
+                expect(loc[1]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle'
+                });
+                expect(loc[2]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle',
+                    low: 'lowser'
+                });
+            });
+        });
+        it('multiple resolve with same name gets overwritten', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        top: function () {
+                            return "top stuff";
+                        },
+                        extra: function () {
+                            return "top";
+                        }
+                    }
+                }).state('top.mid', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        mid: function () {
+                            return "middle";
+                        },
+                        extra: function () {
+                            return "mid";
+                        }
+                    }
+                }).state('top.mid.low', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        low: function () {
+                            return "lowser";
+                        },
+                        extra: function () {
+                            return "low";
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({
+                    top: 'top stuff',
+                    extra: 'top'
+                });
+                expect(loc[1]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle',
+                    extra: 'mid'
+                });
+                expect(loc[2]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle',
+                    low: 'lowser',
+                    extra: 'low'
+                });
+            });
+        });
+        //TODO: Promises are actually no fully resolved as of now.
+        //it('resolve will resolve promise if one is returned', function () {
+        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
+        //        $stateProvider
+        //            .state('home', {
+        //                views: { 'tpl': { template: "tpl" } },
+        //                resolve: {
+        //                    home: function ($timeout) {
+        //                        return $timeout(function () {
+        //                            return 42;
+        //                        }, 300);
+        //                    }
+        //                }
+        //            });
+        //    });
+        //    inject(function ($view, $state: ui.routing.IStateService) {
+        //        goto("home");
+        //        scope.$digest();
+        //        expect(loc).toEqual({ home: 42 });
+        //    });
+        //});
+            });
 });
