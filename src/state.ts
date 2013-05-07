@@ -159,13 +159,16 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         });
         $rootScope.$on('$routeUpdate', () => {
             //TODO: Broadcast StateUpdate?
-            var route = $route.current,
-                params;
+            var route = $route.current;
             if (route) {
-
                 //TODO: Refresh current state object with new parameters and raise event.
-            } else {
-                //uhm o.O...
+                var dst = $route.current.$params;
+
+                angular.copy(route.params, dst.all);
+                angular.copy(route.pathParams, dst.path);
+                angular.copy(route.searchParams, dst.search);
+
+                $rootScope.$broadcast('$stateUpdate', $route.current);
             }
         });
         return $state;

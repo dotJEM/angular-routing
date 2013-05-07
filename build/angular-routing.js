@@ -884,12 +884,15 @@ var $StateProvider = [
                 });
                 $rootScope.$on('$routeUpdate', function () {
                     //TODO: Broadcast StateUpdate?
-                                        var route = $route.current, params;
+                    var route = $route.current;
                     if(route) {
                         //TODO: Refresh current state object with new parameters and raise event.
-                                            } else {
-                        //uhm o.O...
-                                            }
+                        var dst = $route.current.$params;
+                        angular.copy(route.params, dst.all);
+                        angular.copy(route.pathParams, dst.path);
+                        angular.copy(route.searchParams, dst.search);
+                        $rootScope.$broadcast('$stateUpdate', $route.current);
+                    }
                 });
                 return $state;
                 function lookup(path) {
@@ -1097,6 +1100,7 @@ var $StateProvider = [
                                 promise = promise.then(function () {
                                     return resolve(change.state.self.resolve);
                                 }).then(function (locals) {
+                                    //TODO: Locals is a promise here.
                                     if(change.isChanged) {
                                         useUpdate = true;
                                     }
