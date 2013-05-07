@@ -407,6 +407,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         promise = promise.then(function () {
                             return resolve(change.state.self.resolve);
                         }).then(function (locals) {
+                            //TODO: Locals is a promise here.
+
 
                             if (change.isChanged)
                                 useUpdate = true;
