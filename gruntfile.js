@@ -86,6 +86,20 @@ module.exports = function (grunt) {
             }
         },
         
+        connect: {
+            substates: {
+                options: {
+                    port: 8080,
+                    base: 'samples/substates'
+                }
+            }
+        },
+
+        watch: {
+            files: ['src/**/*.ts'],
+            tasks: ['build']
+        },
+        
         yuidoc: {
             src: {
                 name: '<%= pkg.name %>',
@@ -107,9 +121,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
     
     // Default task.
-    grunt.registerTask('default', ['clean', 'typescript', 'concat', 'uglify', 'karma','yuidoc']);
+    grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
+    grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc']);
+    grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
 };
