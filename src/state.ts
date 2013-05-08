@@ -162,11 +162,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             var route = $route.current;
             if (route) {
                 //TODO: Refresh current state object with new parameters and raise event.
-                var dst = $route.current.$params;
-
-                angular.copy(route.params, dst.all);
-                angular.copy(route.pathParams, dst.path);
-                angular.copy(route.searchParams, dst.search);
+                var dst = $state.current.$params;
+                dst.all = route.params;
+                dst.path = route.pathParams;
+                dst.search = route.searchParams;
 
                 $rootScope.$broadcast('$stateUpdate', $route.current);
             }

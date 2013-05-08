@@ -1395,4 +1395,118 @@ describe('$stateProvider', function () {
         //    });
         //});
     });
+
+
+
+    describe("reloadOnSearch", () => {
+        var location: ng.ILocationService, spy: jasmine.Spy;
+        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
+            $stateProvider
+                .state('page', { route: '/page/:param' })
+                .state('post', { route: '/post/:param', reloadOnSearch: false })
+                .state('foo', {  })
+                .state('bar', { reloadOnSearch: false })
+                //reloadOnParams
+
+            return function ($rootScope, $state, $location) {
+                scope = $rootScope;
+                state = $state;
+                location = $location;
+                
+                spy = spyOn(scope, '$broadcast');
+                spy.andCallThrough();
+
+            };
+        }));
+
+        function go(path: string) {
+            spy.reset();
+            location.url(path);
+            scope.$digest();
+        }
+
+        function goto(target: string, params: any) {
+            spy.reset();
+            state.goto(target, params);
+            scope.$digest();
+        }
+
+        function find(event) {
+            var events = [];
+
+            angular.forEach(spy.calls, function (call: { args: any[]; }) {
+                if (call.args[0] === event)
+                    events.push(call);
+            })
+
+            if (events.length > 1)
+                return events;
+            return events[0];
+        }
+
+        it('single resolve provides value', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                go('/page/42');
+                expect(find('$stateChangeSuccess')).toBeDefined();
+
+                go('/page/42?p=pre');
+                expect(find('$stateChangeSuccess')).toBeDefined();
+            });
+        });
+
+        it('single resolve provides value', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                go('/post/42');
+                expect(find('$stateChangeSuccess')).toBeDefined();
+
+                go('/post/42?p=pre');
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+
+        it('single resolve provides value', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto('page', { param: 42 });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+
+                goto('page', { param: 42, p: 'pre' });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+            });
+        });
+
+        it('single resolve provides value', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto('post', { param: 42 });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+
+                goto('post', { param: 42, p: 'pre' });
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+
+        //TODO: Promises are actually no fully resolved as of now.
+        //it('resolve will resolve promise if one is returned', function () {
+        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
+        //        $stateProvider
+        //            .state('home', {
+        //                views: { 'tpl': { template: "tpl" } },
+        //                resolve: {
+        //                    home: function ($timeout) {
+        //                        return $timeout(function () {
+        //                            return 42;
+        //                        }, 300);
+        //                    }
+        //                }
+        //            });
+        //    });
+
+        //    inject(function ($view, $state: ui.routing.IStateService) {
+        //        goto("home");
+        //        scope.$digest();
+        //        expect(loc).toEqual({ home: 42 });
+        //    });
+        //});
+    });
 });

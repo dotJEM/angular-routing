@@ -94,7 +94,6 @@ module ui.routing {
 
     interface IStateProvider extends ITransitionProviderBase {
         state(name: string, state: any): IStateProvider;
-        print(): string;
     }
 
     interface IStateService {

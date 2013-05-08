@@ -481,7 +481,11 @@ function $RouteProvider() {
                 && !nextRoute.reloadOnSearch) {
 
                 lastRoute.params = next.params;
+                lastRoute.searchParams = next.searchParams;
+                lastRoute.pathParams = next.pathParams;
+
                 copy(nextRoute.params, $routeParams);
+
                 $rootScope.$broadcast('$routeUpdate', lastRoute);
             } else if (next || lastRoute) {
                 //TODO: We should always have a next to go to, it may be a null route though.
