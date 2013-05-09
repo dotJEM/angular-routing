@@ -1,7 +1,7 @@
 ﻿/*global module:false*/
 module.exports = function (grunt) {
     "use strict";
-    
+
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -9,7 +9,7 @@ module.exports = function (grunt) {
         clean: {
             src: ['build']
         },
-        
+
         typescript: {
             src: {
                 src: ['src/**/*.ts'],
@@ -36,14 +36,14 @@ module.exports = function (grunt) {
                 }
             },
         },
-        
+
         concat: {
             options: {
                 banner: '<%= banner %>',
                 stripBanners: true
             },
             core: {
-                src: [  'src/prefix',
+                src: ['src/prefix',
                         'build/src/common.js',
                         'build/src/route.js',
                         'build/src/stateTransition.js',
@@ -55,14 +55,14 @@ module.exports = function (grunt) {
                 dest: 'build/<%= pkg.name %>.js'
             },
             legacy: {
-                src: [  'build/src/legacy/prefix',
+                src: ['build/src/legacy/prefix',
                         'build/src/legacy/templateDecorator.js',
                         'build/src/legacy/suffix'
                 ],
                 dest: 'build/<%= pkg.name %>.legacy.js'
             }
         },
-        
+
         uglify: {
             options: {
                 banner: '<%= banner %>'
@@ -76,7 +76,7 @@ module.exports = function (grunt) {
                 dest: 'build/<%= pkg.name %>.legacy.min.js'
             },
         },
-        
+
         karma: {
             unit: {
                 configFile: 'test-grunt-config.js',
@@ -85,7 +85,7 @@ module.exports = function (grunt) {
                 browsers: ['PhantomJS']
             }
         },
-        
+
         connect: {
             substates: {
                 options: {
@@ -99,7 +99,7 @@ module.exports = function (grunt) {
             files: ['src/**/*.ts'],
             tasks: ['build']
         },
-        
+
         yuidoc: {
             src: {
                 name: '<%= pkg.name %>',
@@ -111,9 +111,30 @@ module.exports = function (grunt) {
                     outdir: './doc/yuidoc/'
                 }
             }
+        },
+
+        copy: {
+            release: {
+                files: [{
+                    expand: true,
+                    src: ['build/*.js'],
+                    dest: 'release/',
+                    rename: function (dest, src) {
+                        if (src.indexOf('.min') !== -1) {
+                            return src
+                                .replace('.min.js', '-<%= pkg.version %>.min.js')
+                                .replace('build', 'release/v<%= pkg.version %>');
+                        } else {
+                            return src
+                                .replace('.js', '-<%= pkg.version %>.js')
+                                .replace('build', 'release/v<%= pkg.version %>');
+                        }
+                    }
+                }]
+            }
         }
     });
-    
+
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -122,11 +143,13 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
-    
+
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
     grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc']);
+    grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
 };

@@ -459,6 +459,8 @@ function $RouteProvider() {
                 var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
                 if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                     lastRoute.params = next.params;
+                    lastRoute.searchParams = next.searchParams;
+                    lastRoute.pathParams = next.pathParams;
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast('$routeUpdate', lastRoute);
                 } else if(next || lastRoute) {
@@ -887,10 +889,10 @@ var $StateProvider = [
                     var route = $route.current;
                     if(route) {
                         //TODO: Refresh current state object with new parameters and raise event.
-                        var dst = $route.current.$params;
-                        angular.copy(route.params, dst.all);
-                        angular.copy(route.pathParams, dst.path);
-                        angular.copy(route.searchParams, dst.search);
+                        var dst = $state.current.$params;
+                        dst.all = route.params;
+                        dst.path = route.pathParams;
+                        dst.search = route.searchParams;
                         $rootScope.$broadcast('$stateUpdate', $route.current);
                     }
                 });

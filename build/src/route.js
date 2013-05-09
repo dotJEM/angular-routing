@@ -418,6 +418,8 @@ function $RouteProvider() {
                 var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
                 if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                     lastRoute.params = next.params;
+                    lastRoute.searchParams = next.searchParams;
+                    lastRoute.pathParams = next.pathParams;
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast('$routeUpdate', lastRoute);
                 } else if(next || lastRoute) {
