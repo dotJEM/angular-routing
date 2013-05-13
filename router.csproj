@@ -55,6 +55,9 @@
     <None Include="src\route.js.map">
       <DependentUpon>route.ts</DependentUpon>
     </None>
+    <None Include="src\scroll.js.map">
+      <DependentUpon>scroll.ts</DependentUpon>
+    </None>
     <None Include="src\state.js.map">
       <DependentUpon>state.ts</DependentUpon>
     </None>
@@ -72,6 +75,9 @@
     </None>
     <None Include="test\routeSpec.js.map">
       <DependentUpon>routeSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\scrollSpec.js.map">
+      <DependentUpon>scrollSpec.ts</DependentUpon>
     </None>
     <None Include="test\stateSpec.js.map">
       <DependentUpon>stateSpec.ts</DependentUpon>
@@ -114,6 +120,10 @@
     </Content>
     <None Include="src\prefix" />
     <None Include="src\suffix" />
+    <TypeScriptCompile Include="src\scroll.ts" />
+    <Content Include="src\scroll.js">
+      <DependentUpon>scroll.ts</DependentUpon>
+    </Content>
     <Content Include="src\stateTransition.js">
       <DependentUpon>stateTransition.ts</DependentUpon>
     </Content>
@@ -172,6 +182,10 @@
       <DependentUpon>routeSpec.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="test\stateSpec.ts" />
+    <TypeScriptCompile Include="test\scrollSpec.ts" />
+    <Content Include="test\scrollSpec.js">
+      <DependentUpon>scrollSpec.ts</DependentUpon>
+    </Content>
     <Content Include="test\stateSpec.js">
       <DependentUpon>stateSpec.ts</DependentUpon>
     </Content>

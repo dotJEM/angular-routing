@@ -8,8 +8,8 @@ interface IViewScope extends ng.IScope {
     refresh?: (data?: any) => void;
 }
 
-var uiViewDirective = [<any>'$state', '$anchorScroll', '$compile', '$controller', '$view', '$animator',
-function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewService, $animator) {
+var uiViewDirective = [<any>'$state', '$scroll', '$compile', '$controller', '$view', '$animator',
+function ($state, $scroll, $compile, $controller, $view: ui.routing.IViewService, $animator) {
     return {
         restrict: 'ECA',
         terminal: true,
@@ -88,7 +88,9 @@ function ($state, $anchorScroll, $compile, $controller, $view: ui.routing.IViewS
 
                         viewScope.$emit('$viewContentLoaded');
                         viewScope.$eval(onloadExp);
-                        $anchorScroll();
+
+                        //TODO: we are actually ending up calling scroll a number of times here due to multiple views.
+                        $scroll();
                     });
                 } else {
                     clearContent(doAnimate);

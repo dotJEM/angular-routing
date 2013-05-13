@@ -4,12 +4,12 @@
 'use strict';
 var uiViewDirective = [
     '$state', 
-    '$anchorScroll', 
+    '$scroll', 
     '$compile', 
     '$controller', 
     '$view', 
     '$animator', 
-    function ($state, $anchorScroll, $compile, $controller, $view, $animator) {
+    function ($state, $scroll, $compile, $controller, $view, $animator) {
         return {
             restrict: 'ECA',
             terminal: true,
@@ -73,7 +73,8 @@ var uiViewDirective = [
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
-                            $anchorScroll();
+                            //TODO: we are actually ending up calling scroll a number of times here due to multiple views.
+                            $scroll();
                         });
                     } else {
                         clearContent(doAnimate);

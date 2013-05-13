@@ -127,6 +127,9 @@
                         }
                     }
                 })
+                .state('blog.post.top', {
+                    route: ''
+                })
                 .state('blog.post.comments', {
                     route: '/comments',
                     views: {
