@@ -15,17 +15,20 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
         function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $location: ng.ILocationService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService) {
             var document = $window.document;
 
+            function scrollTo(elm: any) {
+                if (elm) elm.scrollIntoView();
+            }
+
             function scroll(arg: any) {
-                var elm = arg, fn, strArg: string;
+                var fn;
                 if (isUndefined(arg)) {
                     $anchorScroll();
-                    return;
-                } else if (arg === null) {
-                    return;
                 } else if (isString(arg)) {
-
-                    elm = angular.element(arg)[0];
-
+                    if (arg === 'top') {
+                        $window.scroll(0, 0);
+                    } else {
+                        scrollTo(angular.element(arg)[0])
+                    }
                     /****jQuery( "[attribute='value']" 
                      * scrollTo: top - scroll to top, explicitly stated.
                      *           (This also enables one to override another scrollTo from a parent)
@@ -35,10 +38,8 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
                      *           - scroll to element with id or view if starts with @
                      */
                 } else if ((fn = injectFn(arg)) !== null) {
-                    elm = document.getElementById($injector.invoke(arg, fn));
+                    scrollTo(angular.element($injector.invoke(arg, fn))[0])
                 }
-
-                if(elm) elm.scrollIntoView();
             }
 
             //if (autoscroll) {
