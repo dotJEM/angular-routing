@@ -12,6 +12,18 @@ function inherit(parent, extra) {
 function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
+function injectFn(arg) {
+    if(isArray(arg)) {
+        for(var i = 0; i < arg.length; i++) {
+            if(i < arg.length - 1 && !isString(arg[i])) {
+                return null;
+            } else if(i === arg.length - 1 && isFunction(arg[i])) {
+                return arg[i];
+            }
+        }
+    }
+    return null;
+}
 //var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
 //function parseParams(path: string): IParam[]{
 //    var match: RegExpExecArray,

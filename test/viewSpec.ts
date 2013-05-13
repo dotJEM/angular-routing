@@ -1,7 +1,5 @@
 /// <reference path="testcommon.ts" />
 
-'use strict';
-
 describe('$view', function () {
     'use strict';
     var mock = angular.mock;
