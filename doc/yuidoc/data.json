@@ -104,8 +104,8 @@
         },
         {
             "file": "build\\src\\scroll.js",
-            "line": 32,
-            "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: @viewname - scroll to a view.\nscrollTo: elementid - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
+            "line": 28,
+            "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
             "class": ""
         }
     ],
@@ -115,8 +115,8 @@
             "line": " build\\src\\route.js:41"
         },
         {
-            "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: @viewname - scroll to a view.\nscrollTo: elementid - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
-            "line": " build\\src\\scroll.js:32"
+            "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
+            "line": " build\\src\\scroll.js:28"
         }
     ]
 }

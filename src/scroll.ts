@@ -23,18 +23,14 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
                 } else if (arg === null) {
                     return;
                 } else if (isString(arg)) {
-                    if (arg[0] === '@') {
-                        elm = angular.element('[ui-view=' + arg.substring(1) + ']')[0];
-                    } else {
-                        elm = document.getElementById(arg);
-                    }
+
+                    elm = angular.element(arg)[0];
 
                     /****jQuery( "[attribute='value']" 
                      * scrollTo: top - scroll to top, explicitly stated.
                      *           (This also enables one to override another scrollTo from a parent)
                      * scrollTo: null - don't scroll, not even to top.
-                     * scrollTo: @viewname - scroll to a view.
-                     * scrollTo: elementid - scroll to an element id
+                     * scrollTo: element-selector - scroll to an element id
                      * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } 
                      *           - scroll to element with id or view if starts with @
                      */
