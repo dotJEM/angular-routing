@@ -6,6 +6,7 @@ interface IStateWrapper {
     children: any;
     self: ui.routing.IState;
     fullname: string;
+    reloadOnOptional: bool;
 
     parent?: IStateWrapper;
     route?: any;
@@ -13,7 +14,7 @@ interface IStateWrapper {
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root: IStateWrapper = { fullname: 'root', children: {}, self: { $fullname: 'root' } },
+    var root: IStateWrapper = { fullname: 'root', children: {}, self: { $fullname: 'root' }, reloadOnOptional: true },
         nameValidation = /^\w+(\.\w+)*?$/;
 
     function validateName(name: string) {
@@ -25,10 +26,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
     function createRoute(stateRoute: string, parrentRoute: string, stateName: string, reloadOnSearch: bool) {
         var route;
-
-        if (!isDefined(reloadOnSearch)) {
-            reloadOnSearch = true;
-        }
 
         route = (parrentRoute || '');
         if (route !== '' && route[route.length - 1] === '/') {
@@ -63,9 +60,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         at.self = extend({}, state, { $fullname: fullname });
         at.fullname = fullname;
         at.parent = parent;
+        at.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
 
         if (isDefined(state.route)) {
-            at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
+            at.route = createRoute(state.route, lookupRoute(parent), fullname, at.reloadOnOptional).$route;
         }
 
         if (isDefined(state.onEnter)) {
@@ -300,24 +298,25 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 count = Math.max(fromArray.length, toArray.length),
                 fromAtIndex,
                 toAtIndex,
-                c;
+                c, arrayChanged= false;
 
             for (var i = 0; i < count; i++) {
                 fromAtIndex = fromArray[fromArray.length - i - 1];
                 toAtIndex = toArray[toArray.length - i - 1];
 
                 if (isUndefined(toAtIndex)) {
-                    toArray[0].isChanged = true;
+                    toArray[0].isChanged = arrayChanged = true;
                 } else if (isUndefined(fromAtIndex)
                         || (forceReload && forceReload == toAtIndex.state.fullname)
                         || toAtIndex.state.fullname !== fromAtIndex.state.fullname
                         || !equals(toAtIndex.params, fromAtIndex.params)) {
-                    toAtIndex.isChanged = true;
+                    toAtIndex.isChanged = arrayChanged = true;
                 } else {
                     toAtIndex.isChanged = false;
                 }
             }
-            return toArray.reverse();
+            arrayChanged = arrayChanged || (toArray[0].state.reloadOnOptional && !equals(fromParams, toParams));
+            return { array: toArray.reverse(), anyChanges: arrayChanged };
         }
         
         function goto(args: { state; params?; route?; updateroute?; }) {
@@ -345,10 +344,15 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     },
                     goto: (state, params?) => {
                         cancel = true;
-                        goto({ state: state, params: { all: params } });
+                        goto({ state: state, params: { all: params }, updateroute: true });
                     }
                 };
             
+            if (!forceReload && !changed.anyChanges)
+                return;
+
+            forceReload = null;
+
             if (args.updateroute && to.route) {
                 //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                 //      maybe we can refactor those together
@@ -398,7 +402,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     }
 
                     var promise = $q.when(0);
-                    forEach(changed, (change, index) => {
+                    forEach(changed.array, (change, index) => {
                         //var def = $q.defer();
                         //promise.then(function () {
                         //    resolve(change.state.self.resolve).then(function (locals) {

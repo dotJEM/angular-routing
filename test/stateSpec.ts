@@ -569,7 +569,7 @@ describe('$stateProvider', function () {
                 expect(viewSpy.callCount).toBe(1);
 
                 go('/top/sub/bot');
-                expect(viewSpy.callCount).toBe(3);
+                expect(viewSpy.callCount).toBe(2);
 
                 reload();
                 expect(viewSpy.callCount).toBe(1);
@@ -834,9 +834,11 @@ describe('$stateProvider', function () {
                 $route: ng.IRouteService,
                 $state: ui.routing.IStateService) {
 
-                $state.goto('blog'); expect($location.path()).toBe('/blog');
+                $state.goto('blog');
+                expect($location.path()).toBe('/blog');
 
-                $state.goto('about.other'); expect($location.path()).toBe('/about/other');
+                $state.goto('about.other');
+                expect($location.path()).toBe('/about/other');
             });
         });
 
@@ -1371,32 +1373,7 @@ describe('$stateProvider', function () {
                 expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser', extra: 'low' });
             });
         });
-
-        //TODO: Promises are actually no fully resolved as of now.
-        //it('resolve will resolve promise if one is returned', function () {
-        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
-        //        $stateProvider
-        //            .state('home', {
-        //                views: { 'tpl': { template: "tpl" } },
-        //                resolve: {
-        //                    home: function ($timeout) {
-        //                        return $timeout(function () {
-        //                            return 42;
-        //                        }, 300);
-        //                    }
-        //                }
-        //            });
-        //    });
-
-        //    inject(function ($view, $state: ui.routing.IStateService) {
-        //        goto("home");
-        //        scope.$digest();
-        //        expect(loc).toEqual({ home: 42 });
-        //    });
-        //});
     });
-
-
 
     describe("reloadOnSearch", () => {
         var location: ng.ILocationService, spy: jasmine.Spy;
@@ -1415,7 +1392,6 @@ describe('$stateProvider', function () {
                 
                 spy = spyOn(scope, '$broadcast');
                 spy.andCallThrough();
-
             };
         }));
 
@@ -1444,7 +1420,7 @@ describe('$stateProvider', function () {
             return events[0];
         }
 
-        it('single resolve provides value', function () {
+        it('adding search paramter when true causes transition', function () {
             inject(function ($view, $state: ui.routing.IStateService) {
                 go('/page/42');
                 expect(find('$stateChangeSuccess')).toBeDefined();
@@ -1454,7 +1430,7 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('single resolve provides value', function () {
+        it('adding search paramter when false causes update', function () {
             inject(function ($view, $state: ui.routing.IStateService) {
                 go('/post/42');
                 expect(find('$stateChangeSuccess')).toBeDefined();
@@ -1465,7 +1441,7 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('single resolve provides value', function () {
+        it('adding optional paramter when true causes transition', function () {
             inject(function ($view, $state: ui.routing.IStateService) {
                 goto('page', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
@@ -1475,7 +1451,7 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('single resolve provides value', function () {
+        it('adding optional paramter when false causes update', function () {
             inject(function ($view, $state: ui.routing.IStateService) {
                 goto('post', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
@@ -1486,27 +1462,25 @@ describe('$stateProvider', function () {
             });
         });
 
-        //TODO: Promises are actually no fully resolved as of now.
-        //it('resolve will resolve promise if one is returned', function () {
-        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
-        //        $stateProvider
-        //            .state('home', {
-        //                views: { 'tpl': { template: "tpl" } },
-        //                resolve: {
-        //                    home: function ($timeout) {
-        //                        return $timeout(function () {
-        //                            return 42;
-        //                        }, 300);
-        //                    }
-        //                }
-        //            });
-        //    });
+        it('??', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto('foo', { param: 42 });
+                expect(find('$stateChangeSuccess')).toBeDefined();
 
-        //    inject(function ($view, $state: ui.routing.IStateService) {
-        //        goto("home");
-        //        scope.$digest();
-        //        expect(loc).toEqual({ home: 42 });
-        //    });
-        //});
+                goto('foo', { param: 42, p: 'pre' });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+            });
+        });
+
+        it('???', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto('bar', { param: 42 });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+
+                goto('bar', { param: 42 });
+                expect(find('$stateUpdate')).toBeUndefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
     });
 });
