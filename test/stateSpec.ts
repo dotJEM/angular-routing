@@ -1462,17 +1462,28 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('??', function () {
+        it('with no route, all parameters are considered optional and raises change if true', function () {
             inject(function ($view, $state: ui.routing.IStateService) {
                 goto('foo', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
-                goto('foo', { param: 42, p: 'pre' });
+                goto('foo', { param: 43 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
             });
         });
 
-        it('???', function () {
+        it('with no route, all parameters are considered optional and raises update if false', function () {
+            inject(function ($view, $state: ui.routing.IStateService) {
+                goto('bar', { param: 42 });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+
+                goto('bar', { param: 43 });
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+
+        it('no changes causes nothing', function () {
             inject(function ($view, $state: ui.routing.IStateService) {
                 goto('bar', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();

@@ -156,17 +156,12 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
         });
         $rootScope.$on('$routeUpdate', () => {
-            //TODO: Broadcast StateUpdate?
             var route = $route.current;
-            if (route) {
-                //TODO: Refresh current state object with new parameters and raise event.
-                var dst = $state.current.$params;
-                dst.all = route.params;
-                dst.path = route.pathParams;
-                dst.search = route.searchParams;
-
-                $rootScope.$broadcast('$stateUpdate', $route.current);
-            }
+            var dst = $state.current.$params;
+            dst.all = route.params;
+            dst.path = route.pathParams;
+            dst.search = route.searchParams;
+            $rootScope.$broadcast('$stateUpdate', $state.current);
         });
         return $state;
 
@@ -298,27 +293,33 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 count = Math.max(fromArray.length, toArray.length),
                 fromAtIndex,
                 toAtIndex,
-                c, arrayChanged= false;
+                c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
 
             for (var i = 0; i < count; i++) {
                 fromAtIndex = fromArray[fromArray.length - i - 1];
                 toAtIndex = toArray[toArray.length - i - 1];
 
                 if (isUndefined(toAtIndex)) {
-                    toArray[0].isChanged = arrayChanged = true;
+                    toArray[0].isChanged = stateChanges = true;
                 } else if (isUndefined(fromAtIndex)
                         || (forceReload && forceReload == toAtIndex.state.fullname)
                         || toAtIndex.state.fullname !== fromAtIndex.state.fullname
                         || !equals(toAtIndex.params, fromAtIndex.params)) {
-                    toAtIndex.isChanged = arrayChanged = true;
+                    toAtIndex.isChanged = stateChanges = true;
                 } else {
                     toAtIndex.isChanged = false;
                 }
             }
-            arrayChanged = arrayChanged || (toArray[0].state.reloadOnOptional && !equals(fromParams, toParams));
-            return { array: toArray.reverse(), anyChanges: arrayChanged };
+            //TODO: if ReloadOnOptional is false, but parameters are changed.
+            //      we should raise the update event instead.
+            stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
+            return {
+                array: toArray.reverse(),
+                stateChanges: stateChanges,
+                paramChanges: paramChanges
+            };
         }
-        
+
         function goto(args: { state; params?; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -347,9 +348,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         goto({ state: state, params: { all: params }, updateroute: true });
                     }
                 };
-            
-            if (!forceReload && !changed.anyChanges)
+
+            if (!forceReload && !changed.stateChanges) {
+                if (changed.paramChanges) {
+                    var dst = $state.current.$params;
+                    dst.all = params.all || {};
+                    dst.path = params.path || {};
+                    dst.search = params.search || {};
+
+                    $rootScope.$broadcast('$stateUpdate', $state.current);
+                }
                 return;
+            }
 
             forceReload = null;
 
@@ -358,7 +368,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 //      maybe we can refactor those together
                 var paramsObj = {}, allFrom = (fromState.$params && fromState.$params.all) || {};
                 forEach(to.route.params, (param, name) => {
-                    if(name in allFrom) paramsObj[name] = allFrom[name];
+                    if (name in allFrom) paramsObj[name] = allFrom[name];
                 });
 
                 var mergedParams = extend(paramsObj, (params && params.all))
@@ -396,7 +406,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             angular.forEach(values, function (value, index) {
                                 locals[keys[index]] = value;
                             });
-                             def.resolve( locals);
+                            def.resolve(locals);
                         });
                         return def.promise;
                     }
