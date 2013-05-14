@@ -104,7 +104,7 @@
         },
         {
             "file": "build\\src\\scroll.js",
-            "line": 28,
+            "line": 34,
             "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
             "class": ""
         }
@@ -116,7 +116,7 @@
         },
         {
             "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
-            "line": " build\\src\\scroll.js:28"
+            "line": " build\\src\\scroll.js:34"
         }
     ]
 }

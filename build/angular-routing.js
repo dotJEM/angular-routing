@@ -752,7 +752,8 @@ var $StateProvider = [
             },
             self: {
                 $fullname: 'root'
-            }
+            },
+            reloadOnOptional: true
         }, nameValidation = /^\w+(\.\w+)*?$/;
         function validateName(name) {
             if(nameValidation.test(name)) {
@@ -762,9 +763,6 @@ var $StateProvider = [
         }
         function createRoute(stateRoute, parrentRoute, stateName, reloadOnSearch) {
             var route;
-            if(!isDefined(reloadOnSearch)) {
-                reloadOnSearch = true;
-            }
             route = (parrentRoute || '');
             if(route !== '' && route[route.length - 1] === '/') {
                 route = route.substr(0, route.length - 1);
@@ -801,8 +799,9 @@ var $StateProvider = [
             });
             at.fullname = fullname;
             at.parent = parent;
+            at.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
             if(isDefined(state.route)) {
-                at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
+                at.route = createRoute(state.route, lookupRoute(parent), fullname, at.reloadOnOptional).$route;
             }
             if(isDefined(state.onEnter)) {
                 $transitionProvider.onEnter(fullname, state.onEnter);
@@ -897,16 +896,8 @@ var $StateProvider = [
                     }
                 });
                 $rootScope.$on('$routeUpdate', function () {
-                    //TODO: Broadcast StateUpdate?
                     var route = $route.current;
-                    if(route) {
-                        //TODO: Refresh current state object with new parameters and raise event.
-                        var dst = $state.current.$params;
-                        dst.all = route.params;
-                        dst.path = route.pathParams;
-                        dst.search = route.searchParams;
-                        $rootScope.$broadcast('$stateUpdate', $route.current);
-                    }
+                    raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
                 function lookup(path) {
@@ -1019,19 +1010,33 @@ var $StateProvider = [
                 }
                 function buildChangeArray(from, to, fromParams, toParams) {
                     var fromArray = buildStateArray(from, fromParams || {
-                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c;
+                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
                     for(var i = 0; i < count; i++) {
                         fromAtIndex = fromArray[fromArray.length - i - 1];
                         toAtIndex = toArray[toArray.length - i - 1];
                         if(isUndefined(toAtIndex)) {
-                            toArray[0].isChanged = true;
+                            toArray[0].isChanged = stateChanges = true;
                         } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
-                            toAtIndex.isChanged = true;
+                            toAtIndex.isChanged = stateChanges = true;
                         } else {
                             toAtIndex.isChanged = false;
                         }
                     }
-                    return toArray.reverse();
+                    //TODO: if ReloadOnOptional is false, but parameters are changed.
+                    //      we should raise the update event instead.
+                    stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
+                    return {
+                        array: toArray.reverse(),
+                        stateChanges: stateChanges,
+                        paramChanges: paramChanges
+                    };
+                }
+                function raiseUpdate(all, path, search) {
+                    var dst = $state.current.$params;
+                    dst.all = all;
+                    dst.path = path;
+                    dst.search = search;
+                    $rootScope.$broadcast('$stateUpdate', $state.current);
                 }
                 function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -1051,10 +1056,21 @@ var $StateProvider = [
                                 state: state,
                                 params: {
                                     all: params
-                                }
+                                },
+                                updateroute: true
                             });
                         }
                     };
+                    if(!forceReload && !changed.stateChanges) {
+                        if(changed.paramChanges) {
+                            raiseUpdate(params.all || {
+                            }, params.path || {
+                            }, params.search || {
+                            });
+                        }
+                        return;
+                    }
+                    forceReload = null;
                     if(args.updateroute && to.route) {
                         //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                         //      maybe we can refactor those together
@@ -1103,7 +1119,7 @@ var $StateProvider = [
                                 return def.promise;
                             }
                             var promise = $q.when(0);
-                            forEach(changed, function (change, index) {
+                            forEach(changed.array, function (change, index) {
                                 //var def = $q.defer();
                                 //promise.then(function () {
                                 //    resolve(change.state.self.resolve).then(function (locals) {
@@ -1417,15 +1433,21 @@ var $ScrollProvider = [
             '$injector', 
             function ($window, $rootScope, $location, $anchorScroll, $injector) {
                 var document = $window.document;
+                function scrollTo(elm) {
+                    if(elm) {
+                        elm.scrollIntoView();
+                    }
+                }
                 function scroll(arg) {
-                    var elm = arg, fn, strArg;
+                    var fn;
                     if(isUndefined(arg)) {
                         $anchorScroll();
-                        return;
-                    } else if(arg === null) {
-                        return;
                     } else if(isString(arg)) {
-                        elm = angular.element(arg)[0];
+                        if(arg === 'top') {
+                            $window.scroll(0, 0);
+                        } else {
+                            scrollTo(angular.element(arg)[0]);
+                        }
                         /****jQuery( "[attribute='value']"
                         * scrollTo: top - scroll to top, explicitly stated.
                         *           (This also enables one to override another scrollTo from a parent)
@@ -1435,10 +1457,7 @@ var $ScrollProvider = [
                         *           - scroll to element with id or view if starts with @
                         */
                                             } else if((fn = injectFn(arg)) !== null) {
-                        elm = document.getElementById($injector.invoke(arg, fn));
-                    }
-                    if(elm) {
-                        elm.scrollIntoView();
+                        scrollTo(angular.element($injector.invoke(arg, fn))[0]);
                     }
                 }
                 //if (autoscroll) {

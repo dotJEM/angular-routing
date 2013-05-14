@@ -706,7 +706,7 @@ describe('$stateProvider', function () {
                 reload();
                 expect(viewSpy.callCount).toBe(1);
                 go('/top/sub/bot');
-                expect(viewSpy.callCount).toBe(3);
+                expect(viewSpy.callCount).toBe(2);
                 reload();
                 expect(viewSpy.callCount).toBe(1);
                 reload(true);
@@ -1594,28 +1594,7 @@ describe('$stateProvider', function () {
                 });
             });
         });
-        //TODO: Promises are actually no fully resolved as of now.
-        //it('resolve will resolve promise if one is returned', function () {
-        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
-        //        $stateProvider
-        //            .state('home', {
-        //                views: { 'tpl': { template: "tpl" } },
-        //                resolve: {
-        //                    home: function ($timeout) {
-        //                        return $timeout(function () {
-        //                            return 42;
-        //                        }, 300);
-        //                    }
-        //                }
-        //            });
-        //    });
-        //    inject(function ($view, $state: ui.routing.IStateService) {
-        //        goto("home");
-        //        scope.$digest();
-        //        expect(loc).toEqual({ home: 42 });
-        //    });
-        //});
-            });
+    });
     describe("reloadOnSearch", function () {
         var location, spy;
         beforeEach(mod('ui.routing', function ($stateProvider) {
@@ -1659,7 +1638,7 @@ describe('$stateProvider', function () {
             }
             return events[0];
         }
-        it('single resolve provides value', function () {
+        it('adding search paramter when true causes transition', function () {
             inject(function ($view, $state) {
                 go('/page/42');
                 expect(find('$stateChangeSuccess')).toBeDefined();
@@ -1667,7 +1646,7 @@ describe('$stateProvider', function () {
                 expect(find('$stateChangeSuccess')).toBeDefined();
             });
         });
-        it('single resolve provides value', function () {
+        it('adding search paramter when false causes update', function () {
             inject(function ($view, $state) {
                 go('/post/42');
                 expect(find('$stateChangeSuccess')).toBeDefined();
@@ -1676,7 +1655,7 @@ describe('$stateProvider', function () {
                 expect(find('$stateChangeSuccess')).toBeUndefined();
             });
         });
-        it('single resolve provides value', function () {
+        it('adding optional paramter when true causes transition', function () {
             inject(function ($view, $state) {
                 goto('page', {
                     param: 42
@@ -1689,7 +1668,7 @@ describe('$stateProvider', function () {
                 expect(find('$stateChangeSuccess')).toBeDefined();
             });
         });
-        it('single resolve provides value', function () {
+        it('adding optional paramter when false causes update', function () {
             inject(function ($view, $state) {
                 goto('post', {
                     param: 42
@@ -1703,26 +1682,43 @@ describe('$stateProvider', function () {
                 expect(find('$stateChangeSuccess')).toBeUndefined();
             });
         });
-        //TODO: Promises are actually no fully resolved as of now.
-        //it('resolve will resolve promise if one is returned', function () {
-        //    mod(function ($stateProvider: ui.routing.IStateProvider) {
-        //        $stateProvider
-        //            .state('home', {
-        //                views: { 'tpl': { template: "tpl" } },
-        //                resolve: {
-        //                    home: function ($timeout) {
-        //                        return $timeout(function () {
-        //                            return 42;
-        //                        }, 300);
-        //                    }
-        //                }
-        //            });
-        //    });
-        //    inject(function ($view, $state: ui.routing.IStateService) {
-        //        goto("home");
-        //        scope.$digest();
-        //        expect(loc).toEqual({ home: 42 });
-        //    });
-        //});
+        it('with no route, all parameters are considered optional and raises change if true', function () {
+            inject(function ($view, $state) {
+                goto('foo', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('foo', {
+                    param: 43
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
             });
+        });
+        it('with no route, all parameters are considered optional and raises update if false', function () {
+            inject(function ($view, $state) {
+                goto('bar', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('bar', {
+                    param: 43
+                });
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+        it('no changes causes nothing', function () {
+            inject(function ($view, $state) {
+                goto('bar', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('bar', {
+                    param: 42
+                });
+                expect(find('$stateUpdate')).toBeUndefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+    });
 });

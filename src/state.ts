@@ -157,11 +157,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         });
         $rootScope.$on('$routeUpdate', () => {
             var route = $route.current;
-            var dst = $state.current.$params;
-            dst.all = route.params;
-            dst.path = route.pathParams;
-            dst.search = route.searchParams;
-            $rootScope.$broadcast('$stateUpdate', $state.current);
+            raiseUpdate(route.params, route.pathParams, route.searchParams);
         });
         return $state;
 
@@ -320,6 +316,14 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             };
         }
 
+        function raiseUpdate(all, path, search) {
+            var dst = $state.current.$params;
+            dst.all = all;
+            dst.path = path;
+            dst.search = search;
+            $rootScope.$broadcast('$stateUpdate', $state.current);
+        }
+
         function goto(args: { state; params?; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -351,12 +355,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             if (!forceReload && !changed.stateChanges) {
                 if (changed.paramChanges) {
-                    var dst = $state.current.$params;
-                    dst.all = params.all || {};
-                    dst.path = params.path || {};
-                    dst.search = params.search || {};
-
-                    $rootScope.$broadcast('$stateUpdate', $state.current);
+                    raiseUpdate(params.all || {}, params.path || {}, params.search || {})
                 }
                 return;
             }
