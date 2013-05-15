@@ -6,6 +6,13 @@
         "url": ""
     },
     "files": {
+        "build\\src\\common.js": {
+            "name": "build\\src\\common.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
         "build\\src\\route.js": {
             "name": "build\\src\\route.js",
             "modules": {},
@@ -40,6 +47,18 @@
         }
     },
     "classitems": [
+        {
+            "file": "build\\src\\common.js",
+            "line": 36,
+            "description": "We need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "class": "$RouteProvider"
+        },
+        {
+            "file": "build\\src\\common.js",
+            "line": 52,
+            "description": "This method is intended for encoding *key* or *value* parts of query component. We need a custom\nmethod because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be\nencoded per http://tools.ietf.org/html/rfc3986:\n   query       = *( pchar / \"/\" / \"?\" )\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "class": "$RouteProvider"
+        },
         {
             "file": "build\\src\\route.js",
             "line": 18,
@@ -113,6 +132,14 @@
         {
             "message": "replacing incorrect tag: returns with return",
             "line": " build\\src\\route.js:41"
+        },
+        {
+            "message": "Missing item type\nWe need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "line": " build\\src\\common.js:36"
+        },
+        {
+            "message": "Missing item type\nThis method is intended for encoding *key* or *value* parts of query component. We need a custom\nmethod because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be\nencoded per http://tools.ietf.org/html/rfc3986:\n   query       = *( pchar / \"/\" / \"?\" )\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "line": " build\\src\\common.js:52"
         },
         {
             "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",

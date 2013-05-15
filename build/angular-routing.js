@@ -32,23 +32,47 @@ function injectFn(arg) {
     }
     return null;
 }
-//var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
-//function parseParams(path: string): IParam[]{
-//    var match: RegExpExecArray,
-//        params = [];
-//    if (path === null)
-//        return params;
-//    while ((match = paramsRegex.exec(path)) !== null) {
-//        params.push({
-//            name: match[3] || match[9],
-//            converter: match[6] || '',
-//            args: match[8],
-//            index: match.index,
-//            lastIndex: paramsRegex.lastIndex
-//        });
-//    }
-//    return params;
-//}
+//TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
+//      a function of thie angular object.
+function toKeyValue(obj) {
+    var parts = [];
+    forEach(obj, function (value, key) {
+        parts.push(encodeUriQuery(key, true) + (value === true ? '' : '=' + encodeUriQuery(value, true)));
+    });
+    return parts.length ? parts.join('&') : '';
+}
+/**
+* We need our custom method because encodeURIComponent is too aggressive and doesn't follow
+* http://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path
+* segments:
+*    segment       = *pchar
+*    pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+*    pct-encoded   = "%" HEXDIG HEXDIG
+*    unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+*    sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+*                     / "*" / "+" / "," / ";" / "="
+*/
+//TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
+//      a function of thie angular object.
+function encodeUriSegment(val) {
+    return encodeUriQuery(val, true).replace(/%26/gi, '&').replace(/%3D/gi, '=').replace(/%2B/gi, '+');
+}
+/**
+* This method is intended for encoding *key* or *value* parts of query component. We need a custom
+* method because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be
+* encoded per http://tools.ietf.org/html/rfc3986:
+*    query       = *( pchar / "/" / "?" )
+*    pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+*    unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+*    pct-encoded   = "%" HEXDIG HEXDIG
+*    sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+*                     / "*" / "+" / "," / ";" / "="
+*/
+//TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
+//      a function of thie angular object.
+function encodeUriQuery(val, pctEncodeSpaces) {
+    return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
+}
 angular.module('ui.routing', []);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
@@ -269,7 +293,8 @@ function $RouteProvider() {
         };
     }
     function interpolate(url, params) {
-        var result = [], name = "", index = 0;
+        //TODO: Are we missing calls to some "Encode URI component"?
+                var result = [], name = "", index = 0;
         forEach(parseParams(url), function (param, idx) {
             if(param.converter !== '') {
                 //TODO: use converter to convert param to string.
@@ -441,6 +466,11 @@ function $RouteProvider() {
                     if(args.replace) {
                         loc.replace();
                     }
+                },
+                format: function (route, params) {
+                    var params = params || {
+                    };
+                    return interpolate(route, params) + toKeyValue(params);
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);
@@ -872,7 +902,8 @@ var $StateProvider = [
                         });
                     },
                     lookup: lookup,
-                    reload: reload
+                    reload: reload,
+                    href: href
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -932,6 +963,7 @@ var $StateProvider = [
                     return children[index];
                 }
                 function select(exp, selected) {
+                    //TODO: Support full naming...
                     if(exp === '.') {
                         if(current !== selected) {
                             throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
@@ -965,6 +997,26 @@ var $StateProvider = [
                         return selected.children[exp];
                     }
                     throw new Error("Could find state for the lookup path.");
+                }
+                function href(state, params) {
+                    var c = $state.current;
+                    state = isDefined(state) ? lookupState(toName(state)) : current;
+                    if(!state.route) {
+                        return undefined;
+                    }//TODO: Find parent with route and return?
+                    
+                    //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+                    //      maybe we can refactor those together
+                                        var paramsObj = {
+                    }, allFrom = (c && c.$params && c.$params.all) || {
+                    };
+                    forEach(state.route.params, function (param, name) {
+                        if(name in allFrom) {
+                            paramsObj[name] = allFrom[name];
+                        }
+                    });
+                    return $route.format(state.route.route, extend(paramsObj, params || {
+                    }));
                 }
                 function reload(state) {
                     if(isDefined(state)) {
@@ -1130,7 +1182,6 @@ var $StateProvider = [
                                 promise = promise.then(function () {
                                     return resolve(change.state.self.resolve);
                                 }).then(function (locals) {
-                                    //TODO: Locals is a promise here.
                                     if(change.isChanged) {
                                         useUpdate = true;
                                     }

@@ -216,7 +216,8 @@ function $RouteProvider() {
         };
     }
     function interpolate(url, params) {
-        var result = [], name = "", index = 0;
+        //TODO: Are we missing calls to some "Encode URI component"?
+                var result = [], name = "", index = 0;
         forEach(parseParams(url), function (param, idx) {
             if(param.converter !== '') {
                 //TODO: use converter to convert param to string.
@@ -388,6 +389,11 @@ function $RouteProvider() {
                     if(args.replace) {
                         loc.replace();
                     }
+                },
+                format: function (route, params) {
+                    var params = params || {
+                    };
+                    return interpolate(route, params) + toKeyValue(params);
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);

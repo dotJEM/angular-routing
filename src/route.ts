@@ -249,6 +249,8 @@ function $RouteProvider() {
     }
 
     function interpolate(url, params) {
+        //TODO: Are we missing calls to some "Encode URI component"?
+
         var result = [], name = "", index = 0;
         forEach(parseParams(url), (param: IParam, idx) => {
             if (param.converter !== '') {
@@ -420,6 +422,7 @@ function $RouteProvider() {
 
     //Service Factory
 
+
     this.$get = [<any>'$rootScope', '$location', '$q', '$injector', '$routeParams',
     function ($rootScope: ng.IRootScopeService, $location: ng.ILocationService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $routeParams) {
 
@@ -439,6 +442,10 @@ function $RouteProvider() {
 
                     if(args.replace)
                         loc.replace();
+                },
+                format: function (route: string, params?: any) {
+                    var params = params || {};
+                    return interpolate(route, params) + toKeyValue(params);
                 }
             };
 

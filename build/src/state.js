@@ -129,7 +129,8 @@ var $StateProvider = [
                         });
                     },
                     lookup: lookup,
-                    reload: reload
+                    reload: reload,
+                    href: href
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -189,6 +190,7 @@ var $StateProvider = [
                     return children[index];
                 }
                 function select(exp, selected) {
+                    //TODO: Support full naming...
                     if(exp === '.') {
                         if(current !== selected) {
                             throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
@@ -222,6 +224,26 @@ var $StateProvider = [
                         return selected.children[exp];
                     }
                     throw new Error("Could find state for the lookup path.");
+                }
+                function href(state, params) {
+                    var c = $state.current;
+                    state = isDefined(state) ? lookupState(toName(state)) : current;
+                    if(!state.route) {
+                        return undefined;
+                    }//TODO: Find parent with route and return?
+                    
+                    //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+                    //      maybe we can refactor those together
+                                        var paramsObj = {
+                    }, allFrom = (c && c.$params && c.$params.all) || {
+                    };
+                    forEach(state.route.params, function (param, name) {
+                        if(name in allFrom) {
+                            paramsObj[name] = allFrom[name];
+                        }
+                    });
+                    return $route.format(state.route.route, extend(paramsObj, params || {
+                    }));
                 }
                 function reload(state) {
                     if(isDefined(state)) {
@@ -387,7 +409,6 @@ var $StateProvider = [
                                 promise = promise.then(function () {
                                     return resolve(change.state.self.resolve);
                                 }).then(function (locals) {
-                                    //TODO: Locals is a promise here.
                                     if(change.isChanged) {
                                         useUpdate = true;
                                     }

@@ -68,6 +68,7 @@ module ui.routing {
     interface IRouteService {
         reload: () => void;
         change: (args: { route: string; params?: any; replace?: bool; }) => void;
+        format: (route: string, params?: any) => string;
         current?: any;
     }
 
@@ -104,6 +105,8 @@ module ui.routing {
         lookup(path: string): any;
         goto(state: string, params?: any);
         goto(state: any, params?: any);
+        href(state?: string, params?: any);
+        href(state?: any, params?: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }
