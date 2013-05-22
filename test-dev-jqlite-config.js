@@ -8,7 +8,6 @@
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'lib/jqlite/impl/jqlite.js',
   'lib/angular/impl/angular.js',
   'lib/angular/impl/angular-mocks.js',
 

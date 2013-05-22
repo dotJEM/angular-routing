@@ -8,7 +8,6 @@
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'lib/jqlite/impl/jqlite.js',
   'lib/angular/impl/angular.js',
   'lib/angular/impl/angular-mocks.js',
 
@@ -51,7 +50,7 @@ autoWatch = false;
 // - Opera
 // - Safari
 // - PhantomJS
-browsers = ['PhantomJS'];
+browsers = ['Chrome'];
 reporters = ['dots' /*'dots' /*, 'junit'*/];
 
 //junitReporter = {

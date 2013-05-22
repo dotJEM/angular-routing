@@ -156,7 +156,7 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'build', 'karma:jquery', 'yuidoc']);
+    grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
 };
