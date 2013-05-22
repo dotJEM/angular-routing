@@ -1003,9 +1003,9 @@ var $StateProvider = [
                     var c = $state.current;
                     state = isDefined(state) ? lookupState(toName(state)) : current;
                     if(!state.route) {
-                        return undefined;
-                    }//TODO: Find parent with route and return?
-                    
+                        throw new Error("Can't build url for a state that doesn't have a url defined.");
+                    }
+                    //TODO: Find parent with route and return?
                     //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                     //      maybe we can refactor those together
                                         var paramsObj = {
