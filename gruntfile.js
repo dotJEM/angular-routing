@@ -79,8 +79,14 @@ module.exports = function (grunt) {
         },
 
         karma: {
-            unit: {
-                configFile: 'test-grunt-config.js',
+            jqlite: {
+                configFile: 'test-grunt-jqlite-config.js',
+                runnerPort: 9999,
+                singleRun: true,
+                browsers: ['PhantomJS']
+            },
+            jquery: {
+                configFile: 'test-grunt-jquery-config.js',
                 runnerPort: 9999,
                 singleRun: true,
                 browsers: ['PhantomJS']

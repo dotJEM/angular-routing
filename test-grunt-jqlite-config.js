@@ -8,22 +8,14 @@
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'lib/jQuery/impl/jQuery-1.9.1.min.js',
+  'lib/jqlite/impl/jqlite.js',
   'lib/angular/impl/angular.js',
   'lib/angular/impl/angular-mocks.js',
 
-  'src/common.js',
-  'src/route.js',
-  'src/stateTransition.js',
-  'src/state.js',
-  'src/template.js',
-  'src/view.js',
-    
-  'src/legacy/templateDecorator.js',
-    
-  'src/directives/uiView.js',
-    
-  'test/**/*Spec.js'
+  'build/angular-routing.js',
+  'build/angular-routing.legacy.js',
+
+  'build/test/**/*Spec.js'
 ];
 
 // list of files to exclude
@@ -50,10 +42,7 @@ logLevel = LOG_INFO;
 logColors = true;
 
 // enable / disable watching file and executing tests whenever any file changes
-autoWatch = true;
-
-// polling interval in ms (ignored on OS that support inotify)
-autoWatchInterval = 0;
+autoWatch = false;
 
 // Start these browsers, currently available:
 // - Chrome
@@ -62,8 +51,8 @@ autoWatchInterval = 0;
 // - Opera
 // - Safari
 // - PhantomJS
-browsers = ['Chrome'];
-reporters = ['dots' /*, 'junit'*/];
+browsers = ['PhantomJS'];
+reporters = ['dots' /*'dots' /*, 'junit'*/];
 
 //junitReporter = {
 //    outputFile: 'ts-test-out.xml'
