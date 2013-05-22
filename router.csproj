@@ -116,7 +116,6 @@
     <TypeScriptCompile Include="src\stateTransition.ts" />
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
-    <Content Include="lib\jqLite\impl\jqlite.js" />
     <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
     <Content Include="src\directives\uiView.js">
       <DependentUpon>uiView.ts</DependentUpon>

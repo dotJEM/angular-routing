@@ -81,12 +81,14 @@ module.exports = function (grunt) {
         karma: {
             jquery: {
                 configFile: 'test-grunt-jquery-config.js',
-                runnerPort: 5000,
+                port: 4000,
+                runnerPort: 4010,
                 singleRun: true,
                 browsers: ['PhantomJS']
             },
             jqlite: {
                 configFile: 'test-grunt-jqlite-config.js',
+                port: 5000,
                 runnerPort: 5010,
                 singleRun: true,
                 browsers: ['PhantomJS']
