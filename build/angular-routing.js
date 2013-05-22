@@ -904,7 +904,7 @@ var $StateProvider = [
                     },
                     lookup: lookup,
                     reload: reload,
-                    href: href
+                    url: buildUrl
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -999,7 +999,7 @@ var $StateProvider = [
                     }
                     throw new Error("Could find state for the lookup path.");
                 }
-                function href(state, params) {
+                function buildUrl(state, params) {
                     var c = $state.current;
                     state = isDefined(state) ? lookupState(toName(state)) : current;
                     if(!state.route) {

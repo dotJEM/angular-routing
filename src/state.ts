@@ -137,7 +137,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
                 lookup: lookup,
                 reload: reload,
-                href: href
+                url: buildUrl
             };
 
         $rootScope.$on('$routeChangeSuccess', function () {
@@ -248,7 +248,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             throw new Error("Could find state for the lookup path.");
         }
 
-        function href(state?, params?) {
+        function buildUrl(state?, params?) {
             var c = $state.current;
 
             state = isDefined(state) ? lookupState(toName(state)) : current;

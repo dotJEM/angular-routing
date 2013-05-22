@@ -105,8 +105,8 @@ module ui.routing {
         lookup(path: string): any;
         goto(state: string, params?: any);
         goto(state: any, params?: any);
-        href(state?: string, params?: any);
-        href(state?: any, params?: any);
+        url(state?: string, params?: any);
+        url(state?: any, params?: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }

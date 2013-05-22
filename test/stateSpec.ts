@@ -901,7 +901,7 @@ describe('$stateProvider', function () {
         });
     });
 
-    describe("href", function () {
+    describe("url", function () {
 
         beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
             $stateProvider
@@ -943,12 +943,12 @@ describe('$stateProvider', function () {
                 $state: ui.routing.IStateService) {
 
                 goto('blog');
-                expect($state.href()).toBe('/blog');
-                expect($state.href('blog')).toBe('/blog');
+                expect($state.url()).toBe('/blog');
+                expect($state.url('blog')).toBe('/blog');
 
                 goto('about.other');
-                expect($state.href()).toBe('/about/other');
-                expect($state.href('about.other')).toBe('/about/other');
+                expect($state.url()).toBe('/about/other');
+                expect($state.url('about.other')).toBe('/about/other');
             });
         });
 
@@ -958,16 +958,16 @@ describe('$stateProvider', function () {
                 $state: ui.routing.IStateService) {
 
                 goto('gallery', { id: 42 });
-                expect($state.href()).toBe('/gallery/42');
-                expect($state.href(undefined, { id: 51 })).toBe('/gallery/51');
-                expect($state.href('gallery')).toBe('/gallery/42');
-                expect($state.href('gallery', { id: 51 })).toBe('/gallery/51');
+                expect($state.url()).toBe('/gallery/42');
+                expect($state.url(undefined, { id: 51 })).toBe('/gallery/51');
+                expect($state.url('gallery')).toBe('/gallery/42');
+                expect($state.url('gallery', { id: 51 })).toBe('/gallery/51');
 
                 goto('gallery', { id: 4224 });
-                expect($state.href()).toBe('/gallery/4224');
+                expect($state.url()).toBe('/gallery/4224');
 
                 goto('gallery.details', { id: 4224, page: 1 });
-                expect($state.href()).toBe('/gallery/4224/details/1');
+                expect($state.url()).toBe('/gallery/4224/details/1');
             });
         });
     });
