@@ -66,6 +66,11 @@ or modify what happens during a transition.
 
 `$view` manages the current state of all views and will support different update schemes.
 
+#### Requires
+
+* AngularJS 1.1.4 or above
+* Currently requires Full jQuery (https://github.com/dotJEM/angular-routing/issues/22) 
+
 #### Samples
 
 Some initial samples can be found at:
