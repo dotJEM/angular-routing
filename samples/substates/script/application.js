@@ -132,6 +132,7 @@
                 })
                 .state('blog.post.comments', {
                     route: '/comments',
+                    scrollTo: 'comments',
                     views: {
                         'crumbs': {
                             template: 'tpl/crumbs.html',

@@ -74,8 +74,8 @@ var uiViewDirective = [
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
                             //TODO: we are actually ending up calling scroll a number of times here due to multiple views.
-                            $scroll();
-                        });
+                            //$scroll();
+                                                    });
                     } else {
                         clearContent(doAnimate);
                     }

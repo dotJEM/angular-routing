@@ -885,7 +885,8 @@ var $StateProvider = [
             '$view', 
             '$stateTransition', 
             '$location', 
-            function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
+            '$scroll', 
+            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -1097,7 +1098,7 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }), transition = {
                         cancel: function () {
                             cancel = true;
@@ -1185,6 +1186,7 @@ var $StateProvider = [
                                     if(change.isChanged) {
                                         useUpdate = true;
                                     }
+                                    scrollTo = change.state.self.scrollTo;
                                     forEach(change.state.self.views, function (view, name) {
                                         var sticky;
                                         if(view.sticky) {
@@ -1229,6 +1231,7 @@ var $StateProvider = [
                                     throw Error("Can't cancel transition in after handler");
                                 };
                                 emit.after(transition);
+                                $scroll(scrollTo);
                             }
                             //Note: nothing to do here.
                                                     });
@@ -1597,8 +1600,8 @@ var uiViewDirective = [
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
                             //TODO: we are actually ending up calling scroll a number of times here due to multiple views.
-                            $scroll();
-                        });
+                            //$scroll();
+                                                    });
                     } else {
                         clearContent(doAnimate);
                     }

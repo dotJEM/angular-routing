@@ -116,7 +116,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         return this;
     };
 
-    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location',
+    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
     function (
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
@@ -124,7 +124,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         $route: ui.routing.IRouteService,
         $view: ui.routing.IViewService,
         $transition: ui.routing.ITransitionService,
-        $location: ng.ILocationService) {
+        $location: ng.ILocationService,
+        $scroll) {
 
         var forceReload = null,
             current = root,
@@ -358,6 +359,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
                 cancel = false,
                 transaction,
+                scrollTo,
                 changed = buildChangeArray(
                     lookupState(toName($state.current)),
                     to,
@@ -446,6 +448,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             if (change.isChanged)
                                 useUpdate = true;
 
+                            scrollTo = change.state.self.scrollTo;
                             forEach(change.state.self.views, (view, name) => {
                                 var sticky;
                                 if (view.sticky) {
@@ -491,6 +494,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             throw Error("Can't cancel transition in after handler");
                         };
                         emit.after(transition);
+                        $scroll(scrollTo);
                     }
                     //Note: nothing to do here.
                 });
