@@ -79,15 +79,15 @@ module.exports = function (grunt) {
         },
 
         karma: {
-            jqlite: {
-                configFile: 'test-grunt-jqlite-config.js',
-                runnerPort: 9999,
+            jquery: {
+                configFile: 'test-grunt-jquery-config.js',
+                runnerPort: 5000,
                 singleRun: true,
                 browsers: ['PhantomJS']
             },
-            jquery: {
-                configFile: 'test-grunt-jquery-config.js',
-                runnerPort: 9999,
+            jqlite: {
+                configFile: 'test-grunt-jqlite-config.js',
+                runnerPort: 5010,
                 singleRun: true,
                 browsers: ['PhantomJS']
             }
@@ -156,7 +156,7 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc']);
+    grunt.registerTask('default', ['clean', 'build', 'karma:jquery', 'yuidoc']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
 };
