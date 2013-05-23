@@ -1593,6 +1593,10 @@ var uiViewDirective = [
                             if(controller) {
                                 locals = copy(view.locals);
                                 locals.$scope = viewScope;
+                                locals.$async = function async() {
+                                    return function done() {
+                                    };
+                                };
                                 controller = $controller(controller, locals);
                                 element.contents().data('$ngControllerController', controller);
                             }

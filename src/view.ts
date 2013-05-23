@@ -173,6 +173,7 @@ function $ViewProvider() {
                 commit: function () {
                     transaction = null;
                     forEach(trx.records, (rec) => { rec.fn(); })
+
                 },
                 cancel: function () {
                     transaction = null;
