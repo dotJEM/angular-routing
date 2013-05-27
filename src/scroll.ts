@@ -11,8 +11,8 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
     // $anchorScrollProvider.disableAutoScrolling();
 
 
-    this.$get = [<any>'$window', '$rootScope', '$location', '$anchorScroll', '$injector',
-        function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $location: ng.ILocationService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService) {
+    this.$get = [<any>'$window', '$rootScope', '$location', '$anchorScroll', '$injector','$timeout',
+        function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $location: ng.ILocationService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService, $timeout: ng.ITimeoutService) {
             var document = $window.document;
 
             function scrollTo(elm: any) {
@@ -47,7 +47,9 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
             //        function () { return $location.hash(); },
             //        function () { $rootScope.$evalAsync(scroll); });
             //}
-            return scroll;
+            return function (arg: any) {
+                $timeout(function () { scroll(arg); }, 0);
+            };
         }];
 }];
 angular.module('ui.routing').provider('$scroll', $ScrollProvider);

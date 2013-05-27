@@ -1485,7 +1485,8 @@ var $ScrollProvider = [
             '$location', 
             '$anchorScroll', 
             '$injector', 
-            function ($window, $rootScope, $location, $anchorScroll, $injector) {
+            '$timeout', 
+            function ($window, $rootScope, $location, $anchorScroll, $injector, $timeout) {
                 var document = $window.document;
                 function scrollTo(elm) {
                     if(elm) {
@@ -1519,7 +1520,11 @@ var $ScrollProvider = [
                 //        function () { return $location.hash(); },
                 //        function () { $rootScope.$evalAsync(scroll); });
                 //}
-                return scroll;
+                return function (arg) {
+                    $timeout(function () {
+                        scroll(arg);
+                    }, 0);
+                };
             }        ];
     }];
 angular.module('ui.routing').provider('$scroll', $ScrollProvider);
