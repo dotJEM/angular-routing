@@ -12,6 +12,8 @@ var $StateProvider = [
             },
             reloadOnOptional: true
         }, nameValidation = /^\w+(\.\w+)*?$/;
+        //,
+                //rootState = new ui.routing.StateWrapper(null);
         function validateName(name) {
             if(nameValidation.test(name)) {
                 return;
@@ -97,6 +99,11 @@ var $StateProvider = [
                 name: name
             };
         }
+        //this.st = function (name: string, state: ui.routing.IState) {
+        //    var names: string[] = name.split('.'),
+        //        name: string = names.pop();
+        //    rootState.lookup(names)
+        //}
         this.state = function (name, state) {
             var pair;
             validateName(name);

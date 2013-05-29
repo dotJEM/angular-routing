@@ -1,6 +1,7 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
+/// <reference path="stateWrapper.ts" />
 
 interface IStateWrapper {
     children: any;
@@ -12,10 +13,17 @@ interface IStateWrapper {
     route?: any;
 }
 
+
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root: IStateWrapper = { fullname: 'root', children: {}, self: { $fullname: 'root' }, reloadOnOptional: true },
-        nameValidation = /^\w+(\.\w+)*?$/;
+    var root: IStateWrapper = {
+        fullname: 'root',
+        children: {},
+        self: { $fullname: 'root' },
+        reloadOnOptional: true
+    },
+        nameValidation = /^\w+(\.\w+)*?$/;//,
+        //rootState = new ui.routing.StateWrapper(null);
 
     function validateName(name: string) {
         if (nameValidation.test(name))
@@ -106,6 +114,12 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             name: string = names.pop();
         return { at: lookup(names), name: name };
     }
+
+    //this.st = function (name: string, state: ui.routing.IState) {
+    //    var names: string[] = name.split('.'),
+    //        name: string = names.pop();
+    //    rootState.lookup(names)
+    //}
 
     this.state = function (name: string, state: ui.routing.IState) {
         var pair;
@@ -495,6 +509,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             throw Error("Can't cancel transition in after handler");
                         };
                         emit.after(transition);
+
+
                         $scroll(scrollTo);
                     }
                     //Note: nothing to do here.
