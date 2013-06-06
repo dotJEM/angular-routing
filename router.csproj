@@ -64,6 +64,9 @@
     <None Include="src\stateTransition.js.map">
       <DependentUpon>stateTransition.ts</DependentUpon>
     </None>
+    <None Include="src\stateWrapper.js.map">
+      <DependentUpon>stateWrapper.ts</DependentUpon>
+    </None>
     <None Include="src\template.js.map">
       <DependentUpon>template.ts</DependentUpon>
     </None>
@@ -114,6 +117,10 @@
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
     <TypeScriptCompile Include="src\stateTransition.ts" />
+    <TypeScriptCompile Include="src\stateWrapper.ts" />
+    <Content Include="src\stateWrapper.js">
+      <DependentUpon>stateWrapper.ts</DependentUpon>
+    </Content>
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
     <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
