@@ -83,6 +83,10 @@ module ui.routing {
         views?: any;
     }
 
+    interface IRegisteredState extends IState {
+        $fullname: string;
+    }
+
     interface ITransition {
         before?: (...args: any[]) => any;
         between?: (...args: any[]) => any;
@@ -112,21 +116,21 @@ module ui.routing {
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }
 
     interface ITransitionProvider extends ITransitionProviderBase {
-        onenter(state: string, handler: ITransitionHandler);
-        onenter(state: string, handler: ITransition);
-        onenter(state: string, handler: any);
+        onEnter(state: string, handler: ITransitionHandler);
+        onEnter(state: string, handler: ITransition);
+        onEnter(state: string, handler: any);
 
-        onenter(state: any, handler: ITransitionHandler);
-        onenter(state: any, handler: ITransition);
-        onenter(state: any, handler: any);
+        onEnter(state: any, handler: ITransitionHandler);
+        onEnter(state: any, handler: ITransition);
+        onEnter(state: any, handler: any);
 
-        onexit(state: string, handler: ITransitionHandler);
-        onexit(state: string, handler: ITransition);
-        onexit(state: string, handler: any);
+        onExit(state: string, handler: ITransitionHandler);
+        onExit(state: string, handler: ITransition);
+        onExit(state: string, handler: any);
 
-        onexit(state: any, handler: ITransitionHandler);
-        onexit(state: any, handler: ITransition);
-        onexit(state: any, handler: any);
+        onExit(state: any, handler: ITransitionHandler);
+        onExit(state: any, handler: ITransition);
+        onExit(state: any, handler: any);
     }
 
     interface ITransitionProviderBase {

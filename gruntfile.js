@@ -48,6 +48,7 @@ module.exports = function (grunt) {
                         'build/src/route.js',
                         'build/src/stateTransition.js',
                         'build/src/state.js',
+                        'build/src/stateWrapper.js',
                         'build/src/template.js',
                         'build/src/view.js',
                         'build/src/scroll.js',

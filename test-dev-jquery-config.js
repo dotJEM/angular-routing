@@ -16,6 +16,7 @@ files = [
   'src/route.js',
   'src/stateTransition.js',
   'src/state.js',
+  'src/stateWrapper.js',
   'src/template.js',
   'src/view.js',
   'src/scroll.js',

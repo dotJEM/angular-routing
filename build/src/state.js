@@ -13,7 +13,12 @@ var $StateProvider = [
             reloadOnOptional: true
         }, nameValidation = /^\w+(\.\w+)*?$/;
         //,
-                //rootState = new ui.routing.StateWrapper(null);
+                var rootState = new ui.routing.StateClass('root', {
+        });
+        //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
+        //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
+        //      any services.
+        ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
         function validateName(name) {
             if(nameValidation.test(name)) {
                 return;
@@ -99,11 +104,10 @@ var $StateProvider = [
                 name: name
             };
         }
-        //this.st = function (name: string, state: ui.routing.IState) {
-        //    var names: string[] = name.split('.'),
-        //        name: string = names.pop();
-        //    rootState.lookup(names)
-        //}
+        this.stateObj = function (name, state) {
+            var parent = rootState.lookup(name.split('.'), 1);
+            parent.add(name, ui.routing.StateFactory.instance.createState(name, state, parent));
+        };
         this.state = function (name, state) {
             var pair;
             validateName(name);
@@ -407,13 +411,6 @@ var $StateProvider = [
                             }
                             var promise = $q.when(0);
                             forEach(changed.array, function (change, index) {
-                                //var def = $q.defer();
-                                //promise.then(function () {
-                                //    resolve(change.state.self.resolve).then(function (locals) {
-                                //        def.resolve(locals);
-                                //    });
-                                //});
-                                //def.promise.then(function (locals) {
                                 promise = promise.then(function () {
                                     return resolve(change.state.self.resolve);
                                 }).then(function (locals) {
