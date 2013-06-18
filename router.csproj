@@ -64,7 +64,13 @@
     <None Include="src\stateTransition.js.map">
       <DependentUpon>stateTransition.ts</DependentUpon>
     </None>
-    <None Include="src\stateWrapper.js.map">
+    <None Include="src\state\stateFactory.js.map">
+      <DependentUpon>stateFactory.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateHelper.js.map">
+      <DependentUpon>stateHelper.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateWrapper.js.map">
       <DependentUpon>stateWrapper.ts</DependentUpon>
     </None>
     <None Include="src\template.js.map">
@@ -117,8 +123,16 @@
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
     <TypeScriptCompile Include="src\stateTransition.ts" />
-    <TypeScriptCompile Include="src\stateWrapper.ts" />
-    <Content Include="src\stateWrapper.js">
+    <TypeScriptCompile Include="src\state\stateWrapper.ts" />
+    <TypeScriptCompile Include="src\state\stateHelper.ts" />
+    <TypeScriptCompile Include="src\state\stateFactory.ts" />
+    <Content Include="src\state\stateFactory.js">
+      <DependentUpon>stateFactory.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\stateHelper.js">
+      <DependentUpon>stateHelper.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\stateWrapper.js">
       <DependentUpon>stateWrapper.ts</DependentUpon>
     </Content>
     <Content Include="test-grunt-jqlite-config.js" />

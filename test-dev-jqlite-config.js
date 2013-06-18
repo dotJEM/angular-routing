@@ -15,11 +15,14 @@ files = [
   'src/route.js',
   'src/stateTransition.js',
   'src/state.js',
-  'src/stateWrapper.js',
   'src/template.js',
   'src/view.js',
   'src/scroll.js',
-    
+
+  'src/state/stateWrapper.js',
+  'src/state/stateFactory.js',
+  'src/state/stateHelper.js',
+      
   'src/legacy/templateDecorator.js',
     
   'src/directives/uiView.js',
