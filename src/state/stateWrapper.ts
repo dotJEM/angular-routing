@@ -21,7 +21,8 @@ interface IStateClass {
 
 
 module ui.routing {
-
+    //TODO: Ones completely implementing to replace the object created by the state provider
+    //      rename to "State". and "IState"...
     export class StateClass implements IStateClass {
         private _children: { [name: string]: StateClass; } = {};
         private _self: IRegisteredState;
