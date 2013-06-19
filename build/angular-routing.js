@@ -786,17 +786,15 @@ var $StateProvider = [
             reloadOnOptional: true
         }, nameValidation = /^\w+(\.\w+)*?$/;
         //,
-                var rootState = new ui.routing.StateClass('root', {
-        });
+                //var rootState = new ui.routing.StateClass('root', {});
         //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
         //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
         //      any services.
         ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
+        var rootState = ui.routing.StateFactory.instance.createState('root', {
+        });
         function validateName(name) {
-            if(nameValidation.test(name)) {
-                return;
-            }
-            throw new Error("Invalid name: '" + name + "'.");
+            ui.routing.StateHelper.validateName(name);
         }
         function createRoute(stateRoute, parrentRoute, stateName, reloadOnSearch) {
             var route;
@@ -1248,57 +1246,6 @@ angular.module('ui.routing').provider('$state', $StateProvider);
 var ui;
 (function (ui) {
     (function (routing) {
-        //TODO: Implement as Angular Provider.
-        var StateFactory = (function () {
-            function StateFactory(routes, transitions) {
-                this.routes = routes;
-                this.transitions = transitions;
-            }
-            Object.defineProperty(StateFactory, "instance", {
-                get: function () {
-                    return StateFactory._instance;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            StateFactory.Initialize = function Initialize(routes, transitions) {
-                StateFactory._instance = new StateFactory(routes, transitions);
-            };
-            StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
-                var route;
-                if(route !== '' && route[route.length - 1] === '/') {
-                    route = route.substr(0, route.length - 1);
-                }
-                if(stateRoute[0] !== '/' && stateRoute !== '') {
-                    route += '/';
-                }
-                route += stateRoute;
-                return this.routes.when(route, {
-                    state: stateName,
-                    reloadOnSearch: reloadOnSearch
-                });
-            };
-            StateFactory.prototype.createState = function (fullname, state, parent) {
-                var stateObj = new StateClass(fullname, state, parent);
-                if(isDefined(state.route)) {
-                    stateObj.route = this.createRoute(state.route, parent.resolveRoute(), fullname, state.reloadOnSearch);
-                }
-                if(isDefined(state.onEnter)) {
-                    this.transitions.onEnter(fullname, state.onEnter);
-                }
-                if(isDefined(state.onExit)) {
-                    this.transitions.onExit(fullname, state.onExit);
-                }
-                if(isDefined(state.children)) {
-                    forEach(state.children, function (childState, childName) {
-                        stateObj.add(stateObj.fullname + '.' + childName, childState);
-                    });
-                }
-                return stateObj;
-            };
-            return StateFactory;
-        })();
-        routing.StateFactory = StateFactory;        
         var StateClass = (function () {
             function StateClass(_fullname, _self, _parent) {
                 this._fullname = _fullname;
@@ -1396,6 +1343,86 @@ var ui;
         //    return current;
         //}
             })(ui.routing || (ui.routing = {}));
+    var routing = ui.routing;
+})(ui || (ui = {}));
+
+var ui;
+(function (ui) {
+    /// <reference path="stateWrapper.ts" />
+    /// <reference path="stateFactory.ts" />
+    (function (routing) {
+        //TODO: Implement as Angular Provider.
+        var StateHelper = (function () {
+            function StateHelper() { }
+            StateHelper.nameValidation = /^\w+(\.\w+)*?$/;
+            StateHelper.validateName = function validateName(name) {
+                if(StateHelper.nameValidation.test(name)) {
+                    return;
+                }
+                throw new Error("Invalid name: '" + name + "'.");
+            };
+            return StateHelper;
+        })();
+        routing.StateHelper = StateHelper;        
+    })(ui.routing || (ui.routing = {}));
+    var routing = ui.routing;
+})(ui || (ui = {}));
+
+var ui;
+(function (ui) {
+    (function (routing) {
+        //TODO: Implement as Angular Provider.
+        var StateFactory = (function () {
+            function StateFactory(routes, transitions) {
+                this.routes = routes;
+                this.transitions = transitions;
+            }
+            Object.defineProperty(StateFactory, "instance", {
+                get: function () {
+                    return StateFactory._instance;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            StateFactory.Initialize = function Initialize(routes, transitions) {
+                StateFactory._instance = new StateFactory(routes, transitions);
+            };
+            StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
+                var route;
+                if(route !== '' && route[route.length - 1] === '/') {
+                    route = route.substr(0, route.length - 1);
+                }
+                if(stateRoute[0] !== '/' && stateRoute !== '') {
+                    route += '/';
+                }
+                route += stateRoute;
+                return this.routes.when(route, {
+                    state: stateName,
+                    reloadOnSearch: reloadOnSearch
+                });
+            };
+            StateFactory.prototype.createState = function (fullname, state, parent) {
+                var stateObj = new routing.StateClass(fullname, state, parent);
+                if(isDefined(state.route)) {
+                    stateObj.route = this.createRoute(state.route, parent.resolveRoute(), fullname, state.reloadOnSearch);
+                }
+                if(isDefined(state.onEnter)) {
+                    this.transitions.onEnter(fullname, state.onEnter);
+                }
+                if(isDefined(state.onExit)) {
+                    this.transitions.onExit(fullname, state.onExit);
+                }
+                if(isDefined(state.children)) {
+                    forEach(state.children, function (childState, childName) {
+                        stateObj.add(stateObj.fullname + '.' + childName, childState);
+                    });
+                }
+                return stateObj;
+            };
+            return StateFactory;
+        })();
+        routing.StateFactory = StateFactory;        
+    })(ui.routing || (ui.routing = {}));
     var routing = ui.routing;
 })(ui || (ui = {}));
 

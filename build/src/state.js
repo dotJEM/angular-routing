@@ -13,17 +13,15 @@ var $StateProvider = [
             reloadOnOptional: true
         }, nameValidation = /^\w+(\.\w+)*?$/;
         //,
-                var rootState = new ui.routing.StateClass('root', {
-        });
+                //var rootState = new ui.routing.StateClass('root', {});
         //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
         //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
         //      any services.
         ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
+        var rootState = ui.routing.StateFactory.instance.createState('root', {
+        });
         function validateName(name) {
-            if(nameValidation.test(name)) {
-                return;
-            }
-            throw new Error("Invalid name: '" + name + "'.");
+            ui.routing.StateHelper.validateName(name);
         }
         function createRoute(stateRoute, parrentRoute, stateName, reloadOnSearch) {
             var route;
