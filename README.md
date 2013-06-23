@@ -69,7 +69,6 @@ or modify what happens during a transition.
 #### Requires
 
 * AngularJS 1.1.4 or above
-* Currently requires Full jQuery (https://github.com/dotJEM/angular-routing/issues/22) 
 
 #### Samples
 
