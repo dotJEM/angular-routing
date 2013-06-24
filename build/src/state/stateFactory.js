@@ -18,7 +18,7 @@ var ui;
                 StateFactory._instance = new StateFactory(routes, transitions);
             };
             StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
-                var route;
+                var route = parentRoute || '';
                 if(route !== '' && route[route.length - 1] === '/') {
                     route = route.substr(0, route.length - 1);
                 }
@@ -32,19 +32,25 @@ var ui;
                 });
             };
             StateFactory.prototype.createState = function (fullname, state, parent) {
-                var stateObj = new routing.StateClass(fullname, state, parent);
+                var _this = this;
+                var name = fullname.split('.').pop();
+                if(isDefined(parent)) {
+                    fullname = parent.fullname + "." + name;
+                }
+                var stateObj = new routing.StateClass(name, fullname, state, parent);
+                stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
                 if(isDefined(state.route)) {
-                    stateObj.route = this.createRoute(state.route, parent.resolveRoute(), fullname, state.reloadOnSearch);
+                    stateObj.route = this.createRoute(state.route, parent.resolveRoute(), stateObj.fullname, stateObj.reloadOnOptional).$route;
                 }
                 if(isDefined(state.onEnter)) {
-                    this.transitions.onEnter(fullname, state.onEnter);
+                    this.transitions.onEnter(stateObj.fullname, state.onEnter);
                 }
                 if(isDefined(state.onExit)) {
-                    this.transitions.onExit(fullname, state.onExit);
+                    this.transitions.onExit(stateObj.fullname, state.onExit);
                 }
                 if(isDefined(state.children)) {
                     forEach(state.children, function (childState, childName) {
-                        stateObj.add(stateObj.fullname + '.' + childName, childState);
+                        stateObj.add(_this.createState(stateObj.fullname + '.' + childName, childState, stateObj));
                     });
                 }
                 return stateObj;

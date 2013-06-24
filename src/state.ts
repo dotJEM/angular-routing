@@ -6,133 +6,31 @@
 /// <reference path="state/stateFactory.ts" />
 /// <reference path="state/stateHelper.ts" />
 
-interface IStateWrapper {
-    children: any;
-    self: ui.routing.IState;
-    fullname: string;
-    reloadOnOptional: bool;
-
-    parent?: IStateWrapper;
-    route?: any;
-}
 
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root: IStateWrapper = {
-        fullname: 'root',
-        children: {},
-        self: { $fullname: 'root' },
-        reloadOnOptional: true
-    },
-        nameValidation = /^\w+(\.\w+)*?$/;//,
-    //var rootState = new ui.routing.StateClass('root', {});
 
     //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
     //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
     //      any services.
     ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
-    var rootState = ui.routing.StateFactory.instance.createState('root', {});
+    var root = ui.routing.StateFactory.instance.createState('root', {});
+    var browser = new ui.routing.StateBrowser(root);
 
-    function validateName(name: string) {
-        ui.routing.StateHelper.validateName(name);
+    function lookupState(fullname: string): any {
+        return root.lookup(fullname);
     }
 
-    function createRoute(stateRoute: string, parrentRoute: string, stateName: string, reloadOnSearch: bool) {
-        var route;
-
-        route = (parrentRoute || '');
-        if (route !== '' && route[route.length - 1] === '/') {
-            route = route.substr(0, route.length - 1);
-        }
-
-        if (stateRoute[0] !== '/' && stateRoute !== '')
-            route += '/';
-        route += stateRoute;
-
-        return $routeProvider.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
+    function lookupParent(fullname: string) {
+        return root.lookup(fullname, 1);
     }
 
-    function lookupRoute(parent) {
-        while (isDefined(parent) && !isDefined(parent.route))
-            parent = parent.parent;
-        return (parent && parent.route.route) || '';
-    }
+    this.state = function (fullname: string, state: ui.routing.IState) {
+        ui.routing.StateRules.validateName(fullname);
 
-    function registerState(name, at: IStateWrapper, state: ui.routing.IState) {
-        var fullname = at.fullname + '.' + name,
-            parent = at;
-
-        if (!isDefined(at.children)) {
-            at.children = {};
-        }
-
-        if (!(name in at.children)) {
-            at.children[name] = {};
-        }
-        at = at.children[name];
-        at.self = extend({}, state, { $fullname: fullname });
-        at.fullname = fullname;
-        at.parent = parent;
-        at.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
-
-        if (isDefined(state.route)) {
-            at.route = createRoute(state.route, lookupRoute(parent), fullname, at.reloadOnOptional).$route;
-        }
-
-        if (isDefined(state.onEnter)) {
-            $transitionProvider.onEnter(fullname, state.onEnter);
-        }
-
-        if (isDefined(state.onExit)) {
-            $transitionProvider.onExit(fullname, state.onExit);
-        }
-
-        if (state.children === null) {
-            at.children = {};
-        } else {
-            forEach(state.children, (childState, childName) => {
-                registerState(childName, at, childState);
-            });
-        }
-    }
-
-    function lookup(names: string[]) {
-        var current = root,
-            //If name contains root explicitly, skip that one
-            i = names[0] === 'root' ? 1 : 0;
-
-        for (; i < names.length; i++) {
-            if (!(names[i] in current.children))
-                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
-
-            current = current.children[names[i]];
-        }
-        return current;
-    }
-
-    function lookupState(name: string): any {
-        return lookup(name.split('.'));;
-    }
-
-    function lookupParent(name: string) {
-        var names: string[] = name.split('.'),
-            name: string = names.pop();
-        return { at: lookup(names), name: name };
-    }
-
-    this.stateObj = function (name: string, state: ui.routing.IState) {
-        var parent = rootState.lookup(name.split('.'), 1);
-
-        parent.add(name, ui.routing.StateFactory.instance.createState(name, state, parent));
-    }
-
-    this.state = function (name: string, state: ui.routing.IState) {
-        var pair;
-        validateName(name);
-
-        pair = lookupParent(name);
-        registerState(pair.name, pair.at, state);
+        var parent = root.lookup(fullname, 1);
+        parent.add(ui.routing.StateFactory.instance.createState(fullname, state, parent));
         return this;
     };
 
@@ -155,7 +53,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 root: root,
                 current: extend({}, root.self),
                 goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
-                lookup: lookup,
+                lookup: (path) => browser.resolve(current, path),
                 reload: reload,
                 url: buildUrl
             };
@@ -182,91 +80,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             raiseUpdate(route.params, route.pathParams, route.searchParams);
         });
         return $state;
-
-        function lookup(path) {
-            var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'),
-                selected = current,
-                sections: string[];
-
-            if (match) {
-                selected = selectSibling(Number(match[1]), selected);
-            } else {
-                sections = path.split('/');
-                forEach(sections, (sec) => {
-                    selected = select(sec, selected);
-                });
-            }
-
-            if (selected === root)
-                throw new Error("Path expression out of bounds.");
-
-            return selected && extend({}, selected.self) || undefined;
-        };
-
-        function selectSibling(index: number, selected: IStateWrapper): IStateWrapper {
-            var children = [],
-                currentIndex;
-
-            forEach(selected.parent.children, (child) => {
-                children.push(child);
-
-                if (selected.fullname === child.fullname)
-                    currentIndex = children.length - 1;
-            });
-
-            while (index < 0)
-                index += children.length
-
-            index = (currentIndex + index) % children.length;
-            return children[index];
-        }
-
-        function select(exp: string, selected: IStateWrapper): IStateWrapper {
-            //TODO: Support full naming...
-
-            if (exp === '.') {
-                if (current !== selected)
-                    throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
-
-                return selected;
-            }
-
-            if (exp === '..') {
-                if (isUndefined(selected.parent))
-                    throw new Error("Path expression out of bounds.");
-
-                return selected.parent;
-            }
-
-            if (exp === '') {
-                if (current !== selected)
-                    throw new Error("Invalid path expression.");
-
-                return root;
-            }
-
-            var match = exp.match('^\\[(-?\\d+)\\]$');
-            if (match) {
-                var index = Number(match[1]),
-                    children = [];
-
-                forEach(selected.children, (child) => {
-                    children.push(child);
-                });
-
-                if (Math.abs(index) >= children.length) {
-                    throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount")
-                }
-
-                return index < 0 ? children[children.length + index] : children[index];
-            }
-
-            if (exp in selected.children) {
-                return selected.children[exp];
-            }
-
-            throw new Error("Could find state for the lookup path.");
-        }
 
         function buildUrl(state?, params?) {
             var c = $state.current;

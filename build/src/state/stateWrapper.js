@@ -1,8 +1,11 @@
 var ui;
 (function (ui) {
     (function (routing) {
+        //TODO: Ones completely implementing to replace the object created by the state provider
+        //      rename to "State". and "IState"...
         var StateClass = (function () {
-            function StateClass(_fullname, _self, _parent) {
+            function StateClass(_name, _fullname, _self, _parent) {
+                this._name = _name;
                 this._fullname = _fullname;
                 this._parent = _parent;
                 this._children = {
@@ -10,11 +13,23 @@ var ui;
                 //Note: we don't gard for names with no '.' (root) as the code below will actually give
                 //      the correct result (the whole string) as lastIndexOf returns -1 resulting in starting
                 //      at 0.
+                //TODO: This should be performed by the factory instead.
+                //this._name = _fullname.split('.').pop();
                 this._self = _self;
-                this._name = _fullname.split('.').pop();
+                //TODO: This should be performed by the factory instead.
+                //if (isDefined(_parent))
+                //    this._self.$fullname = _parent.fullname + "." + this.name;
+                //else
                 this._self.$fullname = _fullname;
                 this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
             }
+            Object.defineProperty(StateClass.prototype, "children", {
+                get: function () {
+                    return this._children;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(StateClass.prototype, "fullname", {
                 get: function () {
                     return this._fullname;
@@ -32,6 +47,9 @@ var ui;
             Object.defineProperty(StateClass.prototype, "reloadOnOptional", {
                 get: function () {
                     return this._reloadOnOptional;
+                },
+                set: function (value) {
+                    this._reloadOnOptional = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -63,21 +81,37 @@ var ui;
                 enumerable: true,
                 configurable: true
             });
-            StateClass.prototype.add = function (fullname, child) {
+            Object.defineProperty(StateClass.prototype, "root", {
+                get: function () {
+                    if(this.parent === null) {
+                        return this;
+                    }
+                    return this._parent.root;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            StateClass.prototype.add = function (child) {
                 this._children[child.name] = child;
                 return this;
             };
             StateClass.prototype.resolveRoute = function () {
-                return isDefined(this.route) ? this.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
+                return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
             };
             StateClass.prototype.internalLookup = function (names, stop) {
-                var next = names.shift(), state = this._children[next], stop = isDefined(stop) ? stop : 0;
+                var next, state, stop = isDefined(stop) ? stop : 0;
+                if(names.length == stop) {
+                    return this;
+                }
+                next = names.shift();
+                state = this._children[next];
                 if(isUndefined(state)) {
                     throw "Could not locate '" + next + "' under '" + this.fullname + "'.";
                 }
-                return names.length == stop ? state : state.internalLookup(names);
+                return state.internalLookup(names, stop);
             };
-            StateClass.prototype.lookup = function (names, stop) {
+            StateClass.prototype.lookup = function (fullname, stop) {
+                var names = fullname.split('.');
                 if(names[0] === 'root') {
                     names.shift();
                 }
