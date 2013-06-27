@@ -789,6 +789,7 @@ var $StateProvider = [
         var root = factory.createState('root', {
         });
         var browser = new ui.routing.StateBrowser(root);
+        var comparer = new ui.routing.StateComparer();
         this.state = function (fullname, state) {
             ui.routing.StateRules.validateName(fullname);
             var parent = browser.lookup(fullname, 1);
@@ -894,49 +895,6 @@ var $StateProvider = [
                         });
                     });
                 }
-                function buildStateArray(state, params) {
-                    function extractParams() {
-                        var paramsObj = {
-                        };
-                        if(current.route) {
-                            forEach(current.route.params, function (param, name) {
-                                paramsObj[name] = params[name];
-                            });
-                        }
-                        return paramsObj;
-                    }
-                    var states = [], current = state;
-                    do {
-                        states.push({
-                            state: current,
-                            params: extractParams()
-                        });
-                    }while(current = current.parent);
-                    return states;
-                }
-                function buildChangeArray(from, to, fromParams, toParams) {
-                    var fromArray = buildStateArray(from, fromParams || {
-                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
-                    for(var i = 0; i < count; i++) {
-                        fromAtIndex = fromArray[fromArray.length - i - 1];
-                        toAtIndex = toArray[toArray.length - i - 1];
-                        if(isUndefined(toAtIndex)) {
-                            toArray[0].isChanged = stateChanges = true;
-                        } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
-                            toAtIndex.isChanged = stateChanges = true;
-                        } else {
-                            toAtIndex.isChanged = false;
-                        }
-                    }
-                    //TODO: if ReloadOnOptional is false, but parameters are changed.
-                    //      we should raise the update event instead.
-                    stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
-                    return {
-                        array: toArray.reverse(),
-                        stateChanges: stateChanges,
-                        paramChanges: paramChanges
-                    };
-                }
                 function raiseUpdate(all, path, search) {
                     var dst = $state.current.$params;
                     dst.all = all;
@@ -952,8 +910,8 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = buildChangeArray(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
-                    }), transition = {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }, forceReload), transition = {
                         cancel: function () {
                             cancel = true;
                         },
@@ -1306,6 +1264,54 @@ var ui;
             return StateBrowser;
         })();
         routing.StateBrowser = StateBrowser;        
+        var StateComparer = (function () {
+            function StateComparer() { }
+            StateComparer.prototype.buildStateArray = function (state, params) {
+                function extractParams() {
+                    var paramsObj = {
+                    };
+                    if(current.route) {
+                        forEach(current.route.params, function (param, name) {
+                            paramsObj[name] = params[name];
+                        });
+                    }
+                    return paramsObj;
+                }
+                var states = [], current = state;
+                do {
+                    states.push({
+                        state: current,
+                        params: extractParams()
+                    });
+                }while(current = current.parent);
+                return states;
+            };
+            StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
+                var fromArray = this.buildStateArray(from, fromParams || {
+                }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+                for(var i = 0; i < count; i++) {
+                    fromAtIndex = fromArray[fromArray.length - i - 1];
+                    toAtIndex = toArray[toArray.length - i - 1];
+                    if(isUndefined(toAtIndex)) {
+                        toArray[0].isChanged = stateChanges = true;
+                    } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+                        toAtIndex.isChanged = stateChanges = true;
+                    } else {
+                        toAtIndex.isChanged = false;
+                    }
+                }
+                //TODO: if ReloadOnOptional is false, but parameters are changed.
+                //      we should raise the update event instead.
+                stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
+                return {
+                    array: toArray.reverse(),
+                    stateChanges: stateChanges,
+                    paramChanges: paramChanges
+                };
+            };
+            return StateComparer;
+        })();
+        routing.StateComparer = StateComparer;        
     })(ui.routing || (ui.routing = {}));
     var routing = ui.routing;
 })(ui || (ui = {}));

@@ -17,6 +17,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
     var root = factory.createState('root', {});
     var browser = new ui.routing.StateBrowser(root);
+    var comparer = new ui.routing.StateComparer();
 
     this.state = function (fullname: string, state: ui.routing.IState) {
         ui.routing.StateRules.validateName(fullname);
@@ -27,15 +28,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     };
 
     this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
-    function (
-        $rootScope: ng.IRootScopeService,
-        $q: ng.IQService,
-        $injector: ng.auto.IInjectorService,
-        $route: ui.routing.IRouteService,
-        $view: ui.routing.IViewService,
-        $transition: ui.routing.ITransitionService,
-        $location: ng.ILocationService,
-        $scroll) {
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: ui.routing.IRouteService, $view: ui.routing.IViewService, $transition: ui.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
 
         var forceReload = null,
             current = root,
@@ -53,6 +46,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         $rootScope.$on('$routeChangeSuccess', function () {
             var route = $route.current,
                 params;
+
             if (route) {
                 params = {
                     all: route.params,
@@ -112,58 +106,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             });
         }
 
-        function buildStateArray(state, params) {
-            function extractParams() {
-                var paramsObj = {};
-                if (current.route) {
-                    forEach(current.route.params, (param, name) => {
-                        paramsObj[name] = params[name];
-                    });
-                }
-                return paramsObj;
-            }
-
-            var states = [],
-                current = state;
-            do {
-                states.push({ state: current, params: extractParams() });
-            } while (current = current.parent)
-            return states;
-        }
-
-        function buildChangeArray(from, to, fromParams, toParams) {
-            var fromArray = buildStateArray(from, fromParams || {}),
-                toArray = buildStateArray(to, toParams),
-                count = Math.max(fromArray.length, toArray.length),
-                fromAtIndex,
-                toAtIndex,
-                c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
-
-            for (var i = 0; i < count; i++) {
-                fromAtIndex = fromArray[fromArray.length - i - 1];
-                toAtIndex = toArray[toArray.length - i - 1];
-
-                if (isUndefined(toAtIndex)) {
-                    toArray[0].isChanged = stateChanges = true;
-                } else if (isUndefined(fromAtIndex)
-                        || (forceReload && forceReload == toAtIndex.state.fullname)
-                        || toAtIndex.state.fullname !== fromAtIndex.state.fullname
-                        || !equals(toAtIndex.params, fromAtIndex.params)) {
-                    toAtIndex.isChanged = stateChanges = true;
-                } else {
-                    toAtIndex.isChanged = false;
-                }
-            }
-            //TODO: if ReloadOnOptional is false, but parameters are changed.
-            //      we should raise the update event instead.
-            stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
-            return {
-                array: toArray.reverse(),
-                stateChanges: stateChanges,
-                paramChanges: paramChanges
-            };
-        }
-
         function raiseUpdate(all, path, search) {
             var dst = $state.current.$params;
             dst.all = all;
@@ -186,11 +128,12 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 cancel = false,
                 transaction,
                 scrollTo,
-                changed = buildChangeArray(
+                changed = comparer.compare(
                     browser.lookup(toName($state.current)),
                     to,
                     fromState.$params && fromState.$params.all,
-                    params && params.all || {}),
+                    params && params.all || {},
+                    forceReload),
 
                 transition = {
                     cancel: function () {
