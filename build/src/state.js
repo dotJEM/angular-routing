@@ -12,20 +12,14 @@ var $StateProvider = [
         //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
         //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
         //      any services.
-        ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
-        var root = ui.routing.StateFactory.instance.createState('root', {
+        var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
+        var root = factory.createState('root', {
         });
         var browser = new ui.routing.StateBrowser(root);
-        function lookupState(fullname) {
-            return root.lookup(fullname);
-        }
-        function lookupParent(fullname) {
-            return root.lookup(fullname, 1);
-        }
         this.state = function (fullname, state) {
             ui.routing.StateRules.validateName(fullname);
-            var parent = root.lookup(fullname, 1);
-            parent.add(ui.routing.StateFactory.instance.createState(fullname, state, parent));
+            var parent = browser.lookup(fullname, 1);
+            parent.add(factory.createState(fullname, state, parent));
             return this;
         };
         this.$get = [
@@ -87,7 +81,7 @@ var $StateProvider = [
                 return $state;
                 function buildUrl(state, params) {
                     var c = $state.current;
-                    state = isDefined(state) ? lookupState(toName(state)) : current;
+                    state = isDefined(state) ? browser.lookup(toName(state)) : current;
                     if(!state.route) {
                         throw new Error("Can't build url for a state that doesn't have a url defined.");
                     }
@@ -180,11 +174,12 @@ var $StateProvider = [
                 function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var params = args.params, route = args.route, to = lookupState(toName(args.state)), toState = extend({
+                                        var params = args.params, route = args.route, to = browser.lookup(toName(args.state)), toState = // lookupState(toName(args.state)),
+                    extend({
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = buildChangeArray(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }), transition = {
                         cancel: function () {
                             cancel = true;

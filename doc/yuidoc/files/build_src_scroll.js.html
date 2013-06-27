@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>build\src\scroll.js - angular-routing</title>
-    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
-    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
-    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
-    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
-    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
 </head>
 <body class="yui3-skin-sam">
 
@@ -15,7 +15,7 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="..&#x2F;assets/css/logo.png" title="angular-routing"></h1>
+                <h1><img src="../assets/css/logo.png" title="angular-routing"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
@@ -41,7 +41,7 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="..&#x2F;classes/$RouteProvider.html">$RouteProvider</a></li>
+                <li><a href="../classes/$RouteProvider.html">$RouteProvider</a></li>
             
             </ul>
 
@@ -86,16 +86,16 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;..&#x2F;lib&#x2F;angular&#x2F;angular-1.0.d.ts&quot; &#x2F;&gt;
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;common.ts&quot; &#x2F;&gt;
-&#x2F;&#x2F;&#x2F; &lt;reference path=&quot;interfaces.d.ts&quot; &#x2F;&gt;
+/// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;common.ts&quot; /&gt;
+/// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
 &#x27;use strict&#x27;;
 var $ScrollProvider = [
     &#x27;$anchorScrollProvider&#x27;, 
     function ($anchorScrollProvider) {
         var autoscroll = false;
-        &#x2F;&#x2F;TODO: Consider this again... maybe we should just allow for a rerouted disable call?
-        &#x2F;&#x2F; $anchorScrollProvider.disableAutoScrolling();
+        //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
+        // $anchorScrollProvider.disableAutoScrolling();
         this.$get = [
             &#x27;$window&#x27;, 
             &#x27;$rootScope&#x27;, 
@@ -120,23 +120,23 @@ var $ScrollProvider = [
                         } else {
                             scrollTo(angular.element(arg)[0]);
                         }
-                        &#x2F;****jQuery( &quot;[attribute=&#x27;value&#x27;]&quot;
+                        /****jQuery( &quot;[attribute=&#x27;value&#x27;]&quot;
                         * scrollTo: top - scroll to top, explicitly stated.
                         *           (This also enables one to override another scrollTo from a parent)
                         * scrollTo: null - don&#x27;t scroll, not even to top.
                         * scrollTo: element-selector - scroll to an element id
                         * scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; }
                         *           - scroll to element with id or view if starts with @
-                        *&#x2F;
+                        */
                                             } else if((fn = injectFn(arg)) !== null) {
                         scrollTo(angular.element($injector.invoke(arg, fn))[0]);
                     }
                 }
-                &#x2F;&#x2F;if (autoscroll) {
-                &#x2F;&#x2F;    $rootScope.$watch(
-                &#x2F;&#x2F;        function () { return $location.hash(); },
-                &#x2F;&#x2F;        function () { $rootScope.$evalAsync(scroll); });
-                &#x2F;&#x2F;}
+                //if (autoscroll) {
+                //    $rootScope.$watch(
+                //        function () { return $location.hash(); },
+                //        function () { $rootScope.$evalAsync(scroll); });
+                //}
                 return function (arg) {
                     $timeout(function () {
                         scroll(arg);
@@ -155,13 +155,13 @@ angular.module(&#x27;ui.routing&#x27;).provider(&#x27;$scroll&#x27;, $ScrollProv
         </div>
     </div>
 </div>
-<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
 <script>prettyPrint();</script>
-<script src="..&#x2F;assets/js/yui-prettify.js"></script>
-<script src="..&#x2F;assets/../api.js"></script>
-<script src="..&#x2F;assets/js/api-filter.js"></script>
-<script src="..&#x2F;assets/js/api-list.js"></script>
-<script src="..&#x2F;assets/js/api-search.js"></script>
-<script src="..&#x2F;assets/js/apidocs.js"></script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
 </body>
 </html>

@@ -20,6 +20,16 @@ var ui;
             function StateBrowser(root) {
                 this.root = root;
             }
+            StateBrowser.prototype.lookup = function (fullname, stop) {
+                var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+                for(; i < names.length - stop; i++) {
+                    if(!(names[i] in current.children)) {
+                        throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+                    }
+                    current = current.children[names[i]];
+                }
+                return current;
+            };
             StateBrowser.prototype.resolve = function (origin, path) {
                 var _this = this;
                 var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = origin, sections;

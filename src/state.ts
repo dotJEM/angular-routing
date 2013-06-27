@@ -14,23 +14,15 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
     //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
     //      any services.
-    ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
-    var root = ui.routing.StateFactory.instance.createState('root', {});
+    var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
+    var root = factory.createState('root', {});
     var browser = new ui.routing.StateBrowser(root);
-
-    function lookupState(fullname: string): any {
-        return root.lookup(fullname);
-    }
-
-    function lookupParent(fullname: string) {
-        return root.lookup(fullname, 1);
-    }
 
     this.state = function (fullname: string, state: ui.routing.IState) {
         ui.routing.StateRules.validateName(fullname);
 
-        var parent = root.lookup(fullname, 1);
-        parent.add(ui.routing.StateFactory.instance.createState(fullname, state, parent));
+        var parent = browser.lookup(fullname, 1);
+        parent.add(factory.createState(fullname, state, parent));
         return this;
     };
 
@@ -84,7 +76,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         function buildUrl(state?, params?) {
             var c = $state.current;
 
-            state = isDefined(state) ? lookupState(toName(state)) : current;
+            state = isDefined(state) ? browser.lookup(toName(state)) : current;
             if (!state.route)
                 throw new Error("Can't build url for a state that doesn't have a url defined.");
             //TODO: Find parent with route and return?
@@ -186,7 +178,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             //      should try to refactor it if possible.
             var params = args.params,
                 route = args.route,
-                to = lookupState(toName(args.state)),
+                to = browser.lookup(toName(args.state)),// lookupState(toName(args.state)),
                 toState = extend({}, to.self, { $params: params, $route: route }),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
@@ -195,7 +187,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 transaction,
                 scrollTo,
                 changed = buildChangeArray(
-                    lookupState(toName($state.current)),
+                    browser.lookup(toName($state.current)),
                     to,
                     fromState.$params && fromState.$params.all,
                     params && params.all || {}),

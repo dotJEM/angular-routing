@@ -13,15 +13,6 @@ interface IStateFactory {
 module ui.routing {
     //TODO: Implement as Angular Provider.
     export class StateFactory implements IStateFactory {
-        private static _instance;
-
-        public static get instance(): IStateFactory {
-            return StateFactory._instance;
-        }
-
-        public static Initialize(routes: IRouteProvider, transitions: ITransitionProvider) {
-            _instance = new StateFactory(routes, transitions);
-        }
 
         constructor(private routes: IRouteProvider, private transitions: ITransitionProvider) {
         }

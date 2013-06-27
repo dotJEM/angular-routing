@@ -785,20 +785,14 @@ var $StateProvider = [
         //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
         //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
         //      any services.
-        ui.routing.StateFactory.Initialize($routeProvider, $transitionProvider);
-        var root = ui.routing.StateFactory.instance.createState('root', {
+        var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
+        var root = factory.createState('root', {
         });
         var browser = new ui.routing.StateBrowser(root);
-        function lookupState(fullname) {
-            return root.lookup(fullname);
-        }
-        function lookupParent(fullname) {
-            return root.lookup(fullname, 1);
-        }
         this.state = function (fullname, state) {
             ui.routing.StateRules.validateName(fullname);
-            var parent = root.lookup(fullname, 1);
-            parent.add(ui.routing.StateFactory.instance.createState(fullname, state, parent));
+            var parent = browser.lookup(fullname, 1);
+            parent.add(factory.createState(fullname, state, parent));
             return this;
         };
         this.$get = [
@@ -860,7 +854,7 @@ var $StateProvider = [
                 return $state;
                 function buildUrl(state, params) {
                     var c = $state.current;
-                    state = isDefined(state) ? lookupState(toName(state)) : current;
+                    state = isDefined(state) ? browser.lookup(toName(state)) : current;
                     if(!state.route) {
                         throw new Error("Can't build url for a state that doesn't have a url defined.");
                     }
@@ -953,11 +947,12 @@ var $StateProvider = [
                 function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var params = args.params, route = args.route, to = lookupState(toName(args.state)), toState = extend({
+                                        var params = args.params, route = args.route, to = browser.lookup(toName(args.state)), toState = // lookupState(toName(args.state)),
+                    extend({
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = buildChangeArray(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }), transition = {
                         cancel: function () {
                             cancel = true;
@@ -1105,16 +1100,7 @@ var ui;
                 this._parent = _parent;
                 this._children = {
                 };
-                //Note: we don't gard for names with no '.' (root) as the code below will actually give
-                //      the correct result (the whole string) as lastIndexOf returns -1 resulting in starting
-                //      at 0.
-                //TODO: This should be performed by the factory instead.
-                //this._name = _fullname.split('.').pop();
                 this._self = _self;
-                //TODO: This should be performed by the factory instead.
-                //if (isDefined(_parent))
-                //    this._self.$fullname = _parent.fullname + "." + this.name;
-                //else
                 this._self.$fullname = _fullname;
                 this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
             }
@@ -1193,38 +1179,26 @@ var ui;
             StateClass.prototype.resolveRoute = function () {
                 return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
             };
-            StateClass.prototype.internalLookup = function (names, stop) {
-                var next, state, stop = isDefined(stop) ? stop : 0;
-                if(names.length == stop) {
-                    return this;
-                }
-                next = names.shift();
-                state = this._children[next];
-                if(isUndefined(state)) {
-                    throw "Could not locate '" + next + "' under '" + this.fullname + "'.";
-                }
-                return state.internalLookup(names, stop);
-            };
-            StateClass.prototype.lookup = function (fullname, stop) {
-                var names = fullname.split('.');
-                if(names[0] === 'root') {
-                    names.shift();
-                }
-                return this.internalLookup(names, stop);
-            };
             return StateClass;
         })();
         routing.StateClass = StateClass;        
-        //function lookup(names: string[]) {
-        //    var current = root,
-        //        //If name contains root explicitly, skip that one
-        //        i = names[0] === 'root' ? 1 : 0;
-        //    for (; i < names.length; i++) {
-        //        if (!(names[i] in current.children))
-        //            throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
-        //        current = current.children[names[i]];
-        //    }
-        //    return current;
+        //private internalLookup(names: string[], stop?: number): StateClass {
+        //    var next,
+        //        state,
+        //        stop = isDefined(stop) ? stop : 0;
+        //    if (names.length == stop)
+        //        return this;
+        //    next = names.shift();
+        //    state = this._children[next];
+        //    if (isUndefined(state))
+        //        throw "Could not locate '" + next + "' under '" + this.fullname + "'.";
+        //    return state.internalLookup(names, stop);
+        //}
+        //public lookup(fullname: string, stop?: number): IStateClass {
+        //    var names = fullname.split('.');
+        //    if (names[0] === 'root')
+        //        names.shift();
+        //    return this.internalLookup(names, stop);
         //}
             })(ui.routing || (ui.routing = {}));
     var routing = ui.routing;
@@ -1252,6 +1226,16 @@ var ui;
             function StateBrowser(root) {
                 this.root = root;
             }
+            StateBrowser.prototype.lookup = function (fullname, stop) {
+                var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+                for(; i < names.length - stop; i++) {
+                    if(!(names[i] in current.children)) {
+                        throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+                    }
+                    current = current.children[names[i]];
+                }
+                return current;
+            };
             StateBrowser.prototype.resolve = function (origin, path) {
                 var _this = this;
                 var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = origin, sections;
@@ -1335,16 +1319,6 @@ var ui;
                 this.routes = routes;
                 this.transitions = transitions;
             }
-            Object.defineProperty(StateFactory, "instance", {
-                get: function () {
-                    return StateFactory._instance;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            StateFactory.Initialize = function Initialize(routes, transitions) {
-                StateFactory._instance = new StateFactory(routes, transitions);
-            };
             StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
                 var route = parentRoute || '';
                 if(route !== '' && route[route.length - 1] === '/') {

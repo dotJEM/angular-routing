@@ -7,16 +7,6 @@ var ui;
                 this.routes = routes;
                 this.transitions = transitions;
             }
-            Object.defineProperty(StateFactory, "instance", {
-                get: function () {
-                    return StateFactory._instance;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            StateFactory.Initialize = function Initialize(routes, transitions) {
-                StateFactory._instance = new StateFactory(routes, transitions);
-            };
             StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
                 var route = parentRoute || '';
                 if(route !== '' && route[route.length - 1] === '/') {

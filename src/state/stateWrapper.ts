@@ -17,7 +17,7 @@ interface IStateClass {
 
     route?: any;
 
-    lookup: (fullname: string, stop?: number) => IStateClass;
+    //lookup: (fullname: string, stop?: number) => IStateClass;
     add: (child: IStateClass) => IStateClass;
     resolveRoute: () => string;
 }
@@ -55,20 +55,8 @@ module ui.routing {
         }
 
         constructor(private _name: string, private _fullname: string, _self: IState, private _parent?: IStateClass) {
-            //Note: we don't gard for names with no '.' (root) as the code below will actually give
-            //      the correct result (the whole string) as lastIndexOf returns -1 resulting in starting
-            //      at 0.
-
-            //TODO: This should be performed by the factory instead.
-            //this._name = _fullname.split('.').pop();
             this._self = <IRegisteredState>_self;
-
-            //TODO: This should be performed by the factory instead.
-            //if (isDefined(_parent))
-            //    this._self.$fullname = _parent.fullname + "." + this.name;
-            //else
             this._self.$fullname = _fullname;
-
             this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
         }
 
@@ -83,45 +71,33 @@ module ui.routing {
                  : '';
         }
 
-        private internalLookup(names: string[], stop?: number): StateClass {
-            var next,
-                state,
-                stop = isDefined(stop) ? stop : 0;
+        //private internalLookup(names: string[], stop?: number): StateClass {
+        //    var next,
+        //        state,
+        //        stop = isDefined(stop) ? stop : 0;
 
-            if (names.length == stop)
-                return this;
+        //    if (names.length == stop)
+        //        return this;
 
-            next = names.shift();
-            state = this._children[next];
+        //    next = names.shift();
+        //    state = this._children[next];
 
-            if (isUndefined(state))
-                throw "Could not locate '" + next + "' under '" + this.fullname + "'.";
+        //    if (isUndefined(state))
+        //        throw "Could not locate '" + next + "' under '" + this.fullname + "'.";
 
-            return state.internalLookup(names, stop);
-        }
-
-        public lookup(fullname: string, stop?: number): IStateClass {
-            var names = fullname.split('.');
-            if (names[0] === 'root')
-                names.shift();
-
-            return this.internalLookup(names, stop);
-        }
-
-
-
-        //function lookup(names: string[]) {
-        //    var current = root,
-        //        //If name contains root explicitly, skip that one
-        //        i = names[0] === 'root' ? 1 : 0;
-
-        //    for (; i < names.length; i++) {
-        //        if (!(names[i] in current.children))
-        //            throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
-
-        //        current = current.children[names[i]];
-        //    }
-        //    return current;
+        //    return state.internalLookup(names, stop);
         //}
+
+        //public lookup(fullname: string, stop?: number): IStateClass {
+        //    var names = fullname.split('.');
+        //    if (names[0] === 'root')
+        //        names.shift();
+
+        //    return this.internalLookup(names, stop);
+        //}
+
+
+
+
     }
 }
