@@ -2,17 +2,12 @@
 /// <reference path="../common.ts" />
 /// <reference path="../interfaces.d.ts" />
 
-/// <reference path="stateHelper.ts" />
-/// <reference path="stateWrapper.ts" />
-
-interface IStateFactory {
-    createRoute: (stateRoute: string, parentRoute: any, stateName: string, reloadOnSearch: bool) => any;
-    createState: (fullname: string, state: ui.routing.IState, parent?: IStateClass) => IStateClass;
-}
+/// <reference path="stateRules.ts" />
+/// <reference path="state.ts" />
 
 module ui.routing {
     //TODO: Implement as Angular Provider.
-    export class StateFactory implements IStateFactory {
+    export class StateFactory {
 
         constructor(private routes: IRouteProvider, private transitions: ITransitionProvider) {
         }
@@ -31,12 +26,12 @@ module ui.routing {
             return this.routes.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
         }
 
-        public createState(fullname: string, state: IState, parent?: IStateClass): IStateClass {
+        public createState(fullname: string, state: IState, parent?: State): State {
             var name = fullname.split('.').pop()
             if (isDefined(parent))
                 fullname = parent.fullname + "." + name;
             
-            var stateObj = new StateClass(name, fullname, state, parent);
+            var stateObj = new State(name, fullname, state, parent);
 
             stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
             if (isDefined(state.route)) {

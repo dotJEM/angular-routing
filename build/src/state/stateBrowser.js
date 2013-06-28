@@ -1,21 +1,7 @@
 var ui;
 (function (ui) {
-    /// <reference path="stateWrapper.ts" />
-    /// <reference path="stateFactory.ts" />
+    /// <reference path="state.ts" />
     (function (routing) {
-        //TODO: Implement as Angular Provider.
-        var StateRules = (function () {
-            function StateRules() { }
-            StateRules.nameValidation = /^\w+(\.\w+)*?$/;
-            StateRules.validateName = function validateName(name) {
-                if(StateRules.nameValidation.test(name)) {
-                    return;
-                }
-                throw new Error("Invalid name: '" + name + "'.");
-            };
-            return StateRules;
-        })();
-        routing.StateRules = StateRules;        
         var StateBrowser = (function () {
             function StateBrowser(root) {
                 this.root = root;
@@ -100,54 +86,6 @@ var ui;
             return StateBrowser;
         })();
         routing.StateBrowser = StateBrowser;        
-        var StateComparer = (function () {
-            function StateComparer() { }
-            StateComparer.prototype.buildStateArray = function (state, params) {
-                function extractParams() {
-                    var paramsObj = {
-                    };
-                    if(current.route) {
-                        forEach(current.route.params, function (param, name) {
-                            paramsObj[name] = params[name];
-                        });
-                    }
-                    return paramsObj;
-                }
-                var states = [], current = state;
-                do {
-                    states.push({
-                        state: current,
-                        params: extractParams()
-                    });
-                }while(current = current.parent);
-                return states;
-            };
-            StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
-                var fromArray = this.buildStateArray(from, fromParams || {
-                }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
-                for(var i = 0; i < count; i++) {
-                    fromAtIndex = fromArray[fromArray.length - i - 1];
-                    toAtIndex = toArray[toArray.length - i - 1];
-                    if(isUndefined(toAtIndex)) {
-                        toArray[0].isChanged = stateChanges = true;
-                    } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
-                        toAtIndex.isChanged = stateChanges = true;
-                    } else {
-                        toAtIndex.isChanged = false;
-                    }
-                }
-                //TODO: if ReloadOnOptional is false, but parameters are changed.
-                //      we should raise the update event instead.
-                stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
-                return {
-                    array: toArray.reverse(),
-                    stateChanges: stateChanges,
-                    paramChanges: paramChanges
-                };
-            };
-            return StateComparer;
-        })();
-        routing.StateComparer = StateComparer;        
     })(ui.routing || (ui.routing = {}));
     var routing = ui.routing;
 })(ui || (ui = {}));

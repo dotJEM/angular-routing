@@ -1,5 +1,10 @@
 var ui;
 (function (ui) {
+    /// <reference path="../../lib/angular/angular-1.0.d.ts" />
+    /// <reference path="../common.ts" />
+    /// <reference path="../interfaces.d.ts" />
+    /// <reference path="stateRules.ts" />
+    /// <reference path="state.ts" />
     (function (routing) {
         //TODO: Implement as Angular Provider.
         var StateFactory = (function () {
@@ -27,7 +32,7 @@ var ui;
                 if(isDefined(parent)) {
                     fullname = parent.fullname + "." + name;
                 }
-                var stateObj = new routing.StateClass(name, fullname, state, parent);
+                var stateObj = new routing.State(name, fullname, state, parent);
                 stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
                 if(isDefined(state.route)) {
                     stateObj.route = this.createRoute(state.route, parent.resolveRoute(), stateObj.fullname, stateObj.reloadOnOptional).$route;

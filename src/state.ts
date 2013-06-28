@@ -2,11 +2,11 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
-/// <reference path="state/stateWrapper.ts" />
+/// <reference path="state/state.ts" />
 /// <reference path="state/stateFactory.ts" />
-/// <reference path="state/stateHelper.ts" />
-
-
+/// <reference path="state/stateRules.ts" />
+/// <reference path="state/stateComparer.ts" />
+/// <reference path="state/stateBrowser.ts" />
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {

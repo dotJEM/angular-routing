@@ -19,10 +19,12 @@ files = [
   'src/view.js',
   'src/scroll.js',
 
-  'src/state/stateWrapper.js',
+  'src/state/stater.js',
+  'src/state/stateBrowser.js',
+  'src/state/stateComparer.js',
   'src/state/stateFactory.js',
-  'src/state/stateHelper.js',
-      
+  'rc/state/stateRules.js',
+
   'src/legacy/templateDecorator.js',
     
   'src/directives/uiView.js',

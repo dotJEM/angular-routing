@@ -20,6 +20,12 @@ files = [
   'src/template.js',
   'src/view.js',
   'src/scroll.js',
+
+  'src/state/stater.js',
+  'src/state/stateBrowser.js',
+  'src/state/stateComparer.js',
+  'src/state/stateFactory.js',
+  'rc/state/stateRules.js',
     
   'src/legacy/templateDecorator.js',
     
