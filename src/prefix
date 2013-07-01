@@ -5,4 +5,5 @@
  *
  * @module angular-routing
  */
-(function(window, document, undefined) {
+ var dotjem;
+(function(window, document, dotjem, undefined) {

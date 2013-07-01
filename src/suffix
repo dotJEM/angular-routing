@@ -1,1 +1,2 @@
-﻿})(window, document);
+﻿	dotjem.ui = ui || (ui = {});
+})(window, document, dotjem || (dotjem = {}));

@@ -100,6 +100,21 @@
     <None Include="test\stateTransitionSpec.js.map">
       <DependentUpon>stateTransitionSpec.ts</DependentUpon>
     </None>
+    <None Include="test\state\stateBrowserSpec.js.map">
+      <DependentUpon>stateBrowserSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateComparerSpec.js.map">
+      <DependentUpon>stateComparerSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateFactorySpec.js.map">
+      <DependentUpon>stateFactorySpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateRulesSpec.js.map">
+      <DependentUpon>stateRulesSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateSpec.js.map">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </None>
     <None Include="test\testcommon.js.map">
       <DependentUpon>testcommon.ts</DependentUpon>
     </None>

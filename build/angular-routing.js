@@ -5,7 +5,8 @@
  *
  * @module angular-routing
  */
-(function(window, document, undefined) {
+var dotjem;
+(function(window, document, dotjem, undefined) {
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /*jshint globalstrict:true*/
 /*global angular:false*/
@@ -1761,4 +1762,5 @@ var uiViewDirective = [
     }];
 angular.module('ui.routing').directive('uiView', uiViewDirective);
 
-})(window, document);
+	dotjem.ui = ui || (ui = {});
+})(window, document, dotjem || (dotjem = {}));

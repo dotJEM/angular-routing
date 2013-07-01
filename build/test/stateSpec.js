@@ -36,49 +36,6 @@ describe('$stateProvider', function () {
         };
     }));
     describe("state names", function () {
-        it('valid passes', function () {
-            var provider;
-            mod(function ($stateProvider) {
-                provider = $stateProvider;
-            });
-            inject(function ($state) {
-                provider.state('valid', {
-                }).state('valid.sub1', {
-                }).state('valid.sub2', {
-                }).state('another', {
-                }).state('another.sub1', {
-                });
-            });
-        });
-        it('invalid throws errors', function () {
-            var provider;
-            mod(function ($stateProvider) {
-                provider = $stateProvider;
-            });
-            inject(function ($state) {
-                expect(function () {
-                    provider.state('', {
-                    });
-                }).toThrow("Invalid name: ''.");
-                expect(function () {
-                    provider.state('.!"#', {
-                    });
-                }).toThrow("Invalid name: '.!\"#'.");
-                expect(function () {
-                    provider.state('.', {
-                    });
-                }).toThrow("Invalid name: '.'.");
-                expect(function () {
-                    provider.state('almost.valid.', {
-                    });
-                }).toThrow("Invalid name: 'almost.valid.'.");
-                expect(function () {
-                    provider.state('.almost.valid', {
-                    });
-                }).toThrow("Invalid name: '.almost.valid'.");
-                expect(stringifyState($state.root)).toBe("()");
-            });
-        });
         it('invalid throws errors', function () {
             var provider;
             mod(function ($stateProvider) {
