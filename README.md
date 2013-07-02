@@ -17,7 +17,7 @@ basic style of how Angular modules, services and directives is written
 
 Some of these are probably more subjevtive that objective, but I will try to be fair to UI Router.
 
-### Advantages
+#### Advantages
 
 * Seperation of Application State and View State
 * Full support for transition control between state, not just enter/exit or a global state changed handler
@@ -25,7 +25,7 @@ Some of these are probably more subjevtive that objective, but I will try to be 
 * Support for a XPath like lookup of states based on current state or root state.
 * Parameter converters, UI Router has support for regex parameters but it seems more limited
 
-### Disadvantages
+#### Disadvantages
 
 * No un-nanmed views
 * No abstract states
