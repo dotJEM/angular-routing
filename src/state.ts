@@ -11,14 +11,13 @@
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-
     //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
     //      it would make testing of them individually easier, although it would make them more public than
     //      they are right now.
-    var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
-    var root = factory.createState('root', {});
-    var browser = new ui.routing.StateBrowser(root);
-    var comparer = new ui.routing.StateComparer();
+    var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider),
+        root = factory.createState('root', {}),
+        browser = new ui.routing.StateBrowser(root),
+        comparer = new ui.routing.StateComparer();
 
     this.state = function (fullname: string, state: ui.routing.IState) {
         ui.routing.StateRules.validateName(fullname);

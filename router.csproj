@@ -79,6 +79,9 @@
     <None Include="src\state\stateRules.js.map">
       <DependentUpon>stateRules.ts</DependentUpon>
     </None>
+    <None Include="src\state\stateUrlBuilder.js.map">
+      <DependentUpon>stateUrlBuilder.ts</DependentUpon>
+    </None>
     <None Include="src\template.js.map">
       <DependentUpon>template.ts</DependentUpon>
     </None>
@@ -114,6 +117,9 @@
     </None>
     <None Include="test\state\stateSpec.js.map">
       <DependentUpon>stateSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateUrlBuilderSpec.js.map">
+      <DependentUpon>stateUrlBuilderSpec.ts</DependentUpon>
     </None>
     <None Include="test\testcommon.js.map">
       <DependentUpon>testcommon.ts</DependentUpon>
@@ -163,6 +169,10 @@
     </Content>
     <Content Include="src\state\stateRules.js">
       <DependentUpon>stateRules.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state\stateUrlBuilder.ts" />
+    <Content Include="src\state\stateUrlBuilder.js">
+      <DependentUpon>stateUrlBuilder.ts</DependentUpon>
     </Content>
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
@@ -264,6 +274,10 @@
     </Content>
     <Content Include="test\state\stateSpec.js">
       <DependentUpon>stateSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\state\stateUrlBuilderSpec.ts" />
+    <Content Include="test\state\stateUrlBuilderSpec.js">
+      <DependentUpon>stateUrlBuilderSpec.ts</DependentUpon>
     </Content>
     <Content Include="test\testcommon.js">
       <DependentUpon>testcommon.ts</DependentUpon>
