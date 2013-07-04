@@ -7,13 +7,14 @@
 /// <reference path="state/stateRules.ts" />
 /// <reference path="state/stateComparer.ts" />
 /// <reference path="state/stateBrowser.ts" />
+/// <reference path="state/stateUrlBuilder.ts" />
 
 'use strict';
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
 
-    //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
-    //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
-    //      any services.
+    //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
+    //      it would make testing of them individually easier, although it would make them more public than
+    //      they are right now.
     var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
     var root = factory.createState('root', {});
     var browser = new ui.routing.StateBrowser(root);
@@ -29,6 +30,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
     this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
     function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: ui.routing.IRouteService, $view: ui.routing.IViewService, $transition: ui.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
+        var urlbuilder = new ui.routing.StateUrlBuilder($route);
 
         var forceReload = null,
             current = root,
@@ -40,7 +42,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
                 lookup: (path) => browser.resolve(current, path),
                 reload: reload,
-                url: buildUrl
+                url: (state?, params?) => {
+                    state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                    return urlbuilder.buildUrl($state.current, state, params);
+                }
             };
 
         $rootScope.$on('$routeChangeSuccess', function () {
@@ -66,25 +71,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             raiseUpdate(route.params, route.pathParams, route.searchParams);
         });
         return $state;
-
-        function buildUrl(state?, params?) {
-            var c = $state.current;
-
-            state = isDefined(state) ? browser.lookup(toName(state)) : current;
-            if (!state.route)
-                throw new Error("Can't build url for a state that doesn't have a url defined.");
-            //TODO: Find parent with route and return?
-
-            //TODO: This is very similar to what we do in buildStateArray -> extractParams,
-            //      maybe we can refactor those together
-            var paramsObj = {}, allFrom = (c && c.$params && c.$params.all) || {};
-            forEach(state.route.params, (param, name) => {
-                if (name in allFrom)
-                    paramsObj[name] = allFrom[name];
-            });
-
-            return $route.format(state.route.route, extend(paramsObj, params || {}));
-        }
 
         function reload(state?) {
             if (isDefined(state)) {

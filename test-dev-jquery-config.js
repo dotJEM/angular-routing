@@ -26,6 +26,7 @@ files = [
   'src/state/stateComparer.js',
   'src/state/stateRules.js',
   'src/state/stateFactory.js',
+  'src/state/stateUrlBuilder.js',
     
   'src/legacy/templateDecorator.js',
     

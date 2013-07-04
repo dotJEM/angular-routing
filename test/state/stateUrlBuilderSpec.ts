@@ -2,7 +2,7 @@
 
 'use strict';
 
-describe('state.stateComparer', function () {
+describe('state.stateUrlBuilder', function () {
     'use strict';
 
     //Note: This line below is to be able to run the test cases both on the build output as well

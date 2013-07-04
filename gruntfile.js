@@ -53,6 +53,7 @@ module.exports = function (grunt) {
                         'build/src/state/stateComparer.js',
                         'build/src/state/stateFactory.js',
                         'build/src/state/stateRules.js',
+                        'build/src/state/stateUrlBuilder.js',
                         'build/src/template.js',
                         'build/src/view.js',
                         'build/src/scroll.js',

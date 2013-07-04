@@ -6,6 +6,7 @@
 /// <reference path="state/stateRules.ts" />
 /// <reference path="state/stateComparer.ts" />
 /// <reference path="state/stateBrowser.ts" />
+/// <reference path="state/stateUrlBuilder.ts" />
 'use strict';
 var $StateProvider = [
     '$routeProvider', 
@@ -35,6 +36,7 @@ var $StateProvider = [
             '$location', 
             '$scroll', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
+                var urlbuilder = new ui.routing.StateUrlBuilder($route);
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -54,7 +56,10 @@ var $StateProvider = [
                         return browser.resolve(current, path);
                     },
                     reload: reload,
-                    url: buildUrl
+                    url: function (state, params) {
+                        state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                        return urlbuilder.buildUrl($state.current, state, params);
+                    }
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -82,26 +87,9 @@ var $StateProvider = [
                     raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
-                function buildUrl(state, params) {
-                    var c = $state.current;
-                    state = isDefined(state) ? browser.lookup(toName(state)) : current;
-                    if(!state.route) {
-                        throw new Error("Can't build url for a state that doesn't have a url defined.");
-                    }
-                    //TODO: Find parent with route and return?
-                    //TODO: This is very similar to what we do in buildStateArray -> extractParams,
-                    //      maybe we can refactor those together
-                                        var paramsObj = {
-                    }, allFrom = (c && c.$params && c.$params.all) || {
-                    };
-                    forEach(state.route.params, function (param, name) {
-                        if(name in allFrom) {
-                            paramsObj[name] = allFrom[name];
-                        }
-                    });
-                    return $route.format(state.route.route, extend(paramsObj, params || {
-                    }));
-                }
+                //function buildUrl(state, params?) {
+                //    return urlbuilder.buildUrl($state.current, state, params);
+                //}
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
