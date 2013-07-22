@@ -786,16 +786,13 @@ var $StateProvider = [
     '$routeProvider', 
     '$stateTransitionProvider', 
     function ($routeProvider, $transitionProvider) {
-        //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
-        //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
-        //      any services.
-        var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
-        var root = factory.createState('root', {
-        });
-        var browser = new ui.routing.StateBrowser(root);
-        var comparer = new ui.routing.StateComparer();
+        //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
+        //      it would make testing of them individually easier, although it would make them more public than
+        //      they are right now.
+                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
+        }), browser = new StateBrowser(root), comparer = new StateComparer();
         this.state = function (fullname, state) {
-            ui.routing.StateRules.validateName(fullname);
+            StateRules.validateName(fullname);
             var parent = browser.lookup(fullname, 1);
             parent.add(factory.createState(fullname, state, parent));
             return this;
@@ -810,7 +807,7 @@ var $StateProvider = [
             '$location', 
             '$scroll', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
-                var urlbuilder = new ui.routing.StateUrlBuilder($route);
+                var urlbuilder = new StateUrlBuilder($route);
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -861,9 +858,6 @@ var $StateProvider = [
                     raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
-                //function buildUrl(state, params?) {
-                //    return urlbuilder.buildUrl($state.current, state, params);
-                //}
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
@@ -1037,379 +1031,335 @@ var $StateProvider = [
     }];
 angular.module('ui.routing').provider('$state', $StateProvider);
 
-var ui;
-(function (ui) {
-    /// <reference path="../../lib/angular/angular-1.0.d.ts" />
-    /// <reference path="../common.ts" />
-    /// <reference path="../interfaces.d.ts" />
-    /// <reference path="stateRules.ts" />
-    /// <reference path="stateFactory.ts" />
-    (function (routing) {
-        //TODO: Ones completely implementing to replace the object created by the state provider
-        //      rename to "State". and "IState"...
-        var State = (function () {
-            function State(_name, _fullname, _self, _parent) {
-                this._name = _name;
-                this._fullname = _fullname;
-                this._parent = _parent;
-                this._children = {
-                };
-                this._self = _self;
-                this._self.$fullname = _fullname;
-                this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="stateFactory.ts" />
+var State = (function () {
+    function State(_name, _fullname, _self, _parent) {
+        this._name = _name;
+        this._fullname = _fullname;
+        this._parent = _parent;
+        this._children = {
+        };
+        this._self = _self;
+        this._self.$fullname = _fullname;
+        this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+    }
+    Object.defineProperty(State.prototype, "children", {
+        get: function () {
+            return this._children;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "fullname", {
+        get: function () {
+            return this._fullname;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "name", {
+        get: function () {
+            return this._name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "reloadOnOptional", {
+        get: function () {
+            return this._reloadOnOptional;
+        },
+        set: function (value) {
+            this._reloadOnOptional = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "self", {
+        get: function () {
+            return copy(this._self);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "parent", {
+        get: function () {
+            return this._parent;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "route", {
+        get: function () {
+            return this._route;
+        },
+        set: function (value) {
+            if(isUndefined(value)) {
+                throw 'Please supply time interval';
             }
-            Object.defineProperty(State.prototype, "children", {
-                get: function () {
-                    return this._children;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "fullname", {
-                get: function () {
-                    return this._fullname;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "name", {
-                get: function () {
-                    return this._name;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "reloadOnOptional", {
-                get: function () {
-                    return this._reloadOnOptional;
-                },
-                set: function (value) {
-                    this._reloadOnOptional = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "self", {
-                get: function () {
-                    return copy(this._self);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "parent", {
-                get: function () {
-                    return this._parent;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "route", {
-                get: function () {
-                    return this._route;
-                },
-                set: function (value) {
-                    if(isUndefined(value)) {
-                        throw 'Please supply time interval';
-                    }
-                    this._route = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(State.prototype, "root", {
-                get: function () {
-                    if(this.parent === null) {
-                        return this;
-                    }
-                    return this._parent.root;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            State.prototype.add = function (child) {
-                this._children[child.name] = child;
+            this._route = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "root", {
+        get: function () {
+            if(this.parent === null) {
                 return this;
-            };
-            State.prototype.resolveRoute = function () {
-                return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
-            };
-            return State;
-        })();
-        routing.State = State;        
-    })(ui.routing || (ui.routing = {}));
-    var routing = ui.routing;
-})(ui || (ui = {}));
-
-var ui;
-(function (ui) {
-    /// <reference path="state.ts" />
-    (function (routing) {
-        var StateBrowser = (function () {
-            function StateBrowser(root) {
-                this.root = root;
             }
-            StateBrowser.prototype.lookup = function (fullname, stop) {
-                var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
-                for(; i < names.length - stop; i++) {
-                    if(!(names[i] in current.children)) {
-                        throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
-                    }
-                    current = current.children[names[i]];
-                }
-                return current;
-            };
-            StateBrowser.prototype.resolve = function (origin, path) {
-                var _this = this;
-                var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = origin, sections;
-                if(match) {
-                    selected = this.selectSibling(Number(match[1]), selected);
-                } else {
-                    sections = path.split('/');
-                    forEach(sections, function (sec) {
-                        selected = _this.select(origin, sec, selected);
-                    });
-                }
-                if(selected === this.root) {
-                    throw new Error("Path expression out of bounds.");
-                }
-                return selected && extend({
-                }, selected.self) || undefined;
-            };
-            StateBrowser.prototype.selectSibling = function (index, selected) {
-                var children = [], currentIndex;
-                forEach(selected.parent.children, function (child) {
-                    children.push(child);
-                    if(selected.fullname === child.fullname) {
-                        currentIndex = children.length - 1;
-                    }
-                });
-                while(index < 0) {
-                    index += children.length;
-                }
-                index = (currentIndex + index) % children.length;
-                return children[index];
-            };
-            StateBrowser.prototype.select = function (origin, exp, selected) {
-                //TODO: Support full naming...
-                if(exp === '.') {
-                    if(origin !== selected) {
-                        throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
-                    }
-                    return selected;
-                }
-                if(exp === '..') {
-                    if(isUndefined(selected.parent)) {
-                        throw new Error("Path expression out of bounds.");
-                    }
-                    return selected.parent;
-                }
-                if(exp === '') {
-                    if(origin !== selected) {
-                        throw new Error("Invalid path expression.");
-                    }
-                    return this.root;
-                }
-                var match = exp.match('^\\[(-?\\d+)\\]$');
-                if(match) {
-                    var index = Number(match[1]), children = [];
-                    forEach(selected.children, function (child) {
-                        children.push(child);
-                    });
-                    if(Math.abs(index) >= children.length) {
-                        throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
-                    }
-                    return index < 0 ? children[children.length + index] : children[index];
-                }
-                if(exp in selected.children) {
-                    return selected.children[exp];
-                }
-                throw new Error("Could find state for the lookup path.");
-            };
-            return StateBrowser;
-        })();
-        routing.StateBrowser = StateBrowser;        
-    })(ui.routing || (ui.routing = {}));
-    var routing = ui.routing;
-})(ui || (ui = {}));
+            return this._parent.root;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    State.prototype.add = function (child) {
+        this._children[child.name] = child;
+        return this;
+    };
+    State.prototype.resolveRoute = function () {
+        return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
+    };
+    State.prototype.toUrl = function (params) {
+        return "";
+    };
+    return State;
+})();
 
-var ui;
-(function (ui) {
-    /// <reference path="../../lib/angular/angular-1.0.d.ts" />
-    /// <reference path="../common.ts" />
-    /// <reference path="../interfaces.d.ts" />
-    /// <reference path="state.ts" />
-    (function (routing) {
-        var StateComparer = (function () {
-            function StateComparer() { }
-            StateComparer.prototype.buildStateArray = function (state, params) {
-                function extractParams() {
-                    var paramsObj = {
-                    };
-                    if(current.route) {
-                        forEach(current.route.params, function (param, name) {
-                            paramsObj[name] = params[name];
-                        });
-                    }
-                    return paramsObj;
-                }
-                var states = [], current = state;
-                do {
-                    states.push({
-                        state: current,
-                        params: extractParams()
-                    });
-                }while(current = current.parent);
-                return states;
-            };
-            StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
-                var fromArray = this.buildStateArray(from, fromParams || {
-                }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
-                for(var i = 0; i < count; i++) {
-                    fromAtIndex = fromArray[fromArray.length - i - 1];
-                    toAtIndex = toArray[toArray.length - i - 1];
-                    if(isUndefined(toAtIndex)) {
-                        toArray[0].isChanged = stateChanges = true;
-                    } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
-                        toAtIndex.isChanged = stateChanges = true;
-                    } else {
-                        toAtIndex.isChanged = false;
-                    }
-                }
-                //TODO: if ReloadOnOptional is false, but parameters are changed.
-                //      we should raise the update event instead.
-                stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
-                return {
-                    array: toArray.reverse(),
-                    stateChanges: stateChanges,
-                    paramChanges: paramChanges
-                };
-            };
-            return StateComparer;
-        })();
-        routing.StateComparer = StateComparer;        
-    })(ui.routing || (ui.routing = {}));
-    var routing = ui.routing;
-})(ui || (ui = {}));
-
-var ui;
-(function (ui) {
-    /// <reference path="../../lib/angular/angular-1.0.d.ts" />
-    /// <reference path="../common.ts" />
-    /// <reference path="../interfaces.d.ts" />
-    /// <reference path="stateRules.ts" />
-    /// <reference path="state.ts" />
-    (function (routing) {
-        //TODO: Implement as Angular Provider.
-        var StateFactory = (function () {
-            function StateFactory(routes, transitions) {
-                this.routes = routes;
-                this.transitions = transitions;
+/// <reference path="state.ts" />
+var StateBrowser = (function () {
+    function StateBrowser(root) {
+        this.root = root;
+    }
+    StateBrowser.prototype.lookup = function (fullname, stop) {
+        var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+        for(; i < names.length - stop; i++) {
+            if(!(names[i] in current.children)) {
+                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
             }
-            StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
-                var route = parentRoute || '';
-                if(route !== '' && route[route.length - 1] === '/') {
-                    route = route.substr(0, route.length - 1);
-                }
-                if(stateRoute[0] !== '/' && stateRoute !== '') {
-                    route += '/';
-                }
-                route += stateRoute;
-                return this.routes.when(route, {
-                    state: stateName,
-                    reloadOnSearch: reloadOnSearch
-                });
-            };
-            StateFactory.prototype.createState = function (fullname, state, parent) {
-                var _this = this;
-                var name = fullname.split('.').pop();
-                if(isDefined(parent)) {
-                    fullname = parent.fullname + "." + name;
-                }
-                var stateObj = new routing.State(name, fullname, state, parent);
-                stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
-                if(isDefined(state.route)) {
-                    stateObj.route = this.createRoute(state.route, parent.resolveRoute(), stateObj.fullname, stateObj.reloadOnOptional).$route;
-                }
-                if(isDefined(state.onEnter)) {
-                    this.transitions.onEnter(stateObj.fullname, state.onEnter);
-                }
-                if(isDefined(state.onExit)) {
-                    this.transitions.onExit(stateObj.fullname, state.onExit);
-                }
-                if(isDefined(state.children)) {
-                    forEach(state.children, function (childState, childName) {
-                        stateObj.add(_this.createState(stateObj.fullname + '.' + childName, childState, stateObj));
-                    });
-                }
-                return stateObj;
-            };
-            return StateFactory;
-        })();
-        routing.StateFactory = StateFactory;        
-    })(ui.routing || (ui.routing = {}));
-    var routing = ui.routing;
-})(ui || (ui = {}));
-
-var ui;
-(function (ui) {
-    /// <reference path="state.ts" />
-    (function (routing) {
-        //TODO: Implement as Angular Provider.
-        var StateRules = (function () {
-            function StateRules() { }
-            StateRules.nameValidation = /^\w+(\.\w+)*?$/;
-            StateRules.validateName = function validateName(name) {
-                if(StateRules.nameValidation.test(name)) {
-                    return;
-                }
-                throw new Error("Invalid name: '" + name + "'.");
-            };
-            return StateRules;
-        })();
-        routing.StateRules = StateRules;        
-    })(ui.routing || (ui.routing = {}));
-    var routing = ui.routing;
-})(ui || (ui = {}));
-
-var ui;
-(function (ui) {
-    /// <reference path="../../lib/angular/angular-1.0.d.ts" />
-    /// <reference path="../common.ts" />
-    /// <reference path="../interfaces.d.ts" />
-    /// <reference path="stateRules.ts" />
-    /// <reference path="stateBrowser.ts" />
-    /// <reference path="state.ts" />
-    (function (routing) {
-        //TODO: Implement as Angular Provider.
-        var StateUrlBuilder = (function () {
-            function StateUrlBuilder(route) {
-                this.route = route;
+            current = current.children[names[i]];
+        }
+        return current;
+    };
+    StateBrowser.prototype.resolve = function (origin, path) {
+        var _this = this;
+        var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = origin, sections;
+        if(match) {
+            selected = this.selectSibling(Number(match[1]), selected);
+        } else {
+            sections = path.split('/');
+            forEach(sections, function (sec) {
+                selected = _this.select(origin, sec, selected);
+            });
+        }
+        if(selected === this.root) {
+            throw new Error("Path expression out of bounds.");
+        }
+        return selected && extend({
+        }, selected.self) || undefined;
+    };
+    StateBrowser.prototype.selectSibling = function (index, selected) {
+        var children = [], currentIndex;
+        forEach(selected.parent.children, function (child) {
+            children.push(child);
+            if(selected.fullname === child.fullname) {
+                currentIndex = children.length - 1;
             }
-            StateUrlBuilder.prototype.buildUrl = function (current, target, params) {
-                var c = current;
-                if(!target.route) {
-                    throw new Error("Can't build url for a state that doesn't have a url defined.");
-                }
-                //TODO: Find parent with route and return?
-                //TODO: This is very similar to what we do in buildStateArray -> extractParams,
-                //      maybe we can refactor those together
-                                var paramsObj = {
-                }, allFrom = (c && c.$params && c.$params.all) || {
-                };
-                forEach(target.route.params, function (param, name) {
-                    if(name in allFrom) {
-                        paramsObj[name] = allFrom[name];
-                    }
-                });
-                return this.route.format(target.route.route, extend(paramsObj, params || {
-                }));
+        });
+        while(index < 0) {
+            index += children.length;
+        }
+        index = (currentIndex + index) % children.length;
+        return children[index];
+    };
+    StateBrowser.prototype.select = function (origin, exp, selected) {
+        //TODO: Support full naming...
+        if(exp === '.') {
+            if(origin !== selected) {
+                throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+            }
+            return selected;
+        }
+        if(exp === '..') {
+            if(isUndefined(selected.parent)) {
+                throw new Error("Path expression out of bounds.");
+            }
+            return selected.parent;
+        }
+        if(exp === '') {
+            if(origin !== selected) {
+                throw new Error("Invalid path expression.");
+            }
+            return this.root;
+        }
+        var match = exp.match('^\\[(-?\\d+)\\]$');
+        if(match) {
+            var index = Number(match[1]), children = [];
+            forEach(selected.children, function (child) {
+                children.push(child);
+            });
+            if(Math.abs(index) >= children.length) {
+                throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+            }
+            return index < 0 ? children[children.length + index] : children[index];
+        }
+        if(exp in selected.children) {
+            return selected.children[exp];
+        }
+        throw new Error("Could find state for the lookup path.");
+    };
+    return StateBrowser;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="state.ts" />
+var StateComparer = (function () {
+    function StateComparer() { }
+    StateComparer.prototype.buildStateArray = function (state, params) {
+        function extractParams() {
+            var paramsObj = {
             };
-            return StateUrlBuilder;
-        })();
-        routing.StateUrlBuilder = StateUrlBuilder;        
-    })(ui.routing || (ui.routing = {}));
-    var routing = ui.routing;
-})(ui || (ui = {}));
+            if(current.route) {
+                forEach(current.route.params, function (param, name) {
+                    paramsObj[name] = params[name];
+                });
+            }
+            return paramsObj;
+        }
+        var states = [], current = state;
+        do {
+            states.push({
+                state: current,
+                params: extractParams()
+            });
+        }while(current = current.parent);
+        return states;
+    };
+    StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
+        var fromArray = this.buildStateArray(from, fromParams || {
+        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+        for(var i = 0; i < count; i++) {
+            fromAtIndex = fromArray[fromArray.length - i - 1];
+            toAtIndex = toArray[toArray.length - i - 1];
+            if(isUndefined(toAtIndex)) {
+                toArray[0].isChanged = stateChanges = true;
+            } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+                toAtIndex.isChanged = stateChanges = true;
+            } else {
+                toAtIndex.isChanged = false;
+            }
+        }
+        //TODO: if ReloadOnOptional is false, but parameters are changed.
+        //      we should raise the update event instead.
+        stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
+        return {
+            array: toArray.reverse(),
+            stateChanges: stateChanges,
+            paramChanges: paramChanges
+        };
+    };
+    return StateComparer;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="state.ts" />
+var StateFactory = (function () {
+    function StateFactory(routes, transitions) {
+        this.routes = routes;
+        this.transitions = transitions;
+    }
+    StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
+        var route = parentRoute || '';
+        if(route !== '' && route[route.length - 1] === '/') {
+            route = route.substr(0, route.length - 1);
+        }
+        if(stateRoute[0] !== '/' && stateRoute !== '') {
+            route += '/';
+        }
+        route += stateRoute;
+        return this.routes.when(route, {
+            state: stateName,
+            reloadOnSearch: reloadOnSearch
+        });
+    };
+    StateFactory.prototype.createState = function (fullname, state, parent) {
+        var _this = this;
+        var name = fullname.split('.').pop();
+        if(isDefined(parent)) {
+            fullname = parent.fullname + "." + name;
+        }
+        var stateObj = new State(name, fullname, state, parent);
+        stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
+        if(isDefined(state.route)) {
+            stateObj.route = this.createRoute(state.route, parent.resolveRoute(), stateObj.fullname, stateObj.reloadOnOptional).$route;
+        }
+        if(isDefined(state.onEnter)) {
+            this.transitions.onEnter(stateObj.fullname, state.onEnter);
+        }
+        if(isDefined(state.onExit)) {
+            this.transitions.onExit(stateObj.fullname, state.onExit);
+        }
+        if(isDefined(state.children)) {
+            forEach(state.children, function (childState, childName) {
+                stateObj.add(_this.createState(stateObj.fullname + '.' + childName, childState, stateObj));
+            });
+        }
+        return stateObj;
+    };
+    return StateFactory;
+})();
+
+/// <reference path="state.ts" />
+var StateRules = (function () {
+    function StateRules() { }
+    StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.validateName = function validateName(name) {
+        if(StateRules.nameValidation.test(name)) {
+            return;
+        }
+        throw new Error("Invalid name: '" + name + "'.");
+    };
+    return StateRules;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="stateBrowser.ts" />
+/// <reference path="state.ts" />
+var StateUrlBuilder = (function () {
+    function StateUrlBuilder(route) {
+        this.route = route;
+    }
+    StateUrlBuilder.prototype.buildUrl = function (current, target, params) {
+        var c = current;
+        if(!target.route) {
+            throw new Error("Can't build url for a state that doesn't have a url defined.");
+        }
+        //TODO: Find parent with route and return?
+        //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+        //      maybe we can refactor those together
+                var paramsObj = {
+        }, allFrom = (c && c.$params && c.$params.all) || {
+        };
+        forEach(target.route.params, function (param, name) {
+            if(name in allFrom) {
+                paramsObj[name] = allFrom[name];
+            }
+        });
+        return this.route.format(target.route.route, extend(paramsObj, params || {
+        }));
+    };
+    return StateUrlBuilder;
+})();
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -1790,5 +1740,14 @@ var uiViewDirective = [
     }];
 angular.module('ui.routing').directive('uiView', uiViewDirective);
 
-	dotjem.ui = ui || (ui = {});
+
+	//NOTE: Expose for testing
+	dotjem.State = State;
+	dotjem.StateBrowser = StateBrowser;
+	dotjem.StateComparer = StateComparer;
+	dotjem.StateFactory = StateFactory;
+	dotjem.StateRules = StateRules;
+	dotjem.StateUrlBuilder = StateUrlBuilder;
+
+	//dotjem.ui = ui || (ui = {});
 })(window, document, dotjem || (dotjem = {}));

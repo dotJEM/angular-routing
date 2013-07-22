@@ -5,53 +5,56 @@
 /// <reference path="stateRules.ts" />
 /// <reference path="stateFactory.ts" />
 
-module ui.routing {
-    //TODO: Ones completely implementing to replace the object created by the state provider
-    //      rename to "State". and "IState"...
-    export class State  {
-        private _children: { [name: string]: State; } = {};
-        private _self: IRegisteredState;
-        private _reloadOnOptional: bool;
-        private _route: any;
+class State {
+    private _children: { [name: string]: State; } = {};
+    private _self: ui.routing.IRegisteredState;
+    private _reloadOnOptional: bool;
+    private _route: any;
 
-        get children(): any { return this._children; }
-        get fullname(): string { return this._fullname; }
-        get name(): string { return this._name; }
-        get reloadOnOptional(): bool { return this._reloadOnOptional; }
-        get self(): IRegisteredState { return copy(this._self); }
-        get parent(): State { return this._parent; }
-        get route(): any { return this._route; }
-        get root(): State {
-            if (this.parent === null)
-                return this;
-            return this._parent.root;
-        }
-
-        set route(value: any) {
-            if (isUndefined(value))
-                throw 'Please supply time interval';
-            this._route = value;
-        }
-
-        set reloadOnOptional(value: any) {
-            this._reloadOnOptional = value;
-        }
-
-        constructor(private _name: string, private _fullname: string, _self: IState, private _parent?: State) {
-            this._self = <IRegisteredState>_self;
-            this._self.$fullname = _fullname;
-            this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
-        }
-
-        public add(child: State): State {
-            this._children[child.name] = child;
+    get children(): any { return this._children; }
+    get fullname(): string { return this._fullname; }
+    get name(): string { return this._name; }
+    get reloadOnOptional(): bool { return this._reloadOnOptional; }
+    get self(): ui.routing.IRegisteredState { return copy(this._self); }
+    get parent(): State { return this._parent; }
+    get route(): any { return this._route; }
+    get root(): State {
+        if (this.parent === null)
             return this;
-        }
+        return this._parent.root;
+    }
 
-        public resolveRoute(): string {
-            return isDefined(this.route) ? this.route.route
-                 : isDefined(this.parent) ? this.parent.resolveRoute()
-                 : '';
-        }
+    set route(value: any) {
+        if (isUndefined(value))
+            throw 'Please supply time interval';
+        this._route = value;
+    }
+
+    set reloadOnOptional(value: any) {
+        this._reloadOnOptional = value;
+    }
+
+    constructor(private _name: string, private _fullname: string, _self: ui.routing.IState, private _parent?: State) {
+        this._self = <ui.routing.IRegisteredState>_self;
+        this._self.$fullname = _fullname;
+        this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+    }
+
+    public add(child: State): State {
+        this._children[child.name] = child;
+        return this;
+    }
+
+    public resolveRoute(): string {
+        return isDefined(this.route) ? this.route.route
+             : isDefined(this.parent) ? this.parent.resolveRoute()
+             : '';
+    }
+
+    public toUrl(params: any[]): string {
+
+
+        return "";
     }
 }
+

@@ -1,2 +1,11 @@
-﻿	dotjem.ui = ui || (ui = {});
+﻿
+	//NOTE: Expose for testing
+	dotjem.State = State;
+	dotjem.StateBrowser = StateBrowser;
+	dotjem.StateComparer = StateComparer;
+	dotjem.StateFactory = StateFactory;
+	dotjem.StateRules = StateRules;
+	dotjem.StateUrlBuilder = StateUrlBuilder;
+
+	//dotjem.ui = ui || (ui = {});
 })(window, document, dotjem || (dotjem = {}));

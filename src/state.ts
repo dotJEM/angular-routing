@@ -14,13 +14,13 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
     //      it would make testing of them individually easier, although it would make them more public than
     //      they are right now.
-    var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider),
+    var factory = new StateFactory($routeProvider, $transitionProvider),
         root = factory.createState('root', {}),
-        browser = new ui.routing.StateBrowser(root),
-        comparer = new ui.routing.StateComparer();
+        browser = new StateBrowser(root),
+        comparer = new StateComparer();
 
     this.state = function (fullname: string, state: ui.routing.IState) {
-        ui.routing.StateRules.validateName(fullname);
+        StateRules.validateName(fullname);
 
         var parent = browser.lookup(fullname, 1);
         parent.add(factory.createState(fullname, state, parent));
@@ -29,7 +29,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
     this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
     function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: ui.routing.IRouteService, $view: ui.routing.IViewService, $transition: ui.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
-        var urlbuilder = new ui.routing.StateUrlBuilder($route);
+        var urlbuilder = new StateUrlBuilder($route);
 
         var forceReload = null,
             current = root,

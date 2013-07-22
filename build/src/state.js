@@ -12,16 +12,13 @@ var $StateProvider = [
     '$routeProvider', 
     '$stateTransitionProvider', 
     function ($routeProvider, $transitionProvider) {
-        //TODO: Here we should just need to resolve a StateFactoryProvider allthough that name
-        //      becomes quite crappy... not to mention that it ends up as a service provider that doesn't provide
-        //      any services.
-        var factory = new ui.routing.StateFactory($routeProvider, $transitionProvider);
-        var root = factory.createState('root', {
-        });
-        var browser = new ui.routing.StateBrowser(root);
-        var comparer = new ui.routing.StateComparer();
+        //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
+        //      it would make testing of them individually easier, although it would make them more public than
+        //      they are right now.
+                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
+        }), browser = new StateBrowser(root), comparer = new StateComparer();
         this.state = function (fullname, state) {
-            ui.routing.StateRules.validateName(fullname);
+            StateRules.validateName(fullname);
             var parent = browser.lookup(fullname, 1);
             parent.add(factory.createState(fullname, state, parent));
             return this;
@@ -36,7 +33,7 @@ var $StateProvider = [
             '$location', 
             '$scroll', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
-                var urlbuilder = new ui.routing.StateUrlBuilder($route);
+                var urlbuilder = new StateUrlBuilder($route);
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -87,9 +84,6 @@ var $StateProvider = [
                     raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
-                //function buildUrl(state, params?) {
-                //    return urlbuilder.buildUrl($state.current, state, params);
-                //}
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {

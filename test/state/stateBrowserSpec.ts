@@ -9,7 +9,8 @@ describe('state.stateBrowser', function () {
     //Note: This line below is to be able to run the test cases both on the build output as well
     //      as the raw source, this is because the solution is wrapped in a function on build.
     //      It is a bit of a mess though which I am not to fond of, but will have to do for now.
-    var nui = typeof dotjem !== 'undefined' ? dotjem.ui : ui;
+    //var nui = typeof dotjem !== 'undefined' ? dotjem.ui : ui;
+    var test = typeof dotjem !== 'undefined' ? dotjem : { StateBrowser: StateBrowser };
     var mod = angular.mock['module'];
     var inject = angular.mock.inject;
     beforeEach(mod('ui.routing', function () { return function () { }; }));
@@ -17,7 +18,7 @@ describe('state.stateBrowser', function () {
     describe('lookup', () => {
         it('"first" succeeds.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         children: {
                             'first': { msg: "find me" },
@@ -31,7 +32,7 @@ describe('state.stateBrowser', function () {
 
         it('"first.second" succeeds.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         children: {
                             'first': {
@@ -50,7 +51,7 @@ describe('state.stateBrowser', function () {
 
         it('"first.second.third" succeeds.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         children: {
                             'first': {
@@ -74,7 +75,7 @@ describe('state.stateBrowser', function () {
 
         it('"second.second" succeeds.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         children: {
                             'first': { children: { 'second': {} } },
@@ -94,7 +95,7 @@ describe('state.stateBrowser', function () {
 
         it('"nan" fails.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         fullname: 'root',
                         children: {
@@ -106,7 +107,7 @@ describe('state.stateBrowser', function () {
 
         it('"first.nan" fails.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         fullname: 'root',
                         children: {
@@ -119,7 +120,7 @@ describe('state.stateBrowser', function () {
 
         it('"first.nan" fails.', function () {
             inject(function () {
-                var browser = new nui.routing.StateBrowser(<ui.routing.State>
+                var browser = new test.StateBrowser(<State>
                     {
                         fullname: 'root',
                         children: {

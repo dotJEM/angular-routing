@@ -5,7 +5,9 @@ describe('state.stateRules', function () {
     //Note: This line below is to be able to run the test cases both on the build output as well
     //      as the raw source, this is because the solution is wrapped in a function on build.
     //      It is a bit of a mess though which I am not to fond of, but will have to do for now.
-    var nui = typeof dotjem !== 'undefined' ? dotjem.ui : ui;
+    var test = typeof dotjem !== 'undefined' ? dotjem : {
+        StateRules: StateRules
+    };
     var mod = angular.mock['module'];
     var inject = angular.mock.inject;
     beforeEach(mod('ui.routing', function () {
@@ -15,66 +17,66 @@ describe('state.stateRules', function () {
     describe('validateName', function () {
         it('accepts "valid" as name', function () {
             inject(function () {
-                nui.routing.StateRules.validateName('valid');
+                test.StateRules.validateName('valid');
             });
         });
         it('accepts "valid.sub" as name', function () {
             inject(function () {
-                nui.routing.StateRules.validateName('valid.sub');
+                test.StateRules.validateName('valid.sub');
             });
         });
         it('accepts "valid.sub.child" as name', function () {
             inject(function () {
-                nui.routing.StateRules.validateName('valid.sub.child');
+                test.StateRules.validateName('valid.sub.child');
             });
         });
         it('accepts "another" as name', function () {
             inject(function () {
-                nui.routing.StateRules.validateName('another');
+                test.StateRules.validateName('another');
             });
         });
         it('accepts "another.sub" as name', function () {
             inject(function () {
-                nui.routing.StateRules.validateName('another.sub');
+                test.StateRules.validateName('another.sub');
             });
         });
         it('accepts "another.sub.child" as name', function () {
             inject(function () {
-                nui.routing.StateRules.validateName('another.sub.child');
+                test.StateRules.validateName('another.sub.child');
             });
         });
         it('rejects "" as name', function () {
             inject(function () {
                 expect(function () {
-                    nui.routing.StateRules.validateName('');
+                    test.StateRules.validateName('');
                 }).toThrow("Invalid name: ''.");
             });
         });
         it('rejects ".!"#" as name', function () {
             inject(function () {
                 expect(function () {
-                    nui.routing.StateRules.validateName('.!"#');
+                    test.StateRules.validateName('.!"#');
                 }).toThrow("Invalid name: '.!\"#'.");
             });
         });
         it('rejects "." as name', function () {
             inject(function () {
                 expect(function () {
-                    nui.routing.StateRules.validateName('.');
+                    test.StateRules.validateName('.');
                 }).toThrow("Invalid name: '.'.");
             });
         });
         it('rejects "almost.valid." as name', function () {
             inject(function () {
                 expect(function () {
-                    nui.routing.StateRules.validateName('almost.valid.');
+                    test.StateRules.validateName('almost.valid.');
                 }).toThrow("Invalid name: 'almost.valid.'.");
             });
         });
         it('rejects ".almost.valid" as name', function () {
             inject(function () {
                 expect(function () {
-                    nui.routing.StateRules.validateName('.almost.valid');
+                    test.StateRules.validateName('.almost.valid');
                 }).toThrow("Invalid name: '.almost.valid'.");
             });
         });
