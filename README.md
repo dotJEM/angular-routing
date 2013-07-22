@@ -29,7 +29,8 @@ Some of these are probably more subjevtive that objective, but I will try to be 
 
 * No un-nanmed views
 * No abstract states
-* No ui-sref directive (planned)
+* No ui-sref directive (planned on some form at least)
+** For now, you should be able to bind the url method of $state to the scope and use that in an "a" tag.
 * No support for route matching through functions
 * Less used
 * Bigger footprint
