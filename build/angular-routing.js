@@ -297,10 +297,16 @@ function $RouteProvider() {
         //TODO: Are we missing calls to some "Encode URI component"?
                 var result = [], name = "", index = 0;
         forEach(parseParams(url), function (param, idx) {
+            var formatter = function (val) {
+                return val.toString();
+            }, converter = createParameter(param.name, param.converter, param.args).converter();
             if(param.converter !== '') {
                 //TODO: use converter to convert param to string.
                             }
-            name += url.slice(index, param.index) + '/' + params[param.name].toString();
+            if(!isFunction(converter) && isDefined(converter.format)) {
+                formatter = converter.format;
+            }
+            name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
             index = param.lastIndex;
             delete params[param.name];
         });
@@ -387,10 +393,14 @@ function $RouteProvider() {
             if(match) {
                 invalidParam = false;
                 forEach(expression.segments, function (segment, index) {
-                    var param, value;
+                    var param, value, converter;
                     if(!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter()(param);
+                        converter = segment.converter();
+                        if(!isFunction(converter) && isDefined(converter.parse)) {
+                            converter = converter.parse;
+                        }
+                        value = converter(param);
                         if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
@@ -412,12 +422,20 @@ function $RouteProvider() {
     }
     //Registration of Default Converters
     this.convert('num', function () {
-        return function (param) {
-            var accepts = !isNaN(param);
-            return {
-                accept: accepts,
-                value: accepts ? Number(param) : 0
-            };
+        return {
+            parse: function (param) {
+                var accepts = !isNaN(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? Number(param) : 0
+                };
+            },
+            format: function (value) {
+                if(isNaN(value)) {
+                    throw new Error("Value was not acceptable for a numeric parameter.");
+                }
+                return value.toString();
+            }
         };
     });
     this.convert('regex', function (arg) {
@@ -433,12 +451,22 @@ function $RouteProvider() {
             throw new Error("The Regular-expression converter was not initialized with a valid object.");
         }
         regex = new RegExp(exp, flags);
-        return function (param) {
-            var accepts = regex.test(param);
-            return {
-                accept: accepts,
-                value: accepts ? regex.exec(param) : null
-            };
+        return {
+            parse: function (param) {
+                var accepts = regex.test(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? regex.exec(param) : null
+                };
+            },
+            format: function (value) {
+                var str = value.toString();
+                var test = regex.test(str);
+                if(!test) {
+                    throw new Error("Value could not be matched by the regular expression parameter.");
+                }
+                return str;
+            }
         };
     });
     this.convert('', function () {

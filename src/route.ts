@@ -233,7 +233,7 @@ function $RouteProvider() {
         if (cargs) {
             trimmed = cargs.trim();
             if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') ||
-                (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']') ) {
+                (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
                 try {
                     cargs = angular.fromJson(trimmed);
                 } catch (e) {
@@ -253,10 +253,15 @@ function $RouteProvider() {
 
         var result = [], name = "", index = 0;
         forEach(parseParams(url), (param: IParam, idx) => {
+            var formatter = (val) => val.toString(),
+                converter = createParameter(param.name, param.converter, param.args).converter();
             if (param.converter !== '') {
                 //TODO: use converter to convert param to string.
             }
-            name += url.slice(index, param.index) + '/' + params[param.name].toString();
+            if (!isFunction(converter) && isDefined(converter.format))
+                formatter = converter.format;
+
+            name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
             index = param.lastIndex;
             delete params[param.name];
         });
@@ -312,10 +317,10 @@ function $RouteProvider() {
 
             regex += escape(path.slice(index, param.index));
             regex += '/([^\\/]*)';
-            
+
             if (param.converter !== '')
                 cname = ":" + param.converter;
-            
+
             name += path.slice(index, param.index) + '/$' + idx + cname;
 
             params[param.name] = {
@@ -358,10 +363,14 @@ function $RouteProvider() {
                 invalidParam = false;
                 forEach(expression.segments, function (segment: ISegment, index) {
                     var param,
-                        value;
+                        value,
+                        converter;
                     if (!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter()(param);
+                        converter = segment.converter();
+                        if (!isFunction(converter) && isDefined(converter.parse))
+                            converter = converter.parse;
+                        value = converter(param);
                         if (isDefined(value.accept)) {
                             if (!value.accept)
                                 invalidParam = true;
@@ -383,19 +392,26 @@ function $RouteProvider() {
     //Registration of Default Converters
 
     this.convert('num', () => {
-        return (param) => {
-            var accepts = !isNaN(param);
-            return {
-                accept: accepts,
-                value: accepts ? Number(param) : 0
-            };
-        }
+        return {
+            parse: (param) => {
+                var accepts = !isNaN(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? Number(param) : 0
+                };
+            },
+            format: (value) => {
+                if (isNaN(value))
+                    throw new Error("Value was not acceptable for a numeric parameter.");
+                return value.toString();
+            }
+        };
     });
 
     this.convert('regex', (arg) => {
         var exp,
             flags = '',
-            regex;
+            regex: RegExp;
 
         if (isObject(arg) && isDefined(arg.exp)) {
             exp = arg.exp;
@@ -409,13 +425,22 @@ function $RouteProvider() {
         }
 
         regex = new RegExp(exp, flags);
-        return (param) => {
-            var accepts = regex.test(param);
-            return {
-                accept: accepts,
-                value: accepts ? regex.exec(param) : null
-            };
-        }
+        return {
+            parse: (param) => {
+                var accepts = regex.test(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? regex.exec(param) : null
+                };
+            },
+            format: (value) => {
+                var str = value.toString();
+                var test = regex.test(str);
+                if (!test)
+                    throw new Error("Value could not be matched by the regular expression parameter.");
+                return str;
+            }
+        };
     });
 
     this.convert('', () => { return (param) => { return true; }; });
@@ -440,7 +465,7 @@ function $RouteProvider() {
                             .path(route)
                             .search(params || {});
 
-                    if(args.replace)
+                    if (args.replace)
                         loc.replace();
                 },
                 format: function (route: string, params?: any) {

@@ -523,6 +523,60 @@ describe('$routeProvider', function () {
     });
 
 
+    describe("format", () => {
+
+        it('without parameters returns simple route', function () {
+            mock.inject(function ($route: ui.routing.IRouteService) {
+                expect($route.format('/look')).toBe('/look');
+            });
+        });
+
+        it('with simple parameters returns formated route', function () {
+            mock.inject(function ($route: ui.routing.IRouteService) {
+                expect($route.format('/look/:one', { one: 1 })).toBe('/look/1');
+            });
+        });
+
+        it('with converter parameters returns formated route', function () {
+            mock.inject(function ($route: ui.routing.IRouteService) {
+                expect($route.format('/look/{regex([0-9]*):one}', { one: 1 })).toBe('/look/1');
+            });
+        });
+
+        it('regex converter throws error when values does not match', function () {
+            //TODO: Built in regex should check for valid parameters.
+            mock.inject(function ($route: ui.routing.IRouteService) {
+                expect(() => { $route.format('/look/{regex([0-9]+):one}', { one: 'invalid' }); })
+                    .toThrow();
+            });
+        });
+
+        it('custom converter can define formatting', function () {
+            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+                $routeProvider.convert('custom', function() {
+                    return {
+                        parse: function (param) { return true; },
+                        format: function (value) {
+                            switch (value) {
+                                case 1: return "One";
+                                case 2: return "Two";
+                                case 3: return "Three";
+                            }
+                            throw Error("Invalid parameter value");
+                        }
+                    }
+                } );
+            });
+            //TODO: Built in regex should check for valid parameters.
+            mock.inject(function ($route: ui.routing.IRouteService) {
+                expect($route.format('/look/{custom:one}', { one: 1 })).toBe('/look/One');
+                expect($route.format('/look/{custom:one}', { one: 2 })).toBe('/look/Two');
+                expect($route.format('/look/{custom:one}', { one: 3 })).toBe('/look/Three');
+                expect(() => { $route.format('/look/{custom:one}', { one: 4 }); }).toThrow("Invalid parameter value");
+            });
+        });
+    });
+
 
     describe("change", () => {
         var location: ng.ILocationService;
