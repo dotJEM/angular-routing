@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
 
-# NOTE: Pre-release version 0.3.1 
+# NOTE: Pre-release version 0.3.2 
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
 to provide what I belive is more "true states" where the transitions could be
