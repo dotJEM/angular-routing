@@ -99,3 +99,12 @@ Some initial samples can be found at:
  - http://dotjem.github.com/angular-routing/samples/
 
 These are currently "work in progress", but can already demonstrate some of the core concepts.
+
+## Reporting Issues
+
+When encountering issues and posting them under issues here on github, if possible, it will be much apreciated
+if an example is to follow, it would be especially usefull if the issue was recreated using either
+http://plnkr.co/ or http://jsfiddle.net/.
+
+Othherwise, try to capture as much detail as possible, there more that is known about the issue and context
+the easier it is to help.
