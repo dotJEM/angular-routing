@@ -1195,52 +1195,16 @@ describe('$stateProvider', function () {
             scope.$digest();
         }
         describe('at root', function () {
-            it('lookup state1', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("state1");
-                    expect(state.$fullname).toBe('root.state1');
-                });
-            });
             it('lookup ./state1', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("./state1");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
-            it('lookup /state1', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("/state1");
-                    expect(state.$fullname).toBe('root.state1');
-                });
-            });
-            it('lookup state1/top3', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("state1/top3");
-                    expect(state.$fullname).toBe('root.state1.top3');
-                });
-            });
             it('lookup state1/top3/mid2/bot1', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("state1/top3/mid2/bot1");
                     expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
-                });
-            });
-            it('lookup [0] returns root.state1', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("[0]");
-                    expect(state.$fullname).toBe('root.state1');
-                });
-            });
-            it('lookup [-1]', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("[-1]");
-                    expect(state.$fullname).toBe('root.state3');
-                });
-            });
-            it('lookup [-2]', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("[-2]");
-                    expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup [1]', function () {
@@ -1257,6 +1221,13 @@ describe('$stateProvider', function () {
                     goto(target);
                     var state = $state.lookup("top1");
                     expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+            it('lookup state1.top2', function () {
+                inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("state1.top2");
+                    expect(state.$fullname).toBe('root.state1.top2');
                 });
             });
             it('lookup ./top1', function () {
@@ -1404,6 +1375,13 @@ describe('$stateProvider', function () {
                     goto(target);
                     var state = $state.lookup("bot1");
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                });
+            });
+            it('lookup state1.top2', function () {
+                inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("state1.top2");
+                    expect(state.$fullname).toBe('root.state1.top2');
                 });
             });
             it('lookup ./bot1', function () {

@@ -2,6 +2,9 @@
 var StateBrowser = (function () {
     function StateBrowser(root) {
         this.root = root;
+        this.nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+        this.siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
+        this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     }
     StateBrowser.prototype.lookup = function (fullname, stop) {
         var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
@@ -15,9 +18,18 @@ var StateBrowser = (function () {
     };
     StateBrowser.prototype.resolve = function (origin, path) {
         var _this = this;
-        var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = origin, sections;
-        if(match) {
-            selected = this.selectSibling(Number(match[1]), selected);
+        var siblingSelector = this.siblingRegex.exec(path), nameSelector = // path.match(this.siblingRegex),
+        this.nameRegex.test(path), selected = origin, sections;
+        if(siblingSelector) {
+            selected = this.selectSibling(Number(siblingSelector[1]), selected);
+        } else if(this.nameRegex.test(path)) {
+            //Note: This enables us to select a state using a full name rather than a select expression.
+            //      but as a special case, the "nameRegex" will not match singular names as 'statename'
+            //      because that is also a valid relative lookup.
+            //
+            //      instead we force the user to use '/statename' if he really wanted to look up a state
+            //      from the root.
+            selected = this.lookup(path);
         } else {
             sections = path.split('/');
             forEach(sections, function (sec) {
@@ -45,7 +57,6 @@ var StateBrowser = (function () {
         return children[index];
     };
     StateBrowser.prototype.select = function (origin, exp, selected) {
-        //TODO: Support full naming...
         if(exp === '.') {
             if(origin !== selected) {
                 throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
@@ -64,7 +75,8 @@ var StateBrowser = (function () {
             }
             return this.root;
         }
-        var match = exp.match('^\\[(-?\\d+)\\]$');
+        var match = this.indexRegex.exec(exp);// exp.match(this.indexRegex);
+        
         if(match) {
             var index = Number(match[1]), children = [];
             forEach(selected.children, function (child) {

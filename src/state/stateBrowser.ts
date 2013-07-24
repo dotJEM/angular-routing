@@ -1,6 +1,10 @@
 /// <reference path="state.ts" />
 
 class StateBrowser {
+    private nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+    private siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
+    private indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
+
     constructor(private root: State) {
     }
 
@@ -20,12 +24,22 @@ class StateBrowser {
     }
 
     public resolve(origin, path): State {
-        var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'),
+        var siblingSelector = this.siblingRegex.exec(path),// path.match(this.siblingRegex),
+            nameSelector = this.nameRegex.test(path),
             selected = origin,
             sections: string[];
 
-        if (match) {
-            selected = this.selectSibling(Number(match[1]), selected);
+        if (siblingSelector) {
+            selected = this.selectSibling(Number(siblingSelector[1]), selected);
+        } else if (this.nameRegex.test(path)) {
+            //Note: This enables us to select a state using a full name rather than a select expression.
+            //      but as a special case, the "nameRegex" will not match singular names as 'statename'
+            //      because that is also a valid relative lookup.
+            //      
+            //      instead we force the user to use '/statename' if he really wanted to look up a state
+            //      from the root.
+
+            selected = this.lookup(path);
         } else {
             sections = path.split('/');
             forEach(sections, (sec) => {
@@ -58,8 +72,6 @@ class StateBrowser {
     }
 
     private select(origin, exp: string, selected: State): State {
-        //TODO: Support full naming...
-
         if (exp === '.') {
             if (origin !== selected)
                 throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
@@ -81,7 +93,7 @@ class StateBrowser {
             return this.root;
         }
 
-        var match = exp.match('^\\[(-?\\d+)\\]$');
+        var match = this.indexRegex.exec(exp);// exp.match(this.indexRegex);
         if (match) {
             var index = Number(match[1]),
                 children = [];
