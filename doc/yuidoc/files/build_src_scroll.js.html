@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.1</em>
+            <em>API Docs for: 0.3.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -99,49 +99,48 @@ var $ScrollProvider = [
         this.$get = [
             &#x27;$window&#x27;, 
             &#x27;$rootScope&#x27;, 
-            &#x27;$location&#x27;, 
             &#x27;$anchorScroll&#x27;, 
             &#x27;$injector&#x27;, 
             &#x27;$timeout&#x27;, 
-            function ($window, $rootScope, $location, $anchorScroll, $injector, $timeout) {
+            function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
                 var document = $window.document;
-                function scrollTo(elm) {
-                    if(elm) {
-                        elm.scrollIntoView();
-                    }
-                }
-                function scroll(arg) {
+                var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
                         $anchorScroll();
                     } else if(isString(arg)) {
-                        if(arg === &#x27;top&#x27;) {
-                            $window.scroll(0, 0);
-                        } else {
-                            scrollTo(angular.element(arg)[0]);
-                        }
-                        /****jQuery( &quot;[attribute=&#x27;value&#x27;]&quot;
-                        * scrollTo: top - scroll to top, explicitly stated.
-                        *           (This also enables one to override another scrollTo from a parent)
-                        * scrollTo: null - don&#x27;t scroll, not even to top.
-                        * scrollTo: element-selector - scroll to an element id
-                        * scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; }
-                        *           - scroll to element with id or view if starts with @
-                        */
-                                            } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo(angular.element($injector.invoke(arg, fn))[0]);
+                        scrollTo(arg);
+                    } else if((fn = injectFn(arg)) !== null) {
+                        scrollTo($injector.invoke(arg, fn)[0]);
                     }
-                }
-                //if (autoscroll) {
-                //    $rootScope.$watch(
-                //        function () { return $location.hash(); },
-                //        function () { $rootScope.$evalAsync(scroll); });
-                //}
-                return function (arg) {
-                    $timeout(function () {
-                        scroll(arg);
-                    }, 0);
                 };
+                scroll.$current = &#x27;top&#x27;;
+                //scroll.$register = register;
+                //var elements = {};
+                //function register(name: string, elm: HTMLElement) {
+                //    if (name in elements) {
+                //        var existing = elements[name];
+                //    }
+                //    elements[name] = elm;
+                //}
+                function scrollTo(elm) {
+                    scroll.$current = elm;
+                    if(elm === &#x27;top&#x27;) {
+                        $window.scrollTo(0, 0);
+                        return;
+                    }
+                    $rootScope.$broadcast(&#x27;$scrollPositionChanged&#x27;, elm);
+                    //if (elm) elm.scrollIntoView();
+                                    }
+                /****jQuery( &quot;[attribute=&#x27;value&#x27;]&quot;
+                * scrollTo: top - scroll to top, explicitly stated.
+                *           (This also enables one to override another scrollTo from a parent)
+                * scrollTo: null - don&#x27;t scroll, not even to top.
+                * scrollTo: element-selector - scroll to an element id
+                * scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; }
+                *           - scroll to element with id or view if starts with @
+                */
+                return scroll;
             }        ];
     }];
 angular.module(&#x27;ui.routing&#x27;).provider(&#x27;$scroll&#x27;, $ScrollProvider);

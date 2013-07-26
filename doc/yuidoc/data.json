@@ -2,7 +2,7 @@
     "project": {
         "name": "angular-routing",
         "description": "State-based routing and view management for AngularJS",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "url": ""
     },
     "files": {
@@ -123,7 +123,7 @@
         },
         {
             "file": "build\\src\\scroll.js",
-            "line": 35,
+            "line": 47,
             "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
             "class": ""
         }
@@ -143,7 +143,7 @@
         },
         {
             "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
-            "line": " build\\src\\scroll.js:35"
+            "line": " build\\src\\scroll.js:47"
         }
     ]
 }

@@ -67,19 +67,17 @@ var uiViewDirective = [
                             if(controller) {
                                 locals = copy(view.locals);
                                 locals.$scope = viewScope;
-                                locals.$async = function async() {
-                                    return function done() {
-                                    };
-                                };
+                                //locals.$async = function async() {
+                                //    return function done() {
+                                //    }
+                                //}
                                 controller = $controller(controller, locals);
                                 element.contents().data('$ngControllerController', controller);
                             }
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
-                            //TODO: we are actually ending up calling scroll a number of times here due to multiple views.
-                            //$scroll();
-                                                    });
+                        });
                     } else {
                         clearContent(doAnimate);
                     }

@@ -58,6 +58,7 @@ module.exports = function (grunt) {
                         'build/src/view.js',
                         'build/src/scroll.js',
                         'build/src/directives/uiView.js',
+                        'build/src/directives/uiScroll.js',
                         'src/suffix'],
                 dest: 'build/<%= pkg.name %>.js'
             },

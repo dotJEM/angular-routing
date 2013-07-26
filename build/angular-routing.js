@@ -1642,49 +1642,48 @@ var $ScrollProvider = [
         this.$get = [
             '$window', 
             '$rootScope', 
-            '$location', 
             '$anchorScroll', 
             '$injector', 
             '$timeout', 
-            function ($window, $rootScope, $location, $anchorScroll, $injector, $timeout) {
+            function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
                 var document = $window.document;
-                function scrollTo(elm) {
-                    if(elm) {
-                        elm.scrollIntoView();
-                    }
-                }
-                function scroll(arg) {
+                var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
                         $anchorScroll();
                     } else if(isString(arg)) {
-                        if(arg === 'top') {
-                            $window.scroll(0, 0);
-                        } else {
-                            scrollTo(angular.element(arg)[0]);
-                        }
-                        /****jQuery( "[attribute='value']"
-                        * scrollTo: top - scroll to top, explicitly stated.
-                        *           (This also enables one to override another scrollTo from a parent)
-                        * scrollTo: null - don't scroll, not even to top.
-                        * scrollTo: element-selector - scroll to an element id
-                        * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-                        *           - scroll to element with id or view if starts with @
-                        */
-                                            } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo(angular.element($injector.invoke(arg, fn))[0]);
+                        scrollTo(arg);
+                    } else if((fn = injectFn(arg)) !== null) {
+                        scrollTo($injector.invoke(arg, fn)[0]);
                     }
-                }
-                //if (autoscroll) {
-                //    $rootScope.$watch(
-                //        function () { return $location.hash(); },
-                //        function () { $rootScope.$evalAsync(scroll); });
-                //}
-                return function (arg) {
-                    $timeout(function () {
-                        scroll(arg);
-                    }, 0);
                 };
+                scroll.$current = 'top';
+                //scroll.$register = register;
+                //var elements = {};
+                //function register(name: string, elm: HTMLElement) {
+                //    if (name in elements) {
+                //        var existing = elements[name];
+                //    }
+                //    elements[name] = elm;
+                //}
+                function scrollTo(elm) {
+                    scroll.$current = elm;
+                    if(elm === 'top') {
+                        $window.scrollTo(0, 0);
+                        return;
+                    }
+                    $rootScope.$broadcast('$scrollPositionChanged', elm);
+                    //if (elm) elm.scrollIntoView();
+                                    }
+                /****jQuery( "[attribute='value']"
+                * scrollTo: top - scroll to top, explicitly stated.
+                *           (This also enables one to override another scrollTo from a parent)
+                * scrollTo: null - don't scroll, not even to top.
+                * scrollTo: element-selector - scroll to an element id
+                * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
+                *           - scroll to element with id or view if starts with @
+                */
+                return scroll;
             }        ];
     }];
 angular.module('ui.routing').provider('$scroll', $ScrollProvider);
@@ -1758,19 +1757,17 @@ var uiViewDirective = [
                             if(controller) {
                                 locals = copy(view.locals);
                                 locals.$scope = viewScope;
-                                locals.$async = function async() {
-                                    return function done() {
-                                    };
-                                };
+                                //locals.$async = function async() {
+                                //    return function done() {
+                                //    }
+                                //}
                                 controller = $controller(controller, locals);
                                 element.contents().data('$ngControllerController', controller);
                             }
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
-                            //TODO: we are actually ending up calling scroll a number of times here due to multiple views.
-                            //$scroll();
-                                                    });
+                        });
                     } else {
                         clearContent(doAnimate);
                     }
@@ -1779,6 +1776,40 @@ var uiViewDirective = [
         };
     }];
 angular.module('ui.routing').directive('uiView', uiViewDirective);
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="../common.ts" />
+'use strict';
+var uiScrollDirective = [
+    '$scroll', 
+    '$timeout', 
+    function ($scroll, $timeout) {
+        return {
+            restrict: 'ECA',
+            terminal: true,
+            link: function (scope, element, attr) {
+                var name = attr['uiScroll'] || attr.id;
+                //$scroll.$register(name, element);
+                //TODO: This is not aware if there are multiple elements named the same, we should instead
+                //      register the element with the $scroll service so that can throw an error if multiple
+                //      elements has the same name.
+                scope.$on('$scrollPositionChanged', function (event, target) {
+                    scroll(target);
+                });
+                scroll($scroll.$current);
+                function scroll(target) {
+                    if(target === name) {
+                        //Note: Delay scroll untill any digest is done.
+                        $timeout(function () {
+                            element[0].scrollIntoView();
+                        }, 0);
+                    }
+                }
+            }
+        };
+    }];
+angular.module('ui.routing').directive('uiScroll', uiScrollDirective);
 
 
 	//NOTE: Expose for testing

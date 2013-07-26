@@ -44,6 +44,9 @@
     <None Include="src\common.js.map">
       <DependentUpon>common.ts</DependentUpon>
     </None>
+    <None Include="src\directives\uiScroll.js.map">
+      <DependentUpon>uiScroll.ts</DependentUpon>
+    </None>
     <None Include="src\directives\uiView.js.map">
       <DependentUpon>uiView.ts</DependentUpon>
     </None>
@@ -154,6 +157,10 @@
     <TypeScriptCompile Include="src\state\stateRules.ts" />
     <TypeScriptCompile Include="src\state\stateFactory.ts" />
     <TypeScriptCompile Include="src\state\stateComparer.ts" />
+    <TypeScriptCompile Include="src\directives\uiScroll.ts" />
+    <Content Include="src\directives\uiScroll.js">
+      <DependentUpon>uiScroll.ts</DependentUpon>
+    </Content>
     <Content Include="src\state\state.js">
       <DependentUpon>state.ts</DependentUpon>
     </Content>

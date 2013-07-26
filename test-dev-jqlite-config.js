@@ -29,6 +29,7 @@ files = [
   'src/legacy/templateDecorator.js',
     
   'src/directives/uiView.js',
+  'src/directives/uiScroll.js',
     
   'test/**/*Spec.js'
 ];
