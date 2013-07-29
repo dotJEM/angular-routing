@@ -1787,7 +1787,7 @@ var uiScrollDirective = [
     function ($scroll, $timeout) {
         return {
             restrict: 'ECA',
-            terminal: true,
+            terminal: false,
             link: function (scope, element, attr) {
                 var name = attr['uiScroll'] || attr.id;
                 //$scroll.$register(name, element);
@@ -1801,10 +1801,10 @@ var uiScrollDirective = [
                 function scroll(target) {
                     if(target === name) {
                         //Note: Delay scroll untill any digest is done.
-                        $timeout(function () {
-                            element[0].scrollIntoView();
-                        }, 0);
-                    }
+                        //$timeout(() => {
+                        element[0].scrollIntoView();
+                        //}, 0);
+                                            }
                 }
             }
         };

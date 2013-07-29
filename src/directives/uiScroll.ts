@@ -8,7 +8,7 @@ var uiScrollDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {
         restrict: 'ECA',
-        terminal: true,
+        terminal: false,
         link: function (scope, element: JQuery, attr) {
             var name = attr['uiScroll'] || attr.id;
 
@@ -25,9 +25,9 @@ function ($scroll, $timeout: ng.ITimeoutService) {
             function scroll(target: any) {
                 if (target === name) {
                     //Note: Delay scroll untill any digest is done.
-                    $timeout(() => {
+                    //$timeout(() => {
                         element[0].scrollIntoView();
-                    }, 0);
+                    //}, 0);
                 }
             }
         }
