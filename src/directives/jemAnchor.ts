@@ -10,7 +10,7 @@ function ($scroll, $timeout: ng.ITimeoutService) {
         restrict: 'ECA',
         terminal: false,
         link: function (scope, element: JQuery, attr) {
-            var name = attr['uiScroll'] || attr.id;
+            var name = attr['jemAnchor'] || attr.id;
 
             //$scroll.$register(name, element);
 
