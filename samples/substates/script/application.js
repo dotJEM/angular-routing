@@ -1,4 +1,4 @@
-﻿var app = angular.module('sample', ['ui.bootstrap', 'ui.routing', 'ui.tree']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
+﻿var app = angular.module('sample', ['ui.bootstrap', 'dotjem.routing', 'ui.tree']);app.config(['$stateProvider', '$routeProvider',       function ($stateProvider, $routeProvider) {
            $routeProvider               .otherwise({ redirectTo: '/' });
            
            $stateProvider

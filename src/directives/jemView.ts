@@ -16,7 +16,7 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
         link: function (scope, element: JQuery, attr) {
             var viewScope: IViewScope,
                 controller,
-                name = attr['uiView'] || attr.name,
+                name = attr['jemView'] || attr.name,
                 doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
                 animate = $animator(scope, attr),
