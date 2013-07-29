@@ -26,7 +26,7 @@ class State {
 
     set route(value: any) {
         if (isUndefined(value))
-            throw 'Please supply time interval';
+            throw Error(errors.routeCannotBeUndefined);
         this._route = value;
     }
 

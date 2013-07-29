@@ -150,7 +150,7 @@ function $StateTransitionProvider() {
                 var handler;
                 forEach(handlers, (handlerObj) => {
                     if (isDefined(handler = select(handlerObj))) {
-                        $injector.invoke(handler, _this, {
+                        injectFn(handler)($injector, {
                             $to: to,
                             $from: from,
                             $transition: tc

@@ -49,13 +49,13 @@
     "classitems": [
         {
             "file": "build\\src\\common.js",
-            "line": 36,
+            "line": 38,
             "description": "We need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
             "class": "$RouteProvider"
         },
         {
             "file": "build\\src\\common.js",
-            "line": 52,
+            "line": 54,
             "description": "This method is intended for encoding *key* or *value* parts of query component. We need a custom\nmethod because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be\nencoded per http://tools.ietf.org/html/rfc3986:\n   query       = *( pchar / \"/\" / \"?\" )\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
             "class": "$RouteProvider"
         },
@@ -123,7 +123,7 @@
         },
         {
             "file": "build\\src\\scroll.js",
-            "line": 47,
+            "line": 45,
             "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
             "class": ""
         }
@@ -135,15 +135,15 @@
         },
         {
             "message": "Missing item type\nWe need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
-            "line": " build\\src\\common.js:36"
+            "line": " build\\src\\common.js:38"
         },
         {
             "message": "Missing item type\nThis method is intended for encoding *key* or *value* parts of query component. We need a custom\nmethod because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be\nencoded per http://tools.ietf.org/html/rfc3986:\n   query       = *( pchar / \"/\" / \"?\" )\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
-            "line": " build\\src\\common.js:52"
+            "line": " build\\src\\common.js:54"
         },
         {
             "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
-            "line": " build\\src\\scroll.js:47"
+            "line": " build\\src\\scroll.js:45"
         }
     ]
 }

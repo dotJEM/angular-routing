@@ -65,7 +65,7 @@ var State = (function () {
         },
         set: function (value) {
             if(isUndefined(value)) {
-                throw 'Please supply time interval';
+                throw Error(errors.routeCannotBeUndefined);
             }
             this._route = value;
         },

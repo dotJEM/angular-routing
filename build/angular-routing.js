@@ -11,6 +11,7 @@ var dotjem;
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
+angular.module('dotjem.routing', []);
 var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
@@ -22,14 +23,15 @@ function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 function injectFn(arg) {
-    if(isArray(arg)) {
-        for(var i = 0; i < arg.length; i++) {
-            if(i < arg.length - 1 && !isString(arg[i])) {
-                return null;
-            } else if(i === arg.length - 1 && isFunction(arg[i])) {
-                return arg[i];
-            }
-        }
+    if(isFunction(arg)) {
+        return function (injector, locals) {
+            return injector.invoke(arg, arg, locals);
+        };
+    } else if(isArray(arg)) {
+        var fn = arg[arg.length - 1];
+        return function (injector, locals) {
+            return injector.invoke(arg, fn, locals);
+        };
     }
     return null;
 }
@@ -74,7 +76,15 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
-angular.module('dotjem.routing', []);
+var errors = {
+    routeCannotBeUndefined: 'Can not set route to undefined.',
+    valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
+    regexConverterNotValid: "The Regular-expression converter was not initialized with a valid object.",
+    invalidNumericValue: "Value was not acceptable for a numeric parameter.",
+    invalidBrowserPathExpression: "Invalid path expression.",
+    expressionOutOfBounds: "Expression out of bounds.",
+    couldNotFindStateForPath: "Could find state for path."
+};
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -300,9 +310,6 @@ function $RouteProvider() {
             var formatter = function (val) {
                 return val.toString();
             }, converter = createParameter(param.name, param.converter, param.args).converter();
-            if(param.converter !== '') {
-                //TODO: use converter to convert param to string.
-                            }
             if(!isFunction(converter) && isDefined(converter.format)) {
                 formatter = converter.format;
             }
@@ -432,7 +439,7 @@ function $RouteProvider() {
             },
             format: function (value) {
                 if(isNaN(value)) {
-                    throw new Error("Value was not acceptable for a numeric parameter.");
+                    throw new Error(errors.invalidNumericValue);
                 }
                 return value.toString();
             }
@@ -448,7 +455,7 @@ function $RouteProvider() {
         } else if(isString(arg) && arg.length > 0) {
             exp = arg;
         } else {
-            throw new Error("The Regular-expression converter was not initialized with a valid object.");
+            throw Error(errors.regexConverterNotValid);
         }
         regex = new RegExp(exp, flags);
         return {
@@ -463,7 +470,7 @@ function $RouteProvider() {
                 var str = value.toString();
                 var test = regex.test(str);
                 if(!test) {
-                    throw new Error("Value could not be matched by the regular expression parameter.");
+                    throw Error(errors.valueCouldNotBeMatchedByRegex);
                 }
                 return str;
             }
@@ -547,6 +554,7 @@ function $RouteProvider() {
                         if(nextRoute) {
                             forEach(decorators, function (decorator, name) {
                                 dp = dp.then(function () {
+                                    //Note: must keep nextRoute as "this" context here.
                                     var decorated = $injector.invoke(decorator, nextRoute, {
                                         $next: nextRoute
                                     });
@@ -719,7 +727,7 @@ function $StateTransitionProvider() {
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
-                            $injector.invoke(handler, _this, {
+                            injectFn(handler)($injector, {
                                 $to: to,
                                 $from: from,
                                 $transition: tc
@@ -1006,11 +1014,11 @@ var $StateProvider = [
                                     }
                                     scrollTo = change.state.self.scrollTo;
                                     forEach(change.state.self.views, function (view, name) {
-                                        var sticky;
+                                        var sticky, fn;
                                         if(view.sticky) {
                                             sticky = view.sticky;
-                                            if(isFunction(sticky) || isArray(sticky)) {
-                                                sticky = $injector.invoke(sticky, sticky, {
+                                            if((fn = injectFn(sticky)) != null) {
+                                                sticky = fn($injector, {
                                                     $to: toState,
                                                     $from: fromState
                                                 });
@@ -1126,7 +1134,7 @@ var State = (function () {
         },
         set: function (value) {
             if(isUndefined(value)) {
-                throw 'Please supply time interval';
+                throw Error(errors.routeCannotBeUndefined);
             }
             this._route = value;
         },
@@ -1168,7 +1176,7 @@ var StateBrowser = (function () {
         var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
-                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+                throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
             }
             current = current.children[names[i]];
         }
@@ -1195,7 +1203,7 @@ var StateBrowser = (function () {
             });
         }
         if(selected === this.root) {
-            throw new Error("Path expression out of bounds.");
+            throw Error(errors.expressionOutOfBounds);
         }
         return selected && extend({
         }, selected.self) || undefined;
@@ -1217,19 +1225,19 @@ var StateBrowser = (function () {
     StateBrowser.prototype.select = function (origin, exp, selected) {
         if(exp === '.') {
             if(origin !== selected) {
-                throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+                throw Error(errors.invalidBrowserPathExpression);
             }
             return selected;
         }
         if(exp === '..') {
             if(isUndefined(selected.parent)) {
-                throw new Error("Path expression out of bounds.");
+                throw Error(errors.expressionOutOfBounds);
             }
             return selected.parent;
         }
         if(exp === '') {
             if(origin !== selected) {
-                throw new Error("Invalid path expression.");
+                throw Error(errors.invalidBrowserPathExpression);
             }
             return this.root;
         }
@@ -1241,14 +1249,14 @@ var StateBrowser = (function () {
                 children.push(child);
             });
             if(Math.abs(index) >= children.length) {
-                throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+                throw Error(errors.expressionOutOfBounds);
             }
             return index < 0 ? children[children.length + index] : children[index];
         }
         if(exp in selected.children) {
             return selected.children[exp];
         }
-        throw new Error("Could find state for the lookup path.");
+        throw Error(errors.couldNotFindStateForPath);
     };
     return StateBrowser;
 })();
@@ -1636,7 +1644,6 @@ angular.module('dotjem.routing').provider('$view', $ViewProvider);
 var $ScrollProvider = [
     '$anchorScrollProvider', 
     function ($anchorScrollProvider) {
-        var autoscroll = false;
         //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
         // $anchorScrollProvider.disableAutoScrolling();
         this.$get = [
@@ -1646,7 +1653,7 @@ var $ScrollProvider = [
             '$injector', 
             '$timeout', 
             function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
-                var document = $window.document;
+                //var document = $window.document;
                 var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
@@ -1654,10 +1661,18 @@ var $ScrollProvider = [
                     } else if(isString(arg)) {
                         scrollTo(arg);
                     } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo($injector.invoke(arg, fn)[0]);
+                        scrollTo(fn($injector));
                     }
                 };
                 scroll.$current = 'top';
+                function scrollTo(elm) {
+                    scroll.$current = elm;
+                    if(elm === 'top') {
+                        $window.scrollTo(0, 0);
+                        return;
+                    }
+                    $rootScope.$broadcast('$scrollPositionChanged', elm);
+                }
                 //scroll.$register = register;
                 //var elements = {};
                 //function register(name: string, elm: HTMLElement) {
@@ -1666,15 +1681,6 @@ var $ScrollProvider = [
                 //    }
                 //    elements[name] = elm;
                 //}
-                function scrollTo(elm) {
-                    scroll.$current = elm;
-                    if(elm === 'top') {
-                        $window.scrollTo(0, 0);
-                        return;
-                    }
-                    $rootScope.$broadcast('$scrollPositionChanged', elm);
-                    //if (elm) elm.scrollIntoView();
-                                    }
                 /****jQuery( "[attribute='value']"
                 * scrollTo: top - scroll to top, explicitly stated.
                 *           (This also enables one to override another scrollTo from a parent)

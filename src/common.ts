@@ -5,6 +5,8 @@
 
 'use strict';
 
+angular.module('dotjem.routing', []);
+
 var isDefined = angular.isDefined,
     isUndefined = angular.isUndefined,
     isFunction = angular.isFunction,
@@ -21,20 +23,26 @@ function inherit(parent, extra?) {
     return extend(new (extend(function () { }, { prototype: parent }))(), extra);
 }
 
-function toName(named: any) {
+function toName(named: any) : string {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 
-function injectFn(arg: any[]) {
-    if (isArray(arg)) {
-        for (var i = 0; i < arg.length; i++) {
-            if (i < arg.length - 1 && !isString(arg[i]))
-                return null;
-            else if (i === arg.length - 1 && isFunction(arg[i]))
-                return arg[i];
+function injectFn(arg: any): IInjector {
+    if (isFunction(arg)) {
+        return function(injector: ng.auto.IInjectorService, locals?) {
+            return injector.invoke(arg, arg, locals);
+        }
+    } else if (isArray(arg)) {
+        var fn = arg[arg.length - 1];
+        return function (injector: ng.auto.IInjectorService, locals?) {
+            return injector.invoke(arg, fn, locals);
         }
     }
     return null;
+}
+
+interface IInjector {
+    (injector: ng.auto.IInjectorService, locals?: any): any;
 }
 
 interface IParam {
@@ -100,4 +108,12 @@ function encodeUriQuery(val, pctEncodeSpaces) {
                replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
 
-angular.module('dotjem.routing', []);
+var errors = {
+    routeCannotBeUndefined: 'Can not set route to undefined.',
+    valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
+    regexConverterNotValid: "The Regular-expression converter was not initialized with a valid object.",
+    invalidNumericValue: "Value was not acceptable for a numeric parameter.",
+    invalidBrowserPathExpression: "Invalid path expression.",
+    expressionOutOfBounds: "Expression out of bounds.",
+    couldNotFindStateForPath: "Could find state for path."
+}

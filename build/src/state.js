@@ -204,11 +204,11 @@ var $StateProvider = [
                                     }
                                     scrollTo = change.state.self.scrollTo;
                                     forEach(change.state.self.views, function (view, name) {
-                                        var sticky;
+                                        var sticky, fn;
                                         if(view.sticky) {
                                             sticky = view.sticky;
-                                            if(isFunction(sticky) || isArray(sticky)) {
-                                                sticky = $injector.invoke(sticky, sticky, {
+                                            if((fn = injectFn(sticky)) != null) {
+                                                sticky = fn($injector, {
                                                     $to: toState,
                                                     $from: fromState
                                                 });

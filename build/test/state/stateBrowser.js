@@ -10,7 +10,7 @@ var StateBrowser = (function () {
         var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
-                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+                throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
             }
             current = current.children[names[i]];
         }
@@ -37,7 +37,7 @@ var StateBrowser = (function () {
             });
         }
         if(selected === this.root) {
-            throw new Error("Path expression out of bounds.");
+            throw Error(errors.expressionOutOfBounds);
         }
         return selected && extend({
         }, selected.self) || undefined;
@@ -59,19 +59,19 @@ var StateBrowser = (function () {
     StateBrowser.prototype.select = function (origin, exp, selected) {
         if(exp === '.') {
             if(origin !== selected) {
-                throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+                throw Error(errors.invalidBrowserPathExpression);
             }
             return selected;
         }
         if(exp === '..') {
             if(isUndefined(selected.parent)) {
-                throw new Error("Path expression out of bounds.");
+                throw Error(errors.expressionOutOfBounds);
             }
             return selected.parent;
         }
         if(exp === '') {
             if(origin !== selected) {
-                throw new Error("Invalid path expression.");
+                throw Error(errors.invalidBrowserPathExpression);
             }
             return this.root;
         }
@@ -83,14 +83,14 @@ var StateBrowser = (function () {
                 children.push(child);
             });
             if(Math.abs(index) >= children.length) {
-                throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+                throw Error(errors.expressionOutOfBounds);
             }
             return index < 0 ? children[children.length + index] : children[index];
         }
         if(exp in selected.children) {
             return selected.children[exp];
         }
-        throw new Error("Could find state for the lookup path.");
+        throw Error(errors.couldNotFindStateForPath);
     };
     return StateBrowser;
 })();

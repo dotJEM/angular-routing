@@ -90,6 +90,7 @@
 /*jshint globalstrict:true*/
 /*global angular:false*/
 &#x27;use strict&#x27;;
+angular.module(&#x27;dotjem.routing&#x27;, []);
 var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
@@ -101,14 +102,15 @@ function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 function injectFn(arg) {
-    if(isArray(arg)) {
-        for(var i = 0; i &lt; arg.length; i++) {
-            if(i &lt; arg.length - 1 &amp;&amp; !isString(arg[i])) {
-                return null;
-            } else if(i === arg.length - 1 &amp;&amp; isFunction(arg[i])) {
-                return arg[i];
-            }
-        }
+    if(isFunction(arg)) {
+        return function (injector, locals) {
+            return injector.invoke(arg, arg, locals);
+        };
+    } else if(isArray(arg)) {
+        var fn = arg[arg.length - 1];
+        return function (injector, locals) {
+            return injector.invoke(arg, fn, locals);
+        };
     }
     return null;
 }
@@ -153,7 +155,15 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, &#x27;@&#x27;).replace(/%3A/gi, &#x27;:&#x27;).replace(/%24/g, &#x27;$&#x27;).replace(/%2C/gi, &#x27;,&#x27;).replace(/%20/g, (pctEncodeSpaces ? &#x27;%20&#x27; : &#x27;+&#x27;));
 }
-angular.module(&#x27;dotjem.routing&#x27;, []);
+var errors = {
+    routeCannotBeUndefined: &#x27;Can not set route to undefined.&#x27;,
+    valueCouldNotBeMatchedByRegex: &quot;Value could not be matched by the regular expression parameter.&quot;,
+    regexConverterNotValid: &quot;The Regular-expression converter was not initialized with a valid object.&quot;,
+    invalidNumericValue: &quot;Value was not acceptable for a numeric parameter.&quot;,
+    invalidBrowserPathExpression: &quot;Invalid path expression.&quot;,
+    expressionOutOfBounds: &quot;Expression out of bounds.&quot;,
+    couldNotFindStateForPath: &quot;Could find state for path.&quot;
+};
 
     </pre>
 </div>

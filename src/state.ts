@@ -197,11 +197,11 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
                             scrollTo = change.state.self.scrollTo;
                             forEach(change.state.self.views, (view, name) => {
-                                var sticky;
+                                var sticky, fn;
                                 if (view.sticky) {
                                     sticky = view.sticky;
-                                    if (isFunction(sticky) || isArray(sticky)) {
-                                        sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
+                                    if ((fn = injectFn(sticky)) != null) {
+                                        sticky = fn($injector, { $to: toState, $from: fromState });
                                     } else if (!isString(sticky)) {
                                         sticky = change.state.fullname;
                                     }

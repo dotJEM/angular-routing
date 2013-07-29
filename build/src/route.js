@@ -222,9 +222,6 @@ function $RouteProvider() {
             var formatter = function (val) {
                 return val.toString();
             }, converter = createParameter(param.name, param.converter, param.args).converter();
-            if(param.converter !== '') {
-                //TODO: use converter to convert param to string.
-                            }
             if(!isFunction(converter) && isDefined(converter.format)) {
                 formatter = converter.format;
             }
@@ -354,7 +351,7 @@ function $RouteProvider() {
             },
             format: function (value) {
                 if(isNaN(value)) {
-                    throw new Error("Value was not acceptable for a numeric parameter.");
+                    throw new Error(errors.invalidNumericValue);
                 }
                 return value.toString();
             }
@@ -370,7 +367,7 @@ function $RouteProvider() {
         } else if(isString(arg) && arg.length > 0) {
             exp = arg;
         } else {
-            throw new Error("The Regular-expression converter was not initialized with a valid object.");
+            throw Error(errors.regexConverterNotValid);
         }
         regex = new RegExp(exp, flags);
         return {
@@ -385,7 +382,7 @@ function $RouteProvider() {
                 var str = value.toString();
                 var test = regex.test(str);
                 if(!test) {
-                    throw new Error("Value could not be matched by the regular expression parameter.");
+                    throw Error(errors.valueCouldNotBeMatchedByRegex);
                 }
                 return str;
             }
@@ -469,6 +466,7 @@ function $RouteProvider() {
                         if(nextRoute) {
                             forEach(decorators, function (decorator, name) {
                                 dp = dp.then(function () {
+                                    //Note: must keep nextRoute as "this" context here.
                                     var decorated = $injector.invoke(decorator, nextRoute, {
                                         $next: nextRoute
                                     });

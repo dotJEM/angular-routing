@@ -5,7 +5,6 @@
 var $ScrollProvider = [
     '$anchorScrollProvider', 
     function ($anchorScrollProvider) {
-        var autoscroll = false;
         //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
         // $anchorScrollProvider.disableAutoScrolling();
         this.$get = [
@@ -15,7 +14,7 @@ var $ScrollProvider = [
             '$injector', 
             '$timeout', 
             function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
-                var document = $window.document;
+                //var document = $window.document;
                 var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
@@ -23,10 +22,18 @@ var $ScrollProvider = [
                     } else if(isString(arg)) {
                         scrollTo(arg);
                     } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo($injector.invoke(arg, fn)[0]);
+                        scrollTo(fn($injector));
                     }
                 };
                 scroll.$current = 'top';
+                function scrollTo(elm) {
+                    scroll.$current = elm;
+                    if(elm === 'top') {
+                        $window.scrollTo(0, 0);
+                        return;
+                    }
+                    $rootScope.$broadcast('$scrollPositionChanged', elm);
+                }
                 //scroll.$register = register;
                 //var elements = {};
                 //function register(name: string, elm: HTMLElement) {
@@ -35,15 +42,6 @@ var $ScrollProvider = [
                 //    }
                 //    elements[name] = elm;
                 //}
-                function scrollTo(elm) {
-                    scroll.$current = elm;
-                    if(elm === 'top') {
-                        $window.scrollTo(0, 0);
-                        return;
-                    }
-                    $rootScope.$broadcast('$scrollPositionChanged', elm);
-                    //if (elm) elm.scrollIntoView();
-                                    }
                 /****jQuery( "[attribute='value']"
                 * scrollTo: top - scroll to top, explicitly stated.
                 *           (This also enables one to override another scrollTo from a parent)

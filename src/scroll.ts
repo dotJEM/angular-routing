@@ -4,16 +4,13 @@
 
 'use strict';
 var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProvider: ng.IAnchorScrollProvider) {
-    var autoscroll: bool = false;
-
-
     //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
     // $anchorScrollProvider.disableAutoScrolling();
 
 
     this.$get = [<any>'$window', '$rootScope', '$anchorScroll', '$injector','$timeout',
         function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService, $timeout: ng.ITimeoutService) {
-            var document = $window.document;
+            //var document = $window.document;
             var scroll: any = function(arg: any) {
                 var fn;
                 if (isUndefined(arg)) {
@@ -21,22 +18,10 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
                 } else if (isString(arg)) {
                     scrollTo(arg);
                 } else if ((fn = injectFn(arg)) !== null) {
-                    scrollTo($injector.invoke(arg, fn)[0])
+                    scrollTo(fn($injector));
                 }
             }
             scroll.$current = 'top';
-            //scroll.$register = register;
-
-            //var elements = {};
-
-            //function register(name: string, elm: HTMLElement) {
-            //    if (name in elements) {
-            //        var existing = elements[name];
-
-            //    }
-
-            //    elements[name] = elm;
-            //}
 
             function scrollTo(elm: any) {
                 scroll.$current = elm;
@@ -45,8 +30,18 @@ var $ScrollProvider = [<any>'$anchorScrollProvider', function ($anchorScrollProv
                     return;
                 }
                 $rootScope.$broadcast('$scrollPositionChanged', elm);
-                //if (elm) elm.scrollIntoView();
             }
+
+            //scroll.$register = register;
+
+            //var elements = {};
+            //function register(name: string, elm: HTMLElement) {
+            //    if (name in elements) {
+            //        var existing = elements[name];
+            //    }
+            //    elements[name] = elm;
+            //}
+
             /****jQuery( "[attribute='value']" 
              * scrollTo: top - scroll to top, explicitly stated.
              *           (This also enables one to override another scrollTo from a parent)

@@ -2,6 +2,7 @@
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
+angular.module('dotjem.routing', []);
 var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
@@ -13,14 +14,15 @@ function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 function injectFn(arg) {
-    if(isArray(arg)) {
-        for(var i = 0; i < arg.length; i++) {
-            if(i < arg.length - 1 && !isString(arg[i])) {
-                return null;
-            } else if(i === arg.length - 1 && isFunction(arg[i])) {
-                return arg[i];
-            }
-        }
+    if(isFunction(arg)) {
+        return function (injector, locals) {
+            return injector.invoke(arg, arg, locals);
+        };
+    } else if(isArray(arg)) {
+        var fn = arg[arg.length - 1];
+        return function (injector, locals) {
+            return injector.invoke(arg, fn, locals);
+        };
     }
     return null;
 }
@@ -65,4 +67,12 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
-angular.module('dotjem.routing', []);
+var errors = {
+    routeCannotBeUndefined: 'Can not set route to undefined.',
+    valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
+    regexConverterNotValid: "The Regular-expression converter was not initialized with a valid object.",
+    invalidNumericValue: "Value was not acceptable for a numeric parameter.",
+    invalidBrowserPathExpression: "Invalid path expression.",
+    expressionOutOfBounds: "Expression out of bounds.",
+    couldNotFindStateForPath: "Could find state for path."
+};

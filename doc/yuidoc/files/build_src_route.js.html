@@ -310,9 +310,6 @@ function $RouteProvider() {
             var formatter = function (val) {
                 return val.toString();
             }, converter = createParameter(param.name, param.converter, param.args).converter();
-            if(param.converter !== &#x27;&#x27;) {
-                //TODO: use converter to convert param to string.
-                            }
             if(!isFunction(converter) &amp;&amp; isDefined(converter.format)) {
                 formatter = converter.format;
             }
@@ -442,7 +439,7 @@ function $RouteProvider() {
             },
             format: function (value) {
                 if(isNaN(value)) {
-                    throw new Error(&quot;Value was not acceptable for a numeric parameter.&quot;);
+                    throw new Error(errors.invalidNumericValue);
                 }
                 return value.toString();
             }
@@ -458,7 +455,7 @@ function $RouteProvider() {
         } else if(isString(arg) &amp;&amp; arg.length &gt; 0) {
             exp = arg;
         } else {
-            throw new Error(&quot;The Regular-expression converter was not initialized with a valid object.&quot;);
+            throw Error(errors.regexConverterNotValid);
         }
         regex = new RegExp(exp, flags);
         return {
@@ -473,7 +470,7 @@ function $RouteProvider() {
                 var str = value.toString();
                 var test = regex.test(str);
                 if(!test) {
-                    throw new Error(&quot;Value could not be matched by the regular expression parameter.&quot;);
+                    throw Error(errors.valueCouldNotBeMatchedByRegex);
                 }
                 return str;
             }
@@ -557,6 +554,7 @@ function $RouteProvider() {
                         if(nextRoute) {
                             forEach(decorators, function (decorator, name) {
                                 dp = dp.then(function () {
+                                    //Note: must keep nextRoute as &quot;this&quot; context here.
                                     var decorated = $injector.invoke(decorator, nextRoute, {
                                         $next: nextRoute
                                     });
