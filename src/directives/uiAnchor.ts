@@ -4,7 +4,7 @@
 
 'use strict';
 
-var uiScrollDirective = [<any>'$scroll', '$timeout',
+var uiAnchorDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {
         restrict: 'ECA',
@@ -25,13 +25,13 @@ function ($scroll, $timeout: ng.ITimeoutService) {
             function scroll(target: any) {
                 if (target === name) {
                     //Note: Delay scroll untill any digest is done.
-                    //$timeout(() => {
+                    $timeout(() => {
                         element[0].scrollIntoView();
-                    //}, 0);
+                    }, 100);
                 }
             }
         }
     };
 }];
 
-angular.module('ui.routing').directive('uiScroll', uiScrollDirective);
+angular.module('ui.routing').directive('uiAnchor', uiAnchorDirective);

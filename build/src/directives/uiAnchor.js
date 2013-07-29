@@ -2,7 +2,7 @@
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
-var uiScrollDirective = [
+var uiAnchorDirective = [
     '$scroll', 
     '$timeout', 
     function ($scroll, $timeout) {
@@ -22,12 +22,12 @@ var uiScrollDirective = [
                 function scroll(target) {
                     if(target === name) {
                         //Note: Delay scroll untill any digest is done.
-                        //$timeout(() => {
-                        element[0].scrollIntoView();
-                        //}, 0);
-                                            }
+                        $timeout(function () {
+                            element[0].scrollIntoView();
+                        }, 100);
+                    }
                 }
             }
         };
     }];
-angular.module('ui.routing').directive('uiScroll', uiScrollDirective);
+angular.module('ui.routing').directive('uiAnchor', uiAnchorDirective);
