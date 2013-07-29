@@ -1,1 +1,10 @@
-﻿})(window, document);
+﻿
+//NOTE: Expose for testing
+dotjem.State = State;
+dotjem.StateBrowser = StateBrowser;
+dotjem.StateComparer = StateComparer;
+dotjem.StateFactory = StateFactory;
+dotjem.StateRules = StateRules;
+dotjem.StateUrlBuilder = StateUrlBuilder;
+
+})(window, document, dotjem || (dotjem = {}));

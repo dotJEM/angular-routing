@@ -2,7 +2,7 @@
   "name": "angular-routing",
   "title": "AngularJS Routing",
   "description": "State-based routing and view management for AngularJS",
-  "version": "0.2.1",
+  "version": "0.3.2",
   "homepage": "",
   "author": {
     "name": "dotjem",
@@ -33,7 +33,9 @@
     "grunt-contrib-watch": "~0.3.1",
     "grunt-contrib-yuidoc": "~0.4.0",
     "grunt-karma": "~0.3.0",
-    "yuidocjs": "~0.3.40"
+    "yuidocjs": "~0.3.40",
+    "grunt-contrib-connect": "~0.3.0",
+    "grunt-contrib-copy": "~0.4.1"
   },
   "keywords": []
 }

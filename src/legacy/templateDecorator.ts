@@ -3,8 +3,8 @@
 
 'use strict';
 
-angular.module('ui.routing.legacy', ['ui.routing', 'ng'])
-    .config([<any>'$routeProvider', ($routeProvider: ui.routing.IRouteProvider) => {
+angular.module('dotjem.routing.legacy', ['dotjem.routing', 'ng'])
+    .config([<any>'$routeProvider', ($routeProvider: dotjem.routing.IRouteProvider) => {
         $routeProvider.decorate('templateDecorator',
             [<any>'$q', '$injector', '$templateCache', '$http',
                  function ($q: ng.IQService, $injector: ng.auto.IInjectorService, $templateCache: ng.ITemplateCacheService, $http: ng.IHttpService) {

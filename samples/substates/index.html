@@ -31,14 +31,14 @@
                     <li ng-class="page == 'blog' && 'active' || ''"><a href="#/blog">Blog</a></li>
                     <li ng-class="page == 'about' && 'active' || ''"><a href="#/about">About</a></li>
                 </ul>
-                <p class="navbar-text pull-right" ui-view="crumbs"></p>
+                <p class="navbar-text pull-right" jem-view="crumbs"></p>
             </div>
         </div>
     </div>
     
     <div class="container" style="margin-top: 60px;" >
         <!--<div ui-view="main" ng-animate="'wave'"></div>-->
-        <div ui-view="main" ng-animate="{enter: 'wave-enter', leave: 'wave-leave'}"></div>
+        <div jem-view="main" ng-animate="{enter: 'wave-enter', leave: 'wave-leave'}"></div>
     </div>
 
     <hr />
@@ -65,17 +65,7 @@
                 <h2>States</h2>
             </div>
             <div class="modal-body">
-<!--                <ul ui-tree="states">
-                    <li>
-                        <span class="badge badge-success">{{item.$name}}</span>
-                        
-                        <div class="well">
-                            - {{item.fullname}}
-                        </div>
-                    </li>
-                </ul>-->
                 <pre>{{statesStr}}</pre>
-
             </div>
             <div class="modal-footer">
                 <button class="btn btn-warning cancel" ng-click="close()">Close</button>

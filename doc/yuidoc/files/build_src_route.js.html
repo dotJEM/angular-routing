@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.2.1</em>
+            <em>API Docs for: 0.3.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -91,7 +91,7 @@
 /// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
 &#x27;use strict&#x27;;
 /**
-* Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+* Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 *
 * @class $RouteProvider
 * @constructor
@@ -119,7 +119,7 @@ function $RouteProvider() {
     * @return {Object} self
     *
     * @param {string} name Cerverter name, used in the path when registering routes through the
-    *   {@link ui.routing.routeProvider#when when} function.
+    *   {@link dotjem.routing.routeProvider#when when} function.
     */
     this.convert = function (name, converter) {
         //Note: We wan&#x27;t to allow overwrite
@@ -144,7 +144,7 @@ function $RouteProvider() {
     *    would only match a parameter starting with one or two digits followed by a number of
     *    characters between &#x27;a&#x27; and &#x27;z&#x27;.
     *
-    *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+    *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
     *    function.
     *
     * @param {Object} route Mapping information to be assigned to &#x60;$route.current&#x60; on route
@@ -155,7 +155,7 @@ function $RouteProvider() {
     *    - &#x60;state&#x60; � &#x60;{string}&#x60; � a state that should be activated when the route is matched.
     *    - &#x60;action&#x60; � &#x60;{(string|function()=}&#x60; � an action that should be performed when the route is matched.
     *
-    *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}
+    *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy}
     *    module.
     *
     *    - &#x60;controller&#x60; � &#x60;{(string|function()=}&#x60; � Controller fn that should be associated with newly
@@ -304,12 +304,19 @@ function $RouteProvider() {
         };
     }
     function interpolate(url, params) {
-        var result = [], name = &quot;&quot;, index = 0;
+        //TODO: Are we missing calls to some &quot;Encode URI component&quot;?
+                var result = [], name = &quot;&quot;, index = 0;
         forEach(parseParams(url), function (param, idx) {
+            var formatter = function (val) {
+                return val.toString();
+            }, converter = createParameter(param.name, param.converter, param.args).converter();
             if(param.converter !== &#x27;&#x27;) {
                 //TODO: use converter to convert param to string.
                             }
-            name += url.slice(index, param.index) + &#x27;/&#x27; + params[param.name].toString();
+            if(!isFunction(converter) &amp;&amp; isDefined(converter.format)) {
+                formatter = converter.format;
+            }
+            name += url.slice(index, param.index) + &#x27;/&#x27; + formatter(params[param.name]);
             index = param.lastIndex;
             delete params[param.name];
         });
@@ -396,10 +403,14 @@ function $RouteProvider() {
             if(match) {
                 invalidParam = false;
                 forEach(expression.segments, function (segment, index) {
-                    var param, value;
+                    var param, value, converter;
                     if(!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter()(param);
+                        converter = segment.converter();
+                        if(!isFunction(converter) &amp;&amp; isDefined(converter.parse)) {
+                            converter = converter.parse;
+                        }
+                        value = converter(param);
                         if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
@@ -421,12 +432,20 @@ function $RouteProvider() {
     }
     //Registration of Default Converters
     this.convert(&#x27;num&#x27;, function () {
-        return function (param) {
-            var accepts = !isNaN(param);
-            return {
-                accept: accepts,
-                value: accepts ? Number(param) : 0
-            };
+        return {
+            parse: function (param) {
+                var accepts = !isNaN(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? Number(param) : 0
+                };
+            },
+            format: function (value) {
+                if(isNaN(value)) {
+                    throw new Error(&quot;Value was not acceptable for a numeric parameter.&quot;);
+                }
+                return value.toString();
+            }
         };
     });
     this.convert(&#x27;regex&#x27;, function (arg) {
@@ -442,12 +461,22 @@ function $RouteProvider() {
             throw new Error(&quot;The Regular-expression converter was not initialized with a valid object.&quot;);
         }
         regex = new RegExp(exp, flags);
-        return function (param) {
-            var accepts = regex.test(param);
-            return {
-                accept: accepts,
-                value: accepts ? regex.exec(param) : null
-            };
+        return {
+            parse: function (param) {
+                var accepts = regex.test(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? regex.exec(param) : null
+                };
+            },
+            format: function (value) {
+                var str = value.toString();
+                var test = regex.test(str);
+                if(!test) {
+                    throw new Error(&quot;Value could not be matched by the regular expression parameter.&quot;);
+                }
+                return str;
+            }
         };
     });
     this.convert(&#x27;&#x27;, function () {
@@ -476,6 +505,11 @@ function $RouteProvider() {
                     if(args.replace) {
                         loc.replace();
                     }
+                },
+                format: function (route, params) {
+                    var params = params || {
+                    };
+                    return interpolate(route, params) + toKeyValue(params);
                 }
             };
             $rootScope.$on(&#x27;$locationChangeSuccess&#x27;, update);
@@ -506,6 +540,8 @@ function $RouteProvider() {
                 var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
                 if(!forceReload &amp;&amp; nextRoute &amp;&amp; lastRoute &amp;&amp; angular.equals(nextRoute.pathParams, lastRoute.pathParams) &amp;&amp; !nextRoute.reloadOnSearch) {
                     lastRoute.params = next.params;
+                    lastRoute.searchParams = next.searchParams;
+                    lastRoute.pathParams = next.pathParams;
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast(&#x27;$routeUpdate&#x27;, lastRoute);
                 } else if(next || lastRoute) {
@@ -549,7 +585,7 @@ function $RouteProvider() {
             }
         }    ];
 }
-angular.module(&#x27;ui.routing&#x27;).provider(&#x27;$route&#x27;, $RouteProvider).value(&#x27;$routeParams&#x27;, {
+angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$route&#x27;, $RouteProvider).value(&#x27;$routeParams&#x27;, {
 });
 
     </pre>

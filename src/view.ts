@@ -7,7 +7,7 @@
 function $ViewProvider() {
 
     this.$get = [<any>'$rootScope', '$q', '$template',
-    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: ui.routing.ITemplateService) {
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: dotjem.routing.ITemplateService) {
 
         var views = {},
             transaction = null;
@@ -17,12 +17,6 @@ function $ViewProvider() {
                 throw new Error('Must define a view name.');
             }
         };
-
-        //function ensureExists(name: string) {
-        //    if (!(name in views)) {
-        //        throw new Error('View with name "' + name + '" was not present.');
-        //    }
-        //};
 
         function raiseUpdated(name: string) {
             $rootScope.$broadcast('$viewUpdate', name);
@@ -56,33 +50,46 @@ function $ViewProvider() {
                 raiseUpdated(name);
             }
         };
+        function isArgs(args) {
+            return isObject(args)
+                && (isDefined(args.template)
+                    || isDefined(args.controller)
+                    || isDefined(args.locals)
+                    || isDefined(args.sticky));
+        }
 
-        this.setOrUpdate = function (name: string, template?: any, controller?: any, sticky?: string) {
+        //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+        this.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
+            var template = templateOrArgs;
+            if (isArgs(templateOrArgs)) {
+                template = templateOrArgs.template;
+                controller = templateOrArgs.controller;
+                locals = templateOrArgs.locals;
+                sticky = templateOrArgs.sticky;
+            }
+
             ensureName(name);
 
             if (transaction) {
                 transaction.records[name] = {
                     act: 'setOrUpdate',
                     fn: () => {
-                        this.setOrUpdate(name, template, controller, sticky);
+                        this.setOrUpdate(name, template, controller, locals, sticky);
                     }
                 };
                 return;
             }
 
-            if (containsView(views, name)) {
-                //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
-                views[name].template = $template.get(template);
-                views[name].controller = controller;
-            } else {
-                views[name] = {
-                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
-                    template: $template.get(template),
-                    controller: controller,
-                    version: -1
-                };
+            if (!containsView(views, name)) {
+                views[name] = { version: -1 };
             }
+            
+            //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
+            views[name].template = $template.get(template);
+            views[name].controller = controller;
+            views[name].locals = locals;
 
+            
             if (isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                 raiseRefresh(name, { sticky: true });
             } else {
@@ -92,8 +99,15 @@ function $ViewProvider() {
                 raiseUpdated(name);
             }
         };
+        //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+        this.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
+            var template = templateOrArgs;
+            if (isArgs(templateOrArgs)) {
+                template = templateOrArgs.template;
+                controller = templateOrArgs.controller;
+                locals = templateOrArgs.locals;
+            }
 
-        this.setIfAbsent = function (name: string, template?: any, controller?: any) {
             ensureName(name);
 
             if (transaction) {
@@ -101,7 +115,7 @@ function $ViewProvider() {
                     transaction.records[name] = {
                         act: 'setIfAbsent',
                         fn: () => {
-                            this.setIfAbsent(name, template, controller);
+                            this.setIfAbsent(name, template, controller, locals);
                         }
                     };
                 }
@@ -113,6 +127,7 @@ function $ViewProvider() {
                     //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
                     template: $template.get(template),
                     controller: controller,
+                    locals: locals,
                     version: 0
                 };
                 raiseUpdated(name);
@@ -158,6 +173,7 @@ function $ViewProvider() {
                 commit: function () {
                     transaction = null;
                     forEach(trx.records, (rec) => { rec.fn(); })
+
                 },
                 cancel: function () {
                     transaction = null;
@@ -168,5 +184,5 @@ function $ViewProvider() {
         return this;
     }];
 }
-angular.module('ui.routing').provider('$view', $ViewProvider);
+angular.module('dotjem.routing').provider('$view', $ViewProvider);
 

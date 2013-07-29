@@ -2,16 +2,30 @@
     "project": {
         "name": "angular-routing",
         "description": "State-based routing and view management for AngularJS",
-        "version": "0.2.1",
+        "version": "0.3.2",
         "url": ""
     },
     "files": {
+        "build\\src\\common.js": {
+            "name": "build\\src\\common.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
         "build\\src\\route.js": {
             "name": "build\\src\\route.js",
             "modules": {},
             "classes": {
                 "$RouteProvider": 1
             },
+            "fors": {},
+            "namespaces": {}
+        },
+        "build\\src\\scroll.js": {
+            "name": "build\\src\\scroll.js",
+            "modules": {},
+            "classes": {},
             "fors": {},
             "namespaces": {}
         }
@@ -28,11 +42,23 @@
             "extension_for": [],
             "file": "build\\src\\route.js",
             "line": 5,
-            "description": "Used for configuring routes. See {@link ui.routing.$route $route} for an example.",
+            "description": "Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.",
             "is_constructor": 1
         }
     },
     "classitems": [
+        {
+            "file": "build\\src\\common.js",
+            "line": 36,
+            "description": "We need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "class": "$RouteProvider"
+        },
+        {
+            "file": "build\\src\\common.js",
+            "line": 52,
+            "description": "This method is intended for encoding *key* or *value* parts of query component. We need a custom\nmethod because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be\nencoded per http://tools.ietf.org/html/rfc3986:\n   query       = *( pchar / \"/\" / \"?\" )\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "class": "$RouteProvider"
+        },
         {
             "file": "build\\src\\route.js",
             "line": 18,
@@ -46,7 +72,7 @@
             "params": [
                 {
                     "name": "name",
-                    "description": "Cerverter name, used in the path when registering routes through the\n  {@link ui.routing.routeProvider#when when} function.",
+                    "description": "Cerverter name, used in the path when registering routes through the\n  {@link dotjem.routing.routeProvider#when when} function.",
                     "type": "String"
                 }
             ],
@@ -65,12 +91,12 @@
             "params": [
                 {
                     "name": "path",
-                    "description": "Route path (matched against `$location.path`). If `$location.path`\n   contains redundant trailing slash or is missing one, the route will still match.\n\n   `path` can contain named groups starting with a colon (`:name`) or curly brackets (`{name}`).\n   All characters up to the next slash are matched and stored in `$routeParams` under the\n   given `name` when the route matches.\n\n   Further, when using the curly bracket syntax, converters can be used to match only specific\n   values, (`{num:name}`) will only match numerical values and (`{regex(\\d{1,2}[a-z]+):name}`)\n   would only match a parameter starting with one or two digits followed by a number of\n   characters between 'a' and 'z'.\n\n   More converters can be registered using the {@link ui.routing.routeProvider#convert convert}\n   function.",
+                    "description": "Route path (matched against `$location.path`). If `$location.path`\n   contains redundant trailing slash or is missing one, the route will still match.\n\n   `path` can contain named groups starting with a colon (`:name`) or curly brackets (`{name}`).\n   All characters up to the next slash are matched and stored in `$routeParams` under the\n   given `name` when the route matches.\n\n   Further, when using the curly bracket syntax, converters can be used to match only specific\n   values, (`{num:name}`) will only match numerical values and (`{regex(\\d{1,2}[a-z]+):name}`)\n   would only match a parameter starting with one or two digits followed by a number of\n   characters between 'a' and 'z'.\n\n   More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}\n   function.",
                     "type": "String"
                 },
                 {
                     "name": "route",
-                    "description": "Mapping information to be assigned to `$route.current` on route\n   match.\n\n   Object properties:\n\n   - `state` � `{string}` � a state that should be activated when the route is matched.\n   - `action` � `{(string|function()=}` � an action that should be performed when the route is matched.\n\n   Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}\n   module.\n\n   - `controller` � `{(string|function()=}` � Controller fn that should be associated with newly\n     created scope or the name of a {@link angular.Module#controller registered controller}\n     if passed as a string.\n   - `template` � `{string=|function()=}` � html template as a string or function that returns\n     an html template as a string which should be used by {@link ng.directive:ngView ngView} or\n     {@link ng.directive:ngInclude ngInclude} directives.\n     This property takes precedence over `templateUrl`.\n\n     If `template` is a function, it will be called with the following parameters:\n\n     - `{Array.<Object>}` - route parameters extracted from the current\n       `$location.path()` by applying the current route\n\n   - `templateUrl` � `{string=|function()=}` � path or function that returns a path to an html\n     template that should be used by {@link ng.directive:ngView ngView}.\n\n     If `templateUrl` is a function, it will be called with the following parameters:\n\n     - `{Array.<Object>}` - route parameters extracted from the current\n       `$location.path()` by applying the current route\n\n   - `resolve` - `{Object.<string, function>=}` - An optional map of dependencies which should\n     be injected into the controller. If any of these dependencies are promises, they will be\n     resolved and converted to a value before the controller is instantiated and the\n     `$routeChangeSuccess` event is fired. The map object is:\n\n     - `key` � `{string}`: a name of a dependency to be injected into the controller.\n     - `factory` - `{string|function}`: If `string` then it is an alias for a service.\n       Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}\n       and the return value is treated as the dependency. If the result is a promise, it is resolved\n       before its value is injected into the controller.\n\n   - `redirectTo` � {(string|function())=} � value to update\n     {@link ng.$location $location} path with and trigger route redirection.\n\n     If `redirectTo` is a function, it will be called with the following parameters:\n\n     - `{Object.<string>}` - route parameters extracted from the current\n       `$location.path()` by applying the current route templateUrl.\n     - `{string}` - current `$location.path()`\n     - `{Object}` - current `$location.search()`\n\n     The custom `redirectTo` function is expected to return a string which will be used\n     to update `$location.path()` and `$location.search()`.\n\n   - `[reloadOnSearch=true]` - {boolean=} - reload route when only $location.search()\n   changes.\n\n     If the option is set to `false` and url in the browser changes, then\n     `$routeUpdate` event is broadcasted on the root scope.",
+                    "description": "Mapping information to be assigned to `$route.current` on route\n   match.\n\n   Object properties:\n\n   - `state` � `{string}` � a state that should be activated when the route is matched.\n   - `action` � `{(string|function()=}` � an action that should be performed when the route is matched.\n\n   Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy}\n   module.\n\n   - `controller` � `{(string|function()=}` � Controller fn that should be associated with newly\n     created scope or the name of a {@link angular.Module#controller registered controller}\n     if passed as a string.\n   - `template` � `{string=|function()=}` � html template as a string or function that returns\n     an html template as a string which should be used by {@link ng.directive:ngView ngView} or\n     {@link ng.directive:ngInclude ngInclude} directives.\n     This property takes precedence over `templateUrl`.\n\n     If `template` is a function, it will be called with the following parameters:\n\n     - `{Array.<Object>}` - route parameters extracted from the current\n       `$location.path()` by applying the current route\n\n   - `templateUrl` � `{string=|function()=}` � path or function that returns a path to an html\n     template that should be used by {@link ng.directive:ngView ngView}.\n\n     If `templateUrl` is a function, it will be called with the following parameters:\n\n     - `{Array.<Object>}` - route parameters extracted from the current\n       `$location.path()` by applying the current route\n\n   - `resolve` - `{Object.<string, function>=}` - An optional map of dependencies which should\n     be injected into the controller. If any of these dependencies are promises, they will be\n     resolved and converted to a value before the controller is instantiated and the\n     `$routeChangeSuccess` event is fired. The map object is:\n\n     - `key` � `{string}`: a name of a dependency to be injected into the controller.\n     - `factory` - `{string|function}`: If `string` then it is an alias for a service.\n       Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}\n       and the return value is treated as the dependency. If the result is a promise, it is resolved\n       before its value is injected into the controller.\n\n   - `redirectTo` � {(string|function())=} � value to update\n     {@link ng.$location $location} path with and trigger route redirection.\n\n     If `redirectTo` is a function, it will be called with the following parameters:\n\n     - `{Object.<string>}` - route parameters extracted from the current\n       `$location.path()` by applying the current route templateUrl.\n     - `{string}` - current `$location.path()`\n     - `{Object}` - current `$location.search()`\n\n     The custom `redirectTo` function is expected to return a string which will be used\n     to update `$location.path()` and `$location.search()`.\n\n   - `[reloadOnSearch=true]` - {boolean=} - reload route when only $location.search()\n   changes.\n\n     If the option is set to `false` and url in the browser changes, then\n     `$routeUpdate` event is broadcasted on the root scope.",
                     "type": "Object"
                 }
             ],
@@ -94,12 +120,30 @@
                 }
             ],
             "class": "$RouteProvider"
+        },
+        {
+            "file": "build\\src\\scroll.js",
+            "line": 47,
+            "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
+            "class": ""
         }
     ],
     "warnings": [
         {
             "message": "replacing incorrect tag: returns with return",
             "line": " build\\src\\route.js:41"
+        },
+        {
+            "message": "Missing item type\nWe need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "line": " build\\src\\common.js:36"
+        },
+        {
+            "message": "Missing item type\nThis method is intended for encoding *key* or *value* parts of query component. We need a custom\nmethod because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be\nencoded per http://tools.ietf.org/html/rfc3986:\n   query       = *( pchar / \"/\" / \"?\" )\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
+            "line": " build\\src\\common.js:52"
+        },
+        {
+            "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
+            "line": " build\\src\\scroll.js:47"
         }
     ]
 }

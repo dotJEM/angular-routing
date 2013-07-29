@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
 
-# NOTE: Pre-release version 0.2.1 
+# NOTE: Pre-release version 0.3.2 
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
 to provide what I belive is more "true states" where the transitions could be
@@ -12,6 +12,28 @@ The UI-Route project can be found here: https://github.com/angular-ui/ui-router
 
 One important note is that this is developed using TypeScript, yet following the
 basic style of how Angular modules, services and directives is written
+
+## UI Router Comparison
+
+Some of these are probably more subjevtive that objective, but I will try to be fair to UI Router.
+
+#### Advantages
+
+* Seperation of Application State and View State
+* Full support for transition control between state, not just enter/exit or a global state changed handler
+* A Simpler view model that still adds more flexibility through the view service
+* Support for a XPath like lookup of states based on current state or root state.
+* Parameter converters, UI Router has support for regex parameters but it seems more limited
+
+#### Disadvantages
+
+* No un-nanmed views
+* No abstract states
+* No ui-sref directive (planned on some form at least)
+** For now, you should be able to bind the url method of $state to the scope and use that in an "a" tag.
+* No support for route matching through functions
+* Less used
+* Bigger footprint
 
 ## Main goal
 
@@ -66,6 +88,10 @@ or modify what happens during a transition.
 
 `$view` manages the current state of all views and will support different update schemes.
 
+#### Requires
+
+* AngularJS 1.1.4 or above
+
 #### Samples
 
 Some initial samples can be found at:
@@ -73,3 +99,12 @@ Some initial samples can be found at:
  - http://dotjem.github.com/angular-routing/samples/
 
 These are currently "work in progress", but can already demonstrate some of the core concepts.
+
+## Reporting Issues
+
+When encountering issues and posting them under issues here on github, if possible, it will be much apreciated
+if an example is to follow, it would be especially usefull if the issue was recreated using either
+http://plnkr.co/ or http://jsfiddle.net/.
+
+Othherwise, try to capture as much detail as possible, there more that is known about the issue and context
+the easier it is to help.

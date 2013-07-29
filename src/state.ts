@@ -2,131 +2,34 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
-interface IStateWrapper {
-    children: any;
-    self: ui.routing.IState;
-    fullname: string;
-
-    parent?: IStateWrapper;
-    route?: any;
-}
+/// <reference path="state/state.ts" />
+/// <reference path="state/stateFactory.ts" />
+/// <reference path="state/stateRules.ts" />
+/// <reference path="state/stateComparer.ts" />
+/// <reference path="state/stateBrowser.ts" />
+/// <reference path="state/stateUrlBuilder.ts" />
 
 'use strict';
-var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
-    var root: IStateWrapper = { fullname: 'root', children: {}, self: { $fullname: 'root' } },
-        nameValidation = /^\w+(\.\w+)*?$/;
+var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: dotjem.routing.IRouteProvider, $transitionProvider) {
+    //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
+    //      it would make testing of them individually easier, although it would make them more public than
+    //      they are right now.
+    var factory = new StateFactory($routeProvider, $transitionProvider),
+        root = factory.createState('root', {}),
+        browser = new StateBrowser(root),
+        comparer = new StateComparer();
 
-    function validateName(name: string) {
-        if (nameValidation.test(name))
-            return;
+    this.state = function (fullname: string, state: dotjem.routing.IState) {
+        StateRules.validateName(fullname);
 
-        throw new Error("Invalid name: '" + name + "'.");
-    }
-
-    function createRoute(stateRoute: string, parrentRoute: string, stateName: string, reloadOnSearch: bool) {
-        var route;
-
-        if (!isDefined(reloadOnSearch)) {
-            reloadOnSearch = true;
-        }
-
-        route = (parrentRoute || '');
-        if (route !== '' && route[route.length - 1] === '/') {
-            route = route.substr(0, route.length - 1);
-        }
-
-        if (stateRoute[0] !== '/' && stateRoute !== '')
-            route += '/';
-        route += stateRoute;
-
-        return $routeProvider.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
-    }
-
-    function lookupRoute(parent) {
-        while (isDefined(parent) && !isDefined(parent.route))
-            parent = parent.parent;
-        return (parent && parent.route.route) || '';
-    }
-
-    function registerState(name, at: IStateWrapper, state: ui.routing.IState) {
-        var fullname = at.fullname + '.' + name,
-            parent = at;
-
-        if (!isDefined(at.children)) {
-            at.children = {};
-        }
-
-        if (!(name in at.children)) {
-            at.children[name] = {};
-        }
-        at = at.children[name];
-        at.self = extend({}, state, { $fullname: fullname });
-        at.fullname = fullname;
-        at.parent = parent;
-
-        if (isDefined(state.route)) {
-            at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
-        }
-
-        if (isDefined(state.onEnter)) {
-            $transitionProvider.onEnter(fullname, state.onEnter);
-        }
-
-        if (isDefined(state.onExit)) {
-            $transitionProvider.onExit(fullname, state.onExit);
-        }
-
-        if (state.children === null) {
-            at.children = {};
-        } else {
-            forEach(state.children, (childState, childName) => {
-                registerState(childName, at, childState);
-            });
-        }
-    }
-
-    function lookup(names: string[]) {
-        var current = root,
-            //If name contains root explicitly, skip that one
-            i = names[0] === 'root' ? 1 : 0;
-
-        for (; i < names.length; i++) {
-            if (!(names[i] in current.children))
-                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
-
-            current = current.children[names[i]];
-        }
-        return current;
-    }
-
-    function lookupState(name: string): any {
-        return lookup(name.split('.'));;
-    }
-
-    function lookupParent(name: string) {
-        var names: string[] = name.split('.'),
-            name: string = names.pop();
-        return { at: lookup(names), name: name };
-    }
-
-    this.state = function (name: string, state: ui.routing.IState) {
-        var pair;
-        validateName(name);
-
-        pair = lookupParent(name);
-        registerState(pair.name, pair.at, state);
+        var parent = browser.lookup(fullname, 1);
+        parent.add(factory.createState(fullname, state, parent));
         return this;
     };
 
-    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location',
-    function (
-        $rootScope: ng.IRootScopeService,
-        $q: ng.IQService,
-        $injector: ng.auto.IInjectorService,
-        $route: ui.routing.IRouteService,
-        $view: ui.routing.IViewService,
-        $transition: ui.routing.ITransitionService,
-        $location: ng.ILocationService) {
+    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: dotjem.routing.IRouteService, $view: dotjem.routing.IViewService, $transition: dotjem.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
+        var urlbuilder = new StateUrlBuilder($route);
 
         var forceReload = null,
             current = root,
@@ -136,13 +39,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 root: root,
                 current: extend({}, root.self),
                 goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
-                lookup: lookup,
-                reload: reload
+                lookup: (path) => browser.resolve(current, path),
+                reload: reload,
+                url: (state?, params?) => {
+                    state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                    return urlbuilder.buildUrl($state.current, state, params);
+                }
             };
 
         $rootScope.$on('$routeChangeSuccess', function () {
             var route = $route.current,
                 params;
+
             if (route) {
                 params = {
                     all: route.params,
@@ -158,100 +66,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
         });
         $rootScope.$on('$routeUpdate', () => {
-            //TODO: Broadcast StateUpdate?
-            var route = $route.current,
-                params;
-            if (route) {
-
-                //TODO: Refresh current state object with new parameters and raise event.
-            } else {
-                //uhm o.O...
-            }
+            var route = $route.current;
+            raiseUpdate(route.params, route.pathParams, route.searchParams);
         });
         return $state;
-
-        function lookup(path) {
-            var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'),
-                selected = current,
-                sections: string[];
-
-            if (match) {
-                selected = selectSibling(Number(match[1]), selected);
-            } else {
-                sections = path.split('/');
-                forEach(sections, (sec) => {
-                    selected = select(sec, selected);
-                });
-            }
-
-            if (selected === root)
-                throw new Error("Path expression out of bounds.");
-
-            return selected && extend({}, selected.self) || undefined;
-        };
-
-        function selectSibling(index: number, selected: IStateWrapper): IStateWrapper {
-            var children = [],
-                currentIndex;
-
-            forEach(selected.parent.children, (child) => {
-                children.push(child);
-
-                if (selected.fullname === child.fullname)
-                    currentIndex = children.length - 1;
-            });
-
-            while (index < 0)
-                index += children.length
-
-            index = (currentIndex + index) % children.length;
-            return children[index];
-        }
-
-        function select(exp: string, selected: IStateWrapper): IStateWrapper {
-            if (exp === '.') {
-                if (current !== selected)
-                    throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
-
-                return selected;
-            }
-
-            if (exp === '..') {
-                if (isUndefined(selected.parent))
-                    throw new Error("Path expression out of bounds.");
-
-                return selected.parent;
-            }
-
-            if (exp === '') {
-                if (current !== selected)
-                    throw new Error("Invalid path expression.");
-
-                return root;
-            }
-
-            var match = exp.match('^\\[(-?\\d+)\\]$');
-            if (match) {
-                var index = Number(match[1]),
-                    children = [];
-
-                forEach(selected.children, (child) => {
-                    children.push(child);
-                });
-
-                if (Math.abs(index) >= children.length) {
-                    throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount")
-                }
-
-                return index < 0 ? children[children.length + index] : children[index];
-            }
-
-            if (exp in selected.children) {
-                return selected.children[exp];
-            }
-
-            throw new Error("Could find state for the lookup path.");
-        }
 
         function reload(state?) {
             if (isDefined(state)) {
@@ -273,73 +91,34 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             });
         }
 
-        function buildStateArray(state, params) {
-            function extractParams() {
-                var paramsObj = {};
-                if (current.route) {
-                    forEach(current.route.params, (param, name) => {
-                        paramsObj[name] = params[name];
-                    });
-                }
-                return paramsObj;
-            }
-
-            var states = [],
-                current = state;
-            do {
-                states.push({ state: current, params: extractParams() });
-            } while (current = current.parent)
-            return states;
+        function raiseUpdate(all, path, search) {
+            var dst = $state.current.$params;
+            dst.all = all;
+            dst.path = path;
+            dst.search = search;
+            $rootScope.$broadcast('$stateUpdate', $state.current);
         }
 
-        function buildChangeArray(from, to, fromParams, toParams) {
-            var fromArray = buildStateArray(from, fromParams || {}),
-                toArray = buildStateArray(to, toParams),
-                count = Math.max(fromArray.length, toArray.length),
-                fromAtIndex,
-                toAtIndex;
-
-            for (var i = 0; i < count; i++) {
-                fromAtIndex = fromArray[fromArray.length - i - 1];
-                toAtIndex = toArray[toArray.length - i - 1];
-
-                if (isUndefined(fromAtIndex)) {
-                    toAtIndex.changed = true;
-                } else if (isUndefined(toAtIndex)) {
-                    toArray[0].changed = true;
-                    // We wen't up the hierachy. for now make the parent dirty.
-                    // however, this reloads the main view... 
-                } else if (forceReload && forceReload == toAtIndex.state.fullname) {
-                    toAtIndex.changed = true;
-                } else if (toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
-                    toAtIndex.changed = true;
-                } else if (!equals(toAtIndex.params, fromAtIndex.params)) {
-                    toAtIndex.changed = true;
-                } else {
-                    toAtIndex.changed = false;
-                }
-            }
-            return toArray.reverse();
-        }
-        
         function goto(args: { state; params?; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
             var params = args.params,
                 route = args.route,
-                to = lookupState(toName(args.state)),
+                to = browser.lookup(toName(args.state)),// lookupState(toName(args.state)),
                 toState = extend({}, to.self, { $params: params, $route: route }),
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
                 cancel = false,
                 transaction,
-                changed = buildChangeArray(
-                    lookupState(toName($state.current)),
+                scrollTo,
+                changed = comparer.compare(
+                    browser.lookup(toName($state.current)),
                     to,
                     fromState.$params && fromState.$params.all,
-                    params && params.all || {}),
+                    params && params.all || {},
+                    forceReload),
 
                 transition = {
                     cancel: function () {
@@ -347,16 +126,25 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     },
                     goto: (state, params?) => {
                         cancel = true;
-                        goto({ state: state, params: { all: params } });
+                        goto({ state: state, params: { all: params }, updateroute: true });
                     }
                 };
-            
+
+            if (!forceReload && !changed.stateChanges) {
+                if (changed.paramChanges) {
+                    raiseUpdate(params.all || {}, params.path || {}, params.search || {})
+                }
+                return;
+            }
+
+            forceReload = null;
+
             if (args.updateroute && to.route) {
                 //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                 //      maybe we can refactor those together
                 var paramsObj = {}, allFrom = (fromState.$params && fromState.$params.all) || {};
                 forEach(to.route.params, (param, name) => {
-                    if(name in allFrom) paramsObj[name] = allFrom[name];
+                    if (name in allFrom) paramsObj[name] = allFrom[name];
                 });
 
                 var mergedParams = extend(paramsObj, (params && params.all))
@@ -374,48 +162,76 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
                 $q.when(toState).then(() => {
-                    var useUpdate = false;
+                    var useUpdate = false,
+                        locals = {},
+                        promises = [];
 
                     transaction = $view.beginUpdate();
                     $view.clear();
 
-                    forEach(changed, (change, index) => {
-                        if (change.changed)
-                            useUpdate = true;
-                        forEach(change.state.self.views, (view, name) => {
-                            var sticky;
-                            if (view.sticky) {
-                                sticky = view.sticky;
-                                if (isFunction(sticky) || isArray(sticky)) {
-                                    sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
-                                } else if (!isString(sticky)) {
-                                    sticky = change.state.fullname;
-                                }
-                            }
-
-                            if (useUpdate || isDefined(sticky)) {
-                                $view.setOrUpdate(name, view.template, view.controller, sticky);
-                            } else {
-                                $view.setIfAbsent(name, view.template, view.controller);
-                            }
+                    function resolve(args) {
+                        var values = [],
+                            keys = [];
+                        angular.forEach(args || {}, function (value, key) {
+                            keys.push(key);
+                            values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
                         });
-                    });
 
-                    emit.between(transition);
-
-                    if (cancel) {
-                        transaction.cancel();
-                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                        //      That is if this was even triggered by an URL change in teh first place.
-                        return;
+                        var def = $q.defer();
+                        $q.all(values).then(function (values) {
+                            angular.forEach(values, function (value, index) {
+                                locals[keys[index]] = value;
+                            });
+                            def.resolve(locals);
+                        });
+                        return def.promise;
                     }
 
-                    current = to;
-                    currentParams = params;
-                    $state.current = toState;
+                    var promise = $q.when(0);
+                    forEach(changed.array, (change, index) => {
+                        promise = promise.then(function () {
+                            return resolve(change.state.self.resolve);
+                        }).then(function (locals) {
+                            if (change.isChanged)
+                                useUpdate = true;
 
-                    transaction.commit();
-                    $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                            scrollTo = change.state.self.scrollTo;
+                            forEach(change.state.self.views, (view, name) => {
+                                var sticky;
+                                if (view.sticky) {
+                                    sticky = view.sticky;
+                                    if (isFunction(sticky) || isArray(sticky)) {
+                                        sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
+                                    } else if (!isString(sticky)) {
+                                        sticky = change.state.fullname;
+                                    }
+                                }
+
+                                if (useUpdate || isDefined(sticky)) {
+                                    $view.setOrUpdate(name, view.template, view.controller, copy(locals), sticky);
+                                } else {
+                                    $view.setIfAbsent(name, view.template, view.controller, copy(locals));
+                                }
+                            });
+                        });
+                    });
+                    return promise.then(function () => {
+                        emit.between(transition);
+
+                        if (cancel) {
+                            transaction.cancel();
+                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                            //      That is if this was even triggered by an URL change in teh first place.
+                            return;
+                        }
+
+                        current = to;
+                        currentParams = params;
+                        $state.current = toState;
+
+                        transaction.commit();
+                        $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                    })
                 }, (error) => {
                     transaction.cancel();
                     $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
@@ -425,6 +241,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             throw Error("Can't cancel transition in after handler");
                         };
                         emit.after(transition);
+
+
+                        $scroll(scrollTo);
                     }
                     //Note: nothing to do here.
                 });
@@ -432,4 +251,4 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         }
     }];
 }];
-angular.module('ui.routing').provider('$state', $StateProvider);
+angular.module('dotjem.routing').provider('$state', $StateProvider);

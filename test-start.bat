@@ -1,2 +1,2 @@
 cd %~dp0
-karma start test-dev-config.js
+karma start test-dev-jqlite-config.js

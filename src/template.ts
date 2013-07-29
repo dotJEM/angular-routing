@@ -51,4 +51,4 @@ function $TemplateProvider() {
         return this;
     }];
 }
-angular.module('ui.routing').provider('$template', $TemplateProvider);
+angular.module('dotjem.routing').provider('$template', $TemplateProvider);

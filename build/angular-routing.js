@@ -5,7 +5,8 @@
  *
  * @module angular-routing
  */
-(function(window, document, undefined) {
+var dotjem;
+(function(window, document, dotjem, undefined) {
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /*jshint globalstrict:true*/
 /*global angular:false*/
@@ -20,31 +21,67 @@ function inherit(parent, extra) {
 function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
-//var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
-//function parseParams(path: string): IParam[]{
-//    var match: RegExpExecArray,
-//        params = [];
-//    if (path === null)
-//        return params;
-//    while ((match = paramsRegex.exec(path)) !== null) {
-//        params.push({
-//            name: match[3] || match[9],
-//            converter: match[6] || '',
-//            args: match[8],
-//            index: match.index,
-//            lastIndex: paramsRegex.lastIndex
-//        });
-//    }
-//    return params;
-//}
-angular.module('ui.routing', []);
+function injectFn(arg) {
+    if(isArray(arg)) {
+        for(var i = 0; i < arg.length; i++) {
+            if(i < arg.length - 1 && !isString(arg[i])) {
+                return null;
+            } else if(i === arg.length - 1 && isFunction(arg[i])) {
+                return arg[i];
+            }
+        }
+    }
+    return null;
+}
+//TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
+//      a function of thie angular object.
+function toKeyValue(obj) {
+    var parts = [];
+    forEach(obj, function (value, key) {
+        parts.push(encodeUriQuery(key, true) + (value === true ? '' : '=' + encodeUriQuery(value, true)));
+    });
+    return parts.length ? parts.join('&') : '';
+}
+/**
+* We need our custom method because encodeURIComponent is too aggressive and doesn't follow
+* http://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path
+* segments:
+*    segment       = *pchar
+*    pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+*    pct-encoded   = "%" HEXDIG HEXDIG
+*    unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+*    sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+*                     / "*" / "+" / "," / ";" / "="
+*/
+//TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
+//      a function of thie angular object.
+function encodeUriSegment(val) {
+    return encodeUriQuery(val, true).replace(/%26/gi, '&').replace(/%3D/gi, '=').replace(/%2B/gi, '+');
+}
+/**
+* This method is intended for encoding *key* or *value* parts of query component. We need a custom
+* method because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be
+* encoded per http://tools.ietf.org/html/rfc3986:
+*    query       = *( pchar / "/" / "?" )
+*    pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+*    unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+*    pct-encoded   = "%" HEXDIG HEXDIG
+*    sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+*                     / "*" / "+" / "," / ";" / "="
+*/
+//TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
+//      a function of thie angular object.
+function encodeUriQuery(val, pctEncodeSpaces) {
+    return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
+}
+angular.module('dotjem.routing', []);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 'use strict';
 /**
-* Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+* Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 *
 * @class $RouteProvider
 * @constructor
@@ -72,7 +109,7 @@ function $RouteProvider() {
     * @return {Object} self
     *
     * @param {string} name Cerverter name, used in the path when registering routes through the
-    *   {@link ui.routing.routeProvider#when when} function.
+    *   {@link dotjem.routing.routeProvider#when when} function.
     */
     this.convert = function (name, converter) {
         //Note: We wan't to allow overwrite
@@ -97,7 +134,7 @@ function $RouteProvider() {
     *    would only match a parameter starting with one or two digits followed by a number of
     *    characters between 'a' and 'z'.
     *
-    *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+    *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
     *    function.
     *
     * @param {Object} route Mapping information to be assigned to `$route.current` on route
@@ -108,7 +145,7 @@ function $RouteProvider() {
     *    - `state` � `{string}` � a state that should be activated when the route is matched.
     *    - `action` � `{(string|function()=}` � an action that should be performed when the route is matched.
     *
-    *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}
+    *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy}
     *    module.
     *
     *    - `controller` � `{(string|function()=}` � Controller fn that should be associated with newly
@@ -257,12 +294,19 @@ function $RouteProvider() {
         };
     }
     function interpolate(url, params) {
-        var result = [], name = "", index = 0;
+        //TODO: Are we missing calls to some "Encode URI component"?
+                var result = [], name = "", index = 0;
         forEach(parseParams(url), function (param, idx) {
+            var formatter = function (val) {
+                return val.toString();
+            }, converter = createParameter(param.name, param.converter, param.args).converter();
             if(param.converter !== '') {
                 //TODO: use converter to convert param to string.
                             }
-            name += url.slice(index, param.index) + '/' + params[param.name].toString();
+            if(!isFunction(converter) && isDefined(converter.format)) {
+                formatter = converter.format;
+            }
+            name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
             index = param.lastIndex;
             delete params[param.name];
         });
@@ -349,10 +393,14 @@ function $RouteProvider() {
             if(match) {
                 invalidParam = false;
                 forEach(expression.segments, function (segment, index) {
-                    var param, value;
+                    var param, value, converter;
                     if(!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter()(param);
+                        converter = segment.converter();
+                        if(!isFunction(converter) && isDefined(converter.parse)) {
+                            converter = converter.parse;
+                        }
+                        value = converter(param);
                         if(isDefined(value.accept)) {
                             if(!value.accept) {
                                 invalidParam = true;
@@ -374,12 +422,20 @@ function $RouteProvider() {
     }
     //Registration of Default Converters
     this.convert('num', function () {
-        return function (param) {
-            var accepts = !isNaN(param);
-            return {
-                accept: accepts,
-                value: accepts ? Number(param) : 0
-            };
+        return {
+            parse: function (param) {
+                var accepts = !isNaN(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? Number(param) : 0
+                };
+            },
+            format: function (value) {
+                if(isNaN(value)) {
+                    throw new Error("Value was not acceptable for a numeric parameter.");
+                }
+                return value.toString();
+            }
         };
     });
     this.convert('regex', function (arg) {
@@ -395,12 +451,22 @@ function $RouteProvider() {
             throw new Error("The Regular-expression converter was not initialized with a valid object.");
         }
         regex = new RegExp(exp, flags);
-        return function (param) {
-            var accepts = regex.test(param);
-            return {
-                accept: accepts,
-                value: accepts ? regex.exec(param) : null
-            };
+        return {
+            parse: function (param) {
+                var accepts = regex.test(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? regex.exec(param) : null
+                };
+            },
+            format: function (value) {
+                var str = value.toString();
+                var test = regex.test(str);
+                if(!test) {
+                    throw new Error("Value could not be matched by the regular expression parameter.");
+                }
+                return str;
+            }
         };
     });
     this.convert('', function () {
@@ -429,6 +495,11 @@ function $RouteProvider() {
                     if(args.replace) {
                         loc.replace();
                     }
+                },
+                format: function (route, params) {
+                    var params = params || {
+                    };
+                    return interpolate(route, params) + toKeyValue(params);
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);
@@ -459,6 +530,8 @@ function $RouteProvider() {
                 var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
                 if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                     lastRoute.params = next.params;
+                    lastRoute.searchParams = next.searchParams;
+                    lastRoute.pathParams = next.pathParams;
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast('$routeUpdate', lastRoute);
                 } else if(next || lastRoute) {
@@ -502,7 +575,7 @@ function $RouteProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$route', $RouteProvider).value('$routeParams', {
+angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
 });
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
@@ -725,113 +798,31 @@ function $StateTransitionProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$stateTransition', $StateTransitionProvider);
+angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);
 
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
+/// <reference path="state/state.ts" />
+/// <reference path="state/stateFactory.ts" />
+/// <reference path="state/stateRules.ts" />
+/// <reference path="state/stateComparer.ts" />
+/// <reference path="state/stateBrowser.ts" />
+/// <reference path="state/stateUrlBuilder.ts" />
 'use strict';
 var $StateProvider = [
     '$routeProvider', 
     '$stateTransitionProvider', 
     function ($routeProvider, $transitionProvider) {
-        var root = {
-            fullname: 'root',
-            children: {
-            },
-            self: {
-                $fullname: 'root'
-            }
-        }, nameValidation = /^\w+(\.\w+)*?$/;
-        function validateName(name) {
-            if(nameValidation.test(name)) {
-                return;
-            }
-            throw new Error("Invalid name: '" + name + "'.");
-        }
-        function createRoute(stateRoute, parrentRoute, stateName, reloadOnSearch) {
-            var route;
-            if(!isDefined(reloadOnSearch)) {
-                reloadOnSearch = true;
-            }
-            route = (parrentRoute || '');
-            if(route !== '' && route[route.length - 1] === '/') {
-                route = route.substr(0, route.length - 1);
-            }
-            if(stateRoute[0] !== '/' && stateRoute !== '') {
-                route += '/';
-            }
-            route += stateRoute;
-            return $routeProvider.when(route, {
-                state: stateName,
-                reloadOnSearch: reloadOnSearch
-            });
-        }
-        function lookupRoute(parent) {
-            while(isDefined(parent) && !isDefined(parent.route)) {
-                parent = parent.parent;
-            }
-            return (parent && parent.route.route) || '';
-        }
-        function registerState(name, at, state) {
-            var fullname = at.fullname + '.' + name, parent = at;
-            if(!isDefined(at.children)) {
-                at.children = {
-                };
-            }
-            if(!(name in at.children)) {
-                at.children[name] = {
-                };
-            }
-            at = at.children[name];
-            at.self = extend({
-            }, state, {
-                $fullname: fullname
-            });
-            at.fullname = fullname;
-            at.parent = parent;
-            if(isDefined(state.route)) {
-                at.route = createRoute(state.route, lookupRoute(parent), fullname, state.reloadOnSearch).$route;
-            }
-            if(isDefined(state.onEnter)) {
-                $transitionProvider.onEnter(fullname, state.onEnter);
-            }
-            if(isDefined(state.onExit)) {
-                $transitionProvider.onExit(fullname, state.onExit);
-            }
-            if(state.children === null) {
-                at.children = {
-                };
-            } else {
-                forEach(state.children, function (childState, childName) {
-                    registerState(childName, at, childState);
-                });
-            }
-        }
-        function lookup(names) {
-            var current = root, i = //If name contains root explicitly, skip that one
-            names[0] === 'root' ? 1 : 0;
-            for(; i < names.length; i++) {
-                if(!(names[i] in current.children)) {
-                    throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
-                }
-                current = current.children[names[i]];
-            }
-            return current;
-        }
-        function lookupState(name) {
-            return lookup(name.split('.'));
-            ;
-        }
-        function lookupParent(name) {
-            var names = name.split('.'), name = names.pop();
-            return {
-                at: lookup(names),
-                name: name
-            };
-        }
-        this.state = function (name, state) {
-            var pair;
-            validateName(name);
-            pair = lookupParent(name);
-            registerState(pair.name, pair.at, state);
+        //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
+        //      it would make testing of them individually easier, although it would make them more public than
+        //      they are right now.
+                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
+        }), browser = new StateBrowser(root), comparer = new StateComparer();
+        this.state = function (fullname, state) {
+            StateRules.validateName(fullname);
+            var parent = browser.lookup(fullname, 1);
+            parent.add(factory.createState(fullname, state, parent));
             return this;
         };
         this.$get = [
@@ -842,7 +833,9 @@ var $StateProvider = [
             '$view', 
             '$stateTransition', 
             '$location', 
-            function ($rootScope, $q, $injector, $route, $view, $transition, $location) {
+            '$scroll', 
+            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
+                var urlbuilder = new StateUrlBuilder($route);
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -858,8 +851,14 @@ var $StateProvider = [
                             updateroute: true
                         });
                     },
-                    lookup: lookup,
-                    reload: reload
+                    lookup: function (path) {
+                        return browser.resolve(current, path);
+                    },
+                    reload: reload,
+                    url: function (state, params) {
+                        state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                        return urlbuilder.buildUrl($state.current, state, params);
+                    }
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -883,81 +882,10 @@ var $StateProvider = [
                     }
                 });
                 $rootScope.$on('$routeUpdate', function () {
-                    //TODO: Broadcast StateUpdate?
-                                        var route = $route.current, params;
-                    if(route) {
-                        //TODO: Refresh current state object with new parameters and raise event.
-                                            } else {
-                        //uhm o.O...
-                                            }
+                    var route = $route.current;
+                    raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
-                function lookup(path) {
-                    var match = path.match('^\\$node\\(([-+]?\\d+)\\)$'), selected = current, sections;
-                    if(match) {
-                        selected = selectSibling(Number(match[1]), selected);
-                    } else {
-                        sections = path.split('/');
-                        forEach(sections, function (sec) {
-                            selected = select(sec, selected);
-                        });
-                    }
-                    if(selected === root) {
-                        throw new Error("Path expression out of bounds.");
-                    }
-                    return selected && extend({
-                    }, selected.self) || undefined;
-                }
-                ;
-                function selectSibling(index, selected) {
-                    var children = [], currentIndex;
-                    forEach(selected.parent.children, function (child) {
-                        children.push(child);
-                        if(selected.fullname === child.fullname) {
-                            currentIndex = children.length - 1;
-                        }
-                    });
-                    while(index < 0) {
-                        index += children.length;
-                    }
-                    index = (currentIndex + index) % children.length;
-                    return children[index];
-                }
-                function select(exp, selected) {
-                    if(exp === '.') {
-                        if(current !== selected) {
-                            throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
-                        }
-                        return selected;
-                    }
-                    if(exp === '..') {
-                        if(isUndefined(selected.parent)) {
-                            throw new Error("Path expression out of bounds.");
-                        }
-                        return selected.parent;
-                    }
-                    if(exp === '') {
-                        if(current !== selected) {
-                            throw new Error("Invalid path expression.");
-                        }
-                        return root;
-                    }
-                    var match = exp.match('^\\[(-?\\d+)\\]$');
-                    if(match) {
-                        var index = Number(match[1]), children = [];
-                        forEach(selected.children, function (child) {
-                            children.push(child);
-                        });
-                        if(Math.abs(index) >= children.length) {
-                            throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
-                        }
-                        return index < 0 ? children[children.length + index] : children[index];
-                    }
-                    if(exp in selected.children) {
-                        return selected.children[exp];
-                    }
-                    throw new Error("Could find state for the lookup path.");
-                }
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
@@ -980,59 +908,23 @@ var $StateProvider = [
                         });
                     });
                 }
-                function buildStateArray(state, params) {
-                    function extractParams() {
-                        var paramsObj = {
-                        };
-                        if(current.route) {
-                            forEach(current.route.params, function (param, name) {
-                                paramsObj[name] = params[name];
-                            });
-                        }
-                        return paramsObj;
-                    }
-                    var states = [], current = state;
-                    do {
-                        states.push({
-                            state: current,
-                            params: extractParams()
-                        });
-                    }while(current = current.parent);
-                    return states;
-                }
-                function buildChangeArray(from, to, fromParams, toParams) {
-                    var fromArray = buildStateArray(from, fromParams || {
-                    }), toArray = buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex;
-                    for(var i = 0; i < count; i++) {
-                        fromAtIndex = fromArray[fromArray.length - i - 1];
-                        toAtIndex = toArray[toArray.length - i - 1];
-                        if(isUndefined(fromAtIndex)) {
-                            toAtIndex.changed = true;
-                        } else if(isUndefined(toAtIndex)) {
-                            toArray[0].changed = true;
-                            // We wen't up the hierachy. for now make the parent dirty.
-                            // however, this reloads the main view...
-                                                    } else if(forceReload && forceReload == toAtIndex.state.fullname) {
-                            toAtIndex.changed = true;
-                        } else if(toAtIndex.state.fullname !== fromAtIndex.state.fullname) {
-                            toAtIndex.changed = true;
-                        } else if(!equals(toAtIndex.params, fromAtIndex.params)) {
-                            toAtIndex.changed = true;
-                        } else {
-                            toAtIndex.changed = false;
-                        }
-                    }
-                    return toArray.reverse();
+                function raiseUpdate(all, path, search) {
+                    var dst = $state.current.$params;
+                    dst.all = all;
+                    dst.path = path;
+                    dst.search = search;
+                    $rootScope.$broadcast('$stateUpdate', $state.current);
                 }
                 function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
                     //      should try to refactor it if possible.
-                                        var params = args.params, route = args.route, to = lookupState(toName(args.state)), toState = extend({
+                                        var params = args.params, route = args.route, to = browser.lookup(toName(args.state)), toState = // lookupState(toName(args.state)),
+                    extend({
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, changed = buildChangeArray(lookupState(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
-                    }), transition = {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }, forceReload), transition = {
                         cancel: function () {
                             cancel = true;
                         },
@@ -1042,10 +934,21 @@ var $StateProvider = [
                                 state: state,
                                 params: {
                                     all: params
-                                }
+                                },
+                                updateroute: true
                             });
                         }
                     };
+                    if(!forceReload && !changed.stateChanges) {
+                        if(changed.paramChanges) {
+                            raiseUpdate(params.all || {
+                            }, params.path || {
+                            }, params.search || {
+                            });
+                        }
+                        return;
+                    }
+                    forceReload = null;
                     if(args.updateroute && to.route) {
                         //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                         //      maybe we can refactor those together
@@ -1073,45 +976,70 @@ var $StateProvider = [
                     var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if(!event.defaultPrevented) {
                         $q.when(toState).then(function () {
-                            var useUpdate = false;
+                            var useUpdate = false, locals = {
+                            }, promises = [];
                             transaction = $view.beginUpdate();
                             $view.clear();
-                            forEach(changed, function (change, index) {
-                                if(change.changed) {
-                                    useUpdate = true;
-                                }
-                                forEach(change.state.self.views, function (view, name) {
-                                    var sticky;
-                                    if(view.sticky) {
-                                        sticky = view.sticky;
-                                        if(isFunction(sticky) || isArray(sticky)) {
-                                            sticky = $injector.invoke(sticky, sticky, {
-                                                $to: toState,
-                                                $from: fromState
-                                            });
-                                        } else if(!isString(sticky)) {
-                                            sticky = change.state.fullname;
+                            function resolve(args) {
+                                var values = [], keys = [];
+                                angular.forEach(args || {
+                                }, function (value, key) {
+                                    keys.push(key);
+                                    values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
+                                });
+                                var def = $q.defer();
+                                $q.all(values).then(function (values) {
+                                    angular.forEach(values, function (value, index) {
+                                        locals[keys[index]] = value;
+                                    });
+                                    def.resolve(locals);
+                                });
+                                return def.promise;
+                            }
+                            var promise = $q.when(0);
+                            forEach(changed.array, function (change, index) {
+                                promise = promise.then(function () {
+                                    return resolve(change.state.self.resolve);
+                                }).then(function (locals) {
+                                    if(change.isChanged) {
+                                        useUpdate = true;
+                                    }
+                                    scrollTo = change.state.self.scrollTo;
+                                    forEach(change.state.self.views, function (view, name) {
+                                        var sticky;
+                                        if(view.sticky) {
+                                            sticky = view.sticky;
+                                            if(isFunction(sticky) || isArray(sticky)) {
+                                                sticky = $injector.invoke(sticky, sticky, {
+                                                    $to: toState,
+                                                    $from: fromState
+                                                });
+                                            } else if(!isString(sticky)) {
+                                                sticky = change.state.fullname;
+                                            }
                                         }
-                                    }
-                                    if(useUpdate || isDefined(sticky)) {
-                                        $view.setOrUpdate(name, view.template, view.controller, sticky);
-                                    } else {
-                                        $view.setIfAbsent(name, view.template, view.controller);
-                                    }
+                                        if(useUpdate || isDefined(sticky)) {
+                                            $view.setOrUpdate(name, view.template, view.controller, copy(locals), sticky);
+                                        } else {
+                                            $view.setIfAbsent(name, view.template, view.controller, copy(locals));
+                                        }
+                                    });
                                 });
                             });
-                            emit.between(transition);
-                            if(cancel) {
-                                transaction.cancel();
-                                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                                //      That is if this was even triggered by an URL change in teh first place.
-                                return;
-                            }
-                            current = to;
-                            currentParams = params;
-                            $state.current = toState;
-                            transaction.commit();
-                            $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                            return promise.then(function () {
+                                emit.between(transition);
+                                if(cancel) {
+                                    transaction.cancel();
+                                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                                    //      That is if this was even triggered by an URL change in teh first place.
+                                    return;
+                                }
+                                current = to;
+                                currentParams = params;
+                                $state.current = toState;
+                                transaction.commit();
+                                $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                            });
                         }, function (error) {
                             transaction.cancel();
                             $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
@@ -1121,6 +1049,7 @@ var $StateProvider = [
                                     throw Error("Can't cancel transition in after handler");
                                 };
                                 emit.after(transition);
+                                $scroll(scrollTo);
                             }
                             //Note: nothing to do here.
                                                     });
@@ -1128,7 +1057,349 @@ var $StateProvider = [
                 }
             }        ];
     }];
-angular.module('ui.routing').provider('$state', $StateProvider);
+angular.module('dotjem.routing').provider('$state', $StateProvider);
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="stateFactory.ts" />
+var State = (function () {
+    function State(_name, _fullname, _self, _parent) {
+        this._name = _name;
+        this._fullname = _fullname;
+        this._parent = _parent;
+        this._children = {
+        };
+        this._self = _self;
+        this._self.$fullname = _fullname;
+        this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+    }
+    Object.defineProperty(State.prototype, "children", {
+        get: function () {
+            return this._children;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "fullname", {
+        get: function () {
+            return this._fullname;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "name", {
+        get: function () {
+            return this._name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "reloadOnOptional", {
+        get: function () {
+            return this._reloadOnOptional;
+        },
+        set: function (value) {
+            this._reloadOnOptional = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "self", {
+        get: function () {
+            return copy(this._self);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "parent", {
+        get: function () {
+            return this._parent;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "route", {
+        get: function () {
+            return this._route;
+        },
+        set: function (value) {
+            if(isUndefined(value)) {
+                throw 'Please supply time interval';
+            }
+            this._route = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "root", {
+        get: function () {
+            if(this.parent === null) {
+                return this;
+            }
+            return this._parent.root;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    State.prototype.add = function (child) {
+        this._children[child.name] = child;
+        return this;
+    };
+    State.prototype.resolveRoute = function () {
+        return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
+    };
+    State.prototype.toUrl = function (params) {
+        return "";
+    };
+    return State;
+})();
+
+/// <reference path="state.ts" />
+var StateBrowser = (function () {
+    function StateBrowser(root) {
+        this.root = root;
+        this.nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+        this.siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
+        this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
+    }
+    StateBrowser.prototype.lookup = function (fullname, stop) {
+        var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+        for(; i < names.length - stop; i++) {
+            if(!(names[i] in current.children)) {
+                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+            }
+            current = current.children[names[i]];
+        }
+        return current;
+    };
+    StateBrowser.prototype.resolve = function (origin, path) {
+        var _this = this;
+        var siblingSelector = this.siblingRegex.exec(path), nameSelector = // path.match(this.siblingRegex),
+        this.nameRegex.test(path), selected = origin, sections;
+        if(siblingSelector) {
+            selected = this.selectSibling(Number(siblingSelector[1]), selected);
+        } else if(this.nameRegex.test(path)) {
+            //Note: This enables us to select a state using a full name rather than a select expression.
+            //      but as a special case, the "nameRegex" will not match singular names as 'statename'
+            //      because that is also a valid relative lookup.
+            //
+            //      instead we force the user to use '/statename' if he really wanted to look up a state
+            //      from the root.
+            selected = this.lookup(path);
+        } else {
+            sections = path.split('/');
+            forEach(sections, function (sec) {
+                selected = _this.select(origin, sec, selected);
+            });
+        }
+        if(selected === this.root) {
+            throw new Error("Path expression out of bounds.");
+        }
+        return selected && extend({
+        }, selected.self) || undefined;
+    };
+    StateBrowser.prototype.selectSibling = function (index, selected) {
+        var children = [], currentIndex;
+        forEach(selected.parent.children, function (child) {
+            children.push(child);
+            if(selected.fullname === child.fullname) {
+                currentIndex = children.length - 1;
+            }
+        });
+        while(index < 0) {
+            index += children.length;
+        }
+        index = (currentIndex + index) % children.length;
+        return children[index];
+    };
+    StateBrowser.prototype.select = function (origin, exp, selected) {
+        if(exp === '.') {
+            if(origin !== selected) {
+                throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+            }
+            return selected;
+        }
+        if(exp === '..') {
+            if(isUndefined(selected.parent)) {
+                throw new Error("Path expression out of bounds.");
+            }
+            return selected.parent;
+        }
+        if(exp === '') {
+            if(origin !== selected) {
+                throw new Error("Invalid path expression.");
+            }
+            return this.root;
+        }
+        var match = this.indexRegex.exec(exp);// exp.match(this.indexRegex);
+        
+        if(match) {
+            var index = Number(match[1]), children = [];
+            forEach(selected.children, function (child) {
+                children.push(child);
+            });
+            if(Math.abs(index) >= children.length) {
+                throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount");
+            }
+            return index < 0 ? children[children.length + index] : children[index];
+        }
+        if(exp in selected.children) {
+            return selected.children[exp];
+        }
+        throw new Error("Could find state for the lookup path.");
+    };
+    return StateBrowser;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="state.ts" />
+var StateComparer = (function () {
+    function StateComparer() { }
+    StateComparer.prototype.buildStateArray = function (state, params) {
+        function extractParams() {
+            var paramsObj = {
+            };
+            if(current.route) {
+                forEach(current.route.params, function (param, name) {
+                    paramsObj[name] = params[name];
+                });
+            }
+            return paramsObj;
+        }
+        var states = [], current = state;
+        do {
+            states.push({
+                state: current,
+                params: extractParams()
+            });
+        }while(current = current.parent);
+        return states;
+    };
+    StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
+        var fromArray = this.buildStateArray(from, fromParams || {
+        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+        for(var i = 0; i < count; i++) {
+            fromAtIndex = fromArray[fromArray.length - i - 1];
+            toAtIndex = toArray[toArray.length - i - 1];
+            if(isUndefined(toAtIndex)) {
+                toArray[0].isChanged = stateChanges = true;
+            } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+                toAtIndex.isChanged = stateChanges = true;
+            } else {
+                toAtIndex.isChanged = false;
+            }
+        }
+        //TODO: if ReloadOnOptional is false, but parameters are changed.
+        //      we should raise the update event instead.
+        stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
+        return {
+            array: toArray.reverse(),
+            stateChanges: stateChanges,
+            paramChanges: paramChanges
+        };
+    };
+    return StateComparer;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="state.ts" />
+var StateFactory = (function () {
+    function StateFactory(routes, transitions) {
+        this.routes = routes;
+        this.transitions = transitions;
+    }
+    StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
+        var route = parentRoute || '';
+        if(route !== '' && route[route.length - 1] === '/') {
+            route = route.substr(0, route.length - 1);
+        }
+        if(stateRoute[0] !== '/' && stateRoute !== '') {
+            route += '/';
+        }
+        route += stateRoute;
+        return this.routes.when(route, {
+            state: stateName,
+            reloadOnSearch: reloadOnSearch
+        });
+    };
+    StateFactory.prototype.createState = function (fullname, state, parent) {
+        var _this = this;
+        var name = fullname.split('.').pop();
+        if(isDefined(parent)) {
+            fullname = parent.fullname + "." + name;
+        }
+        var stateObj = new State(name, fullname, state, parent);
+        stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
+        if(isDefined(state.route)) {
+            stateObj.route = this.createRoute(state.route, parent.resolveRoute(), stateObj.fullname, stateObj.reloadOnOptional).$route;
+        }
+        if(isDefined(state.onEnter)) {
+            this.transitions.onEnter(stateObj.fullname, state.onEnter);
+        }
+        if(isDefined(state.onExit)) {
+            this.transitions.onExit(stateObj.fullname, state.onExit);
+        }
+        if(isDefined(state.children)) {
+            forEach(state.children, function (childState, childName) {
+                stateObj.add(_this.createState(stateObj.fullname + '.' + childName, childState, stateObj));
+            });
+        }
+        return stateObj;
+    };
+    return StateFactory;
+})();
+
+/// <reference path="state.ts" />
+var StateRules = (function () {
+    function StateRules() { }
+    StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.validateName = function validateName(name) {
+        if(StateRules.nameValidation.test(name)) {
+            return;
+        }
+        throw new Error("Invalid name: '" + name + "'.");
+    };
+    return StateRules;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="stateBrowser.ts" />
+/// <reference path="state.ts" />
+var StateUrlBuilder = (function () {
+    function StateUrlBuilder(route) {
+        this.route = route;
+    }
+    StateUrlBuilder.prototype.buildUrl = function (current, target, params) {
+        var c = current;
+        if(!target.route) {
+            throw new Error("Can't build url for a state that doesn't have a url defined.");
+        }
+        //TODO: Find parent with route and return?
+        //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+        //      maybe we can refactor those together
+                var paramsObj = {
+        }, allFrom = (c && c.$params && c.$params.all) || {
+        };
+        forEach(target.route.params, function (param, name) {
+            if(name in allFrom) {
+                paramsObj[name] = allFrom[name];
+            }
+        });
+        return this.route.format(target.route.route, extend(paramsObj, params || {
+        }));
+    };
+    return StateUrlBuilder;
+})();
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -1183,7 +1454,7 @@ function $TemplateProvider() {
             return this;
         }    ];
 }
-angular.module('ui.routing').provider('$template', $TemplateProvider);
+angular.module('dotjem.routing').provider('$template', $TemplateProvider);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -1203,11 +1474,6 @@ function $ViewProvider() {
                 }
             }
             ;
-            //function ensureExists(name: string) {
-            //    if (!(name in views)) {
-            //        throw new Error('View with name "' + name + '" was not present.');
-            //    }
-            //};
             function raiseUpdated(name) {
                 $rootScope.$broadcast('$viewUpdate', name);
             }
@@ -1237,30 +1503,38 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setOrUpdate = function (name, template, controller, sticky) {
+            function isArgs(args) {
+                return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
+            }
+            //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+            this.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
                 var _this = this;
+                var template = templateOrArgs;
+                if(isArgs(templateOrArgs)) {
+                    template = templateOrArgs.template;
+                    controller = templateOrArgs.controller;
+                    locals = templateOrArgs.locals;
+                    sticky = templateOrArgs.sticky;
+                }
                 ensureName(name);
                 if(transaction) {
                     transaction.records[name] = {
                         act: 'setOrUpdate',
                         fn: function () {
-                            _this.setOrUpdate(name, template, controller, sticky);
+                            _this.setOrUpdate(name, template, controller, locals, sticky);
                         }
                     };
                     return;
                 }
-                if(containsView(views, name)) {
-                    //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                    views[name].template = $template.get(template);
-                    views[name].controller = controller;
-                } else {
+                if(!containsView(views, name)) {
                     views[name] = {
-                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                        $template.get(template),
-                        controller: controller,
                         version: -1
                     };
                 }
+                //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                views[name].template = $template.get(template);
+                views[name].controller = controller;
+                views[name].locals = locals;
                 if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                     raiseRefresh(name, {
                         sticky: true
@@ -1271,15 +1545,22 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            this.setIfAbsent = function (name, template, controller) {
+            //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+            this.setIfAbsent = function (name, templateOrArgs, controller, locals) {
                 var _this = this;
+                var template = templateOrArgs;
+                if(isArgs(templateOrArgs)) {
+                    template = templateOrArgs.template;
+                    controller = templateOrArgs.controller;
+                    locals = templateOrArgs.locals;
+                }
                 ensureName(name);
                 if(transaction) {
                     if(!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
                         transaction.records[name] = {
                             act: 'setIfAbsent',
                             fn: function () {
-                                _this.setIfAbsent(name, template, controller);
+                                _this.setIfAbsent(name, template, controller, locals);
                             }
                         };
                     }
@@ -1290,6 +1571,7 @@ function $ViewProvider() {
                         template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                         $template.get(template),
                         controller: controller,
+                        locals: locals,
                         version: 0
                     };
                     raiseUpdated(name);
@@ -1345,25 +1627,84 @@ function $ViewProvider() {
             return this;
         }    ];
 }
-angular.module('ui.routing').provider('$view', $ViewProvider);
+angular.module('dotjem.routing').provider('$view', $ViewProvider);
+
+/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="common.ts" />
+/// <reference path="interfaces.d.ts" />
+'use strict';
+var $ScrollProvider = [
+    '$anchorScrollProvider', 
+    function ($anchorScrollProvider) {
+        var autoscroll = false;
+        //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
+        // $anchorScrollProvider.disableAutoScrolling();
+        this.$get = [
+            '$window', 
+            '$rootScope', 
+            '$anchorScroll', 
+            '$injector', 
+            '$timeout', 
+            function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
+                var document = $window.document;
+                var scroll = function (arg) {
+                    var fn;
+                    if(isUndefined(arg)) {
+                        $anchorScroll();
+                    } else if(isString(arg)) {
+                        scrollTo(arg);
+                    } else if((fn = injectFn(arg)) !== null) {
+                        scrollTo($injector.invoke(arg, fn)[0]);
+                    }
+                };
+                scroll.$current = 'top';
+                //scroll.$register = register;
+                //var elements = {};
+                //function register(name: string, elm: HTMLElement) {
+                //    if (name in elements) {
+                //        var existing = elements[name];
+                //    }
+                //    elements[name] = elm;
+                //}
+                function scrollTo(elm) {
+                    scroll.$current = elm;
+                    if(elm === 'top') {
+                        $window.scrollTo(0, 0);
+                        return;
+                    }
+                    $rootScope.$broadcast('$scrollPositionChanged', elm);
+                    //if (elm) elm.scrollIntoView();
+                                    }
+                /****jQuery( "[attribute='value']"
+                * scrollTo: top - scroll to top, explicitly stated.
+                *           (This also enables one to override another scrollTo from a parent)
+                * scrollTo: null - don't scroll, not even to top.
+                * scrollTo: element-selector - scroll to an element id
+                * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
+                *           - scroll to element with id or view if starts with @
+                */
+                return scroll;
+            }        ];
+    }];
+angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
-var uiViewDirective = [
+var jemViewDirective = [
     '$state', 
-    '$anchorScroll', 
+    '$scroll', 
     '$compile', 
     '$controller', 
     '$view', 
     '$animator', 
-    function ($state, $anchorScroll, $compile, $controller, $view, $animator) {
+    function ($state, $scroll, $compile, $controller, $view, $animator) {
         return {
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, controller, name = attr['uiView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
+                var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
                 scope.$on('$viewChanged', function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);
@@ -1411,18 +1752,21 @@ var uiViewDirective = [
                             } else {
                                 element.html(html);
                             }
-                            var link = $compile(element.contents());
+                            var link = $compile(element.contents()), locals;
                             viewScope = scope.$new();
                             if(controller) {
-                                controller = $controller(controller, {
-                                    $scope: viewScope
-                                });
+                                locals = copy(view.locals);
+                                locals.$scope = viewScope;
+                                //locals.$async = function async() {
+                                //    return function done() {
+                                //    }
+                                //}
+                                controller = $controller(controller, locals);
                                 element.contents().data('$ngControllerController', controller);
                             }
                             link(viewScope);
                             viewScope.$emit('$viewContentLoaded');
                             viewScope.$eval(onloadExp);
-                            $anchorScroll();
                         });
                     } else {
                         clearContent(doAnimate);
@@ -1431,6 +1775,49 @@ var uiViewDirective = [
             }
         };
     }];
-angular.module('ui.routing').directive('uiView', uiViewDirective);
+angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 
-})(window, document);
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="../common.ts" />
+'use strict';
+var jemAnchorDirective = [
+    '$scroll', 
+    '$timeout', 
+    function ($scroll, $timeout) {
+        return {
+            restrict: 'ECA',
+            terminal: false,
+            link: function (scope, element, attr) {
+                var name = attr['uiScroll'] || attr.id;
+                //$scroll.$register(name, element);
+                //TODO: This is not aware if there are multiple elements named the same, we should instead
+                //      register the element with the $scroll service so that can throw an error if multiple
+                //      elements has the same name.
+                scope.$on('$scrollPositionChanged', function (event, target) {
+                    scroll(target);
+                });
+                scroll($scroll.$current);
+                function scroll(target) {
+                    if(target === name) {
+                        //Note: Delay scroll untill any digest is done.
+                        $timeout(function () {
+                            element[0].scrollIntoView();
+                        }, 100);
+                    }
+                }
+            }
+        };
+    }];
+angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
+
+
+//NOTE: Expose for testing
+dotjem.State = State;
+dotjem.StateBrowser = StateBrowser;
+dotjem.StateComparer = StateComparer;
+dotjem.StateFactory = StateFactory;
+dotjem.StateRules = StateRules;
+dotjem.StateUrlBuilder = StateUrlBuilder;
+
+})(window, document, dotjem || (dotjem = {}));

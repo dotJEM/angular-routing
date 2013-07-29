@@ -1,14 +1,12 @@
 /// <reference path="testcommon.ts" />
 
-'use strict';
-
 describe('$view', function () {
     'use strict';
     var mock = angular.mock;
     var template,
         scope;
 
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mock.module('dotjem.routing', function () {
         return function ($template, $rootScope, $view) {
             template = $template;
             scope = $rootScope;
@@ -19,7 +17,7 @@ describe('$view', function () {
 
     describe("setOrUpdate", () => {
         it('saves initial view state', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setOrUpdate("name", { html: "template" });
 
                 var view = $view.get('name');
@@ -30,7 +28,7 @@ describe('$view', function () {
         });
 
         it('updates view state and increments version', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setOrUpdate("name", { html: "fubar" });
                 $view.setOrUpdate("name", { html: "template" });
 
@@ -42,7 +40,7 @@ describe('$view', function () {
         });
 
         it('cleared view gets reinitialized', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setOrUpdate("name", { html: "fubar" });
                 $view.clear("name");
                 $view.setOrUpdate("name", { html: "template" });
@@ -55,7 +53,7 @@ describe('$view', function () {
         });
 
         it('raises $viewUpdate with viewName', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setOrUpdate("name", { html: "fubar" });
@@ -69,7 +67,7 @@ describe('$view', function () {
         });
 
         it('raises $viewUpdate with viewName for each view', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setOrUpdate("root", { html: "fubar" });
@@ -83,42 +81,42 @@ describe('$view', function () {
         });
 
         it('raises $viewRefresh when sticky tag matches', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.setOrUpdate("root", { html: "fubar" }, null, "sticky");
+                $view.setOrUpdate("root", { html: "fubar" }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.setOrUpdate("root", { html: "template" }, null, "sticky");
+                $view.setOrUpdate("root", { html: "template" }, null, null, "sticky");
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([<any>'$viewRefresh', "root", { sticky: true }]);
             });
         });
 
         it('raises $viewUpdate when sticky tag differs', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.setOrUpdate("root", { html: "fubar" }, null, "sticky");
+                $view.setOrUpdate("root", { html: "fubar" }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.setOrUpdate("root", { html: "template" }, null, "sticky2");
+                $view.setOrUpdate("root", { html: "template" }, null, null, "sticky2");
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
             });
         });
 
         it('raises $viewUpdate when sticky tag is undefined', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.setOrUpdate("root", { html: "fubar" }, null, undefined);
+                $view.setOrUpdate("root", { html: "fubar" }, null, null, undefined);
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.setOrUpdate("root", { html: "template" }, null, undefined);
+                $view.setOrUpdate("root", { html: "template" }, null, null, undefined);
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
             });
@@ -127,7 +125,7 @@ describe('$view', function () {
 
     describe("setIfAbsent", () => {
         it('saves initial view state', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setIfAbsent("name", { html: "template" });
 
                 var view = $view.get('name');
@@ -138,7 +136,7 @@ describe('$view', function () {
         });
 
         it('does not update view state if it already exists', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setIfAbsent("name", { html: "template" });
                 $view.setIfAbsent("name", { html: "fubar" });
 
@@ -150,7 +148,7 @@ describe('$view', function () {
         });
 
         it('updates view state if it was cleared', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setIfAbsent("name", { html: "fubar" });
                 $view.clear("name");
                 $view.setIfAbsent("name", { html: "template" });
@@ -163,7 +161,7 @@ describe('$view', function () {
         });
 
         it('raises $viewUpdated with viewName only for first call', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setIfAbsent("name", { html: "fubar" });
@@ -176,7 +174,7 @@ describe('$view', function () {
         });
 
         it('raises $viewUpdated with viewName for each view', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setIfAbsent("root", { html: "fubar" });
@@ -192,7 +190,7 @@ describe('$view', function () {
 
     describe("clear", () => {
         it('no parameters clears state', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setIfAbsent("root", { html: "root template" });
                 $view.setIfAbsent("sub1", { html: "sub1 template" });
                 $view.setIfAbsent("sub2", { html: "sub2 template" });
@@ -205,7 +203,7 @@ describe('$view', function () {
         });
 
         it('with parameters will set view to undefined (delete it)', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setIfAbsent("root", { html: "root template" });
                 $view.setIfAbsent("sub1", { html: "sub1 template" });
                 $view.setIfAbsent("sub2", { html: "sub2 template" });
@@ -218,7 +216,7 @@ describe('$view', function () {
         });
 
         it('clear raises $viewUpdated with viewName for cleared view', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setIfAbsent("root", { html: "root template" });
                 $view.setIfAbsent("sub1", { html: "sub1 template" });
                 $view.setIfAbsent("sub2", { html: "sub2 template" });
@@ -238,7 +236,7 @@ describe('$view', function () {
 
     describe("$viewUpdate", () => {
         it('raised when setOrUpdate is called', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setOrUpdate("root", { html: "root template" });
@@ -259,7 +257,7 @@ describe('$view', function () {
         });
 
         it('raised only first time when setIfAbsent is called with same name', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 $view.setIfAbsent("root", { html: "root template" });
@@ -276,7 +274,7 @@ describe('$view', function () {
         });
 
         it('raised on clear with name', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.setOrUpdate("view1", { html: "view1 template" });
                 $view.setOrUpdate("view2", { html: "view2 template" });
                 $view.setOrUpdate("view3", { html: "view3 template" });
@@ -303,7 +301,7 @@ describe('$view', function () {
 
     describe("beginUpdate", () => {
         it('setIfAbsent does not overwrite even during transactional update', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
 
                 $view.setIfAbsent("root", { html: "root" });
@@ -316,7 +314,7 @@ describe('$view', function () {
         });
 
         it('get returns old state untill commit is called', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
 
                 $view.setIfAbsent("root", { html: "root" });
@@ -331,7 +329,7 @@ describe('$view', function () {
         });
 
         it('is not raised until after commit during transactional updates', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();
@@ -351,7 +349,7 @@ describe('$view', function () {
         });
 
         it('is only raised ones pr name after commit during transactional updates', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();
@@ -374,7 +372,7 @@ describe('$view', function () {
         });
 
         it('is not raised after cancel during transactional updates', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();

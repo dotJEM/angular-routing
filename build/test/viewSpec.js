@@ -1,10 +1,9 @@
 /// <reference path="testcommon.ts" />
-'use strict';
 describe('$view', function () {
     'use strict';
     var mock = angular.mock;
     var template, scope;
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mock.module('dotjem.routing', function () {
         return function ($template, $rootScope, $view) {
             template = $template;
             scope = $rootScope;
@@ -98,7 +97,7 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 $view.setOrUpdate("root", {
                     html: "fubar"
-                }, null, "sticky");
+                }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -106,7 +105,7 @@ describe('$view', function () {
                 ]);
                 $view.setOrUpdate("root", {
                     html: "template"
-                }, null, "sticky");
+                }, null, null, "sticky");
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewRefresh', 
@@ -122,7 +121,7 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 $view.setOrUpdate("root", {
                     html: "fubar"
-                }, null, "sticky");
+                }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -130,7 +129,7 @@ describe('$view', function () {
                 ]);
                 $view.setOrUpdate("root", {
                     html: "template"
-                }, null, "sticky2");
+                }, null, null, "sticky2");
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -143,7 +142,7 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 $view.setOrUpdate("root", {
                     html: "fubar"
-                }, null, undefined);
+                }, null, null, undefined);
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -151,7 +150,7 @@ describe('$view', function () {
                 ]);
                 $view.setOrUpdate("root", {
                     html: "template"
-                }, null, undefined);
+                }, null, null, undefined);
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 

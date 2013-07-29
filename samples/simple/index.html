@@ -29,12 +29,12 @@
                     <li ng-class="page == 'code' && 'active' || ''"><a href="#/code">Code</a></li>
                     <li ng-class="page == 'about' && 'active' || ''"><a href="#/about">About</a></li>
                 </ul>
-                <p class="navbar-text pull-right" ui-view="hint">Hint</p>
+                <p class="navbar-text pull-right" jem-view="hint">Hint</p>
                 <p class="navbar-text pull-right">{{transition}} :&nbsp;</p>
             </div>
         </div>
     </div>
-    <div class="container" style="margin-top: 60px" ui-view="main"></div>
+    <div class="container" style="margin-top: 60px" jem-view="main"></div>
     <hr />
     <div ng-controller="PageController">
         <button class="btn" ng-click="openRoutes()">Show Routes</button>

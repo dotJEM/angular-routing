@@ -30,55 +30,12 @@ describe('$stateProvider', function () {
         }
         return current;
     }
-    beforeEach(mod('ui.routing', function () {
+    beforeEach(mod('dotjem.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
     }));
     describe("state names", function () {
-        it('valid passes', function () {
-            var provider;
-            mod(function ($stateProvider) {
-                provider = $stateProvider;
-            });
-            inject(function ($state) {
-                provider.state('valid', {
-                }).state('valid.sub1', {
-                }).state('valid.sub2', {
-                }).state('another', {
-                }).state('another.sub1', {
-                });
-            });
-        });
-        it('invalid throws errors', function () {
-            var provider;
-            mod(function ($stateProvider) {
-                provider = $stateProvider;
-            });
-            inject(function ($state) {
-                expect(function () {
-                    provider.state('', {
-                    });
-                }).toThrow("Invalid name: ''.");
-                expect(function () {
-                    provider.state('.!"#', {
-                    });
-                }).toThrow("Invalid name: '.!\"#'.");
-                expect(function () {
-                    provider.state('.', {
-                    });
-                }).toThrow("Invalid name: '.'.");
-                expect(function () {
-                    provider.state('almost.valid.', {
-                    });
-                }).toThrow("Invalid name: 'almost.valid.'.");
-                expect(function () {
-                    provider.state('.almost.valid', {
-                    });
-                }).toThrow("Invalid name: '.almost.valid'.");
-                expect(stringifyState($state.root)).toBe("()");
-            });
-        });
         it('invalid throws errors', function () {
             var provider;
             mod(function ($stateProvider) {
@@ -219,7 +176,9 @@ describe('$stateProvider', function () {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
-                expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
+                //TODO: Figure out which one we wan't, should we preserve children or not?
+                //expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent()))");
             });
         });
         it('can overwrite state in hierarchy using . notation after having used object notation', function () {
@@ -247,7 +206,9 @@ describe('$stateProvider', function () {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
-                expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
+                //TODO: Figure out which one we wan't, should we preserve children or not?
+                //expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
+                expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
             });
         });
         it('can clear children under a state using null', function () {
@@ -583,6 +544,8 @@ describe('$stateProvider', function () {
                     'top', 
                     'top tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.top'
                 ]);
                 go('/top/sub');
@@ -591,6 +554,8 @@ describe('$stateProvider', function () {
                     'top', 
                     'top tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.top'
                 ]);
                 go('/foo/bar');
@@ -599,6 +564,8 @@ describe('$stateProvider', function () {
                     'foo', 
                     'foo tpl', 
                     undefined, 
+                    {
+                    }, 
                     'imSticky'
                 ]);
                 go('/ban');
@@ -607,6 +574,8 @@ describe('$stateProvider', function () {
                     'ban', 
                     'ban tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.ban'
                 ]);
                 go('/ban/tar');
@@ -615,6 +584,8 @@ describe('$stateProvider', function () {
                     'ban', 
                     'ban tpl', 
                     undefined, 
+                    {
+                    }, 
                     'root.ban.tar'
                 ]);
             });
@@ -696,7 +667,7 @@ describe('$stateProvider', function () {
                 reload();
                 expect(viewSpy.callCount).toBe(1);
                 go('/top/sub/bot');
-                expect(viewSpy.callCount).toBe(3);
+                expect(viewSpy.callCount).toBe(2);
                 reload();
                 expect(viewSpy.callCount).toBe(1);
                 reload(true);
@@ -734,8 +705,6 @@ describe('$stateProvider', function () {
                 });
             });
             inject(function ($location, $route, $state, $view) {
-                ($state).debug = true;
-                ($state).debug = true;
                 function go(path) {
                     $location.path(path);
                     scope.$digest();
@@ -997,7 +966,7 @@ describe('$stateProvider', function () {
     });
     //Note: Integration tests between $transition and $state etc.
     describe("goto", function () {
-        beforeEach(mod('ui.routing', function ($stateProvider, $stateTransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
             $stateProvider.state('home', {
                 route: '/',
                 name: 'about'
@@ -1111,8 +1080,91 @@ describe('$stateProvider', function () {
             });
         });
     });
+    describe("url", function () {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
+            $stateProvider.state('home', {
+                route: '/',
+                name: 'about'
+            }).state('blog', {
+                route: '/blog',
+                name: 'blog'
+            }).state('blog.recent', {
+                route: '/recent',
+                name: 'blog.recent'
+            }).state('blog.other', {
+                route: '/other',
+                name: 'blog.other'
+            }).state('about', {
+                route: '/about',
+                name: 'about'
+            }).state('about.cv', {
+                route: '/cv',
+                name: 'about.cv'
+            }).state('about.other', {
+                route: '/other',
+                name: 'about.other'
+            }).state('gallery', {
+                route: '/gallery/:id',
+                name: 'gallery'
+            }).state('gallery.overview', {
+                route: '/overview',
+                name: 'gallery.overview'
+            }).state('gallery.details', {
+                route: '/details/:page',
+                name: 'gallery.details'
+            }).state('admin', {
+                route: '/admin',
+                name: 'admin'
+            });
+            $stateTransitionProvider.transition('*', 'admin', function ($transition) {
+                $transition.cancel();
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target, params) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+        it('builds route', function () {
+            inject(function ($location, $route, $state) {
+                goto('blog');
+                expect($state.url()).toBe('/blog');
+                expect($state.url('blog')).toBe('/blog');
+                goto('about.other');
+                expect($state.url()).toBe('/about/other');
+                expect($state.url('about.other')).toBe('/about/other');
+            });
+        });
+        it('builds route with parameters', function () {
+            inject(function ($location, $route, $state) {
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url()).toBe('/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                })).toBe('/gallery/51');
+                expect($state.url('gallery')).toBe('/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                })).toBe('/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url()).toBe('/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url()).toBe('/gallery/4224/details/1');
+            });
+        });
+    });
     describe("lookup", function () {
-        beforeEach(mod('ui.routing', function ($stateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider) {
             for(var sta = 1; sta < 4; sta++) {
                 var stateName = 'state' + sta;
                 $stateProvider.state(stateName, {
@@ -1143,52 +1195,16 @@ describe('$stateProvider', function () {
             scope.$digest();
         }
         describe('at root', function () {
-            it('lookup state1', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("state1");
-                    expect(state.$fullname).toBe('root.state1');
-                });
-            });
             it('lookup ./state1', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("./state1");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
-            it('lookup /state1', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("/state1");
-                    expect(state.$fullname).toBe('root.state1');
-                });
-            });
-            it('lookup state1/top3', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("state1/top3");
-                    expect(state.$fullname).toBe('root.state1.top3');
-                });
-            });
             it('lookup state1/top3/mid2/bot1', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("state1/top3/mid2/bot1");
                     expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
-                });
-            });
-            it('lookup [0] returns root.state1', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("[0]");
-                    expect(state.$fullname).toBe('root.state1');
-                });
-            });
-            it('lookup [-1]', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("[-1]");
-                    expect(state.$fullname).toBe('root.state3');
-                });
-            });
-            it('lookup [-2]', function () {
-                inject(function ($location, $route, $state) {
-                    var state = $state.lookup("[-2]");
-                    expect(state.$fullname).toBe('root.state2');
                 });
             });
             it('lookup [1]', function () {
@@ -1205,6 +1221,13 @@ describe('$stateProvider', function () {
                     goto(target);
                     var state = $state.lookup("top1");
                     expect(state.$fullname).toBe('root.state1.top1');
+                });
+            });
+            it('lookup state1.top2', function () {
+                inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("state1.top2");
+                    expect(state.$fullname).toBe('root.state1.top2');
                 });
             });
             it('lookup ./top1', function () {
@@ -1354,6 +1377,13 @@ describe('$stateProvider', function () {
                     expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
                 });
             });
+            it('lookup state1.top2', function () {
+                inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("state1.top2");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
             it('lookup ./bot1', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
@@ -1396,6 +1426,20 @@ describe('$stateProvider', function () {
                     expect(state.$fullname).toBe('root.state1.top2.mid2');
                 });
             });
+            it('lookup ..', function () {
+                inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("..");
+                    expect(state.$fullname).toBe('root.state1.top2');
+                });
+            });
+            it('lookup ../..', function () {
+                inject(function ($location, $route, $state) {
+                    goto(target);
+                    var state = $state.lookup("../..");
+                    expect(state.$fullname).toBe('root.state1');
+                });
+            });
             it('lookup ../../top2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
@@ -1423,6 +1467,293 @@ describe('$stateProvider', function () {
                     var state = $state.lookup("/state2");
                     expect(state.$fullname).toBe('root.state2');
                 });
+            });
+        });
+    });
+    describe("resolve", function () {
+        var loc;
+        beforeEach(mod('dotjem.routing', function ($stateProvider) {
+            return function ($rootScope, $state, $view) {
+                loc = [];
+                spyOn($view, 'setOrUpdate').andCallFake(function (name, template, controller, locals, sticky) {
+                    loc.push(locals);
+                });
+                spyOn($view, 'setIfAbsent').andCallFake(function (name, template, controller, locals) {
+                    loc.push(locals);
+                });
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target) {
+            loc = [];
+            state.goto(target);
+            scope.$digest();
+        }
+        it('single resolve provides value', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('home', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        home: function () {
+                            return 42;
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("home");
+                expect(loc[0]).toEqual({
+                    home: 42
+                });
+            });
+        });
+        it('multiple resolve provides values', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        top: function () {
+                            return "top stuff";
+                        }
+                    }
+                }).state('top.mid', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        mid: function () {
+                            return "middle";
+                        }
+                    }
+                }).state('top.mid.low', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        low: function () {
+                            return "lowser";
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({
+                    top: 'top stuff'
+                });
+                expect(loc[1]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle'
+                });
+                expect(loc[2]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle',
+                    low: 'lowser'
+                });
+            });
+        });
+        it('multiple resolve with same name gets overwritten', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        top: function () {
+                            return "top stuff";
+                        },
+                        extra: function () {
+                            return "top";
+                        }
+                    }
+                }).state('top.mid', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        mid: function () {
+                            return "middle";
+                        },
+                        extra: function () {
+                            return "mid";
+                        }
+                    }
+                }).state('top.mid.low', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        low: function () {
+                            return "lowser";
+                        },
+                        extra: function () {
+                            return "low";
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({
+                    top: 'top stuff',
+                    extra: 'top'
+                });
+                expect(loc[1]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle',
+                    extra: 'mid'
+                });
+                expect(loc[2]).toEqual({
+                    top: 'top stuff',
+                    mid: 'middle',
+                    low: 'lowser',
+                    extra: 'low'
+                });
+            });
+        });
+    });
+    describe("reloadOnSearch", function () {
+        var location, spy;
+        beforeEach(mod('dotjem.routing', function ($stateProvider) {
+            $stateProvider.state('page', {
+                route: '/page/:param'
+            }).state('post', {
+                route: '/post/:param',
+                reloadOnSearch: false
+            }).state('foo', {
+            }).state('bar', {
+                reloadOnSearch: false
+            });
+            //reloadOnParams
+            return function ($rootScope, $state, $location) {
+                scope = $rootScope;
+                state = $state;
+                location = $location;
+                spy = spyOn(scope, '$broadcast');
+                spy.andCallThrough();
+            };
+        }));
+        function go(path) {
+            spy.reset();
+            location.url(path);
+            scope.$digest();
+        }
+        function goto(target, params) {
+            spy.reset();
+            state.goto(target, params);
+            scope.$digest();
+        }
+        function find(event) {
+            var events = [];
+            angular.forEach(spy.calls, function (call) {
+                if(call.args[0] === event) {
+                    events.push(call);
+                }
+            });
+            if(events.length > 1) {
+                return events;
+            }
+            return events[0];
+        }
+        it('adding search paramter when true causes transition', function () {
+            inject(function ($view, $state) {
+                go('/page/42');
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                go('/page/42?p=pre');
+                expect(find('$stateChangeSuccess')).toBeDefined();
+            });
+        });
+        it('adding search paramter when false causes update', function () {
+            inject(function ($view, $state) {
+                go('/post/42');
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                go('/post/42?p=pre');
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+        it('adding optional paramter when true causes transition', function () {
+            inject(function ($view, $state) {
+                goto('page', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('page', {
+                    param: 42,
+                    p: 'pre'
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+            });
+        });
+        it('adding optional paramter when false causes update', function () {
+            inject(function ($view, $state) {
+                goto('post', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('post', {
+                    param: 42,
+                    p: 'pre'
+                });
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+        it('with no route, all parameters are considered optional and raises change if true', function () {
+            inject(function ($view, $state) {
+                goto('foo', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('foo', {
+                    param: 43
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+            });
+        });
+        it('with no route, all parameters are considered optional and raises update if false', function () {
+            inject(function ($view, $state) {
+                goto('bar', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('bar', {
+                    param: 43
+                });
+                expect(find('$stateUpdate')).toBeDefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
+            });
+        });
+        it('no changes causes nothing', function () {
+            inject(function ($view, $state) {
+                goto('bar', {
+                    param: 42
+                });
+                expect(find('$stateChangeSuccess')).toBeDefined();
+                goto('bar', {
+                    param: 42
+                });
+                expect(find('$stateUpdate')).toBeUndefined();
+                expect(find('$stateChangeSuccess')).toBeUndefined();
             });
         });
     });

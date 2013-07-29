@@ -17,13 +17,13 @@ interface IExpression {
 }
 
 interface IRoute {
-    self: ui.routing.IRoute;
+    self: dotjem.routing.IRoute;
     redirect: ($location, params) => any;
     match: (path: string) => any;
 }
 
 /**
- * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+ * Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
  * 
  * @class $RouteProvider
  * @constructor
@@ -51,7 +51,7 @@ function $RouteProvider() {
      * @return {Object} self
      *
      * @param {string} name Cerverter name, used in the path when registering routes through the 
-     *   {@link ui.routing.routeProvider#when when} function.
+     *   {@link dotjem.routing.routeProvider#when when} function.
      */
     this.convert = (name: string, converter) => {
         //Note: We wan't to allow overwrite
@@ -77,7 +77,7 @@ function $RouteProvider() {
      *    would only match a parameter starting with one or two digits followed by a number of
      *    characters between 'a' and 'z'.
      * 
-     *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+     *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
      *    function.
      *
      * @param {Object} route Mapping information to be assigned to `$route.current` on route
@@ -88,7 +88,7 @@ function $RouteProvider() {
      *    - `state` – `{string}` – a state that should be activated when the route is matched.
      *    - `action` – `{(string|function()=}` – an action that should be performed when the route is matched.
      *    
-     *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy} 
+     *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy} 
      *    module.
      *
      *    - `controller` – `{(string|function()=}` – Controller fn that should be associated with newly
@@ -142,7 +142,7 @@ function $RouteProvider() {
      *      If the option is set to `false` and url in the browser changes, then
      *      `$routeUpdate` event is broadcasted on the root scope.
      */
-    this.when = (path: string, route: ui.routing.IRoute) => {
+    this.when = (path: string, route: dotjem.routing.IRoute) => {
         var expression = parseExpression(path);
         routes[expression.name] = {
             self: extend({ reloadOnSearch: true }, route),
@@ -176,7 +176,7 @@ function $RouteProvider() {
      *
      * @param {Object} params Mapping information to be assigned to `$route.current`.
      */
-    this.otherwise = (route: ui.routing.IRoute) => {
+    this.otherwise = (route: dotjem.routing.IRoute) => {
         this.when(null, route);
         return this;
     };
@@ -233,7 +233,7 @@ function $RouteProvider() {
         if (cargs) {
             trimmed = cargs.trim();
             if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') ||
-                (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']') ) {
+                (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
                 try {
                     cargs = angular.fromJson(trimmed);
                 } catch (e) {
@@ -249,12 +249,19 @@ function $RouteProvider() {
     }
 
     function interpolate(url, params) {
+        //TODO: Are we missing calls to some "Encode URI component"?
+
         var result = [], name = "", index = 0;
         forEach(parseParams(url), (param: IParam, idx) => {
+            var formatter = (val) => val.toString(),
+                converter = createParameter(param.name, param.converter, param.args).converter();
             if (param.converter !== '') {
                 //TODO: use converter to convert param to string.
             }
-            name += url.slice(index, param.index) + '/' + params[param.name].toString();
+            if (!isFunction(converter) && isDefined(converter.format))
+                formatter = converter.format;
+
+            name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
             index = param.lastIndex;
             delete params[param.name];
         });
@@ -310,10 +317,10 @@ function $RouteProvider() {
 
             regex += escape(path.slice(index, param.index));
             regex += '/([^\\/]*)';
-            
+
             if (param.converter !== '')
                 cname = ":" + param.converter;
-            
+
             name += path.slice(index, param.index) + '/$' + idx + cname;
 
             params[param.name] = {
@@ -356,10 +363,14 @@ function $RouteProvider() {
                 invalidParam = false;
                 forEach(expression.segments, function (segment: ISegment, index) {
                     var param,
-                        value;
+                        value,
+                        converter;
                     if (!invalidParam) {
                         param = match[index + 1];
-                        value = segment.converter()(param);
+                        converter = segment.converter();
+                        if (!isFunction(converter) && isDefined(converter.parse))
+                            converter = converter.parse;
+                        value = converter(param);
                         if (isDefined(value.accept)) {
                             if (!value.accept)
                                 invalidParam = true;
@@ -381,19 +392,26 @@ function $RouteProvider() {
     //Registration of Default Converters
 
     this.convert('num', () => {
-        return (param) => {
-            var accepts = !isNaN(param);
-            return {
-                accept: accepts,
-                value: accepts ? Number(param) : 0
-            };
-        }
+        return {
+            parse: (param) => {
+                var accepts = !isNaN(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? Number(param) : 0
+                };
+            },
+            format: (value) => {
+                if (isNaN(value))
+                    throw new Error("Value was not acceptable for a numeric parameter.");
+                return value.toString();
+            }
+        };
     });
 
     this.convert('regex', (arg) => {
         var exp,
             flags = '',
-            regex;
+            regex: RegExp;
 
         if (isObject(arg) && isDefined(arg.exp)) {
             exp = arg.exp;
@@ -407,18 +425,28 @@ function $RouteProvider() {
         }
 
         regex = new RegExp(exp, flags);
-        return (param) => {
-            var accepts = regex.test(param);
-            return {
-                accept: accepts,
-                value: accepts ? regex.exec(param) : null
-            };
-        }
+        return {
+            parse: (param) => {
+                var accepts = regex.test(param);
+                return {
+                    accept: accepts,
+                    value: accepts ? regex.exec(param) : null
+                };
+            },
+            format: (value) => {
+                var str = value.toString();
+                var test = regex.test(str);
+                if (!test)
+                    throw new Error("Value could not be matched by the regular expression parameter.");
+                return str;
+            }
+        };
     });
 
     this.convert('', () => { return (param) => { return true; }; });
 
     //Service Factory
+
 
     this.$get = [<any>'$rootScope', '$location', '$q', '$injector', '$routeParams',
     function ($rootScope: ng.IRootScopeService, $location: ng.ILocationService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $routeParams) {
@@ -437,8 +465,12 @@ function $RouteProvider() {
                             .path(route)
                             .search(params || {});
 
-                    if(args.replace)
+                    if (args.replace)
                         loc.replace();
+                },
+                format: function (route: string, params?: any) {
+                    var params = params || {};
+                    return interpolate(route, params) + toKeyValue(params);
                 }
             };
 
@@ -481,7 +513,11 @@ function $RouteProvider() {
                 && !nextRoute.reloadOnSearch) {
 
                 lastRoute.params = next.params;
+                lastRoute.searchParams = next.searchParams;
+                lastRoute.pathParams = next.pathParams;
+
                 copy(nextRoute.params, $routeParams);
+
                 $rootScope.$broadcast('$routeUpdate', lastRoute);
             } else if (next || lastRoute) {
                 //TODO: We should always have a next to go to, it may be a null route though.
@@ -521,5 +557,5 @@ function $RouteProvider() {
         }
     }];
 }
-angular.module('ui.routing').provider('$route', $RouteProvider)
+angular.module('dotjem.routing').provider('$route', $RouteProvider)
        .value('$routeParams', {});

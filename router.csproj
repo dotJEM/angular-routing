@@ -37,6 +37,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include=".travis.yml" />
+    <None Include="build\angular-routing.min.js.map">
+      <DependentUpon>angular-routing.js</DependentUpon>
+    </None>
     <None Include="LICENSE" />
     <None Include="package.json" />
     <None Include="README.md" />
@@ -44,8 +47,11 @@
     <None Include="src\common.js.map">
       <DependentUpon>common.ts</DependentUpon>
     </None>
-    <None Include="src\directives\uiView.js.map">
-      <DependentUpon>uiView.ts</DependentUpon>
+    <None Include="src\directives\jemAnchor.js.map">
+      <DependentUpon>jemAnchor.ts</DependentUpon>
+    </None>
+    <None Include="src\directives\jemView.js.map">
+      <DependentUpon>jemView.ts</DependentUpon>
     </None>
     <None Include="src\legacy\prefix" />
     <None Include="src\legacy\suffix" />
@@ -55,11 +61,32 @@
     <None Include="src\route.js.map">
       <DependentUpon>route.ts</DependentUpon>
     </None>
+    <None Include="src\scroll.js.map">
+      <DependentUpon>scroll.ts</DependentUpon>
+    </None>
     <None Include="src\state.js.map">
       <DependentUpon>state.ts</DependentUpon>
     </None>
     <None Include="src\stateTransition.js.map">
       <DependentUpon>stateTransition.ts</DependentUpon>
+    </None>
+    <None Include="src\state\state.js.map">
+      <DependentUpon>state.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateBrowser.js.map">
+      <DependentUpon>stateBrowser.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateComparer.js.map">
+      <DependentUpon>stateComparer.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateFactory.js.map">
+      <DependentUpon>stateFactory.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateRules.js.map">
+      <DependentUpon>stateRules.ts</DependentUpon>
+    </None>
+    <None Include="src\state\stateUrlBuilder.js.map">
+      <DependentUpon>stateUrlBuilder.ts</DependentUpon>
     </None>
     <None Include="src\template.js.map">
       <DependentUpon>template.ts</DependentUpon>
@@ -73,11 +100,32 @@
     <None Include="test\routeSpec.js.map">
       <DependentUpon>routeSpec.ts</DependentUpon>
     </None>
+    <None Include="test\scrollSpec.js.map">
+      <DependentUpon>scrollSpec.ts</DependentUpon>
+    </None>
     <None Include="test\stateSpec.js.map">
       <DependentUpon>stateSpec.ts</DependentUpon>
     </None>
     <None Include="test\stateTransitionSpec.js.map">
       <DependentUpon>stateTransitionSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateBrowserSpec.js.map">
+      <DependentUpon>stateBrowserSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateComparerSpec.js.map">
+      <DependentUpon>stateComparerSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateFactorySpec.js.map">
+      <DependentUpon>stateFactorySpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateRulesSpec.js.map">
+      <DependentUpon>stateRulesSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateSpec.js.map">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </None>
+    <None Include="test\state\stateUrlBuilderSpec.js.map">
+      <DependentUpon>stateUrlBuilderSpec.ts</DependentUpon>
     </None>
     <None Include="test\testcommon.js.map">
       <DependentUpon>testcommon.ts</DependentUpon>
@@ -108,16 +156,50 @@
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
     <TypeScriptCompile Include="src\stateTransition.ts" />
-    <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
-    <Content Include="src\directives\uiView.js">
-      <DependentUpon>uiView.ts</DependentUpon>
+    <TypeScriptCompile Include="src\state\state.ts" />
+    <TypeScriptCompile Include="src\state\stateRules.ts" />
+    <TypeScriptCompile Include="src\state\stateFactory.ts" />
+    <TypeScriptCompile Include="src\state\stateComparer.ts" />
+    <TypeScriptCompile Include="src\directives\jemAnchor.ts" />
+    <Content Include="src\directives\jemAnchor.js">
+      <DependentUpon>jemAnchor.ts</DependentUpon>
     </Content>
+    <Content Include="src\directives\jemView.js">
+      <DependentUpon>jemView.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\state.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state\stateBrowser.ts" />
+    <Content Include="src\state\stateBrowser.js">
+      <DependentUpon>stateBrowser.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\stateComparer.js">
+      <DependentUpon>stateComparer.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\stateFactory.js">
+      <DependentUpon>stateFactory.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\stateRules.js">
+      <DependentUpon>stateRules.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state\stateUrlBuilder.ts" />
+    <Content Include="src\state\stateUrlBuilder.js">
+      <DependentUpon>stateUrlBuilder.ts</DependentUpon>
+    </Content>
+    <Content Include="test-grunt-jqlite-config.js" />
+    <Content Include="test-dev-jqlite-config.js" />
+    <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
     <None Include="src\prefix" />
     <None Include="src\suffix" />
+    <TypeScriptCompile Include="src\scroll.ts" />
+    <Content Include="src\scroll.js">
+      <DependentUpon>scroll.ts</DependentUpon>
+    </Content>
     <Content Include="src\stateTransition.js">
       <DependentUpon>stateTransition.ts</DependentUpon>
     </Content>
-    <Content Include="test-grunt-config.js" />
+    <Content Include="test-grunt-jquery-config.js" />
     <Content Include="gruntfile.js" />
     <Content Include="lib\angular\angular-1.0.d.ts" />
     <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
@@ -137,7 +219,7 @@
     <Content Include="src\common.js">
       <DependentUpon>common.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="src\directives\uiView.ts" />
+    <TypeScriptCompile Include="src\directives\jemView.ts" />
     <TypeScriptCompile Include="src\legacy\templateDecorator.ts" />
     <TypeScriptCompile Include="src\interfaces.d.ts" />
     <Content Include="src\interfaces.d.js">
@@ -172,12 +254,40 @@
       <DependentUpon>routeSpec.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="test\stateSpec.ts" />
+    <TypeScriptCompile Include="test\scrollSpec.ts" />
+    <Content Include="test\scrollSpec.js">
+      <DependentUpon>scrollSpec.ts</DependentUpon>
+    </Content>
     <Content Include="test\stateSpec.js">
       <DependentUpon>stateSpec.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="test\viewSpec.ts" />
     <Content Include="test\stateTransitionSpec.js">
       <DependentUpon>stateTransitionSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\state\stateSpec.ts" />
+    <TypeScriptCompile Include="test\state\stateBrowserSpec.ts" />
+    <Content Include="test\state\stateBrowserSpec.js">
+      <DependentUpon>stateBrowserSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\state\stateComparerSpec.ts" />
+    <Content Include="test\state\stateComparerSpec.js">
+      <DependentUpon>stateComparerSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\state\stateFactorySpec.ts" />
+    <Content Include="test\state\stateFactorySpec.js">
+      <DependentUpon>stateFactorySpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\state\stateRulesSpec.ts" />
+    <Content Include="test\state\stateRulesSpec.js">
+      <DependentUpon>stateRulesSpec.ts</DependentUpon>
+    </Content>
+    <Content Include="test\state\stateSpec.js">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="test\state\stateUrlBuilderSpec.ts" />
+    <Content Include="test\state\stateUrlBuilderSpec.js">
+      <DependentUpon>stateUrlBuilderSpec.ts</DependentUpon>
     </Content>
     <Content Include="test\testcommon.js">
       <DependentUpon>testcommon.ts</DependentUpon>
@@ -187,7 +297,7 @@
       <DependentUpon>viewSpec.ts</DependentUpon>
     </Content>
     <Content Include="files.js" />
-    <Content Include="test-dev-config.js" />
+    <Content Include="test-dev-jquery-config.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="doc\turtorials\" />
