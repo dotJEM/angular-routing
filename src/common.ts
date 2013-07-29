@@ -100,4 +100,4 @@ function encodeUriQuery(val, pctEncodeSpaces) {
                replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
 
-angular.module('ui.routing', []);
+angular.module('dotjem.routing', []);

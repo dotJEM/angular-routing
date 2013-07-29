@@ -1,6 +1,6 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 
-module ui.routing {
+module dotjem.routing {
     interface IView {
         template?: ng.IPromise;
         controller?: any;
@@ -63,8 +63,7 @@ module ui.routing {
     interface IWhenRouteProvider extends IRouteProvider {
         $route: { path: string; params: any; name: string; };
     }
-
-
+    
     interface IRouteService {
         reload: () => void;
         change: (args: { route: string; params?: any; replace?: bool; }) => void;

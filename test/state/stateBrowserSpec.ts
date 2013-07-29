@@ -1,8 +1,5 @@
 /// <reference path="../testcommon.ts" />
 
-/// <reference path="../../src/state/state.ts" />
-/// <reference path="../../src/state/stateBrowser.ts" />
-
 describe('state.stateBrowser', function () {
     'use strict';
 
@@ -10,10 +7,9 @@ describe('state.stateBrowser', function () {
     //      as the raw source, this is because the solution is wrapped in a function on build.
     //      It is a bit of a mess though which I am not to fond of, but will have to do for now.
     //var nui = typeof dotjem !== 'undefined' ? dotjem.ui : ui;
-    var test = typeof dotjem !== 'undefined' ? dotjem : { StateBrowser: StateBrowser };
     var mod = angular.mock['module'];
     var inject = angular.mock.inject;
-    beforeEach(mod('ui.routing', function () { return function () { }; }));
+    beforeEach(mod('dotjem.routing', function () { return function () { }; }));
 
     describe('lookup', () => {
         it('"first" succeeds.', function () {
@@ -153,7 +149,7 @@ describe('state.stateBrowser', function () {
             return children;
         }
 
-        beforeEach(mod('ui.routing', function () {
+        beforeEach(mod('dotjem.routing', function () {
             root = {};
             root.fullname = 'root';
             root.children = buildChildArray(root, 'state', 3, (child) => {
@@ -248,7 +244,7 @@ describe('state.stateBrowser', function () {
             });
 
             //it('lookup ./top1', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("./top1");
@@ -257,7 +253,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup top3/mid2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("top3/mid2");
@@ -266,7 +262,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup top3/mid2/bot1', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("top3/mid2/bot1");
@@ -275,7 +271,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup [0]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("[0]");
@@ -284,7 +280,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup [-1]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("[-1]");
@@ -293,7 +289,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup [-2]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("[-2]");
@@ -302,7 +298,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup [1]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("[1]");
@@ -311,7 +307,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup .', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup(".");
@@ -320,7 +316,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup ../state2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("../state2");
@@ -329,7 +325,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup ../state2/top2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("../state2/top2");
@@ -338,7 +334,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup /state2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("/state2");
@@ -347,7 +343,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup $node(1)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("$node(1)");
@@ -356,7 +352,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup $node(-1)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("$node(-1)");
@@ -365,7 +361,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup $node(5)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("$node(5)");
@@ -374,7 +370,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup $node(-7)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        var state = $state.lookup("$node(-7)");
@@ -383,7 +379,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup .. throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        expect(function () { $state.lookup(".."); })
@@ -392,7 +388,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup ../.. throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        expect(function () { $state.lookup("../.."); })
@@ -401,7 +397,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup fubar throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        expect(function () { $state.lookup("fubar"); })
@@ -410,7 +406,7 @@ describe('state.stateBrowser', function () {
             //});
 
             //it('lookup top3/fubar throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
 
             //        expect(function () { $state.lookup("top3/fubar"); })

@@ -8,7 +8,7 @@
 
 class StateUrlBuilder {
 
-    constructor(private route: ui.routing.IRouteService) {
+    constructor(private route: dotjem.routing.IRouteService) {
     }
 
     public buildUrl(current, target, params?): string {

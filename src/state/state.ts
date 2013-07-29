@@ -7,7 +7,7 @@
 
 class State {
     private _children: { [name: string]: State; } = {};
-    private _self: ui.routing.IRegisteredState;
+    private _self: dotjem.routing.IRegisteredState;
     private _reloadOnOptional: bool;
     private _route: any;
 
@@ -15,7 +15,7 @@ class State {
     get fullname(): string { return this._fullname; }
     get name(): string { return this._name; }
     get reloadOnOptional(): bool { return this._reloadOnOptional; }
-    get self(): ui.routing.IRegisteredState { return copy(this._self); }
+    get self(): dotjem.routing.IRegisteredState { return copy(this._self); }
     get parent(): State { return this._parent; }
     get route(): any { return this._route; }
     get root(): State {
@@ -34,8 +34,8 @@ class State {
         this._reloadOnOptional = value;
     }
 
-    constructor(private _name: string, private _fullname: string, _self: ui.routing.IState, private _parent?: State) {
-        this._self = <ui.routing.IRegisteredState>_self;
+    constructor(private _name: string, private _fullname: string, _self: dotjem.routing.IState, private _parent?: State) {
+        this._self = <dotjem.routing.IRegisteredState>_self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
     }

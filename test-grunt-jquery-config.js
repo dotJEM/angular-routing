@@ -6,6 +6,9 @@ files = [
   'lib/angular/impl/angular-mocks.js',
   'build/angular-routing.js',
   'build/angular-routing.legacy.js',
+    
+  'build/test/testcommon.js',
+
   'build/test/**/*Spec.js'
 ];
 

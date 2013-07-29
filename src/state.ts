@@ -10,7 +10,7 @@
 /// <reference path="state/stateUrlBuilder.ts" />
 
 'use strict';
-var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: ui.routing.IRouteProvider, $transitionProvider) {
+var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: dotjem.routing.IRouteProvider, $transitionProvider) {
     //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
     //      it would make testing of them individually easier, although it would make them more public than
     //      they are right now.
@@ -19,7 +19,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         browser = new StateBrowser(root),
         comparer = new StateComparer();
 
-    this.state = function (fullname: string, state: ui.routing.IState) {
+    this.state = function (fullname: string, state: dotjem.routing.IState) {
         StateRules.validateName(fullname);
 
         var parent = browser.lookup(fullname, 1);
@@ -28,7 +28,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     };
 
     this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
-    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: ui.routing.IRouteService, $view: ui.routing.IViewService, $transition: ui.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: dotjem.routing.IRouteService, $view: dotjem.routing.IViewService, $transition: dotjem.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
         var urlbuilder = new StateUrlBuilder($route);
 
         var forceReload = null,
@@ -251,4 +251,4 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         }
     }];
 }];
-angular.module('ui.routing').provider('$state', $StateProvider);
+angular.module('dotjem.routing').provider('$state', $StateProvider);

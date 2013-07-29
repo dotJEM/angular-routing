@@ -9,7 +9,7 @@ describe('$stateProvider', function () {
     var inject = mock.inject;
 
     var scope: ng.IRootScopeService;
-    var state: ui.routing.IStateService;
+    var state: dotjem.routing.IStateService;
 
     function stringifyTransition(tansition) {
         var children = [],
@@ -46,7 +46,7 @@ describe('$stateProvider', function () {
         return current;
     }
 
-    beforeEach(mod('ui.routing', function () {
+    beforeEach(mod('dotjem.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
@@ -55,11 +55,11 @@ describe('$stateProvider', function () {
     describe("state names", () => {
         it('invalid throws errors', function () {
             var provider;
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 provider = $stateProvider;
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 expect(function () { provider.state('valid.sub1', {}); }).toThrow("Could not locate 'valid' under 'root'.");
                 expect(function () { provider.state('another.sub1', {}); }).toThrow("Could not locate 'another' under 'root'.");
                 expect(stringifyState($state.root)).toBe("()");
@@ -81,18 +81,18 @@ describe('$stateProvider', function () {
 
     describe("state", () => {
         it('can define state', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog())");
             });
         });
 
         it('can define state hierarchy using . notation', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('blog.recent', { name: 'recent' })
@@ -100,13 +100,13 @@ describe('$stateProvider', function () {
                     .state('blog.item', { name: 'item' })
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
         it('can overwrite state in hierarchy using . notation', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('blog.recent', { name: 'xrecent' })
@@ -115,7 +115,7 @@ describe('$stateProvider', function () {
                     .state('blog.recent', { name: 'recent' });
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -123,7 +123,7 @@ describe('$stateProvider', function () {
         });
 
         it('can define hierarchy using object notation', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', {
                         name: 'blog',
@@ -139,13 +139,13 @@ describe('$stateProvider', function () {
                     })
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
             });
         });
 
         it('can overwrite state in hierarchy using object notation', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', {
                         name: 'blog',
@@ -169,7 +169,7 @@ describe('$stateProvider', function () {
                     });
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -180,7 +180,7 @@ describe('$stateProvider', function () {
         });
 
         it('can overwrite state in hierarchy using . notation after having used object notation', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', {
                         name: 'blog',
@@ -197,7 +197,7 @@ describe('$stateProvider', function () {
                     .state('blog.recent', { name: 'recent' });
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
                 expect(state.fullname).toBe('root.blog.recent');
@@ -208,7 +208,7 @@ describe('$stateProvider', function () {
         });
 
         it('can clear children under a state using null', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('blog.recent', { name: 'recent' })
@@ -217,7 +217,7 @@ describe('$stateProvider', function () {
                     .state('blog.recent', { children: null });
             });
 
-            inject(function ($state: ui.routing.IStateService) {
+            inject(function ($state: dotjem.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
             });
         });
@@ -229,8 +229,8 @@ describe('$stateProvider', function () {
     describe("state $routeChangeSuccess", () => {
         it('will broadcast $stateChangeSuccess and set current state', function () {
             mod(function (
-                $stateProvider: ui.routing.IStateProvider,
-                $routeProvider: ui.routing.IRouteProvider) {
+                $stateProvider: dotjem.routing.IStateProvider,
+                $routeProvider: dotjem.routing.IRouteProvider) {
                 $stateProvider
                     .state('blog', { name: 'blog' })
                     .state('about', { name: 'about' })
@@ -239,7 +239,7 @@ describe('$stateProvider', function () {
                     .when('/about', { state: 'about' });
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -253,8 +253,8 @@ describe('$stateProvider', function () {
 
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
             mod(function (
-                $stateProvider: ui.routing.IStateProvider,
-                $routeProvider: ui.routing.IRouteProvider) {
+                $stateProvider: dotjem.routing.IStateProvider,
+                $routeProvider: dotjem.routing.IRouteProvider) {
 
                 $stateProvider
                     .state('blog', { name: 'blog' })
@@ -265,7 +265,7 @@ describe('$stateProvider', function () {
                     .when('/about', { state: 'about' });
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -285,8 +285,8 @@ describe('$stateProvider', function () {
 
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
             mod(function (
-                $stateProvider: ui.routing.IStateProvider,
-                $routeProvider: ui.routing.IRouteProvider) {
+                $stateProvider: dotjem.routing.IStateProvider,
+                $routeProvider: dotjem.routing.IRouteProvider) {
 
                 $stateProvider
                     .state('blog', { name: 'blog' })
@@ -301,7 +301,7 @@ describe('$stateProvider', function () {
                     .when('/about', { state: 'about' });
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -321,7 +321,7 @@ describe('$stateProvider', function () {
 
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
             mod(function (
-                $stateProvider: ui.routing.IStateProvider) {
+                $stateProvider: dotjem.routing.IStateProvider) {
 
                 $stateProvider
                     .state('blog', { route: '/blog', name: 'blog' })
@@ -330,7 +330,7 @@ describe('$stateProvider', function () {
                     .state('about', { route: '/blog', name: 'about' });
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -349,7 +349,7 @@ describe('$stateProvider', function () {
         });
 
         it('can register states with and without routes', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('top', { route: '/top', name: 'top' })
                     .state('top.center', { name: 'top.center' })
@@ -357,7 +357,7 @@ describe('$stateProvider', function () {
                     .state('top.center.two', { route: '/two', name: 'top.center.two' });
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -382,7 +382,7 @@ describe('$stateProvider', function () {
         });
 
         it('states invoke view service with view on change', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                             .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
                             .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
@@ -393,7 +393,7 @@ describe('$stateProvider', function () {
                             .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 spyOn($view, 'setIfAbsent');
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
@@ -436,7 +436,7 @@ describe('$stateProvider', function () {
         });
 
         it('states invoke view service with sticky views', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('top', {
                         route: '/top', name: 'top',
@@ -466,7 +466,7 @@ describe('$stateProvider', function () {
                     })
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 spyOn($view, 'setIfAbsent');
                 var setOrUpdate = spyOn($view, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
@@ -502,7 +502,7 @@ describe('$stateProvider', function () {
         });
 
         it('can reload state', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                             .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
                             .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
@@ -513,7 +513,7 @@ describe('$stateProvider', function () {
                             .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 spyOn($view, 'setIfAbsent');
                 var viewSpy = spyOn($view, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
@@ -554,14 +554,14 @@ describe('$stateProvider', function () {
         });
 
         it('states with parameters get invoked on parameter change', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                             .state('top', { route: '/top/:top', name: 'top', views: { 'top': { template: "top" } } })
                             .state('top.sub', { route: '/sub/:sub', name: 'sub', views: { 'sub': { template: "sub" } } })
                             .state('top.sub.bot', { route: '/bot/:bot', name: 'bot', views: { 'bot': { template: "bot" } } })
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService, $view: ui.routing.IViewService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
@@ -673,7 +673,7 @@ describe('$stateProvider', function () {
     describe("$transition $routeChangeSuccess", () => {
         it('Correct Transitions are called on state change.', function () {
             var last;
-            mod(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
                 $stateProvider
                         .state('home', { route: '/', name: 'about' })
 
@@ -698,7 +698,7 @@ describe('$stateProvider', function () {
                         .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
@@ -722,7 +722,7 @@ describe('$stateProvider', function () {
         });
 
         it('Transitions can be canceled.', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
                 $stateProvider
                     .state('home', { route: '/', name: 'about' })
 
@@ -746,7 +746,7 @@ describe('$stateProvider', function () {
                     });
             });
 
-            inject(function ($location, $route, $state: ui.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
@@ -771,7 +771,7 @@ describe('$stateProvider', function () {
 
     describe("goto", function () {
 
-        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
             $stateProvider
                 .state('home', { route: '/', name: 'about' })
 
@@ -803,7 +803,7 @@ describe('$stateProvider', function () {
         it('updates location when route is present', function () {
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
-                $state: ui.routing.IStateService) {
+                $state: dotjem.routing.IStateService) {
 
                 $state.goto('blog');
                 expect($location.path()).toBe('/blog');
@@ -816,7 +816,7 @@ describe('$stateProvider', function () {
         it('updates location when route is present and fills in parameters', function () {
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
-                $state: ui.routing.IStateService) {
+                $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42 });
                 expect($location.path()).toBe('/gallery/42');
@@ -832,7 +832,7 @@ describe('$stateProvider', function () {
         it('updates location when route is present and fills in parameters and keeps those not defined', function () {
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
-                $state: ui.routing.IStateService) {
+                $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42 });
                 scope.$digest();
@@ -855,7 +855,7 @@ describe('$stateProvider', function () {
         it('updates location when route is present and puts aditional parameters on search', function () {
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
-                $state: ui.routing.IStateService) {
+                $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42, search: "woahh" });
                 scope.$digest();
@@ -874,7 +874,7 @@ describe('$stateProvider', function () {
 
     describe("url", function () {
 
-        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider, $stateTransitionProvider: ui.routing.ITransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
             $stateProvider
                 .state('home', { route: '/', name: 'about' })
 
@@ -911,7 +911,7 @@ describe('$stateProvider', function () {
         it('builds route', function () {
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
-                $state: ui.routing.IStateService) {
+                $state: dotjem.routing.IStateService) {
 
                 goto('blog');
                 expect($state.url()).toBe('/blog');
@@ -926,7 +926,7 @@ describe('$stateProvider', function () {
         it('builds route with parameters', function () {
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
-                $state: ui.routing.IStateService) {
+                $state: dotjem.routing.IStateService) {
 
                 goto('gallery', { id: 42 });
                 expect($state.url()).toBe('/gallery/42');
@@ -944,7 +944,7 @@ describe('$stateProvider', function () {
     });
 
     describe("lookup", () => {
-        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider) {
             for (var sta = 1; sta < 4; sta++) {
                 var stateName = 'state' + sta;
                 $stateProvider.state(stateName, {});
@@ -974,21 +974,21 @@ describe('$stateProvider', function () {
 
         describe('at root', function () {
             it('lookup ./state1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     var state = $state.lookup("./state1");
                     expect(state.$fullname).toBe('root.state1');
                 });
             });
 
             it('lookup state1/top3/mid2/bot1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     var state = $state.lookup("state1/top3/mid2/bot1");
                     expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
                 });
             });
 
             it('lookup [1]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     var state = $state.lookup("[1]");
                     expect(state.$fullname).toBe('root.state2');
                 });
@@ -1000,7 +1000,7 @@ describe('$stateProvider', function () {
             var target = 'state1';
 
             it('lookup top1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("top1");
@@ -1009,7 +1009,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup state1.top2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("state1.top2");
@@ -1018,7 +1018,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ./top1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("./top1");
@@ -1027,7 +1027,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup top3/mid2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("top3/mid2");
@@ -1036,7 +1036,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup top3/mid2/bot1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("top3/mid2/bot1");
@@ -1045,7 +1045,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [0]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[0]");
@@ -1054,7 +1054,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [-1]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[-1]");
@@ -1063,7 +1063,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [-2]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[-2]");
@@ -1072,7 +1072,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [1]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[1]");
@@ -1081,7 +1081,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup .', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup(".");
@@ -1090,7 +1090,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../state2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("../state2");
@@ -1099,7 +1099,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../state2/top2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("../state2/top2");
@@ -1108,7 +1108,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup /state2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("/state2");
@@ -1117,7 +1117,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup $node(1)', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("$node(1)");
@@ -1126,7 +1126,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup $node(-1)', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("$node(-1)");
@@ -1135,7 +1135,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup $node(5)', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("$node(5)");
@@ -1144,7 +1144,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup $node(-7)', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("$node(-7)");
@@ -1153,7 +1153,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup .. throws error', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     expect(function () { $state.lookup(".."); })
@@ -1162,7 +1162,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../.. throws error', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     expect(function () { $state.lookup("../.."); })
@@ -1171,7 +1171,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup fubar throws error', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     expect(function () { $state.lookup("fubar"); })
@@ -1180,7 +1180,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup top3/fubar throws error', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     expect(function () { $state.lookup("top3/fubar"); })
@@ -1194,7 +1194,7 @@ describe('$stateProvider', function () {
             var target = 'state1.top2.mid2';
 
             it('lookup bot1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("bot1");
@@ -1203,7 +1203,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup state1.top2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("state1.top2");
@@ -1212,7 +1212,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ./bot1', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("./bot1");
@@ -1221,7 +1221,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [0]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[0]");
@@ -1230,7 +1230,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [-1]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[-1]");
@@ -1239,7 +1239,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [-2]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[-2]");
@@ -1248,7 +1248,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup [1]', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("[1]");
@@ -1257,7 +1257,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup .', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup(".");
@@ -1266,7 +1266,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ..', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("..");
@@ -1275,7 +1275,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../..', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("../..");
@@ -1284,7 +1284,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../../top2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("../../top2");
@@ -1293,7 +1293,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../../../state2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("../../../state2");
@@ -1302,7 +1302,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup ../../../state2/top2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("../../../state2/top2");
@@ -1311,7 +1311,7 @@ describe('$stateProvider', function () {
             });
 
             it('lookup /state2', function () {
-                inject(function ($location, $route, $state: ui.routing.IStateService) {
+                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
 
                     var state = $state.lookup("/state2");
@@ -1324,7 +1324,7 @@ describe('$stateProvider', function () {
 
     describe("resolve", () => {
         var loc;
-        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider) {
             return function ($rootScope, $state, $view) {
                 loc = []
                 spyOn($view, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
@@ -1345,7 +1345,7 @@ describe('$stateProvider', function () {
         }
 
         it('single resolve provides value', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('home', {
                         views: { 'tpl': { template: "tpl" } },
@@ -1353,14 +1353,14 @@ describe('$stateProvider', function () {
                     })
             });
 
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("home");
                 expect(loc[0]).toEqual({ home: 42 });
             });
         });
 
         it('multiple resolve provides values', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('top', {
                         views: { 'tpl': { template: "tpl" } },
@@ -1376,7 +1376,7 @@ describe('$stateProvider', function () {
                     })
             });
 
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("top.mid.low");
                 expect(loc[0]).toEqual({ top: 'top stuff' });
                 expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle' });
@@ -1385,7 +1385,7 @@ describe('$stateProvider', function () {
         });
 
         it('multiple resolve with same name gets overwritten', function () {
-            mod(function ($stateProvider: ui.routing.IStateProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
                     .state('top', {
                         views: { 'tpl': { template: "tpl" } },
@@ -1401,7 +1401,7 @@ describe('$stateProvider', function () {
                     })
             });
 
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("top.mid.low");
                 expect(loc[0]).toEqual({ top: 'top stuff', extra: 'top' });
                 expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle', extra: 'mid' });
@@ -1412,7 +1412,7 @@ describe('$stateProvider', function () {
 
     describe("reloadOnSearch", () => {
         var location: ng.ILocationService, spy: jasmine.Spy;
-        beforeEach(mod('ui.routing', function ($stateProvider: ui.routing.IStateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider) {
             $stateProvider
                 .state('page', { route: '/page/:param' })
                 .state('post', { route: '/post/:param', reloadOnSearch: false })
@@ -1456,7 +1456,7 @@ describe('$stateProvider', function () {
         }
 
         it('adding search paramter when true causes transition', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 go('/page/42');
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
@@ -1466,7 +1466,7 @@ describe('$stateProvider', function () {
         });
 
         it('adding search paramter when false causes update', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 go('/post/42');
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
@@ -1477,7 +1477,7 @@ describe('$stateProvider', function () {
         });
 
         it('adding optional paramter when true causes transition', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto('page', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
@@ -1487,7 +1487,7 @@ describe('$stateProvider', function () {
         });
 
         it('adding optional paramter when false causes update', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto('post', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
@@ -1498,7 +1498,7 @@ describe('$stateProvider', function () {
         });
 
         it('with no route, all parameters are considered optional and raises change if true', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto('foo', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
@@ -1508,7 +1508,7 @@ describe('$stateProvider', function () {
         });
 
         it('with no route, all parameters are considered optional and raises update if false', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto('bar', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
 
@@ -1519,7 +1519,7 @@ describe('$stateProvider', function () {
         });
 
         it('no changes causes nothing', function () {
-            inject(function ($view, $state: ui.routing.IStateService) {
+            inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto('bar', { param: 42 });
                 expect(find('$stateChangeSuccess')).toBeDefined();
 

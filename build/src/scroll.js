@@ -55,4 +55,4 @@ var $ScrollProvider = [
                 return scroll;
             }        ];
     }];
-angular.module('ui.routing').provider('$scroll', $ScrollProvider);
+angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);

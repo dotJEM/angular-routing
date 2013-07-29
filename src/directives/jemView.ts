@@ -8,8 +8,8 @@ interface IViewScope extends ng.IScope {
     refresh?: (data?: any) => void;
 }
 
-var uiViewDirective = [<any>'$state', '$scroll', '$compile', '$controller', '$view', '$animator',
-function ($state, $scroll, $compile, $controller, $view: ui.routing.IViewService, $animator) {
+var jemViewDirective = [<any>'$state', '$scroll', '$compile', '$controller', '$view', '$animator',
+function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewService, $animator) {
     return {
         restrict: 'ECA',
         terminal: true,
@@ -101,4 +101,4 @@ function ($state, $scroll, $compile, $controller, $view: ui.routing.IViewService
     };
 }];
 
-angular.module('ui.routing').directive('uiView', uiViewDirective);
+angular.module('dotjem.routing').directive('jemView', jemViewDirective);

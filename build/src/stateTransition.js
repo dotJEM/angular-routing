@@ -218,4 +218,4 @@ function $StateTransitionProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$stateTransition', $StateTransitionProvider);
+angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);

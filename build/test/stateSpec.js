@@ -30,7 +30,7 @@ describe('$stateProvider', function () {
         }
         return current;
     }
-    beforeEach(mod('ui.routing', function () {
+    beforeEach(mod('dotjem.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
@@ -966,7 +966,7 @@ describe('$stateProvider', function () {
     });
     //Note: Integration tests between $transition and $state etc.
     describe("goto", function () {
-        beforeEach(mod('ui.routing', function ($stateProvider, $stateTransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
             $stateProvider.state('home', {
                 route: '/',
                 name: 'about'
@@ -1081,7 +1081,7 @@ describe('$stateProvider', function () {
         });
     });
     describe("url", function () {
-        beforeEach(mod('ui.routing', function ($stateProvider, $stateTransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
             $stateProvider.state('home', {
                 route: '/',
                 name: 'about'
@@ -1164,7 +1164,7 @@ describe('$stateProvider', function () {
         });
     });
     describe("lookup", function () {
-        beforeEach(mod('ui.routing', function ($stateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider) {
             for(var sta = 1; sta < 4; sta++) {
                 var stateName = 'state' + sta;
                 $stateProvider.state(stateName, {
@@ -1472,7 +1472,7 @@ describe('$stateProvider', function () {
     });
     describe("resolve", function () {
         var loc;
-        beforeEach(mod('ui.routing', function ($stateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider) {
             return function ($rootScope, $state, $view) {
                 loc = [];
                 spyOn($view, 'setOrUpdate').andCallFake(function (name, template, controller, locals, sticky) {
@@ -1633,7 +1633,7 @@ describe('$stateProvider', function () {
     });
     describe("reloadOnSearch", function () {
         var location, spy;
-        beforeEach(mod('ui.routing', function ($stateProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider) {
             $stateProvider.state('page', {
                 route: '/page/:param'
             }).state('post', {

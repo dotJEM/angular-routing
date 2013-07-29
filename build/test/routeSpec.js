@@ -3,7 +3,7 @@ describe('$routeProvider', function () {
     'use strict';
     var mock = angular.mock;
     var scope;
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mock.module('dotjem.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
@@ -571,7 +571,7 @@ describe('$routeProvider', function () {
     });
     describe("change", function () {
         var location;
-        beforeEach(mock.module('ui.routing', function ($routeProvider) {
+        beforeEach(mock.module('dotjem.routing', function ($routeProvider) {
             return function ($rootScope, $location) {
                 scope = $rootScope;
                 location = $location;

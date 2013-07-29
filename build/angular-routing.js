@@ -74,14 +74,14 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
-angular.module('ui.routing', []);
+angular.module('dotjem.routing', []);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 'use strict';
 /**
-* Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+* Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 *
 * @class $RouteProvider
 * @constructor
@@ -109,7 +109,7 @@ function $RouteProvider() {
     * @return {Object} self
     *
     * @param {string} name Cerverter name, used in the path when registering routes through the
-    *   {@link ui.routing.routeProvider#when when} function.
+    *   {@link dotjem.routing.routeProvider#when when} function.
     */
     this.convert = function (name, converter) {
         //Note: We wan't to allow overwrite
@@ -134,7 +134,7 @@ function $RouteProvider() {
     *    would only match a parameter starting with one or two digits followed by a number of
     *    characters between 'a' and 'z'.
     *
-    *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+    *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
     *    function.
     *
     * @param {Object} route Mapping information to be assigned to `$route.current` on route
@@ -145,7 +145,7 @@ function $RouteProvider() {
     *    - `state` � `{string}` � a state that should be activated when the route is matched.
     *    - `action` � `{(string|function()=}` � an action that should be performed when the route is matched.
     *
-    *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}
+    *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy}
     *    module.
     *
     *    - `controller` � `{(string|function()=}` � Controller fn that should be associated with newly
@@ -575,7 +575,7 @@ function $RouteProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$route', $RouteProvider).value('$routeParams', {
+angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
 });
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
@@ -798,7 +798,7 @@ function $StateTransitionProvider() {
             }
         }    ];
 }
-angular.module('ui.routing').provider('$stateTransition', $StateTransitionProvider);
+angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -1057,7 +1057,7 @@ var $StateProvider = [
                 }
             }        ];
     }];
-angular.module('ui.routing').provider('$state', $StateProvider);
+angular.module('dotjem.routing').provider('$state', $StateProvider);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../common.ts" />
@@ -1454,7 +1454,7 @@ function $TemplateProvider() {
             return this;
         }    ];
 }
-angular.module('ui.routing').provider('$template', $TemplateProvider);
+angular.module('dotjem.routing').provider('$template', $TemplateProvider);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -1627,7 +1627,7 @@ function $ViewProvider() {
             return this;
         }    ];
 }
-angular.module('ui.routing').provider('$view', $ViewProvider);
+angular.module('dotjem.routing').provider('$view', $ViewProvider);
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
@@ -1686,13 +1686,13 @@ var $ScrollProvider = [
                 return scroll;
             }        ];
     }];
-angular.module('ui.routing').provider('$scroll', $ScrollProvider);
+angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
-var uiViewDirective = [
+var jemViewDirective = [
     '$state', 
     '$scroll', 
     '$compile', 
@@ -1775,13 +1775,13 @@ var uiViewDirective = [
             }
         };
     }];
-angular.module('ui.routing').directive('uiView', uiViewDirective);
+angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
-var uiAnchorDirective = [
+var jemAnchorDirective = [
     '$scroll', 
     '$timeout', 
     function ($scroll, $timeout) {
@@ -1809,16 +1809,15 @@ var uiAnchorDirective = [
             }
         };
     }];
-angular.module('ui.routing').directive('uiAnchor', uiAnchorDirective);
+angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
 
 
-	//NOTE: Expose for testing
-	dotjem.State = State;
-	dotjem.StateBrowser = StateBrowser;
-	dotjem.StateComparer = StateComparer;
-	dotjem.StateFactory = StateFactory;
-	dotjem.StateRules = StateRules;
-	dotjem.StateUrlBuilder = StateUrlBuilder;
+//NOTE: Expose for testing
+dotjem.State = State;
+dotjem.StateBrowser = StateBrowser;
+dotjem.StateComparer = StateComparer;
+dotjem.StateFactory = StateFactory;
+dotjem.StateRules = StateRules;
+dotjem.StateUrlBuilder = StateUrlBuilder;
 
-	//dotjem.ui = ui || (ui = {});
 })(window, document, dotjem || (dotjem = {}));

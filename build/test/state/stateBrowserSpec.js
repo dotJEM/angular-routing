@@ -1,18 +1,13 @@
 /// <reference path="../testcommon.ts" />
-/// <reference path="../../src/state/state.ts" />
-/// <reference path="../../src/state/stateBrowser.ts" />
 describe('state.stateBrowser', function () {
     'use strict';
     //Note: This line below is to be able to run the test cases both on the build output as well
     //      as the raw source, this is because the solution is wrapped in a function on build.
     //      It is a bit of a mess though which I am not to fond of, but will have to do for now.
     //var nui = typeof dotjem !== 'undefined' ? dotjem.ui : ui;
-    var test = typeof dotjem !== 'undefined' ? dotjem : {
-        StateBrowser: StateBrowser
-    };
     var mod = angular.mock['module'];
     var inject = angular.mock.inject;
-    beforeEach(mod('ui.routing', function () {
+    beforeEach(mod('dotjem.routing', function () {
         return function () {
         };
     }));
@@ -161,7 +156,7 @@ describe('state.stateBrowser', function () {
             }
             return children;
         }
-        beforeEach(mod('ui.routing', function () {
+        beforeEach(mod('dotjem.routing', function () {
             root = {
             };
             root.fullname = 'root';
@@ -244,133 +239,133 @@ describe('state.stateBrowser', function () {
                 });
             });
             //it('lookup ./top1', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("./top1");
             //        expect(state.$fullname).toBe('root.state1.top1');
             //    });
             //});
             //it('lookup top3/mid2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("top3/mid2");
             //        expect(state.$fullname).toBe('root.state1.top3.mid2');
             //    });
             //});
             //it('lookup top3/mid2/bot1', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("top3/mid2/bot1");
             //        expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
             //    });
             //});
             //it('lookup [0]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("[0]");
             //        expect(state.$fullname).toBe('root.state1.top1');
             //    });
             //});
             //it('lookup [-1]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("[-1]");
             //        expect(state.$fullname).toBe('root.state1.top3');
             //    });
             //});
             //it('lookup [-2]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("[-2]");
             //        expect(state.$fullname).toBe('root.state1.top2');
             //    });
             //});
             //it('lookup [1]', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("[1]");
             //        expect(state.$fullname).toBe('root.state1.top2');
             //    });
             //});
             //it('lookup .', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup(".");
             //        expect(state.$fullname).toBe('root.state1');
             //    });
             //});
             //it('lookup ../state2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("../state2");
             //        expect(state.$fullname).toBe('root.state2');
             //    });
             //});
             //it('lookup ../state2/top2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("../state2/top2");
             //        expect(state.$fullname).toBe('root.state2.top2');
             //    });
             //});
             //it('lookup /state2', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("/state2");
             //        expect(state.$fullname).toBe('root.state2');
             //    });
             //});
             //it('lookup $node(1)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("$node(1)");
             //        expect(state.$fullname).toBe('root.state2');
             //    });
             //});
             //it('lookup $node(-1)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("$node(-1)");
             //        expect(state.$fullname).toBe('root.state3');
             //    });
             //});
             //it('lookup $node(5)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("$node(5)");
             //        expect(state.$fullname).toBe('root.state3');
             //    });
             //});
             //it('lookup $node(-7)', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        var state = $state.lookup("$node(-7)");
             //        expect(state.$fullname).toBe('root.state3');
             //    });
             //});
             //it('lookup .. throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        expect(function () { $state.lookup(".."); })
             //            .toThrow();
             //    });
             //});
             //it('lookup ../.. throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        expect(function () { $state.lookup("../.."); })
             //            .toThrow();
             //    });
             //});
             //it('lookup fubar throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        expect(function () { $state.lookup("fubar"); })
             //            .toThrow();
             //    });
             //});
             //it('lookup top3/fubar throws error', function () {
-            //    inject(function ($location, $route, $state: ui.routing.IStateService) {
+            //    inject(function ($location, $route, $state: dotjem.routing.IStateService) {
             //        goto(target);
             //        expect(function () { $state.lookup("top3/fubar"); })
             //            .toThrow();

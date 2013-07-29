@@ -6,7 +6,7 @@ describe('$scroll', function () {
     'use strict';
     var mock = angular.mock;
 
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mock.module('dotjem.routing', function () {
         return function () {
 
         };
@@ -14,7 +14,7 @@ describe('$scroll', function () {
     
     describe('', () => {
         it('', function () {
-            mock.inject(function ($view: ui.routing.IViewService) {
+            mock.inject(function ($view: dotjem.routing.IViewService) {
 
             });
         });

@@ -7,7 +7,7 @@
 function $ViewProvider() {
 
     this.$get = [<any>'$rootScope', '$q', '$template',
-    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: ui.routing.ITemplateService) {
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: dotjem.routing.ITemplateService) {
 
         var views = {},
             transaction = null;
@@ -184,5 +184,5 @@ function $ViewProvider() {
         return this;
     }];
 }
-angular.module('ui.routing').provider('$view', $ViewProvider);
+angular.module('dotjem.routing').provider('$view', $ViewProvider);
 

@@ -30,9 +30,11 @@ files = [
     
   'src/legacy/templateDecorator.js',
     
-  'src/directives/uiView.js',
-  'src/directives/uiAnchor.js',
+  'src/directives/jemView.js',
+  'src/directives/jemAnchor.js',
 
+  'test/testcommon.js',
+  
   'test/**/*Spec.js'
 ];
 

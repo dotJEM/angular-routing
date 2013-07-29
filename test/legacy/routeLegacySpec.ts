@@ -7,7 +7,7 @@ describe('$routeProvider.templateDecorator', function () {
     var scope: ng.IRootScopeService;
     var httpBackend: ng.IHttpBackendService;
 
-    beforeEach(mock.module('ui.routing', 'ui.routing.legacy', function () {
+    beforeEach(mock.module('dotjem.routing', 'dotjem.routing.legacy', function () {
         return function ($rootScope, $httpBackend) {
             scope = $rootScope;
             httpBackend = $httpBackend;

@@ -7,7 +7,8 @@
 
 class StateFactory {
 
-    constructor(private routes: ui.routing.IRouteProvider, private transitions: ui.routing.ITransitionProvider) {
+    constructor(private routes: dotjem.routing.IRouteProvider,
+         private transitions: dotjem.routing.ITransitionProvider) {
     }
 
     public createRoute(stateRoute: string, parentRoute: any, stateName: string, reloadOnSearch: bool) {
@@ -24,7 +25,7 @@ class StateFactory {
         return this.routes.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
     }
 
-    public createState(fullname: string, state: ui.routing.IState, parent?: State): State {
+    public createState(fullname: string, state: dotjem.routing.IState, parent?: State): State {
         var name = fullname.split('.').pop()
         if (isDefined(parent))
             fullname = parent.fullname + "." + name;

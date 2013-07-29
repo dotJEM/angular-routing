@@ -17,13 +17,13 @@ interface IExpression {
 }
 
 interface IRoute {
-    self: ui.routing.IRoute;
+    self: dotjem.routing.IRoute;
     redirect: ($location, params) => any;
     match: (path: string) => any;
 }
 
 /**
- * Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+ * Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
  * 
  * @class $RouteProvider
  * @constructor
@@ -51,7 +51,7 @@ function $RouteProvider() {
      * @return {Object} self
      *
      * @param {string} name Cerverter name, used in the path when registering routes through the 
-     *   {@link ui.routing.routeProvider#when when} function.
+     *   {@link dotjem.routing.routeProvider#when when} function.
      */
     this.convert = (name: string, converter) => {
         //Note: We wan't to allow overwrite
@@ -77,7 +77,7 @@ function $RouteProvider() {
      *    would only match a parameter starting with one or two digits followed by a number of
      *    characters between 'a' and 'z'.
      * 
-     *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+     *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
      *    function.
      *
      * @param {Object} route Mapping information to be assigned to `$route.current` on route
@@ -88,7 +88,7 @@ function $RouteProvider() {
      *    - `state` – `{string}` – a state that should be activated when the route is matched.
      *    - `action` – `{(string|function()=}` – an action that should be performed when the route is matched.
      *    
-     *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy} 
+     *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy} 
      *    module.
      *
      *    - `controller` – `{(string|function()=}` – Controller fn that should be associated with newly
@@ -142,7 +142,7 @@ function $RouteProvider() {
      *      If the option is set to `false` and url in the browser changes, then
      *      `$routeUpdate` event is broadcasted on the root scope.
      */
-    this.when = (path: string, route: ui.routing.IRoute) => {
+    this.when = (path: string, route: dotjem.routing.IRoute) => {
         var expression = parseExpression(path);
         routes[expression.name] = {
             self: extend({ reloadOnSearch: true }, route),
@@ -176,7 +176,7 @@ function $RouteProvider() {
      *
      * @param {Object} params Mapping information to be assigned to `$route.current`.
      */
-    this.otherwise = (route: ui.routing.IRoute) => {
+    this.otherwise = (route: dotjem.routing.IRoute) => {
         this.when(null, route);
         return this;
     };
@@ -557,5 +557,5 @@ function $RouteProvider() {
         }
     }];
 }
-angular.module('ui.routing').provider('$route', $RouteProvider)
+angular.module('dotjem.routing').provider('$route', $RouteProvider)
        .value('$routeParams', {});

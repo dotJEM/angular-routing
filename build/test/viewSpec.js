@@ -3,7 +3,7 @@ describe('$view', function () {
     'use strict';
     var mock = angular.mock;
     var template, scope;
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mock.module('dotjem.routing', function () {
         return function ($template, $rootScope, $view) {
             template = $template;
             scope = $rootScope;

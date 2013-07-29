@@ -2,7 +2,7 @@
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
-var uiAnchorDirective = [
+var jemAnchorDirective = [
     '$scroll', 
     '$timeout', 
     function ($scroll, $timeout) {
@@ -30,4 +30,4 @@ var uiAnchorDirective = [
             }
         };
     }];
-angular.module('ui.routing').directive('uiAnchor', uiAnchorDirective);
+angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);

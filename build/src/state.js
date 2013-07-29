@@ -255,4 +255,4 @@ var $StateProvider = [
                 }
             }        ];
     }];
-angular.module('ui.routing').provider('$state', $StateProvider);
+angular.module('dotjem.routing').provider('$state', $StateProvider);

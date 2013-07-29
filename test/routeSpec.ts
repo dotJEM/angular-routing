@@ -6,7 +6,7 @@ describe('$routeProvider', function () {
     var mock = angular.mock;
     var scope: ng.IRootScopeService;
 
-    beforeEach(mock.module('ui.routing', function () {
+    beforeEach(mock.module('dotjem.routing', function () {
         return function ($rootScope) {
             scope = $rootScope;
         };
@@ -14,7 +14,7 @@ describe('$routeProvider', function () {
 
     describe("when", () => {
         it('matches first defined route', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
                     .when('/Customer', { message: "customerRoute" })
@@ -34,7 +34,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches second defined route', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
                     .when('/Customer', { message: "customerRoute" })
@@ -53,7 +53,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
                     .when('/Customer', { message: "customerRoute" })
@@ -71,7 +71,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route if different casing', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
                     .when('/Customer', { message: "customerRoute" })
@@ -89,7 +89,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches first route with paramter', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{id}', { message: "bookRoute" })
                     .when('/Customer/{id}', { message: "customerRoute" })
@@ -109,7 +109,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches second route with paramter', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{id}', { message: "bookRoute" })
                     .when('/Customer/{id}', { message: "customerRoute" })
@@ -129,7 +129,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches first route with number paramter and converts to number', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:id}', { message: "bookRoute" })
                     .when('/Customer/{num:id}', { message: "customerRoute" })
@@ -149,7 +149,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches second route with number paramter and converts to number', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:id}', { message: "bookRoute" })
                     .when('/Customer/{num:id}', { message: "customerRoute" })
@@ -169,7 +169,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route when number parameter is invalid', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:id}', { message: "bookRoute" })
                     .when('/Customer/{num:id}', { message: "customerRoute" })
@@ -187,7 +187,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches route when using regex parameter', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{regex(^\\w{2,5}$):id}', { message: "bookRoute" })
                     .when('/Customer/{id}', { message: "customerRoute" })
@@ -207,7 +207,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route when regex parameter is invalid', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{regex(^\\w{2,5}$):id}', { message: "bookRoute" })
                     .when('/Customer/{id}', { message: "customerRoute" })
@@ -225,7 +225,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route when parameter is invalid created with object', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{regex( { "exp" : "^\\\\w{2,5}$", "flags": "i" } ):id}', { message: "bookRoute" })
                     .when('/Customer/{id}', { message: "customerRoute" })
@@ -245,7 +245,7 @@ describe('$routeProvider', function () {
         });
 
         it('should be possible to overwrite a route', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "oldBookRoute" })
                     .when('/Customer', { message: "customerRoute" })
@@ -265,7 +265,7 @@ describe('$routeProvider', function () {
         });
 
         it('should be possible to register same route with different parameter types a route', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:param}', { message: "numberBookRoute" })
                     .when('/Book/{param}', { message: "bookRoute" })
@@ -293,7 +293,7 @@ describe('$routeProvider', function () {
 
         it('normalize names', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/:param1/:param2', {})
                     .when('/Home/:param3/:param4', {})
@@ -316,7 +316,7 @@ describe('$routeProvider', function () {
 
         it('normalized names allow for overwriting routes', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/:param1/:param2', {})
                     .when('/Book/:param3/:param4', {})
@@ -331,7 +331,7 @@ describe('$routeProvider', function () {
 
         it('different converters can be used to seperate routes', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:param1}/numbers', {})
                     .when('/Book/{param1}/others', {})
@@ -347,7 +347,7 @@ describe('$routeProvider', function () {
 
     describe("decorate", () => {
         it('converts message paramter into template parameter', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
                     .when('/Customer', { message: "customerRoute" })
@@ -372,7 +372,7 @@ describe('$routeProvider', function () {
     describe("convert", () => {
 
         it('matches route when custom parameter starts with a', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{custom:param}', { message: "bookRoute" })
                     .when('/Customer/{custom:param}', { message: "customerRoute" })
@@ -396,7 +396,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route when custom parameter starts with b', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{custom:param}', { message: "bookRoute" })
                     .when('/Customer/{custom:param}', { message: "customerRoute" })
@@ -421,7 +421,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches route when custom parameter contains pattern sub', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{contains(sub):param}', { message: "bookRoute" })
                     .when('/Customer/{contains(sub):param}', { message: "customerRoute" })
@@ -447,7 +447,7 @@ describe('$routeProvider', function () {
         });
 
         it('matches no route when custom parameter contains pattern fubar', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{contains(fubar):param}', { message: "bookRoute" })
                     .when('/Customer/{contains(fubar):param}', { message: "customerRoute" })
@@ -473,7 +473,7 @@ describe('$routeProvider', function () {
 
         it('matches no route when custom parameter contains pattern fubar', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{custom({"name":"John Doe", "age": 42}):param}', { message: "bookRoute" })
                     .convert('custom', (args) => {
@@ -502,7 +502,7 @@ describe('$routeProvider', function () {
 
         it('matches an uppercase route whit an lowercase location', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .ignoreCase()
                     .when('/BOOK', { message: "bookRoute" })
@@ -526,33 +526,33 @@ describe('$routeProvider', function () {
     describe("format", () => {
 
         it('without parameters returns simple route', function () {
-            mock.inject(function ($route: ui.routing.IRouteService) {
+            mock.inject(function ($route: dotjem.routing.IRouteService) {
                 expect($route.format('/look')).toBe('/look');
             });
         });
 
         it('with simple parameters returns formated route', function () {
-            mock.inject(function ($route: ui.routing.IRouteService) {
+            mock.inject(function ($route: dotjem.routing.IRouteService) {
                 expect($route.format('/look/:one', { one: 1 })).toBe('/look/1');
             });
         });
 
         it('with converter parameters returns formated route', function () {
-            mock.inject(function ($route: ui.routing.IRouteService) {
+            mock.inject(function ($route: dotjem.routing.IRouteService) {
                 expect($route.format('/look/{regex([0-9]*):one}', { one: 1 })).toBe('/look/1');
             });
         });
 
         it('regex converter throws error when values does not match', function () {
             //TODO: Built in regex should check for valid parameters.
-            mock.inject(function ($route: ui.routing.IRouteService) {
+            mock.inject(function ($route: dotjem.routing.IRouteService) {
                 expect(() => { $route.format('/look/{regex([0-9]+):one}', { one: 'invalid' }); })
                     .toThrow();
             });
         });
 
         it('custom converter can define formatting', function () {
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider.convert('custom', function() {
                     return {
                         parse: function (param) { return true; },
@@ -568,7 +568,7 @@ describe('$routeProvider', function () {
                 } );
             });
             //TODO: Built in regex should check for valid parameters.
-            mock.inject(function ($route: ui.routing.IRouteService) {
+            mock.inject(function ($route: dotjem.routing.IRouteService) {
                 expect($route.format('/look/{custom:one}', { one: 1 })).toBe('/look/One');
                 expect($route.format('/look/{custom:one}', { one: 2 })).toBe('/look/Two');
                 expect($route.format('/look/{custom:one}', { one: 3 })).toBe('/look/Three');
@@ -580,7 +580,7 @@ describe('$routeProvider', function () {
 
     describe("change", () => {
         var location: ng.ILocationService;
-        beforeEach(mock.module('ui.routing', function ($routeProvider: ui.routing.IRouteProvider) {
+        beforeEach(mock.module('dotjem.routing', function ($routeProvider: dotjem.routing.IRouteProvider) {
             return function ($rootScope, $location) {
                 scope = $rootScope;
                 location = $location;
@@ -594,13 +594,13 @@ describe('$routeProvider', function () {
 
         it('without params changes location', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/book', { message: "bookRoute" })
                     .when('/look', { message: "lookRoute" })
             });
 
-            mock.inject(function ($route: ui.routing.IRouteService, $location) {
+            mock.inject(function ($route: dotjem.routing.IRouteService, $location) {
                 goto('/book');
                 expect($route.current.message).toBe('bookRoute');
 
@@ -614,7 +614,7 @@ describe('$routeProvider', function () {
 
         it('with params changes location', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/book', { message: "bookRoute" })
                     .when('/book/:id', { message: "bookRouteWithId" })
@@ -622,7 +622,7 @@ describe('$routeProvider', function () {
                     .when('/look/:id', { message: "lookRouteWithId" })
             });
 
-            mock.inject(function ($route: ui.routing.IRouteService, $location) {
+            mock.inject(function ($route: dotjem.routing.IRouteService, $location) {
                 goto('/book');
                 expect($route.current.message).toBe('bookRoute');
 
@@ -636,7 +636,7 @@ describe('$routeProvider', function () {
 
         it('with params with {x} notation', function () {
             var converterArgs;
-            mock.module(function ($routeProvider: ui.routing.IRouteProvider) {
+            mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/book', { message: "bookRoute" })
                     .when('/book/{id}', { message: "bookRouteWithId" })
@@ -644,7 +644,7 @@ describe('$routeProvider', function () {
                     .when('/look/{id}', { message: "lookRouteWithId" })
             });
 
-            mock.inject(function ($route: ui.routing.IRouteService, $location) {
+            mock.inject(function ($route: dotjem.routing.IRouteService, $location) {
                 goto('/book');
                 expect($route.current.message).toBe('bookRoute');
 

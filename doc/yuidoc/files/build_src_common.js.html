@@ -153,7 +153,7 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, &#x27;@&#x27;).replace(/%3A/gi, &#x27;:&#x27;).replace(/%24/g, &#x27;$&#x27;).replace(/%2C/gi, &#x27;,&#x27;).replace(/%20/g, (pctEncodeSpaces ? &#x27;%20&#x27; : &#x27;+&#x27;));
 }
-angular.module(&#x27;ui.routing&#x27;, []);
+angular.module(&#x27;dotjem.routing&#x27;, []);
 
     </pre>
 </div>

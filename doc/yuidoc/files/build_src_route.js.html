@@ -91,7 +91,7 @@
 /// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
 &#x27;use strict&#x27;;
 /**
-* Used for configuring routes. See {@link ui.routing.$route $route} for an example.
+* Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 *
 * @class $RouteProvider
 * @constructor
@@ -119,7 +119,7 @@ function $RouteProvider() {
     * @return {Object} self
     *
     * @param {string} name Cerverter name, used in the path when registering routes through the
-    *   {@link ui.routing.routeProvider#when when} function.
+    *   {@link dotjem.routing.routeProvider#when when} function.
     */
     this.convert = function (name, converter) {
         //Note: We wan&#x27;t to allow overwrite
@@ -144,7 +144,7 @@ function $RouteProvider() {
     *    would only match a parameter starting with one or two digits followed by a number of
     *    characters between &#x27;a&#x27; and &#x27;z&#x27;.
     *
-    *    More converters can be registered using the {@link ui.routing.routeProvider#convert convert}
+    *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
     *    function.
     *
     * @param {Object} route Mapping information to be assigned to &#x60;$route.current&#x60; on route
@@ -155,7 +155,7 @@ function $RouteProvider() {
     *    - &#x60;state&#x60; � &#x60;{string}&#x60; � a state that should be activated when the route is matched.
     *    - &#x60;action&#x60; � &#x60;{(string|function()=}&#x60; � an action that should be performed when the route is matched.
     *
-    *    Legacy support for the following when using the {@link ui.routing.legacy ui.routing.legacy}
+    *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy}
     *    module.
     *
     *    - &#x60;controller&#x60; � &#x60;{(string|function()=}&#x60; � Controller fn that should be associated with newly
@@ -585,7 +585,7 @@ function $RouteProvider() {
             }
         }    ];
 }
-angular.module(&#x27;ui.routing&#x27;).provider(&#x27;$route&#x27;, $RouteProvider).value(&#x27;$routeParams&#x27;, {
+angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$route&#x27;, $RouteProvider).value(&#x27;$routeParams&#x27;, {
 });
 
     </pre>

@@ -169,4 +169,4 @@ function $ViewProvider() {
             return this;
         }    ];
 }
-angular.module('ui.routing').provider('$view', $ViewProvider);
+angular.module('dotjem.routing').provider('$view', $ViewProvider);

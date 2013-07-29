@@ -2,7 +2,7 @@
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
-var uiViewDirective = [
+var jemViewDirective = [
     '$state', 
     '$scroll', 
     '$compile', 
@@ -85,4 +85,4 @@ var uiViewDirective = [
             }
         };
     }];
-angular.module('ui.routing').directive('uiView', uiViewDirective);
+angular.module('dotjem.routing').directive('jemView', jemViewDirective);

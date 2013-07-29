@@ -4,7 +4,7 @@
 
 'use strict';
 
-var uiAnchorDirective = [<any>'$scroll', '$timeout',
+var jemAnchorDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {
         restrict: 'ECA',
@@ -34,4 +34,4 @@ function ($scroll, $timeout: ng.ITimeoutService) {
     };
 }];
 
-angular.module('ui.routing').directive('uiAnchor', uiAnchorDirective);
+angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
