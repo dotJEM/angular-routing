@@ -3,7 +3,7 @@
 /// <reference path="interfaces.d.ts" />
 /**
 * @ngdoc object
-* @name ng.$viewProvider
+* @name dotjem.routing.$viewProvider
 *
 * @description
 *
@@ -12,7 +12,7 @@ function $ViewProvider() {
     'use strict';
     /**
     * @ngdoc object
-    * @name ng.$view
+    * @name dotjem.routing.$view
     *
     * @description
     *
@@ -41,8 +41,8 @@ function $ViewProvider() {
             }
             /**
             * @ngdoc method
-            * @name ng.$view#clear
-            * @methodOf ng.$view
+            * @name dotjem.$view#clear
+            * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to clear (optional)
             *
@@ -74,8 +74,8 @@ function $ViewProvider() {
             }
             /**
             * @ngdoc method
-            * @name ng.$view#setOrUpdate
-            * @methodOf ng.$view
+            * @name dotjem.$view#setOrUpdate
+            * @methodOf dotjem.routing.$view
             *
             * @param {string} name Name
             * @param {object} args Arguments
@@ -85,8 +85,8 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name ng.$view#setOrUpdate
-            * @methodOf ng.$view
+            * @name dotjem.$view#setOrUpdate
+            * @methodOf dotjem.routing.$view
             *
             * @param {string} name Name
             * @param {object} template Template (optional)

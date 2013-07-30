@@ -157,7 +157,7 @@ module.exports = function (grunt) {
                 title: "dotJEM Angular Routing",
                 html5Mode: false,
             },
-            all: ['build/<%= pkg.name %>.js']
+            all: ['build/src/**/*.js']
         }
     });
 

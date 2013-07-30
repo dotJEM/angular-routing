@@ -5,7 +5,7 @@
 
 /**
  * @ngdoc object
- * @name ng.$scrollProvider
+ * @name dotjem.routing.$scrollProvider
  *
  * @description
  * Use the `$scrollProvider` to configure scroll behavior of the application.
@@ -14,13 +14,13 @@ var $ScrollProvider = [<any>
     function () {
     'use strict';
     
-    /**
-     * @ngdoc object
-     * @name ng.$scroll
-     *
-     * @description
-     * Use the `$scroll` to perform scrolling in the application.
-     */
+        /**
+         * @ngdoc object
+         * @name dotjem.routing.$scroll
+         *
+         * @description
+         * Use the `$scroll` to perform scrolling in the application.
+         */
     this.$get = [<any>'$window','$rootScope','$anchorScroll','$injector',
         function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService) {
             var scroll: any = function(arg: any) {

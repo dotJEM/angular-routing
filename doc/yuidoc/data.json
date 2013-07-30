@@ -132,7 +132,7 @@
             "file": "build\\src\\scroll.js",
             "line": 4,
             "ngdoc": "object",
-            "name": "ng.$scrollProvider",
+            "name": "dotjem.routing.$scrollProvider",
             "description": "Use the `$scrollProvider` to configure scroll behavior of the application.",
             "class": ""
         },
@@ -140,7 +140,7 @@
             "file": "build\\src\\scroll.js",
             "line": 14,
             "ngdoc": "object",
-            "name": "ng.$scroll",
+            "name": "dotjem.routing.$scroll",
             "description": "Use the `$scroll` to perform scrolling in the application.",
             "class": ""
         },
@@ -154,7 +154,7 @@
             "file": "build\\src\\view.js",
             "line": 4,
             "ngdoc": "object",
-            "name": "ng.$viewProvider",
+            "name": "dotjem.routing.$viewProvider",
             "description": "",
             "class": ""
         },
@@ -162,7 +162,7 @@
             "file": "build\\src\\view.js",
             "line": 13,
             "ngdoc": "object",
-            "name": "ng.$view",
+            "name": "dotjem.routing.$view",
             "description": "",
             "class": ""
         },
@@ -170,8 +170,8 @@
             "file": "build\\src\\view.js",
             "line": 42,
             "ngdoc": "method",
-            "name": "ng.$view#clear",
-            "methodof": "ng.$view",
+            "name": "dotjem.$view#clear",
+            "methodof": "dotjem.routing.$view",
             "params": [
                 {
                     "name": "name",
@@ -186,8 +186,8 @@
             "file": "build\\src\\view.js",
             "line": 75,
             "ngdoc": "method",
-            "name": "ng.$view#setOrUpdate",
-            "methodof": "ng.$view",
+            "name": "dotjem.$view#setOrUpdate",
+            "methodof": "dotjem.routing.$view",
             "params": [
                 {
                     "name": "name",
@@ -207,8 +207,8 @@
             "file": "build\\src\\view.js",
             "line": 86,
             "ngdoc": "method",
-            "name": "ng.$view#setOrUpdate",
-            "methodof": "ng.$view",
+            "name": "dotjem.$view#setOrUpdate",
+            "methodof": "dotjem.routing.$view",
             "params": [
                 {
                     "name": "name",

@@ -3,7 +3,7 @@
 /// <reference path="interfaces.d.ts" />
 /**
 * @ngdoc object
-* @name ng.$scrollProvider
+* @name dotjem.routing.$scrollProvider
 *
 * @description
 * Use the `$scrollProvider` to configure scroll behavior of the application.
@@ -13,7 +13,7 @@ var $ScrollProvider = [
         'use strict';
         /**
         * @ngdoc object
-        * @name ng.$scroll
+        * @name dotjem.routing.$scroll
         *
         * @description
         * Use the `$scroll` to perform scrolling in the application.

@@ -5,31 +5,31 @@ NG_DOCS={
   "pages": [
     {
       "section": "api",
-      "id": "ng.$scroll",
+      "id": "dotjem.routing.$scroll",
       "shortName": "$scroll",
       "type": "object",
-      "keywords": "$scroll api application in ng object perform scrolling the to use"
+      "keywords": "$scroll api application dotjem in object perform routing scrolling the to use"
     },
     {
       "section": "api",
-      "id": "ng.$scrollProvider",
+      "id": "dotjem.routing.$scrollProvider",
       "shortName": "$scrollProvider",
       "type": "object",
-      "keywords": "$scrollprovider api application behavior configure ng object of scroll the to use"
+      "keywords": "$scrollprovider api application behavior configure dotjem object of routing scroll the to use"
     },
     {
       "section": "api",
-      "id": "ng.$view",
+      "id": "dotjem.routing.$view",
       "shortName": "$view",
       "type": "object",
-      "keywords": "$view all api args arguments clear clears controller flag if is locals method name ng no object of or provided setorupdate sticky template the to view views"
+      "keywords": "$view all api args arguments clear clears controller dotjem flag if is locals method name no object of or provided routing setorupdate sticky template the to view views"
     },
     {
       "section": "api",
-      "id": "ng.$viewProvider",
+      "id": "dotjem.routing.$viewProvider",
       "shortName": "$viewProvider",
       "type": "object",
-      "keywords": "$viewprovider api ng object"
+      "keywords": "$viewprovider api dotjem object routing"
     }
   ],
   "apis": {
