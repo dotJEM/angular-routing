@@ -190,13 +190,13 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     var promise = $q.when(0);
                     forEach(changed.array, (change, index) => {
                         promise = promise.then(function () {
-                            return resolve(change.state.self.resolve);
+                            return resolve(change.state.resolve);
                         }).then(function (locals) {
                             if (change.isChanged)
                                 useUpdate = true;
 
-                            scrollTo = change.state.self.scrollTo;
-                            forEach(change.state.self.views, (view, name) => {
+                            scrollTo = change.state.scrollTo;
+                            forEach(change.state.views, (view, name) => {
                                 var sticky, fn;
                                 if (view.sticky) {
                                     sticky = view.sticky;
@@ -241,7 +241,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             throw Error("Can't cancel transition in after handler");
                         };
                         emit.after(transition);
-
 
                         $scroll(scrollTo);
                     }

@@ -1,20 +1,29 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
+/**
+* @ngdoc object
+* @name ng.$scrollProvider
+*
+* @description
+* Use the `$scrollProvider` to configure scroll behavior of the application.
+*/
 var $ScrollProvider = [
-    '$anchorScrollProvider', 
-    function ($anchorScrollProvider) {
-        //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
-        // $anchorScrollProvider.disableAutoScrolling();
+    function () {
+        'use strict';
+        /**
+        * @ngdoc object
+        * @name ng.$scroll
+        *
+        * @description
+        * Use the `$scroll` to perform scrolling in the application.
+        */
         this.$get = [
             '$window', 
             '$rootScope', 
             '$anchorScroll', 
             '$injector', 
-            '$timeout', 
-            function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
-                //var document = $window.document;
+            function ($window, $rootScope, $anchorScroll, $injector) {
                 var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
@@ -50,7 +59,13 @@ var $ScrollProvider = [
                 * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
                 *           - scroll to element with id or view if starts with @
                 */
+                //scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+                //scrollTo: null - don't scroll, not even to top.
+                //scrollTo: @viewname - scroll to a view.
+                //    scrollTo: elementid - scroll to an element id
+                //scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
                 return scroll;
             }        ];
-    }];
+    }
+];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);

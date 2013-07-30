@@ -148,6 +148,16 @@ module.exports = function (grunt) {
                     }
                 }]
             }
+        },
+        
+        //https://npmjs.org/package/grunt-ngdocs
+        ngdocs: {
+            options: {
+                dest: 'ngdocs',
+                title: "dotJEM Angular Routing",
+                html5Mode: false,
+            },
+            all: ['build/<%= pkg.name %>.js']
         }
     });
 
@@ -162,10 +172,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-ngdocs');
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc']);
+    grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc', 'ngdocs']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
 };

@@ -89,20 +89,29 @@
 /// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
 /// &lt;reference path=&quot;common.ts&quot; /&gt;
 /// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
-&#x27;use strict&#x27;;
+/**
+* @ngdoc object
+* @name ng.$scrollProvider
+*
+* @description
+* Use the &#x60;$scrollProvider&#x60; to configure scroll behavior of the application.
+*/
 var $ScrollProvider = [
-    &#x27;$anchorScrollProvider&#x27;, 
-    function ($anchorScrollProvider) {
-        //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
-        // $anchorScrollProvider.disableAutoScrolling();
+    function () {
+        &#x27;use strict&#x27;;
+        /**
+        * @ngdoc object
+        * @name ng.$scroll
+        *
+        * @description
+        * Use the &#x60;$scroll&#x60; to perform scrolling in the application.
+        */
         this.$get = [
             &#x27;$window&#x27;, 
             &#x27;$rootScope&#x27;, 
             &#x27;$anchorScroll&#x27;, 
             &#x27;$injector&#x27;, 
-            &#x27;$timeout&#x27;, 
-            function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
-                //var document = $window.document;
+            function ($window, $rootScope, $anchorScroll, $injector) {
                 var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
@@ -138,9 +147,15 @@ var $ScrollProvider = [
                 * scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; }
                 *           - scroll to element with id or view if starts with @
                 */
+                //scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+                //scrollTo: null - don&#x27;t scroll, not even to top.
+                //scrollTo: @viewname - scroll to a view.
+                //    scrollTo: elementid - scroll to an element id
+                //scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
                 return scroll;
             }        ];
-    }];
+    }
+];
 angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$scroll&#x27;, $ScrollProvider);
 
     </pre>

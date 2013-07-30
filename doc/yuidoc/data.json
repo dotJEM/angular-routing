@@ -28,6 +28,13 @@
             "classes": {},
             "fors": {},
             "namespaces": {}
+        },
+        "build\\src\\view.js": {
+            "name": "build\\src\\view.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
         }
     },
     "modules": {},
@@ -123,8 +130,113 @@
         },
         {
             "file": "build\\src\\scroll.js",
-            "line": 45,
+            "line": 4,
+            "ngdoc": "object",
+            "name": "ng.$scrollProvider",
+            "description": "Use the `$scrollProvider` to configure scroll behavior of the application.",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\scroll.js",
+            "line": 14,
+            "ngdoc": "object",
+            "name": "ng.$scroll",
+            "description": "Use the `$scroll` to perform scrolling in the application.",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\scroll.js",
+            "line": 54,
             "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 4,
+            "ngdoc": "object",
+            "name": "ng.$viewProvider",
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 13,
+            "ngdoc": "object",
+            "name": "ng.$view",
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 42,
+            "ngdoc": "method",
+            "name": "ng.$view#clear",
+            "methodof": "ng.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the view to clear (optional)",
+                    "type": "String"
+                }
+            ],
+            "description": "Clears a view, or all views if no name is provided.",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 75,
+            "ngdoc": "method",
+            "name": "ng.$view#setOrUpdate",
+            "methodof": "ng.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "args",
+                    "description": "Arguments",
+                    "type": "Object"
+                }
+            ],
+            "description": "Clears a view, or all views if no name is provided.",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 86,
+            "ngdoc": "method",
+            "name": "ng.$view#setOrUpdate",
+            "methodof": "ng.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "template",
+                    "description": "Template (optional)",
+                    "type": "Object"
+                },
+                {
+                    "name": "controller",
+                    "description": "Controller (optional)",
+                    "type": "Function="
+                },
+                {
+                    "name": "locals",
+                    "description": "Locals (optional)",
+                    "type": "Object="
+                },
+                {
+                    "name": "sticky",
+                    "description": "Sticky flag (optional)",
+                    "type": "String="
+                }
+            ],
+            "description": "Clears a view, or all views if no name is provided.",
             "class": ""
         }
     ],
@@ -132,6 +244,74 @@
         {
             "message": "replacing incorrect tag: returns with return",
             "line": " build\\src\\route.js:41"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\scroll.js:4"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\scroll.js:4"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\scroll.js:14"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\scroll.js:14"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:4"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:4"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:13"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:13"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:42"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:42"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:42"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:75"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:75"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:75"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:86"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:86"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:86"
         },
         {
             "message": "Missing item type\nWe need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
@@ -142,8 +322,36 @@
             "line": " build\\src\\common.js:54"
         },
         {
+            "message": "Missing item type\nUse the `$scrollProvider` to configure scroll behavior of the application.",
+            "line": " build\\src\\scroll.js:4"
+        },
+        {
+            "message": "Missing item type\nUse the `$scroll` to perform scrolling in the application.",
+            "line": " build\\src\\scroll.js:14"
+        },
+        {
             "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
-            "line": " build\\src\\scroll.js:45"
+            "line": " build\\src\\scroll.js:54"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:4"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:13"
+        },
+        {
+            "message": "Missing item type\nClears a view, or all views if no name is provided.",
+            "line": " build\\src\\view.js:42"
+        },
+        {
+            "message": "Missing item type\nClears a view, or all views if no name is provided.",
+            "line": " build\\src\\view.js:75"
+        },
+        {
+            "message": "Missing item type\nClears a view, or all views if no name is provided.",
+            "line": " build\\src\\view.js:86"
         }
     ]
 }

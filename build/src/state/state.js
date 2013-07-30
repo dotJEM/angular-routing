@@ -13,6 +13,7 @@ var State = (function () {
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo;
     }
     Object.defineProperty(State.prototype, "children", {
         get: function () {
@@ -82,15 +83,33 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(State.prototype, "scrollTo", {
+        get: function () {
+            return this._scrollTo;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "views", {
+        get: function () {
+            return this.self.views;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "resolve", {
+        get: function () {
+            return this.self.resolve;
+        },
+        enumerable: true,
+        configurable: true
+    });
     State.prototype.add = function (child) {
         this._children[child.name] = child;
         return this;
     };
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
-    };
-    State.prototype.toUrl = function (params) {
-        return "";
     };
     return State;
 })();

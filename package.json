@@ -35,7 +35,8 @@
     "grunt-karma": "~0.3.0",
     "yuidocjs": "~0.3.40",
     "grunt-contrib-connect": "~0.3.0",
-    "grunt-contrib-copy": "~0.4.1"
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-ngdocs": "~0.1.5"
   },
   "keywords": []
 }

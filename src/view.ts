@@ -2,10 +2,23 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
-'use strict';
-
+/**
+ * @ngdoc object
+ * @name ng.$viewProvider
+ *
+ * @description
+ *
+ */
 function $ViewProvider() {
+    'use strict';
 
+    /**
+     * @ngdoc object
+     * @name ng.$view
+     *
+     * @description
+     * 
+     */
     this.$get = [<any>'$rootScope', '$q', '$template',
     function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: dotjem.routing.ITemplateService) {
 
@@ -30,6 +43,16 @@ function $ViewProvider() {
             return (name in map) && map[name] !== null;
         }
 
+        /**
+         * @ngdoc method
+         * @name ng.$view#clear
+         * @methodOf ng.$view
+         *
+         * @param {string} name The name of the view to clear (optional)
+         *
+         * @description
+         * Clears a view, or all views if no name is provided.
+         */
         this.clear = function (name?: string) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
@@ -58,7 +81,33 @@ function $ViewProvider() {
                     || isDefined(args.sticky));
         }
 
-        //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+
+        /**
+         * @ngdoc method
+         * @name ng.$view#setOrUpdate
+         * @methodOf ng.$view
+         *
+         * @param {string} name Name
+         * @param {object} args Arguments
+         *
+         * @description
+         * Clears a view, or all views if no name is provided.
+         */
+
+        /**
+         * @ngdoc method
+         * @name ng.$view#setOrUpdate
+         * @methodOf ng.$view
+         *
+         * @param {string} name Name
+         * @param {object} template Template (optional)
+         * @param {function=} controller Controller (optional)
+         * @param {object=} locals Locals (optional)
+         * @param {string=} sticky Sticky flag (optional)
+         *
+         * @description
+         * Clears a view, or all views if no name is provided.
+         */
         this.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
             var template = templateOrArgs;
             if (isArgs(templateOrArgs)) {

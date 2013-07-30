@@ -1007,13 +1007,13 @@ var $StateProvider = [
                             var promise = $q.when(0);
                             forEach(changed.array, function (change, index) {
                                 promise = promise.then(function () {
-                                    return resolve(change.state.self.resolve);
+                                    return resolve(change.state.resolve);
                                 }).then(function (locals) {
                                     if(change.isChanged) {
                                         useUpdate = true;
                                     }
-                                    scrollTo = change.state.self.scrollTo;
-                                    forEach(change.state.self.views, function (view, name) {
+                                    scrollTo = change.state.scrollTo;
+                                    forEach(change.state.views, function (view, name) {
                                         var sticky, fn;
                                         if(view.sticky) {
                                             sticky = view.sticky;
@@ -1082,6 +1082,7 @@ var State = (function () {
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo;
     }
     Object.defineProperty(State.prototype, "children", {
         get: function () {
@@ -1151,15 +1152,33 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(State.prototype, "scrollTo", {
+        get: function () {
+            return this._scrollTo;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "views", {
+        get: function () {
+            return this.self.views;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(State.prototype, "resolve", {
+        get: function () {
+            return this.self.resolve;
+        },
+        enumerable: true,
+        configurable: true
+    });
     State.prototype.add = function (child) {
         this._children[child.name] = child;
         return this;
     };
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
-    };
-    State.prototype.toUrl = function (params) {
-        return "";
     };
     return State;
 })();
@@ -1467,8 +1486,22 @@ angular.module('dotjem.routing').provider('$template', $TemplateProvider);
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
+/**
+* @ngdoc object
+* @name ng.$viewProvider
+*
+* @description
+*
+*/
 function $ViewProvider() {
+    'use strict';
+    /**
+    * @ngdoc object
+    * @name ng.$view
+    *
+    * @description
+    *
+    */
     this.$get = [
         '$rootScope', 
         '$q', 
@@ -1491,6 +1524,16 @@ function $ViewProvider() {
             function containsView(map, name) {
                 return (name in map) && map[name] !== null;
             }
+            /**
+            * @ngdoc method
+            * @name ng.$view#clear
+            * @methodOf ng.$view
+            *
+            * @param {string} name The name of the view to clear (optional)
+            *
+            * @description
+            * Clears a view, or all views if no name is provided.
+            */
             this.clear = function (name) {
                 var _this = this;
                 if(isUndefined(name)) {
@@ -1514,7 +1557,31 @@ function $ViewProvider() {
             function isArgs(args) {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
             }
-            //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+            /**
+            * @ngdoc method
+            * @name ng.$view#setOrUpdate
+            * @methodOf ng.$view
+            *
+            * @param {string} name Name
+            * @param {object} args Arguments
+            *
+            * @description
+            * Clears a view, or all views if no name is provided.
+            */
+            /**
+            * @ngdoc method
+            * @name ng.$view#setOrUpdate
+            * @methodOf ng.$view
+            *
+            * @param {string} name Name
+            * @param {object} template Template (optional)
+            * @param {function=} controller Controller (optional)
+            * @param {object=} locals Locals (optional)
+            * @param {string=} sticky Sticky flag (optional)
+            *
+            * @description
+            * Clears a view, or all views if no name is provided.
+            */
             this.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
                 var _this = this;
                 var template = templateOrArgs;
@@ -1640,20 +1707,29 @@ angular.module('dotjem.routing').provider('$view', $ViewProvider);
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
+/**
+* @ngdoc object
+* @name ng.$scrollProvider
+*
+* @description
+* Use the `$scrollProvider` to configure scroll behavior of the application.
+*/
 var $ScrollProvider = [
-    '$anchorScrollProvider', 
-    function ($anchorScrollProvider) {
-        //TODO: Consider this again... maybe we should just allow for a rerouted disable call?
-        // $anchorScrollProvider.disableAutoScrolling();
+    function () {
+        'use strict';
+        /**
+        * @ngdoc object
+        * @name ng.$scroll
+        *
+        * @description
+        * Use the `$scroll` to perform scrolling in the application.
+        */
         this.$get = [
             '$window', 
             '$rootScope', 
             '$anchorScroll', 
             '$injector', 
-            '$timeout', 
-            function ($window, $rootScope, $anchorScroll, $injector, $timeout) {
-                //var document = $window.document;
+            function ($window, $rootScope, $anchorScroll, $injector) {
                 var scroll = function (arg) {
                     var fn;
                     if(isUndefined(arg)) {
@@ -1689,9 +1765,15 @@ var $ScrollProvider = [
                 * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
                 *           - scroll to element with id or view if starts with @
                 */
+                //scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+                //scrollTo: null - don't scroll, not even to top.
+                //scrollTo: @viewname - scroll to a view.
+                //    scrollTo: elementid - scroll to an element id
+                //scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
                 return scroll;
             }        ];
-    }];
+    }
+];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
@@ -1763,10 +1845,6 @@ var jemViewDirective = [
                             if(controller) {
                                 locals = copy(view.locals);
                                 locals.$scope = viewScope;
-                                //locals.$async = function async() {
-                                //    return function done() {
-                                //    }
-                                //}
                                 controller = $controller(controller, locals);
                                 element.contents().data('$ngControllerController', controller);
                             }

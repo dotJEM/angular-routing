@@ -80,6 +80,8 @@ module dotjem.routing {
         onExit?: any;
 
         views?: any;
+        scrollTo?: any;
+        resolve?: any;
     }
 
     interface IRegisteredState extends IState {

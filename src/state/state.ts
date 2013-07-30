@@ -10,6 +10,7 @@ class State {
     private _self: dotjem.routing.IRegisteredState;
     private _reloadOnOptional: bool;
     private _route: any;
+    private _scrollTo: any;
 
     get children(): any { return this._children; }
     get fullname(): string { return this._fullname; }
@@ -34,10 +35,23 @@ class State {
         this._reloadOnOptional = value;
     }
 
+    get scrollTo() {
+        return this._scrollTo;
+    }
+
+    get views() {
+        return this.self.views;
+    }
+
+    get resolve() {
+        return this.self.resolve;
+    }
+
     constructor(private _name: string, private _fullname: string, _self: dotjem.routing.IState, private _parent?: State) {
         this._self = <dotjem.routing.IRegisteredState>_self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo;
     }
 
     public add(child: State): State {
@@ -49,12 +63,6 @@ class State {
         return isDefined(this.route) ? this.route.route
              : isDefined(this.parent) ? this.parent.resolveRoute()
              : '';
-    }
-
-    public toUrl(params: any[]): string {
-
-
-        return "";
     }
 }
 

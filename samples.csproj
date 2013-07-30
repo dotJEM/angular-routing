@@ -91,6 +91,20 @@
     <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
     <Content Include="lib\jquery\jquery.d.ts" />
     <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
+    <Content Include="ngdocs\css\animations.css" />
+    <Content Include="ngdocs\css\bootstrap.min.css" />
+    <Content Include="ngdocs\css\docs.css" />
+    <Content Include="ngdocs\css\doc_widgets.css" />
+    <Content Include="ngdocs\css\font-awesome.css" />
+    <Content Include="ngdocs\favicon.ico" />
+    <Content Include="ngdocs\font\fontawesome-webfont.svg" />
+    <Content Include="ngdocs\index.html" />
+    <Content Include="ngdocs\js\angular-bootstrap-prettify.min.js" />
+    <Content Include="ngdocs\js\angular-bootstrap.min.js" />
+    <Content Include="ngdocs\js\angular.min.js" />
+    <Content Include="ngdocs\js\docs-setup.js" />
+    <Content Include="ngdocs\js\docs.js" />
+    <Content Include="ngdocs\partials\api\ng.%24scrollProvider.html" />
     <Content Include="samples\configuration.js">
       <DependentUpon>configuration.ts</DependentUpon>
     </Content>
@@ -132,6 +146,12 @@
     <Content Include="samples\configuration.js.map">
       <DependentUpon>configuration.ts</DependentUpon>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ngdocs\font\fontawesome-webfont.eot" />
+    <Content Include="ngdocs\font\fontawesome-webfont.ttf" />
+    <Content Include="ngdocs\font\fontawesome-webfont.woff" />
+    <Content Include="ngdocs\font\FontAwesome.otf" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
