@@ -59,8 +59,8 @@ take place.
 * `$stateProvider` and `$state` to manage application states.
 * `$stateTransitionProvider` to manage state transitions.
 * `$viewProvider` and `$view` to manage view state.
-* `uiView` as a replacement for `ngView`
-* `templateDecorator` for backwards compatiblity (optional)
+* `jem-view` directive as a replacement for `ng-view`
+* `$scroll` and `jem-anchor` directive for scrolling
 
 #### $routeProvider and $route
 
