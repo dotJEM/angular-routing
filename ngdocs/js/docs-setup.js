@@ -5,31 +5,31 @@ NG_DOCS={
   "pages": [
     {
       "section": "api",
-      "id": "dotjem.routing.$scroll",
-      "shortName": "$scroll",
-      "type": "object",
-      "keywords": "$scroll api application dotjem in object perform routing scrolling the to use"
-    },
-    {
-      "section": "api",
       "id": "dotjem.routing.$scrollProvider",
       "shortName": "$scrollProvider",
-      "type": "object",
-      "keywords": "$scrollprovider api application behavior configure dotjem object of routing scroll the to use"
+      "type": "function",
+      "keywords": "$location $rootscope $scrollprovider $window api dotjem function routing"
     },
     {
       "section": "api",
       "id": "dotjem.routing.$view",
       "shortName": "$view",
       "type": "object",
-      "keywords": "$view all api args arguments clear clears controller dotjem flag if is locals method name no object of or provided routing setorupdate sticky template the to view views"
+      "keywords": "$view all api args arguments beginupdate clear clears controller data dotjem flag get if is locals method name no object of or provided refresh routing setifabsent setorupdate sticky template the to view views"
     },
     {
       "section": "api",
-      "id": "dotjem.routing.$viewProvider",
-      "shortName": "$viewProvider",
-      "type": "object",
-      "keywords": "$viewprovider api dotjem object routing"
+      "id": "dotjem.routing.directive:jemAnchor",
+      "shortName": "jemAnchor",
+      "type": "directive",
+      "keywords": "anchor angular-route animations any api deps directive dotjem eca identifier jemanchor js module ngviewexample of routing the true"
+    },
+    {
+      "section": "api",
+      "id": "dotjem.routing.directive:jemView",
+      "shortName": "jemView",
+      "type": "directive",
+      "keywords": "angular-route animations any api deps directive dotjem eca jemview js module name ngviewexample of routing the true view"
     }
   ],
   "apis": {

@@ -4,6 +4,20 @@
 
 'use strict';
 
+/**
+ * @ngdoc directive
+ * @name dotjem.routing.directive:jemAnchor
+ * @restrict ECA
+ * 
+ * @description
+ *
+ * @element ANY
+ * @param {string} jemAnchor Identifier of the anchor
+ *
+ * @scope
+ * @example
+    <example module="ngViewExample" deps="angular-route.js" animations="true">
+ */
 var jemAnchorDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {

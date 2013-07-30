@@ -2,22 +2,23 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 /**
-* @ngdoc object
+* @ngdoc function
 * @name dotjem.routing.$scrollProvider
 *
+* @requires $window
+* @requires $location
+* @requires $rootScope
+*
 * @description
-* Use the `$scrollProvider` to configure scroll behavior of the application.
+*
+*
+*
+*
+*
 */
 var $ScrollProvider = [
     function () {
         'use strict';
-        /**
-        * @ngdoc object
-        * @name dotjem.routing.$scroll
-        *
-        * @description
-        * Use the `$scroll` to perform scrolling in the application.
-        */
         this.$get = [
             '$window', 
             '$rootScope', 
@@ -43,29 +44,29 @@ var $ScrollProvider = [
                     }
                     $rootScope.$broadcast('$scrollPositionChanged', elm);
                 }
-                //scroll.$register = register;
-                //var elements = {};
-                //function register(name: string, elm: HTMLElement) {
-                //    if (name in elements) {
-                //        var existing = elements[name];
-                //    }
-                //    elements[name] = elm;
-                //}
-                /****jQuery( "[attribute='value']"
-                * scrollTo: top - scroll to top, explicitly stated.
-                *           (This also enables one to override another scrollTo from a parent)
-                * scrollTo: null - don't scroll, not even to top.
-                * scrollTo: element-selector - scroll to an element id
-                * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-                *           - scroll to element with id or view if starts with @
-                */
-                //scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-                //scrollTo: null - don't scroll, not even to top.
-                //scrollTo: @viewname - scroll to a view.
-                //    scrollTo: elementid - scroll to an element id
-                //scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
                 return scroll;
             }        ];
     }
 ];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
+//scroll.$register = register;
+//var elements = {};
+//function register(name: string, elm: HTMLElement) {
+//    if (name in elements) {
+//        var existing = elements[name];
+//    }
+//    elements[name] = elm;
+//}
+/****jQuery( "[attribute='value']"
+* scrollTo: top - scroll to top, explicitly stated.
+*           (This also enables one to override another scrollTo from a parent)
+* scrollTo: null - don't scroll, not even to top.
+* scrollTo: element-selector - scroll to an element id
+* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
+*           - scroll to element with id or view if starts with @
+*/
+//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+//scrollTo: null - don't scroll, not even to top.
+//scrollTo: @viewname - scroll to a view.
+//    scrollTo: elementid - scroll to an element id
+//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @

@@ -5,15 +5,60 @@
 <div><h2 id="Description">Description</h2>
 <div class="description"></div>
 <div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="clear">clear(name)</h3>
+<ul class="methods"><li><h3 id="beginUpdate">beginUpdate(name)</h3>
+<div class="beginupdate"><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
+<p>Name</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="clear">clear(name)</h3>
 <div class="clear"><p>Clears a view, or all views if no name is provided.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
 <p>The name of the view to clear (optional)</p></li>
 </ul>
 </div>
 </li>
+<li><h3 id="get">get(name)</h3>
+<div class="get"><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
+<p>Name</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="refresh">refresh(name, data)</h3>
+<div class="refresh"><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name<i>(optional)</i> – {string=} – </code>
+<p>Name</p></li>
+<li><code ng:non-bindable="">data<i>(optional)</i> – {object=} – </code>
+<p>Data</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="setIfAbsent">setIfAbsent(name, args)</h3>
+<div class="setifabsent"><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
+<p>Name</p></li>
+<li><code ng:non-bindable="">args – {object} – </code>
+<p>Arguments</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="setIfAbsent">setIfAbsent(name, template, controller, locals)</h3>
+<div class="setifabsent"><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
+<p>Name</p></li>
+<li><code ng:non-bindable="">template – {object} – </code>
+<p>Template</p></li>
+<li><code ng:non-bindable="">controller<i>(optional)</i> – {function=} – </code>
+<p>Controller</p></li>
+<li><code ng:non-bindable="">locals<i>(optional)</i> – {object=} – </code>
+<p>Locals</p></li>
+</ul>
+</div>
+</li>
 <li><h3 id="setOrUpdate">setOrUpdate(name, args)</h3>
-<div class="setorupdate"><p>Clears a view, or all views if no name is provided.</p><h4 id="Parameters">Parameters</h4>
+<div class="setorupdate"><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
 <p>Name</p></li>
 <li><code ng:non-bindable="">args – {object} – </code>
@@ -22,17 +67,17 @@
 </div>
 </li>
 <li><h3 id="setOrUpdate">setOrUpdate(name, template, controller, locals, sticky)</h3>
-<div class="setorupdate"><p>Clears a view, or all views if no name is provided.</p><h4 id="Parameters">Parameters</h4>
+<div class="setorupdate"><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
 <p>Name</p></li>
 <li><code ng:non-bindable="">template – {object} – </code>
-<p>Template (optional)</p></li>
+<p>Template</p></li>
 <li><code ng:non-bindable="">controller<i>(optional)</i> – {function=} – </code>
-<p>Controller (optional)</p></li>
+<p>Controller</p></li>
 <li><code ng:non-bindable="">locals<i>(optional)</i> – {object=} – </code>
-<p>Locals (optional)</p></li>
+<p>Locals</p></li>
 <li><code ng:non-bindable="">sticky<i>(optional)</i> – {string=} – </code>
-<p>Sticky flag (optional)</p></li>
+<p>Sticky flag</p></li>
 </ul>
 </div>
 </li>

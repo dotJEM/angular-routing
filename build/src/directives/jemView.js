@@ -1,7 +1,17 @@
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../interfaces.d.ts" />
-/// <reference path="../common.ts" />
-'use strict';
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:jemView
+* @restrict ECA
+*
+* @description
+*
+* @element ANY
+* @param {string} jemView Name of the view
+*
+* @scope
+* @example
+<example module="ngViewExample" deps="angular-route.js" animations="true">
+*/
 var jemViewDirective = [
     '$state', 
     '$scroll', 
@@ -10,6 +20,7 @@ var jemViewDirective = [
     '$view', 
     '$animator', 
     function ($state, $scroll, $compile, $controller, $view, $animator) {
+        'use strict';
         return {
             restrict: 'ECA',
             terminal: true,

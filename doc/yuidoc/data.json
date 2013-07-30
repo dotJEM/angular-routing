@@ -6,6 +6,20 @@
         "url": ""
     },
     "files": {
+        "build\\src\\directives\\jemAnchor.js": {
+            "name": "build\\src\\directives\\jemAnchor.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "build\\src\\directives\\jemView.js": {
+            "name": "build\\src\\directives\\jemView.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
         "build\\src\\common.js": {
             "name": "build\\src\\common.js",
             "modules": {},
@@ -54,6 +68,48 @@
         }
     },
     "classitems": [
+        {
+            "file": "build\\src\\directives\\jemAnchor.js",
+            "line": 5,
+            "ngdoc": "directive",
+            "name": "dotjem.routing.directive:jemAnchor",
+            "restrict": "ECA",
+            "description": "",
+            "element": "ANY",
+            "params": [
+                {
+                    "name": "jemAnchor",
+                    "description": "Identifier of the anchor",
+                    "type": "String"
+                }
+            ],
+            "scope": "",
+            "example": [
+                "\n<example module=\"ngViewExample\" deps=\"angular-route.js\" animations=\"true\">"
+            ],
+            "class": "$RouteProvider"
+        },
+        {
+            "file": "build\\src\\directives\\jemView.js",
+            "line": 1,
+            "ngdoc": "directive",
+            "name": "dotjem.routing.directive:jemView",
+            "restrict": "ECA",
+            "description": "",
+            "element": "ANY",
+            "params": [
+                {
+                    "name": "jemView",
+                    "description": "Name of the view",
+                    "type": "String"
+                }
+            ],
+            "scope": "",
+            "example": [
+                "\n<example module=\"ngViewExample\" deps=\"angular-route.js\" animations=\"true\">"
+            ],
+            "class": "$RouteProvider"
+        },
         {
             "file": "build\\src\\common.js",
             "line": 38,
@@ -131,36 +187,25 @@
         {
             "file": "build\\src\\scroll.js",
             "line": 4,
-            "ngdoc": "object",
+            "ngdoc": "function",
             "name": "dotjem.routing.$scrollProvider",
-            "description": "Use the `$scrollProvider` to configure scroll behavior of the application.",
+            "requires": [
+                "$window",
+                "$location",
+                "$rootScope"
+            ],
+            "description": "",
             "class": ""
         },
         {
             "file": "build\\src\\scroll.js",
-            "line": 14,
-            "ngdoc": "object",
-            "name": "dotjem.routing.$scroll",
-            "description": "Use the `$scroll` to perform scrolling in the application.",
-            "class": ""
-        },
-        {
-            "file": "build\\src\\scroll.js",
-            "line": 54,
+            "line": 60,
             "description": "scrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
             "class": ""
         },
         {
             "file": "build\\src\\view.js",
-            "line": 4,
-            "ngdoc": "object",
-            "name": "dotjem.routing.$viewProvider",
-            "description": "",
-            "class": ""
-        },
-        {
-            "file": "build\\src\\view.js",
-            "line": 13,
+            "line": 6,
             "ngdoc": "object",
             "name": "dotjem.routing.$view",
             "description": "",
@@ -168,7 +213,7 @@
         },
         {
             "file": "build\\src\\view.js",
-            "line": 42,
+            "line": 35,
             "ngdoc": "method",
             "name": "dotjem.$view#clear",
             "methodof": "dotjem.routing.$view",
@@ -184,7 +229,7 @@
         },
         {
             "file": "build\\src\\view.js",
-            "line": 75,
+            "line": 68,
             "ngdoc": "method",
             "name": "dotjem.$view#setOrUpdate",
             "methodof": "dotjem.routing.$view",
@@ -200,12 +245,12 @@
                     "type": "Object"
                 }
             ],
-            "description": "Clears a view, or all views if no name is provided.",
+            "description": "",
             "class": ""
         },
         {
             "file": "build\\src\\view.js",
-            "line": 86,
+            "line": 79,
             "ngdoc": "method",
             "name": "dotjem.$view#setOrUpdate",
             "methodof": "dotjem.routing.$view",
@@ -217,30 +262,175 @@
                 },
                 {
                     "name": "template",
-                    "description": "Template (optional)",
+                    "description": "Template",
                     "type": "Object"
                 },
                 {
                     "name": "controller",
-                    "description": "Controller (optional)",
+                    "description": "Controller",
                     "type": "Function="
                 },
                 {
                     "name": "locals",
-                    "description": "Locals (optional)",
+                    "description": "Locals",
                     "type": "Object="
                 },
                 {
                     "name": "sticky",
-                    "description": "Sticky flag (optional)",
+                    "description": "Sticky flag",
                     "type": "String="
                 }
             ],
-            "description": "Clears a view, or all views if no name is provided.",
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 131,
+            "ngdoc": "method",
+            "name": "dotjem.$view#setIfAbsent",
+            "methodof": "dotjem.routing.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "args",
+                    "description": "Arguments",
+                    "type": "Object"
+                }
+            ],
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 142,
+            "ngdoc": "method",
+            "name": "dotjem.$view#setIfAbsent",
+            "methodof": "dotjem.routing.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "template",
+                    "description": "Template",
+                    "type": "Object"
+                },
+                {
+                    "name": "controller",
+                    "description": "Controller",
+                    "type": "Function="
+                },
+                {
+                    "name": "locals",
+                    "description": "Locals",
+                    "type": "Object="
+                }
+            ],
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 186,
+            "ngdoc": "method",
+            "name": "dotjem.$view#get",
+            "methodof": "dotjem.routing.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String"
+                }
+            ],
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 205,
+            "ngdoc": "method",
+            "name": "dotjem.$view#refresh",
+            "methodof": "dotjem.routing.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String="
+                },
+                {
+                    "name": "data",
+                    "description": "Data",
+                    "type": "Object="
+                }
+            ],
+            "description": "",
+            "class": ""
+        },
+        {
+            "file": "build\\src\\view.js",
+            "line": 234,
+            "ngdoc": "method",
+            "name": "dotjem.$view#beginUpdate",
+            "methodof": "dotjem.routing.$view",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Name",
+                    "type": "String"
+                }
+            ],
+            "description": "",
             "class": ""
         }
     ],
     "warnings": [
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\directives\\jemAnchor.js:5"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\directives\\jemAnchor.js:5"
+        },
+        {
+            "message": "unknown tag: restrict",
+            "line": " build\\src\\directives\\jemAnchor.js:5"
+        },
+        {
+            "message": "unknown tag: element",
+            "line": " build\\src\\directives\\jemAnchor.js:5"
+        },
+        {
+            "message": "unknown tag: scope",
+            "line": " build\\src\\directives\\jemAnchor.js:5"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\directives\\jemView.js:1"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\directives\\jemView.js:1"
+        },
+        {
+            "message": "unknown tag: restrict",
+            "line": " build\\src\\directives\\jemView.js:1"
+        },
+        {
+            "message": "unknown tag: element",
+            "line": " build\\src\\directives\\jemView.js:1"
+        },
+        {
+            "message": "unknown tag: scope",
+            "line": " build\\src\\directives\\jemView.js:1"
+        },
         {
             "message": "replacing incorrect tag: returns with return",
             "line": " build\\src\\route.js:41"
@@ -255,63 +445,115 @@
         },
         {
             "message": "unknown tag: ngdoc",
-            "line": " build\\src\\scroll.js:14"
+            "line": " build\\src\\view.js:6"
         },
         {
             "message": "unknown tag: name",
-            "line": " build\\src\\scroll.js:14"
+            "line": " build\\src\\view.js:6"
         },
         {
             "message": "unknown tag: ngdoc",
-            "line": " build\\src\\view.js:4"
+            "line": " build\\src\\view.js:35"
         },
         {
             "message": "unknown tag: name",
-            "line": " build\\src\\view.js:4"
-        },
-        {
-            "message": "unknown tag: ngdoc",
-            "line": " build\\src\\view.js:13"
-        },
-        {
-            "message": "unknown tag: name",
-            "line": " build\\src\\view.js:13"
-        },
-        {
-            "message": "unknown tag: ngdoc",
-            "line": " build\\src\\view.js:42"
-        },
-        {
-            "message": "unknown tag: name",
-            "line": " build\\src\\view.js:42"
+            "line": " build\\src\\view.js:35"
         },
         {
             "message": "unknown tag: methodof",
-            "line": " build\\src\\view.js:42"
+            "line": " build\\src\\view.js:35"
         },
         {
             "message": "unknown tag: ngdoc",
-            "line": " build\\src\\view.js:75"
+            "line": " build\\src\\view.js:68"
         },
         {
             "message": "unknown tag: name",
-            "line": " build\\src\\view.js:75"
+            "line": " build\\src\\view.js:68"
         },
         {
             "message": "unknown tag: methodof",
-            "line": " build\\src\\view.js:75"
+            "line": " build\\src\\view.js:68"
         },
         {
             "message": "unknown tag: ngdoc",
-            "line": " build\\src\\view.js:86"
+            "line": " build\\src\\view.js:79"
         },
         {
             "message": "unknown tag: name",
-            "line": " build\\src\\view.js:86"
+            "line": " build\\src\\view.js:79"
         },
         {
             "message": "unknown tag: methodof",
-            "line": " build\\src\\view.js:86"
+            "line": " build\\src\\view.js:79"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:131"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:131"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:131"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:142"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:142"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:142"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:186"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:186"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:186"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:205"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:205"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:205"
+        },
+        {
+            "message": "unknown tag: ngdoc",
+            "line": " build\\src\\view.js:234"
+        },
+        {
+            "message": "unknown tag: name",
+            "line": " build\\src\\view.js:234"
+        },
+        {
+            "message": "unknown tag: methodof",
+            "line": " build\\src\\view.js:234"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\directives\\jemAnchor.js:5"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\directives\\jemView.js:1"
         },
         {
             "message": "Missing item type\nWe need our custom method because encodeURIComponent is too aggressive and doesn't follow\nhttp://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path\nsegments:\n   segment       = *pchar\n   pchar         = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n   pct-encoded   = \"%\" HEXDIG HEXDIG\n   unreserved    = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n   sub-delims    = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"",
@@ -322,36 +564,48 @@
             "line": " build\\src\\common.js:54"
         },
         {
-            "message": "Missing item type\nUse the `$scrollProvider` to configure scroll behavior of the application.",
+            "message": "Missing item type",
             "line": " build\\src\\scroll.js:4"
         },
         {
-            "message": "Missing item type\nUse the `$scroll` to perform scrolling in the application.",
-            "line": " build\\src\\scroll.js:14"
-        },
-        {
             "message": "Missing item type\nscrollTo: top - scroll to top, explicitly stated.\n          (This also enables one to override another scrollTo from a parent)\nscrollTo: null - don't scroll, not even to top.\nscrollTo: element-selector - scroll to an element id\nscrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }\n          - scroll to element with id or view if starts with @",
-            "line": " build\\src\\scroll.js:54"
+            "line": " build\\src\\scroll.js:60"
         },
         {
             "message": "Missing item type",
-            "line": " build\\src\\view.js:4"
+            "line": " build\\src\\view.js:6"
+        },
+        {
+            "message": "Missing item type\nClears a view, or all views if no name is provided.",
+            "line": " build\\src\\view.js:35"
         },
         {
             "message": "Missing item type",
-            "line": " build\\src\\view.js:13"
+            "line": " build\\src\\view.js:68"
         },
         {
-            "message": "Missing item type\nClears a view, or all views if no name is provided.",
-            "line": " build\\src\\view.js:42"
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:79"
         },
         {
-            "message": "Missing item type\nClears a view, or all views if no name is provided.",
-            "line": " build\\src\\view.js:75"
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:131"
         },
         {
-            "message": "Missing item type\nClears a view, or all views if no name is provided.",
-            "line": " build\\src\\view.js:86"
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:142"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:186"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:205"
+        },
+        {
+            "message": "Missing item type",
+            "line": " build\\src\\view.js:234"
         }
     ]
 }

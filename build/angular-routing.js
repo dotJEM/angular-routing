@@ -1486,13 +1486,6 @@ angular.module('dotjem.routing').provider('$template', $TemplateProvider);
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-/**
-* @ngdoc object
-* @name dotjem.routing.$viewProvider
-*
-* @description
-*
-*/
 function $ViewProvider() {
     'use strict';
     /**
@@ -1566,7 +1559,7 @@ function $ViewProvider() {
             * @param {object} args Arguments
             *
             * @description
-            * Clears a view, or all views if no name is provided.
+            *
             */
             /**
             * @ngdoc method
@@ -1574,13 +1567,13 @@ function $ViewProvider() {
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name Name
-            * @param {object} template Template (optional)
-            * @param {function=} controller Controller (optional)
-            * @param {object=} locals Locals (optional)
-            * @param {string=} sticky Sticky flag (optional)
+            * @param {object} template Template
+            * @param {function=} controller Controller
+            * @param {object=} locals Locals
+            * @param {string=} sticky Sticky flag
             *
             * @description
-            * Clears a view, or all views if no name is provided.
+            *
             */
             this.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
                 var _this = this;
@@ -1620,7 +1613,30 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
-            //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+            /**
+            * @ngdoc method
+            * @name dotjem.$view#setIfAbsent
+            * @methodOf dotjem.routing.$view
+            *
+            * @param {string} name Name
+            * @param {object} args Arguments
+            *
+            * @description
+            *
+            */
+            /**
+            * @ngdoc method
+            * @name dotjem.$view#setIfAbsent
+            * @methodOf dotjem.routing.$view
+            *
+            * @param {string} name Name
+            * @param {object} template Template
+            * @param {function=} controller Controller
+            * @param {object=} locals Locals
+            *
+            * @description
+            *
+            */
             this.setIfAbsent = function (name, templateOrArgs, controller, locals) {
                 var _this = this;
                 var template = templateOrArgs;
@@ -1652,6 +1668,16 @@ function $ViewProvider() {
                     raiseUpdated(name);
                 }
             };
+            /**
+            * @ngdoc method
+            * @name dotjem.$view#get
+            * @methodOf dotjem.routing.$view
+            *
+            * @param {string} name Name
+            *
+            * @description
+            *
+            */
             this.get = function (name) {
                 //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
@@ -1661,6 +1687,17 @@ function $ViewProvider() {
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return views[name];
             };
+            /**
+            * @ngdoc method
+            * @name dotjem.$view#refresh
+            * @methodOf dotjem.routing.$view
+            *
+            * @param {string=} name Name
+            * @param {object=} data Data
+            *
+            * @description
+            *
+            */
             this.refresh = function (name, data) {
                 var _this = this;
                 if(isUndefined(name)) {
@@ -1679,6 +1716,16 @@ function $ViewProvider() {
                     raiseRefresh(name, data);
                 }
             };
+            /**
+            * @ngdoc method
+            * @name dotjem.$view#beginUpdate
+            * @methodOf dotjem.routing.$view
+            *
+            * @param {string} name Name
+            *
+            * @description
+            *
+            */
             this.beginUpdate = function () {
                 if(transaction) {
                     throw new Error("Can't start multiple transactions");
@@ -1708,22 +1755,23 @@ angular.module('dotjem.routing').provider('$view', $ViewProvider);
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 /**
-* @ngdoc object
+* @ngdoc function
 * @name dotjem.routing.$scrollProvider
 *
+* @requires $window
+* @requires $location
+* @requires $rootScope
+*
 * @description
-* Use the `$scrollProvider` to configure scroll behavior of the application.
+*
+*
+*
+*
+*
 */
 var $ScrollProvider = [
     function () {
         'use strict';
-        /**
-        * @ngdoc object
-        * @name dotjem.routing.$scroll
-        *
-        * @description
-        * Use the `$scroll` to perform scrolling in the application.
-        */
         this.$get = [
             '$window', 
             '$rootScope', 
@@ -1749,37 +1797,33 @@ var $ScrollProvider = [
                     }
                     $rootScope.$broadcast('$scrollPositionChanged', elm);
                 }
-                //scroll.$register = register;
-                //var elements = {};
-                //function register(name: string, elm: HTMLElement) {
-                //    if (name in elements) {
-                //        var existing = elements[name];
-                //    }
-                //    elements[name] = elm;
-                //}
-                /****jQuery( "[attribute='value']"
-                * scrollTo: top - scroll to top, explicitly stated.
-                *           (This also enables one to override another scrollTo from a parent)
-                * scrollTo: null - don't scroll, not even to top.
-                * scrollTo: element-selector - scroll to an element id
-                * scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-                *           - scroll to element with id or view if starts with @
-                */
-                //scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-                //scrollTo: null - don't scroll, not even to top.
-                //scrollTo: @viewname - scroll to a view.
-                //    scrollTo: elementid - scroll to an element id
-                //scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
                 return scroll;
             }        ];
     }
 ];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
+//scroll.$register = register;
+//var elements = {};
+//function register(name: string, elm: HTMLElement) {
+//    if (name in elements) {
+//        var existing = elements[name];
+//    }
+//    elements[name] = elm;
+//}
+/****jQuery( "[attribute='value']"
+* scrollTo: top - scroll to top, explicitly stated.
+*           (This also enables one to override another scrollTo from a parent)
+* scrollTo: null - don't scroll, not even to top.
+* scrollTo: element-selector - scroll to an element id
+* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
+*           - scroll to element with id or view if starts with @
+*/
+//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+//scrollTo: null - don't scroll, not even to top.
+//scrollTo: @viewname - scroll to a view.
+//    scrollTo: elementid - scroll to an element id
+//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../interfaces.d.ts" />
-/// <reference path="../common.ts" />
-'use strict';
 var jemViewDirective = [
     '$state', 
     '$scroll', 
@@ -1788,6 +1832,7 @@ var jemViewDirective = [
     '$view', 
     '$animator', 
     function ($state, $scroll, $compile, $controller, $view, $animator) {
+        'use strict';
         return {
             restrict: 'ECA',
             terminal: true,
@@ -1865,6 +1910,20 @@ angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:jemAnchor
+* @restrict ECA
+*
+* @description
+*
+* @element ANY
+* @param {string} jemAnchor Identifier of the anchor
+*
+* @scope
+* @example
+<example module="ngViewExample" deps="angular-route.js" animations="true">
+*/
 var jemAnchorDirective = [
     '$scroll', 
     '$timeout', 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>build\src\scroll.js - angular-routing</title>
+    <title>build\src\directives\jemAnchor.js - angular-routing</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -82,82 +82,57 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: build\src\scroll.js</h1>
+                        <h1 class="file-heading">File: build\src\directives\jemAnchor.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-/// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
-/// &lt;reference path=&quot;common.ts&quot; /&gt;
-/// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;../../lib/angular/angular-1.0.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;../interfaces.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;../common.ts&quot; /&gt;
+&#x27;use strict&#x27;;
 /**
-* @ngdoc function
-* @name dotjem.routing.$scrollProvider
-*
-* @requires $window
-* @requires $location
-* @requires $rootScope
+* @ngdoc directive
+* @name dotjem.routing.directive:jemAnchor
+* @restrict ECA
 *
 * @description
 *
+* @element ANY
+* @param {string} jemAnchor Identifier of the anchor
 *
-*
-*
-*
+* @scope
+* @example
+&lt;example module=&quot;ngViewExample&quot; deps=&quot;angular-route.js&quot; animations=&quot;true&quot;&gt;
 */
-var $ScrollProvider = [
-    function () {
-        &#x27;use strict&#x27;;
-        this.$get = [
-            &#x27;$window&#x27;, 
-            &#x27;$rootScope&#x27;, 
-            &#x27;$anchorScroll&#x27;, 
-            &#x27;$injector&#x27;, 
-            function ($window, $rootScope, $anchorScroll, $injector) {
-                var scroll = function (arg) {
-                    var fn;
-                    if(isUndefined(arg)) {
-                        $anchorScroll();
-                    } else if(isString(arg)) {
-                        scrollTo(arg);
-                    } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo(fn($injector));
+var jemAnchorDirective = [
+    &#x27;$scroll&#x27;, 
+    &#x27;$timeout&#x27;, 
+    function ($scroll, $timeout) {
+        return {
+            restrict: &#x27;ECA&#x27;,
+            terminal: false,
+            link: function (scope, element, attr) {
+                var name = attr[&#x27;jemAnchor&#x27;] || attr.id;
+                //$scroll.$register(name, element);
+                //TODO: This is not aware if there are multiple elements named the same, we should instead
+                //      register the element with the $scroll service so that can throw an error if multiple
+                //      elements has the same name.
+                scope.$on(&#x27;$scrollPositionChanged&#x27;, function (event, target) {
+                    scroll(target);
+                });
+                scroll($scroll.$current);
+                function scroll(target) {
+                    if(target === name) {
+                        //Note: Delay scroll untill any digest is done.
+                        $timeout(function () {
+                            element[0].scrollIntoView();
+                        }, 100);
                     }
-                };
-                scroll.$current = &#x27;top&#x27;;
-                function scrollTo(elm) {
-                    scroll.$current = elm;
-                    if(elm === &#x27;top&#x27;) {
-                        $window.scrollTo(0, 0);
-                        return;
-                    }
-                    $rootScope.$broadcast(&#x27;$scrollPositionChanged&#x27;, elm);
                 }
-                return scroll;
-            }        ];
-    }
-];
-angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$scroll&#x27;, $ScrollProvider);
-//scroll.$register = register;
-//var elements = {};
-//function register(name: string, elm: HTMLElement) {
-//    if (name in elements) {
-//        var existing = elements[name];
-//    }
-//    elements[name] = elm;
-//}
-/****jQuery( &quot;[attribute=&#x27;value&#x27;]&quot;
-* scrollTo: top - scroll to top, explicitly stated.
-*           (This also enables one to override another scrollTo from a parent)
-* scrollTo: null - don&#x27;t scroll, not even to top.
-* scrollTo: element-selector - scroll to an element id
-* scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; }
-*           - scroll to element with id or view if starts with @
-*/
-//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-//scrollTo: null - don&#x27;t scroll, not even to top.
-//scrollTo: @viewname - scroll to a view.
-//    scrollTo: elementid - scroll to an element id
-//scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
+            }
+        };
+    }];
+angular.module(&#x27;dotjem.routing&#x27;).directive(&#x27;jemAnchor&#x27;, jemAnchorDirective);
 
     </pre>
 </div>

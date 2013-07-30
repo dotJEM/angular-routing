@@ -2,13 +2,6 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
-/**
- * @ngdoc object
- * @name dotjem.routing.$viewProvider
- *
- * @description
- *
- */
 function $ViewProvider() {
     'use strict';
 
@@ -91,7 +84,7 @@ function $ViewProvider() {
          * @param {object} args Arguments
          *
          * @description
-         * Clears a view, or all views if no name is provided.
+         * 
          */
 
         /**
@@ -100,13 +93,13 @@ function $ViewProvider() {
          * @methodOf dotjem.routing.$view
          *
          * @param {string} name Name
-         * @param {object} template Template (optional)
-         * @param {function=} controller Controller (optional)
-         * @param {object=} locals Locals (optional)
-         * @param {string=} sticky Sticky flag (optional)
+         * @param {object} template Template
+         * @param {function=} controller Controller
+         * @param {object=} locals Locals
+         * @param {string=} sticky Sticky flag
          *
          * @description
-         * Clears a view, or all views if no name is provided.
+         * 
          */
         this.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
             var template = templateOrArgs;
@@ -148,7 +141,33 @@ function $ViewProvider() {
                 raiseUpdated(name);
             }
         };
-        //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+
+
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#setIfAbsent
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         * @param {object} args Arguments
+         *
+         * @description
+         * 
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#setIfAbsent
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         * @param {object} template Template
+         * @param {function=} controller Controller
+         * @param {object=} locals Locals
+         *
+         * @description
+         * 
+         */
         this.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
             var template = templateOrArgs;
             if (isArgs(templateOrArgs)) {
@@ -183,6 +202,16 @@ function $ViewProvider() {
             }
         }
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#get
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         *
+         * @description
+         * 
+         */
         this.get = function (name: string) {
             //TODO: return copies instead of actuals...
             if (isUndefined(name))
@@ -193,6 +222,17 @@ function $ViewProvider() {
             return views[name];
         };
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#refresh
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string=} name Name
+         * @param {object=} data Data
+         *
+         * @description
+         * 
+         */
         this.refresh = function (name?: string, data?: any) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
@@ -211,6 +251,16 @@ function $ViewProvider() {
             }
         }
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#beginUpdate
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         *
+         * @description
+         * 
+         */
         this.beginUpdate = function () {
             if (transaction)
                 throw new Error("Can't start multiple transactions");
