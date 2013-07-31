@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>build\src\scroll.js - angular-routing</title>
+    <title>build\src\template.js - angular-routing</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -80,81 +80,89 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: build\src\scroll.js</h1>
+                        <h1 class="file-heading">File: build\src\template.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
 /// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
 /// &lt;reference path=&quot;common.ts&quot; /&gt;
 /// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
-var $ScrollProvider = [
-    function () {
-        &#x27;use strict&#x27;;
-        /**
-        * @ngdoc function
-        * @name dotjem.routing.$scroll
-        *
-        * @requires $window
-        * @requires $rootScope
-        * @requires $anchorScroll
-        * @requires $injector
-        *
-        * @param {string|function=} target The element name to scroll to or a function returning it.
-        *
-        * @description
-        *
-        */
-        this.$get = [
-            &#x27;$window&#x27;, 
-            &#x27;$rootScope&#x27;, 
-            &#x27;$anchorScroll&#x27;, 
-            &#x27;$injector&#x27;, 
-            function ($window, $rootScope, $anchorScroll, $injector) {
-                var scroll = function (arg) {
-                    var fn;
-                    if(isUndefined(arg)) {
-                        $anchorScroll();
-                    } else if(isString(arg)) {
-                        scrollTo(arg);
-                    } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo(fn($injector));
-                    }
-                };
-                scroll.$current = &#x27;top&#x27;;
-                function scrollTo(elm) {
-                    scroll.$current = elm;
-                    if(elm === &#x27;top&#x27;) {
-                        $window.scrollTo(0, 0);
-                        return;
-                    }
-                    $rootScope.$broadcast(&#x27;$scrollPositionChanged&#x27;, elm);
+function $TemplateProvider() {
+    &#x27;use strict&#x27;;
+    var urlmatcher = new RegExp(&#x27;^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&amp;+#=]*))&#x27;, &#x27;i&#x27;);
+    /**
+    * @ngdoc object
+    * @name dotjem.routing.$template
+    *
+    * @description
+    *
+    */
+    this.$get = [
+        &#x27;$http&#x27;, 
+        &#x27;$q&#x27;, 
+        &#x27;$injector&#x27;, 
+        &#x27;$templateCache&#x27;, 
+        function ($http, $q, $injector, $templateCache) {
+            function getFromUrl(url) {
+                return $http.get(url, {
+                    cache: $templateCache
+                }).then(function (response) {
+                    return response.data;
+                });
+            }
+            function getFromFunction(fn) {
+                return $q.when($injector.invoke(fn));
+            }
+            function getFromObject(obj) {
+                if(isDefined(obj.url)) {
+                    return getFromUrl(obj.url);
                 }
-                return scroll;
-            }        ];
-    }
-];
-angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$scroll&#x27;, $ScrollProvider);
-//scroll.$register = register;
-//var elements = {};
-//function register(name: string, elm: HTMLElement) {
-//    if (name in elements) {
-//        var existing = elements[name];
-//    }
-//    elements[name] = elm;
-//}
-/****jQuery( &quot;[attribute=&#x27;value&#x27;]&quot;
-* scrollTo: top - scroll to top, explicitly stated.
-*           (This also enables one to override another scrollTo from a parent)
-* scrollTo: null - don&#x27;t scroll, not even to top.
-* scrollTo: element-selector - scroll to an element id
-* scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; }
-*           - scroll to element with id or view if starts with @
-*/
-//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-//scrollTo: null - don&#x27;t scroll, not even to top.
-//scrollTo: @viewname - scroll to a view.
-//    scrollTo: elementid - scroll to an element id
-//scrollTo: [&#x27;$stateParams&#x27;, function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
+                if(isDefined(obj.fn)) {
+                    return getFromFunction(obj.fn);
+                }
+                if(isDefined(obj.html)) {
+                    return $q.when(obj.html);
+                }
+                throw new Error(&quot;Object must define url, fn or html.&quot;);
+            }
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$template#get
+            * @methodOf dotjem.routing.$template
+            *
+            * @param {string|Object|function} template Either a string reprecenting the actual template,
+            * an url to it, a function returning it or an object specifying a location of the template.
+            *
+            * If a template object i used, one of the following properties may be used:
+            * - &#x60;url&#x60; &#x60;{string}&#x60;: An url location of the template.
+            * - &#x60;fn&#x60; &#x60;{function}&#x60;: A function that returns the template.
+            * - &#x60;html&#x60; &#x60;{string}&#x60;: The actual template as raw html.
+            *
+            * @returns {Promise} a promise that resolves to the template.
+            *
+            * @description
+            *
+            */
+            this.get = function (template) {
+                if(isString(template)) {
+                    if(urlmatcher.test(template)) {
+                        return getFromUrl(template);
+                    } else {
+                        return $q.when(template);
+                    }
+                }
+                if(isFunction(template) || isArray(template)) {
+                    return getFromFunction(template);
+                }
+                if(isObject(template)) {
+                    return getFromObject(template);
+                }
+                throw new Error(&quot;Template must be either an url as string, function or a object defining either url, fn or html.&quot;);
+            };
+            return this;
+        }    ];
+}
+angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$template&#x27;, $TemplateProvider);
 
     </pre>
 </div>

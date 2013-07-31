@@ -1,24 +1,23 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-/**
-* @ngdoc function
-* @name dotjem.routing.$scrollProvider
-*
-* @requires $window
-* @requires $location
-* @requires $rootScope
-*
-* @description
-*
-*
-*
-*
-*
-*/
 var $ScrollProvider = [
     function () {
         'use strict';
+        /**
+        * @ngdoc function
+        * @name dotjem.routing.$scroll
+        *
+        * @requires $window
+        * @requires $rootScope
+        * @requires $anchorScroll
+        * @requires $injector
+        *
+        * @param {string|function=} target The element name to scroll to or a function returning it.
+        *
+        * @description
+        *
+        */
         this.$get = [
             '$window', 
             '$rootScope', 

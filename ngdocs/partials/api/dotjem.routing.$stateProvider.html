@@ -1,0 +1,55 @@
+<h1><code ng:non-bindable="">$stateProvider</code>
+<span class="hint">(service in module <code ng:non-bindable="">dotjem.routing</code>
+)</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Used for configuring states. See <a href="#/api/dotjem.routing.$state">$state</a> for an example.</p></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="state">state(fullname, state)</h3>
+<div class="state"><p>Adds a new route definition to the <code>$route</code> service.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">fullname – {string} – </code>
+<p>Full name of the state, use '.' to seperate parent and child states.</p>
+
+<p>E.g. if the full name "home" is given, the state is directly located under the root.
+It then becomes possible to register "home.recents" as a child named "recents" under the state "home".</p>
+
+<p>The following registrations would result in the ilustated hierachy.</p>
+
+<p><code>.state('home', {})</code>
+<code>.state('home.recents', {})</code>
+<code>.state('home.all', {})</code>
+<code>.state('staff', {})</code>
+<code>.state('staff.all', {})</code>
+<code>.state('staff.single', {})</code></p>
+
+<ul>
+<li>home
+<ul><li>recents</li>
+<li>all</li></ul></li>
+<li>staff
+<ul><li>all</li>
+<li>single</li></ul></li>
+</ul></li>
+<li><code ng:non-bindable="">state – {Object} – </code>
+<p>All information about the state.</p>
+
+<p>Object properties:</p>
+
+<ul>
+<li><code>views</code>: <code>{Object}</code> A list og views to be updated when the state is activated.</li>
+<li><code>route</code>: <code>{string}</code> A route to associate the state with,
+this will be registered with the <a href="#/api/dotjem.routing.$routeProvider">$routeProvider</a></li>
+<li><code>onEnter</code>: <code>{string|function|Object}</code> value</li>
+<li><code>onExit</code>: <code>{string|function|Object}</code> value</li>
+<li><code>reloadOnSearch</code>: <code>{bool}</code> If associated with a route, should that route reload on search.</li>
+<li><code>scrollTo</code>: {string=} � A element to scroll to when the state has been loaded.</li>
+</ul></li>
+</ul>
+<h4 id="Returns">Returns</h4>
+<div class="returns"><code ng:non-bindable="">{Object}</code>
+– <p>self</p></div>
+</div>
+</li>
+</ul>
+</div>
+</div>

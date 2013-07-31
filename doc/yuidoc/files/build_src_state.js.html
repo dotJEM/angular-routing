@@ -1,12 +1,98 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
-/// <reference path="state/state.ts" />
-/// <reference path="state/stateFactory.ts" />
-/// <reference path="state/stateRules.ts" />
-/// <reference path="state/stateComparer.ts" />
-/// <reference path="state/stateBrowser.ts" />
-/// <reference path="state/stateUrlBuilder.ts" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>build\src\state.js - angular-routing</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title="angular-routing"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.3.2</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: build\src\state.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/// &lt;reference path=&quot;../lib/angular/angular-1.0.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;common.ts&quot; /&gt;
+/// &lt;reference path=&quot;interfaces.d.ts&quot; /&gt;
+/// &lt;reference path=&quot;state/state.ts&quot; /&gt;
+/// &lt;reference path=&quot;state/stateFactory.ts&quot; /&gt;
+/// &lt;reference path=&quot;state/stateRules.ts&quot; /&gt;
+/// &lt;reference path=&quot;state/stateComparer.ts&quot; /&gt;
+/// &lt;reference path=&quot;state/stateBrowser.ts&quot; /&gt;
+/// &lt;reference path=&quot;state/stateUrlBuilder.ts&quot; /&gt;
 /**
 * @ngdoc object
 * @name dotjem.routing.$stateProvider
@@ -15,33 +101,33 @@
 * Used for configuring states. See {@link dotjem.routing.$state $state} for an example.
 */
 var $StateProvider = [
-    '$routeProvider', 
-    '$stateTransitionProvider', 
+    &#x27;$routeProvider&#x27;, 
+    &#x27;$stateTransitionProvider&#x27;, 
     function ($routeProvider, $transitionProvider) {
-        'use strict';
+        &#x27;use strict&#x27;;
         //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
-                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
+                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(&#x27;root&#x27;, {
         }), browser = new StateBrowser(root), comparer = new StateComparer();
         /**
         * @ngdoc method
         * @name dotjem.$stateProvider#state
         * @methodOf dotjem.routing.$stateProvider
         *
-        * @param {string} fullname Full name of the state, use '.' to seperate parent and child states.
+        * @param {string} fullname Full name of the state, use &#x27;.&#x27; to seperate parent and child states.
         *
-        * E.g. if the full name "home" is given, the state is directly located under the root.
-        * It then becomes possible to register "home.recents" as a child named "recents" under the state "home".
+        * E.g. if the full name &quot;home&quot; is given, the state is directly located under the root.
+        * It then becomes possible to register &quot;home.recents&quot; as a child named &quot;recents&quot; under the state &quot;home&quot;.
         *
         * The following registrations would result in the ilustated hierachy.
         *
-        * `.state('home', {})`
-        * `.state('home.recents', {})`
-        * `.state('home.all', {})`
-        * `.state('staff', {})`
-        * `.state('staff.all', {})`
-        * `.state('staff.single', {})`
+        * &#x60;.state(&#x27;home&#x27;, {})&#x60;
+        * &#x60;.state(&#x27;home.recents&#x27;, {})&#x60;
+        * &#x60;.state(&#x27;home.all&#x27;, {})&#x60;
+        * &#x60;.state(&#x27;staff&#x27;, {})&#x60;
+        * &#x60;.state(&#x27;staff.all&#x27;, {})&#x60;
+        * &#x60;.state(&#x27;staff.single&#x27;, {})&#x60;
         *
         *   - home
         *     - recents
@@ -54,18 +140,18 @@ var $StateProvider = [
         *
         *    Object properties:
         *
-        * - `views`: `{Object}` A list og views to be updated when the state is activated.
-        * - `route`: `{string}` A route to associate the state with,
+        * - &#x60;views&#x60;: &#x60;{Object}&#x60; A list og views to be updated when the state is activated.
+        * - &#x60;route&#x60;: &#x60;{string}&#x60; A route to associate the state with,
         *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
-        * - `onEnter`: `{string|function|Object}` value
-        * - `onExit`: `{string|function|Object}` value
-        * - `reloadOnSearch`: `{bool}` If associated with a route, should that route reload on search.
-        * - `scrollTo`: {string=} � A element to scroll to when the state has been loaded.
+        * - &#x60;onEnter&#x60;: &#x60;{string|function|Object}&#x60; value
+        * - &#x60;onExit&#x60;: &#x60;{string|function|Object}&#x60; value
+        * - &#x60;reloadOnSearch&#x60;: &#x60;{bool}&#x60; If associated with a route, should that route reload on search.
+        * - &#x60;scrollTo&#x60;: {string=} � A element to scroll to when the state has been loaded.
         *
         * @returns {Object} self
         *
         * @description
-        * Adds a new route definition to the `$route` service.
+        * Adds a new route definition to the &#x60;$route&#x60; service.
         */
         this.state = function (fullname, state) {
             StateRules.validateName(fullname);
@@ -74,14 +160,14 @@ var $StateProvider = [
             return this;
         };
         this.$get = [
-            '$rootScope', 
-            '$q', 
-            '$injector', 
-            '$route', 
-            '$view', 
-            '$stateTransition', 
-            '$location', 
-            '$scroll', 
+            &#x27;$rootScope&#x27;, 
+            &#x27;$q&#x27;, 
+            &#x27;$injector&#x27;, 
+            &#x27;$route&#x27;, 
+            &#x27;$view&#x27;, 
+            &#x27;$stateTransition&#x27;, 
+            &#x27;$location&#x27;, 
+            &#x27;$scroll&#x27;, 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
                 /**
                 * @ngdoc object
@@ -100,7 +186,7 @@ var $StateProvider = [
                 *
                 * @description
                 *
-                * You can define states through {@link dotjem.routing.$stateProvider $stateProvider}'s API.
+                * You can define states through {@link dotjem.routing.$stateProvider $stateProvider}&#x27;s API.
                 */
                 /**
                 * @ngdoc event
@@ -222,7 +308,7 @@ var $StateProvider = [
                         return urlbuilder.buildUrl($state.current, state, params);
                     }
                 };
-                $rootScope.$on('$routeChangeSuccess', function () {
+                $rootScope.$on(&#x27;$routeChangeSuccess&#x27;, function () {
                     var route = $route.current, params;
                     if(route) {
                         params = {
@@ -243,7 +329,7 @@ var $StateProvider = [
                         });
                     }
                 });
-                $rootScope.$on('$routeUpdate', function () {
+                $rootScope.$on(&#x27;$routeUpdate&#x27;, function () {
                     var route = $route.current;
                     raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
@@ -252,9 +338,9 @@ var $StateProvider = [
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
                             forceReload = toName(state);
-                            //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                            if(forceReload.indexOf('root') !== 0) {
-                                forceReload = 'root.' + forceReload;
+                            //TODO: We need some name normalization OR a set of &quot;compare&quot; etc methods that can ignore root.
+                            if(forceReload.indexOf(&#x27;root&#x27;) !== 0) {
+                                forceReload = &#x27;root.&#x27; + forceReload;
                             }
                         } else if(state) {
                             forceReload = root.fullname;
@@ -275,7 +361,7 @@ var $StateProvider = [
                     dst.all = all;
                     dst.path = path;
                     dst.search = search;
-                    $rootScope.$broadcast('$stateUpdate', $state.current);
+                    $rootScope.$broadcast(&#x27;$stateUpdate&#x27;, $state.current);
                 }
                 function goto(args) {
                     //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -285,7 +371,7 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params &amp;&amp; fromState.$params.all, params &amp;&amp; params.all || {
                     }, forceReload), transition = {
                         cancel: function () {
                             cancel = true;
@@ -301,7 +387,7 @@ var $StateProvider = [
                             });
                         }
                     };
-                    if(!forceReload && !changed.stateChanges) {
+                    if(!forceReload &amp;&amp; !changed.stateChanges) {
                         if(changed.paramChanges) {
                             raiseUpdate(params.all || {
                             }, params.path || {
@@ -311,18 +397,18 @@ var $StateProvider = [
                         return;
                     }
                     forceReload = null;
-                    if(args.updateroute && to.route) {
-                        //TODO: This is very similar to what we do in buildStateArray -> extractParams,
+                    if(args.updateroute &amp;&amp; to.route) {
+                        //TODO: This is very similar to what we do in buildStateArray -&gt; extractParams,
                         //      maybe we can refactor those together
                                                 var paramsObj = {
-                        }, allFrom = (fromState.$params && fromState.$params.all) || {
+                        }, allFrom = (fromState.$params &amp;&amp; fromState.$params.all) || {
                         };
                         forEach(to.route.params, function (param, name) {
                             if(name in allFrom) {
                                 paramsObj[name] = allFrom[name];
                             }
                         });
-                        var mergedParams = extend(paramsObj, (params && params.all));
+                        var mergedParams = extend(paramsObj, (params &amp;&amp; params.all));
                         $route.change(extend({
                         }, to.route, {
                             params: mergedParams
@@ -335,7 +421,7 @@ var $StateProvider = [
                         //      That is if this was even triggered by an URL change in the first place.
                         return;
                     }
-                    var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+                    var event = $rootScope.$broadcast(&#x27;$stateChangeStart&#x27;, toState, fromState);
                     if(!event.defaultPrevented) {
                         $q.when(toState).then(function () {
                             var useUpdate = false, locals = {
@@ -400,15 +486,15 @@ var $StateProvider = [
                                 currentParams = params;
                                 $state.current = toState;
                                 transaction.commit();
-                                $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                                $rootScope.$broadcast(&#x27;$stateChangeSuccess&#x27;, toState, fromState);
                             });
                         }, function (error) {
                             transaction.cancel();
-                            $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
+                            $rootScope.$broadcast(&#x27;$stateChangeError&#x27;, toState, fromState, error);
                         }).then(function () {
                             if(!cancel) {
                                 transition.cancel = function () {
-                                    throw Error("Can't cancel transition in after handler");
+                                    throw Error(&quot;Can&#x27;t cancel transition in after handler&quot;);
                                 };
                                 emit.after(transition);
                                 $scroll(scrollTo);
@@ -419,4 +505,24 @@ var $StateProvider = [
                 }
             }        ];
     }];
-angular.module('dotjem.routing').provider('$state', $StateProvider);
+angular.module(&#x27;dotjem.routing&#x27;).provider(&#x27;$state&#x27;, $StateProvider);
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

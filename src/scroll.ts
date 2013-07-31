@@ -3,25 +3,25 @@
 /// <reference path="interfaces.d.ts" />
 
 
-/**
- * @ngdoc function
- * @name dotjem.routing.$scrollProvider
- *
- * @requires $window
- * @requires $location
- * @requires $rootScope
- *
- * @description
- * 
- * 
- * 
- *
- * 
- */
+
 var $ScrollProvider = [<any>
     function () {
     'use strict';
 
+    /**
+     * @ngdoc function
+     * @name dotjem.routing.$scroll
+     *
+     * @requires $window
+     * @requires $rootScope
+     * @requires $anchorScroll
+     * @requires $injector
+     *
+     * @param {string|function=} target The element name to scroll to or a function returning it.
+     *
+     * @description
+     * 
+     */
     this.$get = [<any>'$window','$rootScope','$anchorScroll','$injector',
         function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService) {
             var scroll: any = function(arg: any) {

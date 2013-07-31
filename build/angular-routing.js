@@ -11,6 +11,13 @@ var dotjem;
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
+/**
+* @ngdoc overview
+* @name dotjem.routing
+* @description
+*
+* Module that provides state based routing, deeplinking services and directives for angular apps.
+*/
 angular.module('dotjem.routing', []);
 var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element;
 function inherit(parent, extra) {
@@ -91,10 +98,11 @@ var errors = {
 /// <reference path="interfaces.d.ts" />
 'use strict';
 /**
-* Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
+* @ngdoc object
+* @name dotjem.routing.$routeProvider
 *
-* @class $RouteProvider
-* @constructor
+* @description
+* Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 */
 function $RouteProvider() {
     var _this = this;
@@ -104,6 +112,16 @@ function $RouteProvider() {
     }, caseSensitive = true;
     //Public Methods
     /**
+    * @ngdoc method
+    * @name dotjem.$routeProvider#convert
+    * @methodOf dotjem.routing.$routeProvider
+    *
+    * @param {string} name Cerverter name, used in the path when registering routes through the
+    *   {@link dotjem.routing.routeProvider#when when} function.
+    *
+    * @return {Object} self
+    *
+    * @description
     * Adds a new converter or overwrites an existing one.
     *
     * By default the folowing converters are precent:
@@ -114,12 +132,6 @@ function $RouteProvider() {
     *
     *  - `regex` - regular expressions converter, used to match a parameter agains a regular
     *    expression.
-    *
-    * @method convert
-    * @return {Object} self
-    *
-    * @param {string} name Cerverter name, used in the path when registering routes through the
-    *   {@link dotjem.routing.routeProvider#when when} function.
     */
     this.convert = function (name, converter) {
         //Note: We wan't to allow overwrite
@@ -127,10 +139,9 @@ function $RouteProvider() {
         return _this;
     };
     /**
-    * Adds a new route definition to the `$route` service.
-    *
-    * @method when
-    * @returns {Object} self
+    * @ngdoc method
+    * @name dotjem.$routeProvider#when
+    * @methodOf dotjem.routing.$routeProvider
     *
     * @param {string} path Route path (matched against `$location.path`). If `$location.path`
     *    contains redundant trailing slash or is missing one, the route will still match.
@@ -154,42 +165,6 @@ function $RouteProvider() {
     *
     *    - `state` � `{string}` � a state that should be activated when the route is matched.
     *    - `action` � `{(string|function()=}` � an action that should be performed when the route is matched.
-    *
-    *    Legacy support for the following when using the {@link dotjem.routing.legacy dotjem.routing.legacy}
-    *    module.
-    *
-    *    - `controller` � `{(string|function()=}` � Controller fn that should be associated with newly
-    *      created scope or the name of a {@link angular.Module#controller registered controller}
-    *      if passed as a string.
-    *    - `template` � `{string=|function()=}` � html template as a string or function that returns
-    *      an html template as a string which should be used by {@link ng.directive:ngView ngView} or
-    *      {@link ng.directive:ngInclude ngInclude} directives.
-    *      This property takes precedence over `templateUrl`.
-    *
-    *      If `template` is a function, it will be called with the following parameters:
-    *
-    *      - `{Array.<Object>}` - route parameters extracted from the current
-    *        `$location.path()` by applying the current route
-    *
-    *    - `templateUrl` � `{string=|function()=}` � path or function that returns a path to an html
-    *      template that should be used by {@link ng.directive:ngView ngView}.
-    *
-    *      If `templateUrl` is a function, it will be called with the following parameters:
-    *
-    *      - `{Array.<Object>}` - route parameters extracted from the current
-    *        `$location.path()` by applying the current route
-    *
-    *    - `resolve` - `{Object.<string, function>=}` - An optional map of dependencies which should
-    *      be injected into the controller. If any of these dependencies are promises, they will be
-    *      resolved and converted to a value before the controller is instantiated and the
-    *      `$routeChangeSuccess` event is fired. The map object is:
-    *
-    *      - `key` � `{string}`: a name of a dependency to be injected into the controller.
-    *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
-    *        Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
-    *        and the return value is treated as the dependency. If the result is a promise, it is resolved
-    *        before its value is injected into the controller.
-    *
     *    - `redirectTo` � {(string|function())=} � value to update
     *      {@link ng.$location $location} path with and trigger route redirection.
     *
@@ -208,6 +183,11 @@ function $RouteProvider() {
     *
     *      If the option is set to `false` and url in the browser changes, then
     *      `$routeUpdate` event is broadcasted on the root scope.
+    *
+    * @returns {Object} self
+    *
+    * @description
+    * Adds a new route definition to the `$route` service.
     */
     this.when = function (path, route) {
         var expression = parseExpression(path);
@@ -235,27 +215,64 @@ function $RouteProvider() {
         };
     };
     /**
-    * Sets route definition that will be used on route change when no other route definition
-    * is matched.
-    *
-    * @method otherwise
-    * @return {Object} self
+    * @ngdoc method
+    * @name dotjem.$routeProvider#otherwise
+    * @methodOf dotjem.routing.$routeProvider
     *
     * @param {Object} params Mapping information to be assigned to `$route.current`.
+    *
+    * @return {Object} self
+    *
+    * @description
+    * Sets route definition that will be used on route change when no other route definition
+    * is matched.
     */
     this.otherwise = function (route) {
         _this.when(null, route);
         return _this;
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.$routeProvider#decorate
+    * @methodOf dotjem.routing.$routeProvider
+    *
+    * @param {string} name A name for the decorator.
+    * @param {function} decorator The decorator function.
+    *
+    * @return {Object} self
+    *
+    * @description
+    * Allows for decorating a route just before the $routeChangeSuccess event is raised.
+    */
     this.decorate = function (name, decorator) {
         //Note: We wan't to allow overwrite
         decorators[name] = decorator;
         return _this;
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.$routeProvider#ignoreCase
+    * @methodOf dotjem.routing.$routeProvider
+    *
+    * @return {Object} self
+    *
+    * @description
+    * Turns case insensitive matching on for routes defined after calling this method.
+    */
     this.ignoreCase = function () {
         caseSensitive = false;
         return _this;
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.$routeProvider#matchCase
+    * @methodOf dotjem.routing.$routeProvider
+    *
+    * @return {Object} self
+    *
+    * @description
+    * Turns case sensitive matching on for routes defined after calling this method.
+    */
     this.matchCase = function () {
         caseSensitive = true;
         return _this;
@@ -489,7 +506,120 @@ function $RouteProvider() {
         '$injector', 
         '$routeParams', 
         function ($rootScope, $location, $q, $injector, $routeParams) {
-            var forceReload = false, $route = {
+            /**
+            * @ngdoc object
+            * @name dotjem.routing.$route
+            *
+            * @requires $location
+            * @requires $routeParams
+            *
+            * @property {Object} current Reference to the current route definition.
+            *
+            * @property {Array.<Object>} routes Array of all configured routes.
+            *
+            * @description
+            * Is used for deep-linking URLs to states.
+            * It watches `$location.url()` and tries to map the path to an existing route definition.
+            *
+            * You can define routes through {@link dotjem.routing.$routeProvider $routeProvider}'s API.
+            */
+            /**
+            * @ngdoc event
+            * @name dotjem.routing.$route#$routeChangeStart
+            * @eventOf dotjem.routing.$route
+            *
+            * @eventType broadcast on root scope
+            *
+            * @description
+            * Broadcasted before a route change. At this  point the route services starts
+            * resolving all of the dependencies needed for the route change to occurs.
+            *
+            * @param {Object} angularEvent Synthetic event object.
+            * @param {Route} next Future route information.
+            * @param {Route} current Current route information.
+            */
+            /**
+            * @ngdoc event
+            * @name dotjem.routing.$route#$routeChangeSuccess
+            * @eventOf dotjem.routing.$route
+            *
+            * @eventType broadcast on root scope
+            *
+            * @description
+            * Broadcasted after a route dependencies are resolved.
+            *
+            * @param {Object} angularEvent Synthetic event object.
+            * @param {Route} current Current route information.
+            * @param {Route|Undefined} previous Previous route information, or undefined if current is first route entered.
+            */
+            /**
+            * @ngdoc event
+            * @name dotjem.routing.$route#$routeChangeError
+            * @eventOf dotjem.routing.$route
+            *
+            * @eventType broadcast on root scope
+            *
+            * @description
+            * Broadcasted if any of the resolve promises are rejected.
+            *
+            * @param {Object} angularEvent Synthetic event object.
+            * @param {Route} current Current route information.
+            * @param {Route} previous Previous route information.
+            * @param {Object} rejection Rejection of the promise. Usually the error of the failed promise.
+            */
+            /**
+            * @ngdoc event
+            * @name dotjem.routing.$route#$routeUpdate
+            * @eventOf dotjem.routing.$route
+            *
+            * @eventType broadcast on root scope
+            *
+            * @description
+            * The `reloadOnSearch` property has been set to false.
+            */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$route#reload
+            * @methodOf dotjem.routing.$route
+            *
+            * @description
+            * Causes `$route` service to reload the current route even if
+            * {@link ng.$location $location} hasn't changed.
+            *
+            * As a result of that, {@link dotjem.routing.directive:jemView jemView}
+            * creates new scope, reinstantiates the controller.
+            */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$route#change
+            * @methodOf dotjem.routing.$route
+            *
+            * @param {Object} args Object with details about the route change.
+            * The route definition contains:
+            *
+            *   - `route` {string} The route to change to, can have parameters.
+            *   - `params` {Object=} A parameter object with parameters to fill into the route.
+            *   - `replace` {boolean=} - True if the route should replace the browser history entry, otherwise false.
+            *
+            * @description
+            * Changes the route.
+            *
+            * As a result of that, changes the {@link ng.$location path}.
+            */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$route#format
+            * @methodOf dotjem.routing.$route
+            *
+            * @param {string} route Route to format.
+            * @param {Object=} params Parameters to fill into the route.
+            *
+            * @return {string} An url generated from the provided parameters.
+            *
+            * @description
+            * Formats the given provided route into an url.
+            */
+                        var forceReload = false, $route = {
                 routes: routes,
                 reload: function () {
                     forceReload = true;
@@ -589,8 +719,15 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
+/**
+* @ngdoc object
+* @name dotjem.routing.$stateTransitionProvider
+*
+* @description
+* Used for configuring states. See {@link dotjem.routing.$state $state} for an example.
+*/
 function $StateTransitionProvider() {
+    'use strict';
     var root = {
         children: {
         },
@@ -622,6 +759,16 @@ function $StateTransitionProvider() {
         }
         return result;
     }
+    /**
+    * @ngdoc method
+    * @name dotjem.routing.$stateTransitionProvider#onEnter
+    * @methodOf dotjem.routing.$stateTransitionProvider
+    *
+    * @param {string|State|Array} state The state we are transitioning to.
+    * @param {funtion|Object} onenter The handler to invoke when entering the state.
+    *
+    * @description
+    */
     this.onEnter = function (state, onenter) {
         //TODO: Validation
         if(isObject(onenter)) {
@@ -631,6 +778,16 @@ function $StateTransitionProvider() {
             this.transition('*', state, onenter);
         }
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.routing.$stateTransitionProvider#onExit
+    * @methodOf dotjem.routing.$stateTransitionProvider
+    *
+    * @param {string|State|Array} state The state we are transitioning from.
+    * @param {funtion|Object} onexit The handler to invoke when entering the state.
+    *
+    * @description
+    */
     this.onExit = function (state, onexit) {
         if(isObject(onexit)) {
             var aligned = alignHandler(onexit);
@@ -639,6 +796,17 @@ function $StateTransitionProvider() {
             this.transition(state, '*', onexit);
         }
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.routing.$stateTransitionProvider#transition
+    * @methodOf dotjem.routing.$stateTransitionProvider
+    *
+    * @param {string|State|Array} from The state we are transitioning from.
+    * @param {string|State|Array} to The state we are transitioning to.
+    * @param {funtion|Object} handler The handler to invoke when the transitioning occurs.
+    *
+    * @description
+    */
     this.transition = function (from, to, handler) {
         var _this = this;
         var transition, regHandler;
@@ -712,10 +880,30 @@ function $StateTransitionProvider() {
         }
         return current;
     }
+    /**
+    * @ngdoc object
+    * @name dotjem.routing.$stateTransition
+    *
+    * @requires $q
+    * @requires $injector
+    *
+    * @description
+    *
+    */
     this.$get = [
         '$q', 
         '$injector', 
         function ($q, $injector) {
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$stateTransition#find
+            * @methodOf dotjem.routing.$stateTransition
+            *
+            * @param {string|State|Array} from The state we are transitioning from.
+            * @param {string|State|Array} to The state we are transitioning to.
+            *
+            * @description
+            */
             var $transition = {
                 root: root,
                 find: find
@@ -817,16 +1005,66 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 /// <reference path="state/stateComparer.ts" />
 /// <reference path="state/stateBrowser.ts" />
 /// <reference path="state/stateUrlBuilder.ts" />
-'use strict';
+/**
+* @ngdoc object
+* @name dotjem.routing.$stateProvider
+*
+* @description
+* Used for configuring states. See {@link dotjem.routing.$state $state} for an example.
+*/
 var $StateProvider = [
     '$routeProvider', 
     '$stateTransitionProvider', 
     function ($routeProvider, $transitionProvider) {
+        'use strict';
         //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
                 var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
         }), browser = new StateBrowser(root), comparer = new StateComparer();
+        /**
+        * @ngdoc method
+        * @name dotjem.$stateProvider#state
+        * @methodOf dotjem.routing.$stateProvider
+        *
+        * @param {string} fullname Full name of the state, use '.' to seperate parent and child states.
+        *
+        * E.g. if the full name "home" is given, the state is directly located under the root.
+        * It then becomes possible to register "home.recents" as a child named "recents" under the state "home".
+        *
+        * The following registrations would result in the ilustated hierachy.
+        *
+        * `.state('home', {})`
+        * `.state('home.recents', {})`
+        * `.state('home.all', {})`
+        * `.state('staff', {})`
+        * `.state('staff.all', {})`
+        * `.state('staff.single', {})`
+        *
+        *   - home
+        *     - recents
+        *     - all
+        *   - staff
+        *     - all
+        *     - single
+        *
+        * @param {Object} state All information about the state.
+        *
+        *    Object properties:
+        *
+        * - `views`: `{Object}` A list og views to be updated when the state is activated.
+        * - `route`: `{string}` A route to associate the state with,
+        *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+        * - `onEnter`: `{string|function|Object}` value
+        * - `onExit`: `{string|function|Object}` value
+        * - `reloadOnSearch`: `{bool}` If associated with a route, should that route reload on search.
+        * - `scrollTo`: {string=} � A element to scroll to when the state has been loaded.
+        *
+        * @returns {Object} self
+        *
+        * @description
+        * Adds a new route definition to the `$route` service.
+        */
         this.state = function (fullname, state) {
             StateRules.validateName(fullname);
             var parent = browser.lookup(fullname, 1);
@@ -843,6 +1081,120 @@ var $StateProvider = [
             '$location', 
             '$scroll', 
             function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
+                /**
+                * @ngdoc object
+                * @name dotjem.routing.$state
+                *
+                * @requires $rootScope
+                * @requires $q
+                * @requires $injector
+                * @requires $route
+                * @requires $view
+                * @requires $stateTransition
+                * @requires $location
+                * @requires $scroll
+                *
+                * @property {Object} current Reference to the current state loaded.
+                *
+                * @description
+                *
+                * You can define states through {@link dotjem.routing.$stateProvider $stateProvider}'s API.
+                */
+                /**
+                * @ngdoc event
+                * @name dotjem.routing.$state#$stateChangeStart
+                * @eventOf dotjem.routing.$state
+                *
+                * @eventType broadcast on root scope
+                *
+                * @description
+                * Broadcasted before a route change. At this  point the route services starts
+                * resolving all of the dependencies needed for the route change to occurs.
+                *
+                * @param {Object} angularEvent Synthetic event object.
+                * @param {State} next Future state.
+                * @param {State} current Current state.
+                */
+                /**
+                * @ngdoc event
+                * @name dotjem.routing.$state#$stateChangeSuccess
+                * @eventOf dotjem.routing.$state
+                *
+                * @eventType broadcast on root scope
+                *
+                * @description
+                * Broadcasted after a route dependencies are resolved.
+                *
+                * @param {Object} angularEvent Synthetic event object.
+                * @param {State} next Future state.
+                * @param {State} current Current state.
+                */
+                /**
+                * @ngdoc event
+                * @name dotjem.routing.$state#$stateChangeError
+                * @eventOf dotjem.routing.$state
+                *
+                * @eventType broadcast on root scope
+                *
+                * @description
+                * Broadcasted if any of the resolve promises are rejected.
+                *
+                * @param {Object} angularEvent Synthetic event object.
+                * @param {State} next Future state.
+                * @param {State} current Current state.
+                * @param {Object} rejection Rejection of the promise. Usually the error of the failed promise.
+                */
+                /**
+                * @ngdoc event
+                * @name dotjem.routing.$state#$stateUpdate
+                * @eventOf dotjem.routing.$state
+                *
+                * @eventType broadcast on root scope
+                *
+                * @description
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#goto
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {State|string} state Current state.
+                * @param {Object} params Current state.
+                *
+                * @description
+                * Goes to the specified state,
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#lookup
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {string} path Expression to resolve or the full name of a state.
+                *
+                * @description
+                * Finds a state based on the provided expression or name.
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#reload
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {State|string|boolean=} state Name or State in the current hierachy or true/false
+                *
+                * @description
+                * Reloads the state and associated views.
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#url
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {State|string=} state A state to generate an URL for
+                * @param {Object=} params A set of parameters to use when generating the url
+                *
+                * @description
+                * An url generated from the provided parameters.
+                */
                 var urlbuilder = new StateUrlBuilder($route);
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
@@ -1431,9 +1783,16 @@ var StateUrlBuilder = (function () {
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
 function $TemplateProvider() {
+    'use strict';
     var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))', 'i');
+    /**
+    * @ngdoc object
+    * @name dotjem.routing.$template
+    *
+    * @description
+    *
+    */
     this.$get = [
         '$http', 
         '$q', 
@@ -1462,6 +1821,24 @@ function $TemplateProvider() {
                 }
                 throw new Error("Object must define url, fn or html.");
             }
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$template#get
+            * @methodOf dotjem.routing.$template
+            *
+            * @param {string|Object|function} template Either a string reprecenting the actual template,
+            * an url to it, a function returning it or an object specifying a location of the template.
+            *
+            * If a template object i used, one of the following properties may be used:
+            * - `url` `{string}`: An url location of the template.
+            * - `fn` `{function}`: A function that returns the template.
+            * - `html` `{string}`: The actual template as raw html.
+            *
+            * @returns {Promise} a promise that resolves to the template.
+            *
+            * @description
+            *
+            */
             this.get = function (template) {
                 if(isString(template)) {
                     if(urlmatcher.test(template)) {
@@ -1754,24 +2131,23 @@ angular.module('dotjem.routing').provider('$view', $ViewProvider);
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-/**
-* @ngdoc function
-* @name dotjem.routing.$scrollProvider
-*
-* @requires $window
-* @requires $location
-* @requires $rootScope
-*
-* @description
-*
-*
-*
-*
-*
-*/
 var $ScrollProvider = [
     function () {
         'use strict';
+        /**
+        * @ngdoc function
+        * @name dotjem.routing.$scroll
+        *
+        * @requires $window
+        * @requires $rootScope
+        * @requires $anchorScroll
+        * @requires $injector
+        *
+        * @param {string|function=} target The element name to scroll to or a function returning it.
+        *
+        * @description
+        *
+        */
         this.$get = [
             '$window', 
             '$rootScope', 

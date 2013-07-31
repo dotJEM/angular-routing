@@ -179,4 +179,5 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc', 'ngdocs']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
+    grunt.registerTask('docs', ['clean', 'build', 'ngdocs']);
 };

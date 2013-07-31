@@ -5,6 +5,13 @@
 
 'use strict';
 
+/**
+ * @ngdoc overview
+ * @name dotjem.routing
+ * @description
+ *
+ * Module that provides state based routing, deeplinking services and directives for angular apps.
+ */
 angular.module('dotjem.routing', []);
 
 var isDefined = angular.isDefined,
