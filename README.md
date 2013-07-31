@@ -13,8 +13,8 @@
  - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/master/build)
 
 The samples and api reference are currently a work in progress:
-*Api Reference:* http://dotjem.github.io/angular-routing/doc/
-*Samples:* http://dotjem.github.com/angular-routing/samples/
+ - **Api Reference:** http://dotjem.github.io/angular-routing/doc/
+ - **Samples:** http://dotjem.github.com/angular-routing/samples/
 
 # NOTE: Pre-release version 0.3.2 
 
