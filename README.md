@@ -12,6 +12,10 @@
  - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/master/build/angular-routing.min.js)
  - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/master/build)
 
+The samples and api reference are currently a work in progress:
+*Api Reference:* http://dotjem.github.io/angular-routing/doc/
+*Samples:* http://dotjem.github.com/angular-routing/samples/
+
 # NOTE: Pre-release version 0.3.2 
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
@@ -101,14 +105,6 @@ or modify what happens during a transition.
 #### Requires
 
 * AngularJS 1.1.4 or above
-
-#### Samples
-
-Some initial samples can be found at:
-
- - http://dotjem.github.com/angular-routing/samples/
-
-These are currently "work in progress", but can already demonstrate some of the core concepts.
 
 ## Reporting Issues
 
