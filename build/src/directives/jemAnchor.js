@@ -2,6 +2,20 @@
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 'use strict';
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:jemAnchor
+* @restrict ECA
+*
+* @description
+*
+* @element ANY
+* @param {string} jemAnchor Identifier of the anchor
+*
+* @scope
+* @example
+<example module="ngViewExample" deps="angular-route.js" animations="true">
+*/
 var jemAnchorDirective = [
     '$scroll', 
     '$timeout', 
@@ -10,7 +24,7 @@ var jemAnchorDirective = [
             restrict: 'ECA',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr['uiScroll'] || attr.id;
+                var name = attr['jemAnchor'] || attr.id;
                 //$scroll.$register(name, element);
                 //TODO: This is not aware if there are multiple elements named the same, we should instead
                 //      register the element with the $scroll service so that can throw an error if multiple

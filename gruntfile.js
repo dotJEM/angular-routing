@@ -116,19 +116,6 @@ module.exports = function (grunt) {
             tasks: ['build']
         },
 
-        yuidoc: {
-            src: {
-                name: '<%= pkg.name %>',
-                description: '<%= pkg.description %>',
-                version: '<%= pkg.version %>',
-                url: '<%= pkg.homepage %>',
-                options: {
-                    paths: './build/src',
-                    outdir: './doc/yuidoc/'
-                }
-            }
-        },
-
         copy: {
             release: {
                 files: [{
@@ -148,6 +135,16 @@ module.exports = function (grunt) {
                     }
                 }]
             }
+        },
+        
+        //https://npmjs.org/package/grunt-ngdocs
+        ngdocs: {
+            options: {
+                dest: 'doc',
+                title: "dotJEM Angular Routing",
+                html5Mode: false,
+            },
+            all: ['build/src/**/*.js']
         }
     });
 
@@ -157,15 +154,16 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-ngdocs');
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'build', 'karma', 'yuidoc']);
+    grunt.registerTask('default', ['clean', 'build', 'karma', 'ngdocs']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
+    grunt.registerTask('docs', ['clean', 'build', 'ngdocs']);
 };

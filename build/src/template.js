@@ -1,9 +1,16 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
 function $TemplateProvider() {
+    'use strict';
     var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))', 'i');
+    /**
+    * @ngdoc object
+    * @name dotjem.routing.$template
+    *
+    * @description
+    *
+    */
     this.$get = [
         '$http', 
         '$q', 
@@ -32,6 +39,24 @@ function $TemplateProvider() {
                 }
                 throw new Error("Object must define url, fn or html.");
             }
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$template#get
+            * @methodOf dotjem.routing.$template
+            *
+            * @param {string|Object|function} template Either a string reprecenting the actual template,
+            * an url to it, a function returning it or an object specifying a location of the template.
+            *
+            * If a template object i used, one of the following properties may be used:
+            * - `url` `{string}`: An url location of the template.
+            * - `fn` `{function}`: A function that returns the template.
+            * - `html` `{string}`: The actual template as raw html.
+            *
+            * @returns {Promise} a promise that resolves to the template.
+            *
+            * @description
+            *
+            */
             this.get = function (template) {
                 if(isString(template)) {
                     if(urlmatcher.test(template)) {

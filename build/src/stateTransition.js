@@ -1,8 +1,15 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
-'use strict';
+/**
+* @ngdoc object
+* @name dotjem.routing.$stateTransitionProvider
+*
+* @description
+* Used for configuring states. See {@link dotjem.routing.$state $state} for an example.
+*/
 function $StateTransitionProvider() {
+    'use strict';
     var root = {
         children: {
         },
@@ -34,6 +41,16 @@ function $StateTransitionProvider() {
         }
         return result;
     }
+    /**
+    * @ngdoc method
+    * @name dotjem.routing.$stateTransitionProvider#onEnter
+    * @methodOf dotjem.routing.$stateTransitionProvider
+    *
+    * @param {string|State|Array} state The state we are transitioning to.
+    * @param {funtion|Object} onenter The handler to invoke when entering the state.
+    *
+    * @description
+    */
     this.onEnter = function (state, onenter) {
         //TODO: Validation
         if(isObject(onenter)) {
@@ -43,6 +60,16 @@ function $StateTransitionProvider() {
             this.transition('*', state, onenter);
         }
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.routing.$stateTransitionProvider#onExit
+    * @methodOf dotjem.routing.$stateTransitionProvider
+    *
+    * @param {string|State|Array} state The state we are transitioning from.
+    * @param {funtion|Object} onexit The handler to invoke when entering the state.
+    *
+    * @description
+    */
     this.onExit = function (state, onexit) {
         if(isObject(onexit)) {
             var aligned = alignHandler(onexit);
@@ -51,6 +78,17 @@ function $StateTransitionProvider() {
             this.transition(state, '*', onexit);
         }
     };
+    /**
+    * @ngdoc method
+    * @name dotjem.routing.$stateTransitionProvider#transition
+    * @methodOf dotjem.routing.$stateTransitionProvider
+    *
+    * @param {string|State|Array} from The state we are transitioning from.
+    * @param {string|State|Array} to The state we are transitioning to.
+    * @param {funtion|Object} handler The handler to invoke when the transitioning occurs.
+    *
+    * @description
+    */
     this.transition = function (from, to, handler) {
         var _this = this;
         var transition, regHandler;
@@ -124,10 +162,30 @@ function $StateTransitionProvider() {
         }
         return current;
     }
+    /**
+    * @ngdoc object
+    * @name dotjem.routing.$stateTransition
+    *
+    * @requires $q
+    * @requires $injector
+    *
+    * @description
+    *
+    */
     this.$get = [
         '$q', 
         '$injector', 
         function ($q, $injector) {
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.$stateTransition#find
+            * @methodOf dotjem.routing.$stateTransition
+            *
+            * @param {string|State|Array} from The state we are transitioning from.
+            * @param {string|State|Array} to The state we are transitioning to.
+            *
+            * @description
+            */
             var $transition = {
                 root: root,
                 find: find
@@ -139,7 +197,7 @@ function $StateTransitionProvider() {
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
-                            $injector.invoke(handler, _this, {
+                            injectFn(handler)($injector, {
                                 $to: to,
                                 $from: from,
                                 $transition: tc

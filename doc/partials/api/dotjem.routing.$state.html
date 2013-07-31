@@ -1,0 +1,132 @@
+<h1><code ng:non-bindable="">$state</code>
+<span class="hint">(service in module <code ng:non-bindable="">dotjem.routing</code>
+)</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>You can define states through <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>'s API.</p></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$rootScope">$rootScope</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$q">$q</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$injector">$injector</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$route">$route</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$view">$view</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$stateTransition">$stateTransition</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$location">$location</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$scroll">$scroll</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="goto">goto(state, params)</h3>
+<div class="goto"><p>Goes to the specified state,</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">state – {State|string} – </code>
+<p>Current state.</p></li>
+<li><code ng:non-bindable="">params – {Object} – </code>
+<p>Current state.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="lookup">lookup(path)</h3>
+<div class="lookup"><p>Finds a state based on the provided expression or name.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">path – {string} – </code>
+<p>Expression to resolve or the full name of a state.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="reload">reload(state)</h3>
+<div class="reload"><p>Reloads the state and associated views.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">state<i>(optional)</i> – {State|string|boolean=} – </code>
+<p>Name or State in the current hierachy or true/false</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="url">url(state, params)</h3>
+<div class="url"><p>An url generated from the provided parameters.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">state<i>(optional)</i> – {State|string=} – </code>
+<p>A state to generate an URL for</p></li>
+<li><code ng:non-bindable="">params<i>(optional)</i> – {Object=} – </code>
+<p>A set of parameters to use when generating the url</p></li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="member property"><h2 id="Properties">Properties</h2>
+<ul class="properties"><li><h3 id="current">current</h3>
+<div class="current"><p>Reference to the current state loaded.</p></div>
+</li>
+</ul>
+</div>
+<div class="member event"><h2 id="Events">Events</h2>
+<ul class="events"><li><h3 id="$stateChangeError">$stateChangeError</h3>
+<div class="$statechangeerror"><p>Broadcasted if any of the resolve promises are rejected.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">broadcast</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">root scope</div>
+</div>
+<h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">angularEvent – {Object} – </code>
+<p>Synthetic event object.</p></li>
+<li><code ng:non-bindable="">next – {State} – </code>
+<p>Future state.</p></li>
+<li><code ng:non-bindable="">current – {State} – </code>
+<p>Current state.</p></li>
+<li><code ng:non-bindable="">rejection – {Object} – </code>
+<p>Rejection of the promise. Usually the error of the failed promise.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="$stateChangeStart">$stateChangeStart</h3>
+<div class="$statechangestart"><p>Broadcasted before a route change. At this  point the route services starts
+resolving all of the dependencies needed for the route change to occurs.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">broadcast</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">root scope</div>
+</div>
+<h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">angularEvent – {Object} – </code>
+<p>Synthetic event object.</p></li>
+<li><code ng:non-bindable="">next – {State} – </code>
+<p>Future state.</p></li>
+<li><code ng:non-bindable="">current – {State} – </code>
+<p>Current state.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="$stateChangeSuccess">$stateChangeSuccess</h3>
+<div class="$statechangesuccess"><p>Broadcasted after a route dependencies are resolved.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">broadcast</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">root scope</div>
+</div>
+<h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">angularEvent – {Object} – </code>
+<p>Synthetic event object.</p></li>
+<li><code ng:non-bindable="">next – {State} – </code>
+<p>Future state.</p></li>
+<li><code ng:non-bindable="">current – {State} – </code>
+<p>Current state.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="$stateUpdate">$stateUpdate</h3>
+<div class="$stateupdate"><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">broadcast</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">root scope</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
