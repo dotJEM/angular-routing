@@ -149,7 +149,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
 
 <h4 id="usingarrays">Using Arrays</h6>
 
-<p>In addition to using the �*� wildcart to target multiple states, it is also possible to use arrays for a more specific match.</p>
+<p>In addition to using the <code>*</code> wildcart to target multiple states, it is also possible to use arrays for a more specific match.</p>
 
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
@@ -190,11 +190,18 @@ So if we just use <code>*</code> we target all existing states under <code>root<
 <br/>
 Instead of using this method, the transitions can also be configured when defining states through the <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">state – {string|State|Array} – </code>
-<p>The state(s) or state name(s) to match when entering.</p></li>
+<p>The state name matchers(s) to match when entering.</p></li>
 <li><code ng:non-bindable="">handler – {funtion|Object} – </code>
 <p>The handler to invoke when entering the state.
 <br/>
-A handler can either be a function or an object defining a set of before, between and after.</p></li>
+Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+following properties:</p>
+
+<ul>
+<li><code>before</code> <code>{function}</code> : handler to be called before transition starts</li>
+<li><code>between</code> <code>{function}</code> : handler to be called right after views are resolved</li>
+<li><code>after</code> <code>{function}</code> : handler to be called when transition is complete</li>
+</ul></li>
 </ul>
 </div>
 </li>
@@ -203,20 +210,39 @@ A handler can either be a function or an object defining a set of before, betwee
 <br/>
 Instead of using this method, the transitions can also be configured when defining states through the <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">state – {string|State|Array} – </code>
-<p>The state(s) or state name(s) to match when leaving.</p></li>
+<p>The state name matchers(s) to match when leaving.</p></li>
 <li><code ng:non-bindable="">handler – {funtion|Object} – </code>
-<p>The handler to invoke when entering the state.</p></li>
+<p>The handler to invoke when entering the state.
+<br/>
+Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+following properties:</p>
+
+<ul>
+<li><code>before</code> <code>{function}</code> : handler to be called before transition starts</li>
+<li><code>between</code> <code>{function}</code> : handler to be called right after views are resolved</li>
+<li><code>after</code> <code>{function}</code> : handler to be called when transition is complete</li>
+</ul></li>
 </ul>
 </div>
 </li>
 <li><h3 id="transition">transition(from, to, handler)</h3>
-<div class="transition"><h4 id="Parameters">Parameters</h4>
+<div class="transition"><p>Register a single handler to get called when leaving the state(s) passed as the from parameter
+to the state(s) passed as the to parameter.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">from – {string|State|Array} – </code>
-<p>The state(s) or state name(s) to match on leaving.</p></li>
+<p>The state name matchers(s) to match on leaving.</p></li>
 <li><code ng:non-bindable="">to – {string|State|Array} – </code>
-<p>The The state(s) or state name(s) to match on entering.</p></li>
+<p>The The state name matchers(s) to match on entering.</p></li>
 <li><code ng:non-bindable="">handler – {funtion|Object} – </code>
-<p>The handler to invoke when the transitioning occurs.</p></li>
+<p>The handler to invoke when the transitioning occurs.
+<br/>
+Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+following properties:</p>
+
+<ul>
+<li><code>before</code> <code>{function}</code> : handler to be called before transition starts</li>
+<li><code>between</code> <code>{function}</code> : handler to be called right after views are resolved</li>
+<li><code>after</code> <code>{function}</code> : handler to be called when transition is complete</li>
+</ul></li>
 </ul>
 </div>
 </li>

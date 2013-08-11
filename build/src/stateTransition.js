@@ -143,7 +143,7 @@
 *
 * #### Using Arrays
 *
-* In addition to using the �*� wildcart to target multiple states, it is also possible to use arrays for a more specific match.
+* In addition to using the `*` wildcart to target multiple states, it is also possible to use arrays for a more specific match.
 *
 * <pre>
 *  angular.module('demo', ['dotjem.routing'])
@@ -217,10 +217,15 @@ function $StateTransitionProvider() {
     * @name dotjem.routing.$stateTransitionProvider#onEnter
     * @methodOf dotjem.routing.$stateTransitionProvider
     *
-    * @param {string|State|Array} state The state(s) or state name(s) to match when entering.
+    * @param {string|State|Array} state The state name matchers(s) to match when entering.
     * @param {funtion|Object} handler The handler to invoke when entering the state.
     * <br/>
-    * A handler can either be a function or an object defining a set of before, between and after.
+    * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+    * following properties:
+    *
+    * - `before` `{function}` : handler to be called before transition starts
+    * - `between` `{function}` : handler to be called right after views are resolved
+    * - `after` `{function}` : handler to be called when transition is complete
     *
     * @description
     * This is a shorthand method for `$stateTransitionProvider.transition('*', state, handler);`
@@ -241,8 +246,15 @@ function $StateTransitionProvider() {
     * @name dotjem.routing.$stateTransitionProvider#onExit
     * @methodOf dotjem.routing.$stateTransitionProvider
     *
-    * @param {string|State|Array} state The state(s) or state name(s) to match when leaving.
+    * @param {string|State|Array} state The state name matchers(s) to match when leaving.
     * @param {funtion|Object} handler The handler to invoke when entering the state.
+    * <br/>
+    * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+    * following properties:
+    *
+    * - `before` `{function}` : handler to be called before transition starts
+    * - `between` `{function}` : handler to be called right after views are resolved
+    * - `after` `{function}` : handler to be called when transition is complete
     *
     * @description
     * This is a shorthand method for `$stateTransitionProvider.transition(state, '*', handler);`
@@ -262,11 +274,20 @@ function $StateTransitionProvider() {
     * @name dotjem.routing.$stateTransitionProvider#transition
     * @methodOf dotjem.routing.$stateTransitionProvider
     *
-    * @param {string|State|Array} from The state(s) or state name(s) to match on leaving.
-    * @param {string|State|Array} to The The state(s) or state name(s) to match on entering.
+    * @param {string|State|Array} from The state name matchers(s) to match on leaving.
+    * @param {string|State|Array} to The The state name matchers(s) to match on entering.
     * @param {funtion|Object} handler The handler to invoke when the transitioning occurs.
+    * <br/>
+    * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+    * following properties:
+    *
+    * - `before` `{function}` : handler to be called before transition starts
+    * - `between` `{function}` : handler to be called right after views are resolved
+    * - `after` `{function}` : handler to be called when transition is complete
     *
     * @description
+    * Register a single handler to get called when leaving the state(s) passed as the from parameter
+    * to the state(s) passed as the to parameter.
     */
     this.transition = function (from, to, handler) {
         var _this = this;
@@ -350,22 +371,12 @@ function $StateTransitionProvider() {
     * @requires $injector
     *
     * @description
-    *
+    * Internal use
     */
     this.$get = [
         '$q', 
         '$injector', 
         function ($q, $injector) {
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.$stateTransition#find
-            * @methodOf dotjem.routing.$stateTransition
-            *
-            * @param {string|State|Array} from The state we are transitioning from.
-            * @param {string|State|Array} to The state we are transitioning to.
-            *
-            * @description
-            */
             var $transition = {
                 root: root,
                 find: find
