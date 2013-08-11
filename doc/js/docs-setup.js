@@ -29,7 +29,7 @@ NG_DOCS={
       "id": "dotjem.routing.$scroll",
       "shortName": "$scroll",
       "type": "function",
-      "keywords": "$anchorscroll $injector $rootscope $scroll $window api dotjem element function it name or returning routing scroll target the to"
+      "keywords": "$anchorscroll $injector $rootscope $scroll $window after allow also and api as be been being call called current dependant direct directive dotjem element elements enhancements for function has is it jemanchor like loaded name named no number of offers on or otherwise over parameter part performs re-routed register replacement returning routing scroll scrolling serves service target targets that the this to transition when which will with work"
     },
     {
       "section": "api",
@@ -57,14 +57,14 @@ NG_DOCS={
       "id": "dotjem.routing.$stateTransitionProvider",
       "shortName": "$stateTransitionProvider",
       "type": "object",
-      "keywords": "$state $statetransitionprovider an api are configuring dotjem entering example for from handler invoke method object occurs onenter onexit routing see state states the to transition transitioning used we when"
+      "keywords": "$statechangeerror $statechangestart $statechangesuccess $stateprovider $statetransitionprovider $transition about above addition after all allows also an and angular another any api are arrays as at basic basically be before below besides between boils book both but by called can cancel canceling cases closed combinations config configuration configure configured configuring console could creates define defined defining demo demonstrated dependencies descendant describes destination door dotjem down each either entering etc event example existing exists flow for from function general get gets global handle handler handlers have here hierarchy how however if in information injectable instead invalid invoke is it item its just leave leaving like list lock locked log many maped match method methods might module more most multiple name not number object occurs of on one onenter onexit only open opened opening optional or out paper part pen perform performed possible registered registering rerouting resolve root routing see set shorthand should simple so source specialized specific specified stage stages started state states steps stp target targeted targeting that the these they this through to transition transitioning transitions under unlocked use used using views wan was way ways we when where wildcard wildcards wildcart will wished write"
     },
     {
       "section": "api",
       "id": "dotjem.routing.$template",
       "shortName": "$template",
       "type": "object",
-      "keywords": "$template actual an api as be dotjem either fn following function get html if it location may method object of one or promise properties raw reprecenting resolves returning returns routing specifying string template that the to url used"
+      "keywords": "$http $injector $q $template $templatecache above actual all an and api are as based be cached defines dotjem either encounters first fn following function get html if ignored is it load location method more must object of on one or order piece promise promises properties raw reprecenting resolves rest retrieves returned returning returns routing service services specifying string template templates than that the those to url used using will"
     },
     {
       "section": "api",

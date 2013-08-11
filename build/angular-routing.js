@@ -724,7 +724,178 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 * @name dotjem.routing.$stateTransitionProvider
 *
 * @description
-* Used for configuring states. See {@link dotjem.routing.$state $state} for an example.
+* Use the `$stateTransitionProvider` to configure handlers for transitions between states.
+* <br/>
+* The transition handlers allows for canceling a transition, e.g. if it is invalid or rerouting it to another state.
+* They can also be used to perform steps that should only be performed as part of a specific transition from e.g. state 'A' to state 'B', but not 'C' to 'B'.
+* <br/>
+* Besides the more general {@link dotjem.routing.$stateTransitionProvider#transition transition} method, specialized configuration methods exists for entering and leaving states.
+* These specialized cases can also be configured on the states instead of using the `$stateTransitionProvider`. See {@link dotjem.routing.$stateProvider $stateProvider} for more information about that.
+* <br/>
+* ### Transition Handlers
+* Handlers for transitions can be specified in a number of ways, where the most simple handler is an injectable `function`.
+* <br/>
+* Here is a basic example:
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*       .transition('locked', 'closed', ['$transition', function($transition) {
+*         console.log('Door was unlocked');
+*       }])
+*       .transition('locked', 'open', ['$transition', function($transition) {
+*         console.log("Can't open a locked door!");
+*         $transition.cancel();
+*       }])
+*       .transition('open', 'closed', ['$transition', function($transition) {
+*         console.log('Door was closed');
+*       }])
+*       .transition('open', 'locked', ['$transition', function($transition) {
+*         console.log("Can't lock an open door!");
+*         $transition.cancel();
+*       }])
+*       .transition('closed', 'open', ['$transition', function($transition) {
+*         console.log('Door was opened');
+*       }])
+*       .transition('closed', 'locked', ['$transition', function($transition) {
+*         console.log('Door was locked');
+*       }])
+*    }]);
+* </pre>
+* #### Handler Stages
+* The example above describes how simple handlers can be registered, however handlers can also be specified to be called at specific transition stages.
+* <br/>
+* Basically this boils down to `before`, `between`, `after`. The flow of these will be:
+*
+* 1. Handler: `before`
+* 2. Event: `$stateChangeStart`
+* 3. Resolve: Views, Dependencies etc.
+* 4. Handler: `between`
+* 5. Event: `$stateChangeSuccess` or `$stateChangeError`
+* 6. Handler: `after`
+*
+* When registering transitions like demonstrated in the example above, this will be maped to the "between" stage.
+* <br/>
+* To target specific stages of a transition use a transition object instead as in the example below:
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*       .transition('closed', 'open', {
+*         before: ['$transition', function($transition) {
+*           console.log('We are about to open the door.');
+*         }],
+*         between: ['$transition', function($transition) {
+*           console.log('We are opening the door.');
+*         }],
+*         after: ['$transition', function($transition) {
+*           console.log('We have opened the door.');
+*         }]
+*       }])
+*    }]);
+* </pre>
+* Here we defined a handler for all stages, each stage is optional however, so if we just wished to be called before the transition started, we could leave the `between` and `after` out of it:
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*       .transition('closed', 'open', {
+*         before: ['$transition', function($transition) {
+*           console.log('We are about to open the door.');
+*         }]
+*       }])
+*    }]);
+* </pre>
+* <br/>
+* ### Targeting Multiple States
+* When defining states when configuring transitions, multiple states can be targeted either using the `*` wildcard or as arrays.
+* #### Using Wildcards
+*
+* By using `*` one can target all states the the Hierarchy below.
+* <br/>
+* So if we just use `*` we target all existing states under `root`, and we can define a global handler that gets called on all transitions by using `*` both as destination and source.
+*
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*        .transition('*', '*', ['$transition', function($transition) {
+*          console.log('This handler will get called for all transitions');
+*        }])
+*    }]);
+* </pre>
+*
+* We can also target all transitions to or from a specific state that way:
+*
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*        .transition('*', 'state', ['$transition', function($transition) {
+*          console.log('This handler will get called for all'
+*                    + ' transitions to "state"');
+*        }])
+*        .transition('state', '*', ['$transition', function($transition) {
+*          console.log('This handler will get called for all'
+*                    + ' transitions from "state"');
+*        }])
+*    }]);
+* </pre>
+*
+* This was global handlers, but we might also wan't to target any state below a specific state:
+*
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*        .transition('*', 'state.*', ['$transition', function($transition) {
+*          console.log('This handler will get called for all transitions to'
+*                    + ' "state" or any of its descendant states');
+*        }])
+*        .transition('state.*', '*', ['$transition', function($transition) {
+*          console.log('This handler will get called for all transitions from'
+*                    + ' "state" or any of it's descendant states');
+*        }])
+*    }]);
+* </pre>
+*
+* #### Using Arrays
+*
+* In addition to using the �*� wildcart to target multiple states, it is also possible to use arrays for a more specific match.
+*
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*        .transition(['book', 'book.item', 'book.list'],
+*                    'paper',
+*                    ['$transition', function($transition) {
+*                      console.log('This handler will get called for transitions from'
+*                                + ' "book", "book.item" and "book.list" to "paper"');
+*        })]
+*        .transition('paper',
+*                    ['book', 'book.item', 'book.list'],
+*                    ['$transition', function($transition) {
+*                      console.log('This handler will get called for transitions to'
+*                                + ' "book", "book.item" and "book.list" from "paper"');
+*        }])
+*    }]);
+* </pre>
+*
+* Each of the states, wildcards can also be used:
+*
+* <pre>
+*  angular.module('demo', ['dotjem.routing'])
+*    .config(['$stateTransitionProvider', function(stp) {
+*      stp
+*       .transition(['book', 'book.item.*', 'book.list.*'],
+*                   ['paper', 'pen.*'],
+*                   ['$transition', function($transition) {
+*                     console.log('Handle all the above, this creates'
+*                               + ' to many combinations to write out');
+*       }])
+*    }]);
+* </pre>
 */
 function $StateTransitionProvider() {
     'use strict';
@@ -764,18 +935,23 @@ function $StateTransitionProvider() {
     * @name dotjem.routing.$stateTransitionProvider#onEnter
     * @methodOf dotjem.routing.$stateTransitionProvider
     *
-    * @param {string|State|Array} state The state we are transitioning to.
-    * @param {funtion|Object} onenter The handler to invoke when entering the state.
+    * @param {string|State|Array} state The state(s) or state name(s) to match when entering.
+    * @param {funtion|Object} handler The handler to invoke when entering the state.
+    * <br/>
+    * A handler can either be a function or an object defining a set of before, between and after.
     *
     * @description
+    * This is a shorthand method for `$stateTransitionProvider.transition('*', state, handler);`
+    * <br/>
+    * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
     */
-    this.onEnter = function (state, onenter) {
+    this.onEnter = function (state, handler) {
         //TODO: Validation
-        if(isObject(onenter)) {
-            var aligned = alignHandler(onenter);
+        if(isObject(handler)) {
+            var aligned = alignHandler(handler);
             this.transition(aligned.from || '*', state, aligned.handler);
-        } else if(isFunction(onenter) || isArray(onenter)) {
-            this.transition('*', state, onenter);
+        } else if(isFunction(handler) || isArray(handler)) {
+            this.transition('*', state, handler);
         }
     };
     /**
@@ -783,17 +959,20 @@ function $StateTransitionProvider() {
     * @name dotjem.routing.$stateTransitionProvider#onExit
     * @methodOf dotjem.routing.$stateTransitionProvider
     *
-    * @param {string|State|Array} state The state we are transitioning from.
-    * @param {funtion|Object} onexit The handler to invoke when entering the state.
+    * @param {string|State|Array} state The state(s) or state name(s) to match when leaving.
+    * @param {funtion|Object} handler The handler to invoke when entering the state.
     *
     * @description
+    * This is a shorthand method for `$stateTransitionProvider.transition(state, '*', handler);`
+    * <br/>
+    * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
     */
-    this.onExit = function (state, onexit) {
-        if(isObject(onexit)) {
-            var aligned = alignHandler(onexit);
+    this.onExit = function (state, handler) {
+        if(isObject(handler)) {
+            var aligned = alignHandler(handler);
             this.transition(state, aligned.to || '*', aligned.handler);
-        } else if(isFunction(onexit) || isArray(onexit)) {
-            this.transition(state, '*', onexit);
+        } else if(isFunction(handler) || isArray(handler)) {
+            this.transition(state, '*', handler);
         }
     };
     /**
@@ -801,8 +980,8 @@ function $StateTransitionProvider() {
     * @name dotjem.routing.$stateTransitionProvider#transition
     * @methodOf dotjem.routing.$stateTransitionProvider
     *
-    * @param {string|State|Array} from The state we are transitioning from.
-    * @param {string|State|Array} to The state we are transitioning to.
+    * @param {string|State|Array} from The state(s) or state name(s) to match on leaving.
+    * @param {string|State|Array} to The The state(s) or state name(s) to match on entering.
     * @param {funtion|Object} handler The handler to invoke when the transitioning occurs.
     *
     * @description
@@ -828,7 +1007,8 @@ function $StateTransitionProvider() {
                 return this;
             }
             validate(from, to);
-            if(angular.isFunction(handler) || angular.isArray(handler)) {
+            if(injectFn(handler)) {
+                // angular.isFunction(handler) || angular.isArray(handler)) {
                 handler = {
                     between: handler
                 };
@@ -1790,8 +1970,15 @@ function $TemplateProvider() {
     * @ngdoc object
     * @name dotjem.routing.$template
     *
-    * @description
+    * @requires $http
+    * @requires $q
+    * @requires $injector
+    * @requires $templateCache
     *
+    * @description
+    * The $template services is used to load templates, templates are cached using the '$templateCache'.
+    * <br/>
+    * **Note:** all templates are returned as promises.
     */
     this.$get = [
         '$http', 
@@ -1829,33 +2016,40 @@ function $TemplateProvider() {
             * @param {string|Object|function} template Either a string reprecenting the actual template,
             * an url to it, a function returning it or an object specifying a location of the template.
             *
-            * If a template object i used, one of the following properties may be used:
+            * If a template object i used, one of the following properties must be used:
+            *
             * - `url` `{string}`: An url location of the template.
             * - `fn` `{function}`: A function that returns the template.
             * - `html` `{string}`: The actual template as raw html.
             *
+            * <br/>
+            * **Note:** if a template object defines more than one of those, the first one the `$template` service encounters will be used
+            * based on the order above, and the rest ignored. E.g. if a template object defines `url` and `html`, `html` is ignored.
+            *
             * @returns {Promise} a promise that resolves to the template.
             *
             * @description
-            *
+            * Retrieves a template and returns that as a promise. A Template is a piece of html.
             */
-            this.get = function (template) {
-                if(isString(template)) {
-                    if(urlmatcher.test(template)) {
-                        return getFromUrl(template);
-                    } else {
-                        return $q.when(template);
+            var $template = {
+                'get': function (template) {
+                    if(isString(template)) {
+                        if(urlmatcher.test(template)) {
+                            return getFromUrl(template);
+                        } else {
+                            return $q.when(template);
+                        }
                     }
+                    if(isFunction(template) || isArray(template)) {
+                        return getFromFunction(template);
+                    }
+                    if(isObject(template)) {
+                        return getFromObject(template);
+                    }
+                    throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
                 }
-                if(isFunction(template) || isArray(template)) {
-                    return getFromFunction(template);
-                }
-                if(isObject(template)) {
-                    return getFromObject(template);
-                }
-                throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
             };
-            return this;
+            return $template;
         }    ];
 }
 angular.module('dotjem.routing').provider('$template', $TemplateProvider);
@@ -2146,7 +2340,12 @@ var $ScrollProvider = [
         * @param {string|function=} target The element name to scroll to or a function returning it.
         *
         * @description
+        * The `$scroll` service offers a number of enhancements over the current `@anchorScroll` and serves for a direct replacement.
         *
+        * When called with no parameter like `$scroll()` the call is re-routed to `$anchorScroll` otherwise `$scroll` performs the scrolling.
+        *
+        * Scrolling to named elements is dependant on the `jemAnchor` directive which will register elements to be targets for the `$scroll` service. This is
+        * to allow elements that is being loaded as part of a transition to also work as targets after `$scroll` has been called.
         */
         this.$get = [
             '$window', 

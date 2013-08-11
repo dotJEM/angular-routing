@@ -2,8 +2,6 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
-
-
 var $ScrollProvider = [<any>
     function () {
     'use strict';
@@ -20,7 +18,12 @@ var $ScrollProvider = [<any>
      * @param {string|function=} target The element name to scroll to or a function returning it.
      *
      * @description
-     * 
+     * The `$scroll` service offers a number of enhancements over the current `@anchorScroll` and serves for a direct replacement.
+     *
+     * When called with no parameter like `$scroll()` the call is re-routed to `$anchorScroll` otherwise `$scroll` performs the scrolling.
+     *
+     * Scrolling to named elements is dependant on the `jemAnchor` directive which will register elements to be targets for the `$scroll` service. This is
+     * to allow elements that is being loaded as part of a transition to also work as targets after `$scroll` has been called.
      */
     this.$get = [<any>'$window','$rootScope','$anchorScroll','$injector',
         function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService) {
@@ -34,7 +37,6 @@ var $ScrollProvider = [<any>
                     scrollTo(fn($injector));
                 }
             }
-
 
             scroll.$current = 'top';
             
@@ -51,10 +53,6 @@ var $ScrollProvider = [<any>
         }];
 }];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
-
-
-
-
 
 //scroll.$register = register;
 

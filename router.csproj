@@ -151,6 +151,9 @@
     <Content Include="src\state\stateUrlBuilder.js">
       <DependentUpon>stateUrlBuilder.ts</DependentUpon>
     </Content>
+    <Content Include="src\template.min.js">
+      <DependentUpon>template.ts</DependentUpon>
+    </Content>
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
     <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
