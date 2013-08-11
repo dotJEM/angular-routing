@@ -51,7 +51,7 @@ class State {
         this._self = <dotjem.routing.IRegisteredState>_self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
-        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo;
+        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo || 'top';
     }
 
     public add(child: State): State {
