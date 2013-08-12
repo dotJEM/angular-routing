@@ -44,9 +44,6 @@
     <None Include="package.json" />
     <None Include="README.md" />
     <None Include="resources.md" />
-    <None Include="src\common.js.map">
-      <DependentUpon>common.ts</DependentUpon>
-    </None>
     <None Include="src\directives\jemAnchor.js.map">
       <DependentUpon>jemAnchor.ts</DependentUpon>
     </None>
@@ -57,42 +54,6 @@
     <None Include="src\legacy\suffix" />
     <None Include="src\legacy\templateDecorator.js.map">
       <DependentUpon>templateDecorator.ts</DependentUpon>
-    </None>
-    <None Include="src\route.js.map">
-      <DependentUpon>route.ts</DependentUpon>
-    </None>
-    <None Include="src\scroll.js.map">
-      <DependentUpon>scroll.ts</DependentUpon>
-    </None>
-    <None Include="src\state.js.map">
-      <DependentUpon>state.ts</DependentUpon>
-    </None>
-    <None Include="src\stateTransition.js.map">
-      <DependentUpon>stateTransition.ts</DependentUpon>
-    </None>
-    <None Include="src\state\state.js.map">
-      <DependentUpon>state.ts</DependentUpon>
-    </None>
-    <None Include="src\state\stateBrowser.js.map">
-      <DependentUpon>stateBrowser.ts</DependentUpon>
-    </None>
-    <None Include="src\state\stateComparer.js.map">
-      <DependentUpon>stateComparer.ts</DependentUpon>
-    </None>
-    <None Include="src\state\stateFactory.js.map">
-      <DependentUpon>stateFactory.ts</DependentUpon>
-    </None>
-    <None Include="src\state\stateRules.js.map">
-      <DependentUpon>stateRules.ts</DependentUpon>
-    </None>
-    <None Include="src\state\stateUrlBuilder.js.map">
-      <DependentUpon>stateUrlBuilder.ts</DependentUpon>
-    </None>
-    <None Include="src\template.js.map">
-      <DependentUpon>template.ts</DependentUpon>
-    </None>
-    <None Include="src\view.js.map">
-      <DependentUpon>view.ts</DependentUpon>
     </None>
     <None Include="test\legacy\routeLegacySpec.js.map">
       <DependentUpon>routeLegacySpec.ts</DependentUpon>
@@ -171,6 +132,9 @@
       <DependentUpon>state.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="src\state\stateBrowser.ts" />
+    <Content Include="src\state\state.min.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
     <Content Include="src\state\stateBrowser.js">
       <DependentUpon>stateBrowser.ts</DependentUpon>
     </Content>
@@ -186,6 +150,9 @@
     <TypeScriptCompile Include="src\state\stateUrlBuilder.ts" />
     <Content Include="src\state\stateUrlBuilder.js">
       <DependentUpon>stateUrlBuilder.ts</DependentUpon>
+    </Content>
+    <Content Include="src\template.min.js">
+      <DependentUpon>template.ts</DependentUpon>
     </Content>
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
@@ -222,9 +189,6 @@
     <TypeScriptCompile Include="src\directives\jemView.ts" />
     <TypeScriptCompile Include="src\legacy\templateDecorator.ts" />
     <TypeScriptCompile Include="src\interfaces.d.ts" />
-    <Content Include="src\interfaces.d.js">
-      <DependentUpon>interfaces.d.ts</DependentUpon>
-    </Content>
     <Content Include="src\legacy\templateDecorator.js">
       <DependentUpon>templateDecorator.ts</DependentUpon>
     </Content>

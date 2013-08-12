@@ -9,8 +9,17 @@
 /// <reference path="state/stateBrowser.ts" />
 /// <reference path="state/stateUrlBuilder.ts" />
 
-'use strict';
+
+/**
+ * @ngdoc object
+ * @name dotjem.routing.$stateProvider
+ *
+ * @description
+ * Used for configuring states. See {@link dotjem.routing.$state $state} for an example.
+ */
 var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: dotjem.routing.IRouteProvider, $transitionProvider) {
+    'use strict';
+
     //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
     //      it would make testing of them individually easier, although it would make them more public than
     //      they are right now.
@@ -19,6 +28,49 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         browser = new StateBrowser(root),
         comparer = new StateComparer();
 
+    /**
+     * @ngdoc method
+     * @name dotjem.$stateProvider#state
+     * @methodOf dotjem.routing.$stateProvider
+     *
+     * @param {string} fullname Full name of the state, use '.' to seperate parent and child states.
+     * 
+     * E.g. if the full name "home" is given, the state is directly located under the root.
+     * It then becomes possible to register "home.recents" as a child named "recents" under the state "home".
+     *
+     * The following registrations would result in the ilustated hierachy.
+     *
+     * `.state('home', {})`
+     * `.state('home.recents', {})`
+     * `.state('home.all', {})`
+     * `.state('staff', {})`
+     * `.state('staff.all', {})`
+     * `.state('staff.single', {})`
+     * 
+     *   - home
+     *     - recents
+     *     - all
+     *   - staff
+     *     - all
+     *     - single
+     *
+     * @param {Object} state All information about the state.
+     *
+     *    Object properties:
+     *    
+     * - `views`: `{Object}` A list og views to be updated when the state is activated.
+     * - `route`: `{string}` A route to associate the state with, 
+     *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+     * - `onEnter`: `{string|function|Object}` value 
+     * - `onExit`: `{string|function|Object}` value 
+     * - `reloadOnSearch`: `{bool}` If associated with a route, should that route reload on search. 
+     * - `scrollTo`: {string=} – A element to scroll to when the state has been loaded.
+     *
+     * @returns {Object} self
+     *
+     * @description
+     * Adds a new route definition to the `$route` service.
+     */
     this.state = function (fullname: string, state: dotjem.routing.IState) {
         StateRules.validateName(fullname);
 
@@ -29,6 +81,130 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
     this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location','$scroll',
     function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: dotjem.routing.IRouteService, $view: dotjem.routing.IViewService, $transition: dotjem.routing.ITransitionService, $location: ng.ILocationService, $scroll) {
+
+        /**
+         * @ngdoc object
+         * @name dotjem.routing.$state
+         *
+         * @requires $rootScope
+         * @requires $q
+         * @requires $injector
+         * @requires $route
+         * @requires $view
+         * @requires $stateTransition
+         * @requires $location
+         * @requires $scroll
+         *
+         * @property {Object} current Reference to the current state loaded.
+         *
+         * @description
+         *
+         * You can define states through {@link dotjem.routing.$stateProvider $stateProvider}'s API.
+         */
+
+        /**
+         * @ngdoc event
+         * @name dotjem.routing.$state#$stateChangeStart
+         * @eventOf dotjem.routing.$state
+         *
+         * @eventType broadcast on root scope
+         *
+         * @description
+         * Broadcasted before a route change. At this  point the route services starts
+         * resolving all of the dependencies needed for the route change to occurs.
+         *
+         * @param {Object} angularEvent Synthetic event object.
+         * @param {State} next Future state.
+         * @param {State} current Current state.
+         */
+
+        /**
+         * @ngdoc event
+         * @name dotjem.routing.$state#$stateChangeSuccess
+         * @eventOf dotjem.routing.$state
+         *
+         * @eventType broadcast on root scope
+         *
+         * @description
+         * Broadcasted after a route dependencies are resolved.
+         *
+         * @param {Object} angularEvent Synthetic event object.
+         * @param {State} next Future state.
+         * @param {State} current Current state.
+         */
+
+        /**
+         * @ngdoc event
+         * @name dotjem.routing.$state#$stateChangeError
+         * @eventOf dotjem.routing.$state
+         *
+         * @eventType broadcast on root scope
+         *
+         * @description
+         * Broadcasted if any of the resolve promises are rejected.
+         *
+         * @param {Object} angularEvent Synthetic event object.
+         * @param {State} next Future state.
+         * @param {State} current Current state.
+         * @param {Object} rejection Rejection of the promise. Usually the error of the failed promise.
+         */
+
+        /**
+         * @ngdoc event
+         * @name dotjem.routing.$state#$stateUpdate
+         * @eventOf dotjem.routing.$state
+         *
+         * @eventType broadcast on root scope
+         *
+         * @description
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.routing.$state#goto
+         * @methodOf dotjem.routing.$state
+         *
+         * @param {State|string} state Current state.
+         * @param {Object} params Current state.
+         *
+         * @description
+         * Goes to the specified state, 
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.routing.$state#lookup
+         * @methodOf dotjem.routing.$state
+         *
+         * @param {string} path Expression to resolve or the full name of a state.
+         *
+         * @description
+         * Finds a state based on the provided expression or name.
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.routing.$state#reload
+         * @methodOf dotjem.routing.$state
+         * 
+         * @param {State|string|boolean=} state Name or State in the current hierachy or true/false
+         *
+         * @description
+         * Reloads the state and associated views.
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.routing.$state#url
+         * @methodOf dotjem.routing.$state
+         *
+         * @param {State|string=} state A state to generate an URL for
+         * @param {Object=} params A set of parameters to use when generating the url
+         *
+         * @description
+         * An url generated from the provided parameters.
+         */
+
         var urlbuilder = new StateUrlBuilder($route);
 
         var forceReload = null,
@@ -190,18 +366,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     var promise = $q.when(0);
                     forEach(changed.array, (change, index) => {
                         promise = promise.then(function () {
-                            return resolve(change.state.self.resolve);
+                            return resolve(change.state.resolve);
                         }).then(function (locals) {
                             if (change.isChanged)
                                 useUpdate = true;
 
-                            scrollTo = change.state.self.scrollTo;
-                            forEach(change.state.self.views, (view, name) => {
-                                var sticky;
+                            scrollTo = change.state.scrollTo;
+                            forEach(change.state.views, (view, name) => {
+                                var sticky, fn;
                                 if (view.sticky) {
                                     sticky = view.sticky;
-                                    if (isFunction(sticky) || isArray(sticky)) {
-                                        sticky = $injector.invoke(sticky, sticky, { $to: toState, $from: fromState });
+                                    if ((fn = injectFn(sticky)) != null) {
+                                        sticky = fn($injector, { $to: toState, $from: fromState });
                                     } else if (!isString(sticky)) {
                                         sticky = change.state.fullname;
                                     }
@@ -241,7 +417,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             throw Error("Can't cancel transition in after handler");
                         };
                         emit.after(transition);
-
 
                         $scroll(scrollTo);
                     }

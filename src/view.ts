@@ -2,10 +2,16 @@
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 
-'use strict';
-
 function $ViewProvider() {
+    'use strict';
 
+    /**
+     * @ngdoc object
+     * @name dotjem.routing.$view
+     *
+     * @description
+     * 
+     */
     this.$get = [<any>'$rootScope', '$q', '$template',
     function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: dotjem.routing.ITemplateService) {
 
@@ -30,6 +36,16 @@ function $ViewProvider() {
             return (name in map) && map[name] !== null;
         }
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#clear
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name The name of the view to clear (optional)
+         *
+         * @description
+         * Clears a view, or all views if no name is provided.
+         */
         this.clear = function (name?: string) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
@@ -58,7 +74,33 @@ function $ViewProvider() {
                     || isDefined(args.sticky));
         }
 
-        //this.setOrUpdate = function (name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }) {
+
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#setOrUpdate
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         * @param {object} args Arguments
+         *
+         * @description
+         * 
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#setOrUpdate
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         * @param {object} template Template
+         * @param {function=} controller Controller
+         * @param {object=} locals Locals
+         * @param {string=} sticky Sticky flag
+         *
+         * @description
+         * 
+         */
         this.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
             var template = templateOrArgs;
             if (isArgs(templateOrArgs)) {
@@ -99,7 +141,33 @@ function $ViewProvider() {
                 raiseUpdated(name);
             }
         };
-        //this.setIfAbsent = function (name: string, args: { template?: any; controller?: any; locals?: any; })
+
+
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#setIfAbsent
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         * @param {object} args Arguments
+         *
+         * @description
+         * 
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#setIfAbsent
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         * @param {object} template Template
+         * @param {function=} controller Controller
+         * @param {object=} locals Locals
+         *
+         * @description
+         * 
+         */
         this.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
             var template = templateOrArgs;
             if (isArgs(templateOrArgs)) {
@@ -134,6 +202,16 @@ function $ViewProvider() {
             }
         }
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#get
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         *
+         * @description
+         * 
+         */
         this.get = function (name: string) {
             //TODO: return copies instead of actuals...
             if (isUndefined(name))
@@ -144,6 +222,17 @@ function $ViewProvider() {
             return views[name];
         };
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#refresh
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string=} name Name
+         * @param {object=} data Data
+         *
+         * @description
+         * 
+         */
         this.refresh = function (name?: string, data?: any) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
@@ -162,6 +251,16 @@ function $ViewProvider() {
             }
         }
 
+        /**
+         * @ngdoc method
+         * @name dotjem.$view#beginUpdate
+         * @methodOf dotjem.routing.$view
+         *
+         * @param {string} name Name
+         *
+         * @description
+         * 
+         */
         this.beginUpdate = function () {
             if (transaction)
                 throw new Error("Can't start multiple transactions");

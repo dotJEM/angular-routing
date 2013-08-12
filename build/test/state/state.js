@@ -13,7 +13,7 @@ var State = (function () {
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
-        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo;
+        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo || 'top';
     }
     Object.defineProperty(State.prototype, "children", {
         get: function () {

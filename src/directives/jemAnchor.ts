@@ -4,13 +4,27 @@
 
 'use strict';
 
+/**
+ * @ngdoc directive
+ * @name dotjem.routing.directive:jemAnchor
+ * @restrict ECA
+ * 
+ * @description
+ *
+ * @element ANY
+ * @param {string} jemAnchor Identifier of the anchor
+ *
+ * @scope
+ * @example
+    <example module="ngViewExample" deps="angular-route.js" animations="true">
+ */
 var jemAnchorDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {
         restrict: 'ECA',
         terminal: false,
         link: function (scope, element: JQuery, attr) {
-            var name = attr['uiScroll'] || attr.id;
+            var name = attr['jemAnchor'] || attr.id;
 
             //$scroll.$register(name, element);
 

@@ -4,7 +4,7 @@ class StateBrowser {
     private nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
     private siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
     private indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
-
+    
     constructor(private root: State) {
     }
 
@@ -16,7 +16,7 @@ class StateBrowser {
 
         for (; i < names.length - stop; i++) {
             if (!(names[i] in current.children))
-                throw new Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+                throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
 
             current = current.children[names[i]];
         }
@@ -48,7 +48,7 @@ class StateBrowser {
         }
 
         if (selected === this.root)
-            throw new Error("Path expression out of bounds.");
+            throw Error(errors.expressionOutOfBounds);
 
         return selected && extend({}, selected.self) || undefined;
     }
@@ -74,21 +74,21 @@ class StateBrowser {
     private select(origin, exp: string, selected: State): State {
         if (exp === '.') {
             if (origin !== selected)
-                throw new Error("Invalid path expression. Can only define '.' i the beginning of an expression.");
+                throw Error(errors.invalidBrowserPathExpression);
 
             return selected;
         }
 
         if (exp === '..') {
             if (isUndefined(selected.parent))
-                throw new Error("Path expression out of bounds.");
+                throw Error(errors.expressionOutOfBounds);
 
             return selected.parent;
         }
 
         if (exp === '') {
             if (origin !== selected)
-                throw new Error("Invalid path expression.");
+                throw Error(errors.invalidBrowserPathExpression);
 
             return this.root;
         }
@@ -103,7 +103,7 @@ class StateBrowser {
             });
 
             if (Math.abs(index) >= children.length) {
-                throw new Error("Index out of bounds, index selecter must not exeed child count or negative childcount")
+                throw Error(errors.expressionOutOfBounds)
             }
 
             return index < 0 ? children[children.length + index] : children[index];
@@ -113,7 +113,7 @@ class StateBrowser {
             return selected.children[exp];
         }
 
-        throw new Error("Could find state for the lookup path.");
+        throw Error(errors.couldNotFindStateForPath);
     }
 
 }

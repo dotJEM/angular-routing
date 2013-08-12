@@ -3,7 +3,12 @@
 )</span>
 </h1>
 <div><h2 id="Description">Description</h2>
-<div class="description"></div>
+<div class="description"><p>The <code>$scroll</code> service offers a number of enhancements over the current <code>@anchorScroll</code> and serves for a direct replacement.</p>
+
+<p>When called with no parameter like <code>$scroll()</code> the call is re-routed to <code>$anchorScroll</code> otherwise <code>$scroll</code> performs the scrolling.</p>
+
+<p>Scrolling to named elements is dependant on the <code>jemAnchor</code> directive which will register elements to be targets for the <code>$scroll</code> service. This is
+to allow elements that is being loaded as part of a transition to also work as targets after <code>$scroll</code> has been called.</p></div>
 <h2 id="Dependencies">Dependencies</h2>
 <ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$window">$window</a></code>
 </li>
