@@ -90,9 +90,9 @@ function $RouteProvider() {
      *
      *    Object properties:
      *    
-     *    - `state` – `{string}` – a state that should be activated when the route is matched.
-     *    - `action` – `{(string|function()=}` – an action that should be performed when the route is matched.
-     *    - `redirectTo` – {(string|function())=} – value to update
+     *    - `state` `{string}` - a state that should be activated when the route is matched.
+     *    - `action` `{string|function()=}` - an action that should be performed when the route is matched.
+     *    - `redirectTo` `{string|function()=}` - value to update
      *      {@link ng.$location $location} path with and trigger route redirection.
      *
      *      If `redirectTo` is a function, it will be called with the following parameters:
