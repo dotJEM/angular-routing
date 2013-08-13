@@ -43,7 +43,7 @@ NG_DOCS={
       "id": "dotjem.routing.$stateProvider",
       "shortName": "$stateProvider",
       "type": "object",
-      "keywords": "$route $routeprovider $state $stateprovider about activated adds all an and api as associate associated be becomes been child configuring definition directly dotjem element example following for full fullname given has hierachy home if ilustated in information is it list loaded located method name named new object of og on onenter onexit parent possible properties recents register registered registrations reload reloadonsearch result root route routing scroll scrollto search see self seperate service should single staff state states that the then this to under updated use used value views when will with would"
+      "keywords": "$route $routeprovider $state $stateprovider about activated adds all an and api as assets associate associated be becomes been child configuring definition directly dotjem element example following for full fullname given has hierachy home if ilustated image in information is it list loaded located method name named new object of og on onenter onexit parent png possible properties provider recents register registered registrations reload reloadonsearch result root route routing scroll scrollto search see self seperate service should single src staff state states structure that the then this to type under updated use used value views when will with would"
     },
     {
       "section": "api",

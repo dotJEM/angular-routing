@@ -36,30 +36,27 @@ var $StateProvider = [
         *
         * The following registrations would result in the ilustated hierachy.
         *
-        * `.state('home', {})`
-        * `.state('home.recents', {})`
-        * `.state('home.all', {})`
-        * `.state('staff', {})`
-        * `.state('staff.all', {})`
-        * `.state('staff.single', {})`
+        * <pre>
+        *  .state('home', {})
+        *  .state('home.recents', {})
+        *  .state('home.all', {})
+        *  .state('staff', {})
+        *  .state('staff.all', {})
+        *  .state('staff.single', {})
+        * </pre>
         *
-        *   - home
-        *     - recents
-        *     - all
-        *   - staff
-        *     - all
-        *     - single
+        * <img type="image/svg+xml" src="assets/state.provider.structure.png"/>
         *
         * @param {Object} state All information about the state.
         *
         *    Object properties:
         *
-        * - `views`: `{Object}` A list og views to be updated when the state is activated.
-        * - `route`: `{string}` A route to associate the state with,
+        * - `views`: `{Object=}` A list og views to be updated when the state is activated.
+        * - `route`: `{string=}` A route to associate the state with,
         *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
-        * - `onEnter`: `{string|function|Object}` value
-        * - `onExit`: `{string|function|Object}` value
-        * - `reloadOnSearch`: `{bool}` If associated with a route, should that route reload on search.
+        * - `onEnter`: `{string|function|Object=}` value
+        * - `onExit`: `{string|function|Object=}` value
+        * - `reloadOnSearch`: `{boolean=}` If associated with a route, should that route reload on search.
         * - `scrollTo`: {string=} � A element to scroll to when the state has been loaded.
         *
         * @returns {Object} self

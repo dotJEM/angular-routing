@@ -15,33 +15,28 @@ It then becomes possible to register "home.recents" as a child named "recents" u
 
 <p>The following registrations would result in the ilustated hierachy.</p>
 
-<p><code>.state('home', {})</code>
-<code>.state('home.recents', {})</code>
-<code>.state('home.all', {})</code>
-<code>.state('staff', {})</code>
-<code>.state('staff.all', {})</code>
-<code>.state('staff.single', {})</code></p>
+<pre class="prettyprint linenums">
+ .state('home', {})
+ .state('home.recents', {})
+ .state('home.all', {})
+ .state('staff', {})
+ .state('staff.all', {})
+ .state('staff.single', {})
+</pre>
 
-<ul>
-<li>home
-<ul><li>recents</li>
-<li>all</li></ul></li>
-<li>staff
-<ul><li>all</li>
-<li>single</li></ul></li>
-</ul></li>
+<p><img type="image/svg+xml" src="assets/state.provider.structure.png"/></p></li>
 <li><code ng:non-bindable="">state – {Object} – </code>
 <p>All information about the state.</p>
 
 <p>Object properties:</p>
 
 <ul>
-<li><code>views</code>: <code>{Object}</code> A list og views to be updated when the state is activated.</li>
-<li><code>route</code>: <code>{string}</code> A route to associate the state with,
+<li><code>views</code>: <code>{Object=}</code> A list og views to be updated when the state is activated.</li>
+<li><code>route</code>: <code>{string=}</code> A route to associate the state with,
 this will be registered with the <a href="#/api/dotjem.routing.$routeProvider">$routeProvider</a></li>
-<li><code>onEnter</code>: <code>{string|function|Object}</code> value</li>
-<li><code>onExit</code>: <code>{string|function|Object}</code> value</li>
-<li><code>reloadOnSearch</code>: <code>{bool}</code> If associated with a route, should that route reload on search.</li>
+<li><code>onEnter</code>: <code>{string|function|Object=}</code> value</li>
+<li><code>onExit</code>: <code>{string|function|Object=}</code> value</li>
+<li><code>reloadOnSearch</code>: <code>{boolean=}</code> If associated with a route, should that route reload on search.</li>
 <li><code>scrollTo</code>: {string=} � A element to scroll to when the state has been loaded.</li>
 </ul></li>
 </ul>
