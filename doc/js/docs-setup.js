@@ -36,21 +36,21 @@ NG_DOCS={
       "id": "dotjem.routing.$state",
       "shortName": "$state",
       "type": "object",
-      "keywords": "$injector $location $q $rootscope $route $scroll $state $stateprovider $statetransition $view an and api associated based can current define dotjem expression finds for from full generate generated generating goes goto hierachy in loaded lookup method name object of on or parameters params path provided reference reload reloads resolve routing set specified state states the through to true url use views when you"
+      "keywords": "$injector $location $node $q $rootscope $route $scroll $state $stateprovider $statetransition $view above activate activated active address all allows already also an and another any api are as associated at bar be browser build but by call called can cases change child childparam contains current currently define defined defines defining demonstrate directly does dotjem down either error errors etc example examples expression finally first flow following for force from full generate generating get gochild gohome goto has have here hierachy home homeparam however if implicitly important in include included index inspired instead is isn it last leaf leave loaded location lookup means method must name need next node not object of on only optionally or out overflow param parameters params parent particular path paths possible previous redefined reference relative reload reloaded root route routing say select selected selection selector selectors selects self separator set sibling specify specifying state states subset such supports syntax system that the their then these they this those through throw thrown to transition true under url use used using valid views we when where will wish with without won would xpath you"
     },
     {
       "section": "api",
       "id": "dotjem.routing.$stateProvider",
       "shortName": "$stateProvider",
       "type": "object",
-      "keywords": "$route $routeprovider $state $stateprovider about activated adds all an and api as associate associated be becomes been child configuring definition directly dotjem element example following for full fullname given has hierachy home if ilustated in information is it list loaded located method name named new object of og on onenter onexit parent possible properties recents register registered registrations reload reloadonsearch result root route routing scroll scrollto search see self seperate service should single staff state states that the then this to under updated use used value views when will with would"
+      "keywords": "$route $routeprovider $scope $stateprovider $template about above activated add added adds all alone also always an and angular api are areas arranged as assets associate associated at basic be becomes been before but can child children complex concept config configuration configure configuring constraint content controller controllers convention could couldn defined definition demo dependent detail details diliberately directives directly do doesn dotjem each element enhancements even example existing flat following for from full fullname function get given good had handlers has have here hierachy hierarchy hint home how however html if ilustated image important in independendly indicate information into is it just level levels like list load loaded located main many may merely method module more multiple name named names naming nested new no not now number object of og on one onenter onexit original other over page parameters parent phones phonesctrl phonesdetailsctrl phoneslistctrl png possible properties property provide provider provides quite really recents recommended register registered registrations relation reload reloaded reloadonsearch render result root route routing same scroll scrollto search see self separate seperate service should simply single so src staff standing state states static structure suddenly tablets tabletsctrl target template templates that the then there they this those to two type ui under unique unless until updated use used useful using value very view views way ways we well when where will wish with within would you"
     },
     {
       "section": "api",
       "id": "dotjem.routing.$stateTransition",
       "shortName": "$stateTransition",
       "type": "object",
-      "keywords": "$injector $q $statetransition api dotjem internal object routing use"
+      "keywords": "$statetransition $statetransitionprovider api configure details dotjem for how object on routing see to transitions"
     },
     {
       "section": "api",
@@ -71,21 +71,28 @@ NG_DOCS={
       "id": "dotjem.routing.$view",
       "shortName": "$view",
       "type": "object",
-      "keywords": "$view all api args arguments beginupdate clear clears controller data dotjem flag get if is locals method name no object of or provided refresh routing setifabsent setorupdate sticky template the to view views"
+      "keywords": "$q $rootscope $state $statetransitionprovider $template $view $viewrefresh able accessing actually all allows already also an and another any api applied applying are args arguments as be been before beginupdate but by call calling can cancel cases causes change changes clear cleared clears comitted commit completion configuration configurations confroller containing context controller create current currently data define defined dependencies details different directive dom done dotjem each either enables etc event fall flag following for force forces function get gets has if ignored in indicating information injected instead into is it jemview known list locals map marked may means method module more name named namved new not object objects of on one only optional or outside previous primarily progress properties provided raised record referenced reflected refresh refreshed refreshes returned routing run same scope see send series service services set setifabsent setorupdate sets should starts state sticky template templates than that the them then these they this through to transaction transactional transition transitions type under untill update updated updates used value version view views was way ways we when whenever where which will with within won yet"
     },
     {
       "section": "api",
       "id": "dotjem.routing.directive:jemAnchor",
       "shortName": "jemAnchor",
       "type": "directive",
-      "keywords": "anchor angular-route animations any api deps directive dotjem eca identifier jemanchor js module ngviewexample of routing the true"
+      "keywords": "$scroll an anchor any api directive dotjem eca for identifier jemanchor of point provides routing service the to use"
     },
     {
       "section": "api",
       "id": "dotjem.routing.directive:jemView",
       "shortName": "jemView",
       "type": "directive",
-      "keywords": "angular-route animations any api deps directive dotjem eca jemview js module name ngviewexample of routing the true view"
+      "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current directive dotjem eca enter every existing file html included including index into is it jemview layout leave main name new occur of overview rendered route routing service state template that the time to used view with"
+    },
+    {
+      "section": "api",
+      "id": "dotjem.routing.type:transaction",
+      "shortName": "transaction",
+      "type": "interface",
+      "keywords": "an and any api applied applies applying be been cancel cancels causes change changes commit commits committed discarding dotjem final for had have if interface issues it may meaning method of only recieved recorded records routing same series state take that the them to transaction type update updates view views when will"
     }
   ],
   "apis": {

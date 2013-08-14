@@ -8,13 +8,10 @@
 * @restrict ECA
 *
 * @description
+* Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
 *
 * @element ANY
-* @param {string} jemAnchor Identifier of the anchor
-*
-* @scope
-* @example
-<example module="ngViewExample" deps="angular-route.js" animations="true">
+* @param {string} jemAnchor|id Identifier of the anchor
 */
 var jemAnchorDirective = [
     '$scroll', 

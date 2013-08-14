@@ -370,11 +370,8 @@ function $StateTransitionProvider() {
      * @ngdoc object
      * @name dotjem.routing.$stateTransition
      *
-     * @requires $q
-     * @requires $injector
-     *
      * @description
-     * Internal use
+     * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
      */
     this.$get = [<any>'$q', '$injector',
     function ($q: ng.IQService, $injector: ng.auto.IInjectorService) {
