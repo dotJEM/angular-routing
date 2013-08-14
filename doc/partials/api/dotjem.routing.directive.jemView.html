@@ -3,10 +3,24 @@
 )</span>
 </h1>
 <div><h2 id="Description">Description</h2>
-<div class="description"></div>
+<div class="description"><h1 id="overview">Overview</h3>
+
+<p><code>jemView</code> is a directive that complements the <a href="#/api/dotjem.routing.$state">$state</a> service by
+including the rendered template of the current state into the main layout (<code>index.html</code>) file.
+Every time the current route changes, the included view changes with it according to the
+configuration of the <code>$state</code> service.</p>
+
+<h1 id="animations">animations</h3>
+
+<ul>
+<li>enter - animation is used to bring new content into the browser.</li>
+<li>leave - animation is used to animate existing content away.</li>
+</ul>
+
+<p>The enter and leave animation occur concurrently.</p></div>
 <h2 id="Usage">Usage</h2>
 <div class="usage">as element:<pre class="prettyprint linenums">&lt;jem-view
-       jemView="{string}"&gt;
+       name="{string}"&gt;
 &lt;/jem-view&gt;</pre>
 as attribute<pre class="prettyprint linenums">&lt;ANY jem-view="{string}"&gt;
    ...
@@ -19,10 +33,33 @@ as class<pre class="prettyprint linenums">&lt;ANY class="jem-view: {string};"&gt
 </ul>
 </div>
 <h3 id="Parameters">Parameters</h3>
-<ul class="parameters"><li><code ng:non-bindable="">jemView – {string} – </code>
+<ul class="parameters"><li><code ng:non-bindable="">jemView|name – {string} – </code>
 <p>Name of the view</p></li>
 </ul>
 </div>
+<div class="member event"><h2 id="Events">Events</h2>
+<ul class="events"><li><h3 id="$viewContentLoaded">$viewContentLoaded</h3>
+<div class="$viewcontentloaded"><p>Emitted every time the jemView content is reloaded.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">emit</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">the current ngView scope</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
 <h2 id="Example">Example</h2>
-<div class="example"><p><example module="ngViewExample" deps="angular-route.js" animations="true"></p></div>
+<div class="example"><h4>Source</h4>
+<div source-edit="demo" source-edit-deps="angular.js /build/angular-routing.js" source-edit-html="index.html" source-edit-css="" source-edit-js="" source-edit-unit="" source-edit-scenario=""></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html" ng-html-wrap-loaded="demo angular.js /build/angular-routing.js"></pre>
+<script type="text/ng-template" id="index.html">
+<h3>Index.html</h3>
+
+<jemView name="root" />
+</script>
+</div>
+</div><div class="pull-right"> <button class="btn btn-primary" ng-click="animationsOff=true" ng-hide="animationsOff">Animations on</button> <button class="btn btn-primary disabled" ng-click="animationsOff=false" ng-show="animationsOff">Animations off</button></div><h4>Demo</h4>
+<div class="well doc-example-live animator-container" ng-class="{'animations-off':animationsOff == true}" ng-embed-app="demo" ng-set-html="index.html" ng-eval-javascript=""></div></div>
 </div>

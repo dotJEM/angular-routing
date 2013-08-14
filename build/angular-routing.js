@@ -1085,11 +1085,8 @@ function $StateTransitionProvider() {
     * @ngdoc object
     * @name dotjem.routing.$stateTransition
     *
-    * @requires $q
-    * @requires $injector
-    *
     * @description
-    * Internal use
+    * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
     */
     this.$get = [
         '$q', 
@@ -2407,6 +2404,16 @@ angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
 //    scrollTo: elementid - scroll to an element id
 //scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
+/**
+* @ngdoc event
+* @name dotjem.routing.directive:jemView#$viewContentLoaded
+* @eventOf dotjem.routing.directive:jemView
+*
+* @eventType emit on the current ngView scope
+*
+* @description
+* Emitted every time the jemView content is reloaded.
+*/
 var jemViewDirective = [
     '$state', 
     '$scroll', 

@@ -4,13 +4,40 @@
 * @restrict ECA
 *
 * @description
+* # Overview
+* `jemView` is a directive that complements the {@link dotjem.routing.$state $state} service by
+* including the rendered template of the current state into the main layout (`index.html`) file.
+* Every time the current route changes, the included view changes with it according to the
+* configuration of the `$state` service.
 *
-* @element ANY
-* @param {string} jemView Name of the view
+* # animations
+* - enter - animation is used to bring new content into the browser.
+* - leave - animation is used to animate existing content away.
+*
+* The enter and leave animation occur concurrently.
+*
+* @param {string} jemView|name Name of the view
+*
 *
 * @scope
 * @example
-<example module="ngViewExample" deps="angular-route.js" animations="true">
+<example module="demo" deps="/build/angular-routing.js" animations="true">
+<file name="index.html">
+<h1>Index.html</h1>
+
+<jemView name="root" />
+</file>
+</example>
+*/
+/**
+* @ngdoc event
+* @name dotjem.routing.directive:jemView#$viewContentLoaded
+* @eventOf dotjem.routing.directive:jemView
+*
+* @eventType emit on the current ngView scope
+*
+* @description
+* Emitted every time the jemView content is reloaded.
 */
 var jemViewDirective = [
     '$state', 

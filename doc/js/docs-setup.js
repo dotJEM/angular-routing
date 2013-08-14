@@ -50,7 +50,7 @@ NG_DOCS={
       "id": "dotjem.routing.$stateTransition",
       "shortName": "$stateTransition",
       "type": "object",
-      "keywords": "$injector $q $statetransition api dotjem internal object routing use"
+      "keywords": "$statetransition $statetransitionprovider api configure details dotjem for how object on routing see to transitions"
     },
     {
       "section": "api",
@@ -85,7 +85,7 @@ NG_DOCS={
       "id": "dotjem.routing.directive:jemView",
       "shortName": "jemView",
       "type": "directive",
-      "keywords": "angular-route animations any api deps directive dotjem eca jemview js module name ngviewexample of routing the true view"
+      "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current demo deps directive dotjem eca enter every existing file html included including index into is it jemview js layout leave main module name new occur of overview rendered root route routing service state template that the time to true used view with"
     }
   ],
   "apis": {
