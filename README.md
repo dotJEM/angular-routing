@@ -48,6 +48,7 @@ Some of these are probably more subjevtive that objective, but I will try to be 
 * No support for route matching through functions
 * Less used
 * Bigger footprint
+* Not compatible with angular 1.0.x
 
 ## Main goal
 
