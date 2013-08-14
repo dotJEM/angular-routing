@@ -71,21 +71,28 @@ NG_DOCS={
       "id": "dotjem.routing.$view",
       "shortName": "$view",
       "type": "object",
-      "keywords": "$view all api args arguments beginupdate clear clears controller data dotjem flag get if is locals method name no object of or provided refresh routing setifabsent setorupdate sticky template the to view views"
+      "keywords": "$q $rootscope $state $statetransitionprovider $template $view $viewrefresh able accessing actually all allows already also an and another any api applied applying are args arguments as be been before beginupdate but by call calling can cancel cases causes change changes clear cleared clears comitted commit completion configuration configurations confroller containing context controller create current currently data define defined dependencies details different directive dom done dotjem each either enables etc event fall flag following for force forces function get gets has if ignored in indicating information injected instead into is it jemview known list locals map marked may means method module more name named namved new not object objects of on one only optional or outside previous primarily progress properties provided raised record referenced reflected refresh refreshed refreshes returned routing run same scope see send series service services set setifabsent setorupdate sets should starts state sticky template templates than that the them then these they this through to transaction transactional transition transitions type under untill update updated updates used value version view views was way ways we when whenever where which will with within won yet"
     },
     {
       "section": "api",
       "id": "dotjem.routing.directive:jemAnchor",
       "shortName": "jemAnchor",
       "type": "directive",
-      "keywords": "anchor angular-route animations any api deps directive dotjem eca identifier jemanchor js module ngviewexample of routing the true"
+      "keywords": "$scroll an anchor any api directive dotjem eca for identifier jemanchor of point provides routing service the to use"
     },
     {
       "section": "api",
       "id": "dotjem.routing.directive:jemView",
       "shortName": "jemView",
       "type": "directive",
-      "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current demo deps directive dotjem eca enter every existing file html included including index into is it jemview js layout leave main module name new occur of overview rendered root route routing service state template that the time to true used view with"
+      "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current directive dotjem eca enter every existing file html included including index into is it jemview layout leave main name new occur of overview rendered route routing service state template that the time to used view with"
+    },
+    {
+      "section": "api",
+      "id": "dotjem.routing.type:transaction",
+      "shortName": "transaction",
+      "type": "interface",
+      "keywords": "an and any api applied applies applying be been cancel cancels causes change changes commit commits committed discarding dotjem final for had have if interface issues it may meaning method of only recieved recorded records routing same series state take that the them to transaction type update updates view views when will"
     }
   ],
   "apis": {

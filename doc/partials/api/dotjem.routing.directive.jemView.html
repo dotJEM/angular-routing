@@ -28,38 +28,40 @@ as attribute<pre class="prettyprint linenums">&lt;ANY jem-view="{string}"&gt;
 as class<pre class="prettyprint linenums">&lt;ANY class="jem-view: {string};"&gt;
    ...
 &lt;/ANY&gt;</pre>
-<h3 id="Directive.info">Directive info</h3>
-<div class="directive-info"><ul><li>This directive creates new scope.</li>
-</ul>
-</div>
 <h3 id="Parameters">Parameters</h3>
 <ul class="parameters"><li><code ng:non-bindable="">jemView|name – {string} – </code>
 <p>Name of the view</p></li>
 </ul>
 </div>
 <div class="member event"><h2 id="Events">Events</h2>
-<ul class="events"><li><h3 id="$viewContentLoaded">$viewContentLoaded</h3>
+<ul class="events"><li><h3 id="$refresh">$refresh</h3>
+<div class="$refresh"><p>This event is broadcasted on the view scope unless the view scope defines a refresh function.
+<br/>
+Refresh happens for sticky views when the sticky flag remains the same during an update.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">broadcast</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">the current jemView scope</div>
+</div>
+<h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">angularEvent – {Object} – </code>
+<p>Synthetic event object.</p></li>
+<li><code ng:non-bindable="">name – {string} – </code>
+<p>The name of the view where the broadcast originated.</p></li>
+<li><code ng:non-bindable="">name – {Object} – </code>
+<p>Any data that may have been provided for a refresh.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="$viewContentLoaded">$viewContentLoaded</h3>
 <div class="$viewcontentloaded"><p>Emitted every time the jemView content is reloaded.</p><div class="inline"><h4 id="Type.">Type:</h4>
 <div class="type-">emit</div>
 </div>
 <div class="inline"><h4 id="Target.">Target:</h4>
-<div class="target-">the current ngView scope</div>
+<div class="target-">the current jemView scope</div>
 </div>
 </div>
 </li>
 </ul>
 </div>
-<h2 id="Example">Example</h2>
-<div class="example"><h4>Source</h4>
-<div source-edit="demo" source-edit-deps="angular.js /build/angular-routing.js" source-edit-html="index.html" source-edit-css="" source-edit-js="" source-edit-unit="" source-edit-scenario=""></div>
-<div class="tabbable"><div class="tab-pane" title="index.html">
-<pre class="prettyprint linenums" ng-set-text="index.html" ng-html-wrap-loaded="demo angular.js /build/angular-routing.js"></pre>
-<script type="text/ng-template" id="index.html">
-<h3>Index.html</h3>
-
-<jemView name="root" />
-</script>
-</div>
-</div><div class="pull-right"> <button class="btn btn-primary" ng-click="animationsOff=true" ng-hide="animationsOff">Animations on</button> <button class="btn btn-primary disabled" ng-click="animationsOff=false" ng-show="animationsOff">Animations off</button></div><h4>Demo</h4>
-<div class="well doc-example-live animator-container" ng-class="{'animations-off':animationsOff == true}" ng-embed-app="demo" ng-set-html="index.html" ng-eval-javascript=""></div></div>
 </div>

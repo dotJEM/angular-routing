@@ -17,27 +17,32 @@
 * The enter and leave animation occur concurrently.
 *
 * @param {string} jemView|name Name of the view
-*
-*
-* @scope
-* @example
-<example module="demo" deps="/build/angular-routing.js" animations="true">
-<file name="index.html">
-<h1>Index.html</h1>
-
-<jemView name="root" />
-</file>
-</example>
 */
 /**
 * @ngdoc event
 * @name dotjem.routing.directive:jemView#$viewContentLoaded
 * @eventOf dotjem.routing.directive:jemView
 *
-* @eventType emit on the current ngView scope
+* @eventType emit on the current jemView scope
 *
 * @description
 * Emitted every time the jemView content is reloaded.
+*/
+/**
+* @ngdoc event
+* @name dotjem.routing.directive:jemView#$refresh
+* @eventOf dotjem.routing.directive:jemView
+*
+* @eventType broadcast on the current jemView scope
+*
+* @description
+* This event is broadcasted on the view scope unless the view scope defines a refresh function.
+* <br/>
+* Refresh happens for sticky views when the sticky flag remains the same during an update.
+*
+* @param {Object} angularEvent Synthetic event object.
+* @param {string} name The name of the view where the broadcast originated.
+* @param {Object} name Any data that may have been provided for a refresh.
 */
 var jemViewDirective = [
     '$state', 
