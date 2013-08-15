@@ -36,7 +36,7 @@ Some of these are probably more subjevtive that objective, but I will try to be 
 * Seperation of Application State and View State
 * Full support for transition control between state, not just enter/exit or a global state changed handler
 * A Simpler view model that still adds more flexibility through the view service
-* Support for a XPath like lookup of states based on current state or root state.
+* Sibling lookup in terms of "next" and "prev".
 * Parameter converters, UI Router has support for regex parameters but it seems more limited
 
 #### Disadvantages
