@@ -41,13 +41,12 @@ Some of these are probably more subjevtive that objective, but I will try to be 
 
 #### Disadvantages
 
-* No un-nanmed views
-* No abstract states
-* No ui-sref directive (planned on some form at least)
-** For now, you should be able to bind the url method of $state to the scope and use that in an "a" tag.
-* No support for route matching through functions
-* Less used
-* Bigger footprint
+* No un-nanmed views.
+* No abstract states. (Angular Routing don't need them)
+* No ui-sref directive, `$state.url(name, params)` brings you a long way and have some advantages.
+* No support for route matching through functions.
+* Less used.
+* Bigger footprint.
 * Not compatible with angular 1.0.x
 
 ## Main goal
