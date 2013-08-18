@@ -111,5 +111,11 @@ var State = (function () {
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
+    State.prototype.is = function (state) {
+        return this.fullname === state || this.fullname === 'root.' + state;
+    };
+    State.prototype.isParent = function (state) {
+        return false;
+    };
     return State;
 })();

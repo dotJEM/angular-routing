@@ -1592,6 +1592,18 @@ var $StateProvider = [
                 * <br/><br/>
                 * If the state defined either by state, or current state does not have an route associated with it, it will throw an error.
                 */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#is
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {State|string=} state A State or name to check against the current state.
+                *
+                * @description
+                * Checks if the current state matches the provided state.
+                *
+                * @returns {boolean} true if the stats mathces, otherwise false.
+                */
                 var urlbuilder = new StateUrlBuilder($route);
                 var forceReload = null, current = root, currentParams = {
                 }, $state = {
@@ -1615,7 +1627,8 @@ var $StateProvider = [
                     url: function (state, params) {
                         state = isDefined(state) ? browser.lookup(toName(state)) : current;
                         return urlbuilder.buildUrl($state.current, state, params);
-                    }
+                    },
+                    is: is
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -1643,6 +1656,18 @@ var $StateProvider = [
                     raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
+                function is(state) {
+                    if(state === $state.current) {
+                        return true;
+                    }
+                    return current.is(toName(state));
+                }
+                function isParent(state) {
+                    if(state === $state.current) {
+                        return true;
+                    }
+                    return current.isParent(toName(state));
+                }
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
@@ -1928,6 +1953,12 @@ var State = (function () {
     };
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
+    };
+    State.prototype.is = function (state) {
+        return this.fullname === state || this.fullname === 'root.' + state;
+    };
+    State.prototype.isParent = function (state) {
+        return false;
     };
     return State;
 })();

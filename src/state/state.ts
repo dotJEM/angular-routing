@@ -64,5 +64,12 @@ class State {
              : isDefined(this.parent) ? this.parent.resolveRoute()
              : '';
     }
-}
 
+    public is(state: string) {
+        return this.fullname === state || this.fullname === 'root.' + state;
+    }
+
+    public isParent(state: string) {
+        return false;
+    }
+}

@@ -55,6 +55,12 @@
     <None Include="src\legacy\templateDecorator.js.map">
       <DependentUpon>templateDecorator.ts</DependentUpon>
     </None>
+    <None Include="src\state.js.map">
+      <DependentUpon>state.ts</DependentUpon>
+    </None>
+    <None Include="src\state\state.js.map">
+      <DependentUpon>state.ts</DependentUpon>
+    </None>
     <None Include="test\legacy\routeLegacySpec.js.map">
       <DependentUpon>routeLegacySpec.ts</DependentUpon>
     </None>
@@ -132,9 +138,6 @@
       <DependentUpon>state.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="src\state\stateBrowser.ts" />
-    <Content Include="src\state\state.min.js">
-      <DependentUpon>state.ts</DependentUpon>
-    </Content>
     <Content Include="src\state\stateBrowser.js">
       <DependentUpon>stateBrowser.ts</DependentUpon>
     </Content>
