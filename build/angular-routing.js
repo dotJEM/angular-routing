@@ -1628,8 +1628,12 @@ var $StateProvider = [
                         state = isDefined(state) ? browser.lookup(toName(state)) : current;
                         return urlbuilder.buildUrl($state.current, state, params);
                     },
-                    is: is,
-                    isParent: isParent
+                    is: function (state) {
+                        return current.is(toName(state));
+                    },
+                    isActive: function (state) {
+                        return current.isActive(toName(state));
+                    }
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -1657,18 +1661,6 @@ var $StateProvider = [
                     raiseUpdate(route.params, route.pathParams, route.searchParams);
                 });
                 return $state;
-                function is(state) {
-                    if(state === $state.current) {
-                        return true;
-                    }
-                    return current.is(toName(state));
-                }
-                function isParent(state) {
-                    if(state === $state.current) {
-                        return true;
-                    }
-                    return current.isParent(toName(state));
-                }
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
@@ -1958,17 +1950,12 @@ var State = (function () {
     State.prototype.is = function (state) {
         return this.fullname === state || this.fullname === 'root.' + state;
     };
-    State.prototype.isParent = function (state) {
-        //TODO: Bad implementation, this will fail
-        if(this.fullname.indexOf(state) != -1) {
+    State.prototype.isActive = function (state) {
+        if(this.is(state)) {
             return true;
         }
-        return false;
-        //if (state.substr(0, 5) !== 'root.')
-        //    state = 'root.' + state;
-        //var regex = new RegExp('^' + state.replace('.', '\\.') + '(\\.\\w+)*$;');
-        //return regex.test(this.fullname);
-            };
+        return this.parent && this.parent.isActive(state) || false;
+    };
     return State;
 })();
 

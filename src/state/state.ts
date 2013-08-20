@@ -69,15 +69,10 @@ class State {
         return this.fullname === state || this.fullname === 'root.' + state;
     }
 
-    public isParent(state: string) {
-        //TODO: Bad implementation, this will fail
-        if (this.fullname.indexOf(state) != -1)
+    public isActive(state: string) {
+        if (this.is(state))
             return true;
-        return false;
-        //if (state.substr(0, 5) !== 'root.')
-        //    state = 'root.' + state;
 
-        //var regex = new RegExp('^' + state.replace('.', '\\.') + '(\\.\\w+)*$;');
-        //return regex.test(this.fullname);
+        return this.parent && this.parent.isActive(state) || false;
     }
 }

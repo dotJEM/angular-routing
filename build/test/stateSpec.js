@@ -1207,7 +1207,7 @@ describe('$stateProvider', function () {
             });
         });
     });
-    describe("isParent", function () {
+    describe("isActive", function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
             $stateProvider.state('home', {
                 route: '/',
@@ -1237,25 +1237,32 @@ describe('$stateProvider', function () {
         it('true on matched states', function () {
             inject(function ($location, $route, $state) {
                 goto('about');
-                expect($state.isParent('about')).toBe(true);
+                expect($state.isActive('about')).toBe(true);
                 goto('about.other');
-                expect($state.isParent('about.other')).toBe(true);
+                expect($state.isActive('about.other')).toBe(true);
             });
         });
         it('true on child states', function () {
             inject(function ($location, $route, $state) {
-                goto('about');
-                expect($state.isParent('about')).toBe(true);
-                goto('about.other');
-                expect($state.isParent('about')).toBe(true);
+                goto('about.cv.child');
+                expect($state.isActive('about')).toBe(true);
+                goto('about.cv.child');
+                expect($state.isActive('about.cv')).toBe(true);
             });
         });
         it('false on unmatched states', function () {
             inject(function ($location, $route, $state) {
                 goto('about');
-                expect($state.isParent('fubar')).toBe(false);
+                expect($state.isActive('fubar')).toBe(false);
                 goto('about.other');
-                expect($state.isParent('about.fubar')).toBe(false);
+                expect($state.isActive('about.fubar')).toBe(false);
+            });
+        });
+        it('false on unmatched parent states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about.cv.child');
+                expect($state.isActive('about.fubar')).toBe(false);
+                expect($state.isActive('fubar.cv')).toBe(false);
             });
         });
     });

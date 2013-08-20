@@ -114,8 +114,8 @@ module dotjem.routing {
         url(state?: any, params?: any);
         is(state?: string);
         is(state?: any);
-        isParent(state?: string);
-        isParent(state?: any);
+        isActive(state?: string);
+        isActive(state?: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }

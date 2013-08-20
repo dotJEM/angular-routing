@@ -114,16 +114,11 @@ var State = (function () {
     State.prototype.is = function (state) {
         return this.fullname === state || this.fullname === 'root.' + state;
     };
-    State.prototype.isParent = function (state) {
-        //TODO: Bad implementation, this will fail
-        if(this.fullname.indexOf(state) != -1) {
+    State.prototype.isActive = function (state) {
+        if(this.is(state)) {
             return true;
         }
-        return false;
-        //if (state.substr(0, 5) !== 'root.')
-        //    state = 'root.' + state;
-        //var regex = new RegExp('^' + state.replace('.', '\\.') + '(\\.\\w+)*$;');
-        //return regex.test(this.fullname);
-            };
+        return this.parent && this.parent.isActive(state) || false;
+    };
     return State;
 })();

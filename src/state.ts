@@ -443,8 +443,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     state = isDefined(state) ? browser.lookup(toName(state)) : current;
                     return urlbuilder.buildUrl($state.current, state, params);
                 },
-                is: is,
-                isParent: isParent
+                is: (state) => current.is(toName(state)),
+                isActive: (state) => current.isActive(toName(state))
             };
 
         $rootScope.$on('$routeChangeSuccess', function () {
@@ -470,20 +470,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             raiseUpdate(route.params, route.pathParams, route.searchParams);
         });
         return $state;
-
-        function is(state) {
-            if (state === $state.current)
-                return true;
-
-            return current.is(toName(state));
-        }
-
-        function isParent(state) {
-            if (state === $state.current)
-                return true;
-
-            return current.isParent(toName(state));
-        }
 
         function reload(state?) {
             if (isDefined(state)) {
