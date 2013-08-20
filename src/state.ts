@@ -443,7 +443,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     state = isDefined(state) ? browser.lookup(toName(state)) : current;
                     return urlbuilder.buildUrl($state.current, state, params);
                 },
-                is: is
+                is: is,
+                isParent: isParent
             };
 
         $rootScope.$on('$routeChangeSuccess', function () {

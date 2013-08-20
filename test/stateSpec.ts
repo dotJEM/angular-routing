@@ -943,6 +943,117 @@ describe('$stateProvider', function () {
         });
     });
 
+    describe("is", function () {
+
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+            $stateProvider
+                .state('home', { route: '/', name: 'about' })
+
+                .state('about', { route: '/about', name: 'about' })
+                .state('about.cv', { route: '/cv', name: 'about.cv' })
+                .state('about.cv.child', { route: '/cv', name: 'about.cv' })
+                .state('about.other', { route: '/other', name: 'about.other' })
+
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+
+        function goto(target, params?) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+
+        it('true on matched states', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: dotjem.routing.IStateService) {
+
+                goto('about');
+                expect($state.is('about')).toBe(true);
+
+                goto('about.other');
+                expect($state.is('about.other')).toBe(true);
+            });
+        });
+
+        it('false on unmatched states', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: dotjem.routing.IStateService) {
+
+                goto('about');
+                expect($state.is('fubar')).toBe(false);
+
+                goto('about.other');
+                expect($state.is('about.fubar')).toBe(false);
+            });
+        });
+    });
+
+    describe("isParent", function () {
+
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+            $stateProvider
+                .state('home', { route: '/', name: 'about' })
+
+                .state('about', { route: '/about', name: 'about' })
+                .state('about.cv', { route: '/cv', name: 'about.cv' })
+                .state('about.cv.child', { route: '/cv', name: 'about.cv' })
+                .state('about.other', { route: '/other', name: 'about.other' })
+
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+
+        function goto(target, params?) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+
+        it('true on matched states', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: dotjem.routing.IStateService) {
+
+                goto('about');
+                expect($state.isParent('about')).toBe(true);
+
+                goto('about.other');
+                expect($state.isParent('about.other')).toBe(true);
+            });
+        });
+
+        it('true on child states', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: dotjem.routing.IStateService) {
+
+                goto('about');
+                expect($state.isParent('about')).toBe(true);
+
+                goto('about.other');
+                expect($state.isParent('about')).toBe(true);
+            });
+        });
+
+        it('false on unmatched states', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: dotjem.routing.IStateService) {
+
+                goto('about');
+                expect($state.isParent('fubar')).toBe(false);
+
+                goto('about.other');
+                expect($state.isParent('about.fubar')).toBe(false);
+            });
+        });
+    });
+
     describe("lookup", () => {
         beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider) {
             for (var sta = 1; sta < 4; sta++) {

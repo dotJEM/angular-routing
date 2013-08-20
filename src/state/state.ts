@@ -70,6 +70,14 @@ class State {
     }
 
     public isParent(state: string) {
+        //TODO: Bad implementation, this will fail
+        if (this.fullname.indexOf(state) != -1)
+            return true;
         return false;
+        //if (state.substr(0, 5) !== 'root.')
+        //    state = 'root.' + state;
+
+        //var regex = new RegExp('^' + state.replace('.', '\\.') + '(\\.\\w+)*$;');
+        //return regex.test(this.fullname);
     }
 }

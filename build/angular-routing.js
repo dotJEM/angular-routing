@@ -1628,7 +1628,8 @@ var $StateProvider = [
                         state = isDefined(state) ? browser.lookup(toName(state)) : current;
                         return urlbuilder.buildUrl($state.current, state, params);
                     },
-                    is: is
+                    is: is,
+                    isParent: isParent
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current, params;
@@ -1958,8 +1959,16 @@ var State = (function () {
         return this.fullname === state || this.fullname === 'root.' + state;
     };
     State.prototype.isParent = function (state) {
+        //TODO: Bad implementation, this will fail
+        if(this.fullname.indexOf(state) != -1) {
+            return true;
+        }
         return false;
-    };
+        //if (state.substr(0, 5) !== 'root.')
+        //    state = 'root.' + state;
+        //var regex = new RegExp('^' + state.replace('.', '\\.') + '(\\.\\w+)*$;');
+        //return regex.test(this.fullname);
+            };
     return State;
 })();
 
