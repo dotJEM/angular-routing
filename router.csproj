@@ -135,6 +135,9 @@
     <Content Include="src\directives\jemView.js">
       <DependentUpon>jemView.ts</DependentUpon>
     </Content>
+    <Content Include="src\state.min.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
     <Content Include="src\state\state.js">
       <DependentUpon>state.ts</DependentUpon>
     </Content>

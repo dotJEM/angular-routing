@@ -435,7 +435,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             $state: any = {
                 // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
-                current: extend({}, root.self),
+                current: root.self,
+                params: {},
                 goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
                 lookup: (path) => browser.resolve(current, path),
                 reload: reload,
@@ -627,6 +628,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
                         current = to;
                         currentParams = params;
+
+                        $state.params = params.path || {};
+                        $state.params.$all = params.all;
+                        $state.params.$search = params.search;
                         $state.current = toState;
 
                         transaction.commit();

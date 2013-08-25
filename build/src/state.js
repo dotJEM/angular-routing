@@ -423,8 +423,9 @@ var $StateProvider = [
                 }, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
                     root,
-                    current: extend({
-                    }, root.self),
+                    current: root.self,
+                    params: {
+                    },
                     goto: function (state, params) {
                         goto({
                             state: state,
@@ -625,6 +626,10 @@ var $StateProvider = [
                                 }
                                 current = to;
                                 currentParams = params;
+                                $state.params = params.path || {
+                                };
+                                $state.params.$all = params.all;
+                                $state.params.$search = params.search;
                                 $state.current = toState;
                                 transaction.commit();
                                 $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
