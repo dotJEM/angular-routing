@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include=".travis.yml" />
+    <None Include="bower.json" />
     <None Include="build\angular-routing.min.js.map">
       <DependentUpon>angular-routing.js</DependentUpon>
     </None>
