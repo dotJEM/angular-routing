@@ -38,6 +38,7 @@ Some of these are probably more subjevtive that objective, but I will try to be 
 * A Simpler view model that still adds more flexibility through the view service
 * Sibling lookup in terms of "next" and "prev".
 * Parameter converters, UI Router has support for regex parameters but it seems more limited
+* Providing means to simply refresh views rather than reloading templates as well (see sticky and $view-refresh)
 
 #### Disadvantages
 
