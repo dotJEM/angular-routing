@@ -88,7 +88,7 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 if (viewScope) {
                     viewScope.$destroy();
                     viewScope = null;
-                    version = -1;
+                    
                 }
             }
 
@@ -137,6 +137,7 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                         viewScope.$eval(onloadExp);
                     });
                 } else {
+                    version = -1;
                     clearContent(doAnimate);
                 }
             }

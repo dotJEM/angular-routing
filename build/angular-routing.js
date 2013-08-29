@@ -2489,6 +2489,8 @@ function $ViewProvider() {
                     };
                 }
                 //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
+                //      largely care of this, it could be an optimization to not do this?
                 views[name].template = $template.get(template);
                 views[name].controller = controller;
                 views[name].locals = locals;
@@ -2848,7 +2850,6 @@ var jemViewDirective = [
                     if(viewScope) {
                         viewScope.$destroy();
                         viewScope = null;
-                        version = -1;
                     }
                 }
                 function clearContent(doAnimate) {
@@ -2887,6 +2888,7 @@ var jemViewDirective = [
                             viewScope.$eval(onloadExp);
                         });
                     } else {
+                        version = -1;
                         clearContent(doAnimate);
                     }
                 }

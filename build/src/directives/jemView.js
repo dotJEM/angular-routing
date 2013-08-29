@@ -80,7 +80,6 @@ var jemViewDirective = [
                     if(viewScope) {
                         viewScope.$destroy();
                         viewScope = null;
-                        version = -1;
                     }
                 }
                 function clearContent(doAnimate) {
@@ -119,6 +118,7 @@ var jemViewDirective = [
                             viewScope.$eval(onloadExp);
                         });
                     } else {
+                        version = -1;
                         clearContent(doAnimate);
                     }
                 }
