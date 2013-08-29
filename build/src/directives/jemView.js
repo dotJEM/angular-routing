@@ -80,6 +80,7 @@ var jemViewDirective = [
                     if(viewScope) {
                         viewScope.$destroy();
                         viewScope = null;
+                        version = -1;
                     }
                 }
                 function clearContent(doAnimate) {

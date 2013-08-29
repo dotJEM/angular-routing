@@ -111,14 +111,14 @@ function $ViewProvider() {
         $view.clear = function (name?: string) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
-                    this.clear(key);
+                    $view.clear(key);
                 });
             } else {
                 if (transaction) {
                     transaction.records[name] = {
                         act: 'clear',
                         fn: () => {
-                            this.clear(name);
+                            $view.clear(name);
                         }
                     };
                     return;
@@ -187,7 +187,7 @@ function $ViewProvider() {
                 transaction.records[name] = {
                     act: 'setOrUpdate',
                     fn: () => {
-                        this.setOrUpdate(name, template, controller, locals, sticky);
+                        $view.setOrUpdate(name, template, controller, locals, sticky);
                     }
                 };
                 return;
@@ -204,7 +204,10 @@ function $ViewProvider() {
 
             
             if (isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
-                raiseRefresh(name, { sticky: true });
+                raiseRefresh(name, {
+                    $locals: locals,
+                    sticky: sticky
+                });
             } else {
                 views[name].version++;
                 views[name].sticky = sticky;
@@ -259,7 +262,7 @@ function $ViewProvider() {
                     transaction.records[name] = {
                         act: 'setIfAbsent',
                         fn: () => {
-                            this.setIfAbsent(name, template, controller, locals);
+                            $view.setIfAbsent(name, template, controller, locals);
                         }
                     };
                 }
@@ -350,17 +353,19 @@ function $ViewProvider() {
         $view.refresh = function (name?: string, data?: any) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
-                    $view.refesh(key, data);
+                    $view.refresh(key, data);
                 });
             } else if (transaction) {
                 transaction.records[name] = {
                     act: 'refresh',
                     fn: () => {
-                        this.refresh(name, data);
+                        $view.refresh(name, data);
                     }
                 };
                 return;
             } else {
+                //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
+                data.$locals = views[name] && views[name].locals;
                 raiseRefresh(name, data);
             }
         }

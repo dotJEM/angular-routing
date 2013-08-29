@@ -111,7 +111,8 @@ describe('$view', function () {
                     '$viewRefresh', 
                     "root", 
                     {
-                        sticky: true
+                        $locals: null,
+                        sticky: "sticky"
                     }
                 ]);
             });
@@ -155,6 +156,50 @@ describe('$view', function () {
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
                     "root"
+                ]);
+            });
+        });
+    });
+    describe("refresh", function () {
+        it('raises $viewRefresh with provided data', function () {
+            mock.inject(function ($view) {
+                $view.setOrUpdate('root', {
+                    html: "fubar"
+                });
+                var spy = spyOn(scope, '$broadcast');
+                $view.refresh("root", {
+                    stuff: "fubar"
+                });
+                expect(spy.mostRecentCall.args).toEqual([
+                    '$viewRefresh', 
+                    "root", 
+                    {
+                        $locals: undefined,
+                        stuff: "fubar"
+                    }
+                ]);
+            });
+        });
+        it('raises $viewRefresh and preserves locals', function () {
+            mock.inject(function ($view) {
+                $view.setOrUpdate('root', {
+                    html: "fubar"
+                }, '', {
+                    local: "hello"
+                });
+                var spy = spyOn(scope, '$broadcast');
+                $view.refresh("root", {
+                    stuff: "fubar"
+                });
+                expect(spy.mostRecentCall.args).toEqual([
+                    '$viewRefresh', 
+                    "root", 
+                    {
+                        $locals: {
+                            local: "hello"
+                        },
+                        stuff: "fubar"
+                    }
                 ]);
             });
         });
@@ -448,6 +493,35 @@ describe('$view', function () {
                 expect(spy.callCount).toBe(0);
                 trx.cancel();
                 expect(spy.callCount).toBe(0);
+            });
+        });
+        it('clear causes viet to be cleared after commit', function () {
+            mock.inject(function ($view) {
+                $view.setOrUpdate("root", {
+                    html: "root"
+                });
+                var trx = $view.beginUpdate();
+                $view.clear("root");
+                expect($view.get("root")).toBeDefined();
+                trx.commit();
+                expect($view.get("root")).toBeUndefined();
+            });
+        });
+        it('clear causes viet to be cleared after commit', function () {
+            mock.inject(function ($view) {
+                $view.setOrUpdate("root", {
+                    html: "root"
+                });
+                var spy = spyOn(scope, '$broadcast');
+                var trx = $view.beginUpdate();
+                $view.refresh("root", {
+                    html: "custom data"
+                });
+                expect(spy.callCount).toBe(0);
+                trx.commit();
+                expect(spy.callCount).toBe(1);
+                expect(spy.calls[0].args[0]).toBe('$viewRefresh');
+                expect(spy.calls[0].args[1]).toBe('root');
             });
         });
     });

@@ -2405,17 +2405,16 @@ function $ViewProvider() {
             * Clears the named view.
             */
             $view.clear = function (name) {
-                var _this = this;
                 if(isUndefined(name)) {
                     forEach(views, function (val, key) {
-                        _this.clear(key);
+                        $view.clear(key);
                     });
                 } else {
                     if(transaction) {
                         transaction.records[name] = {
                             act: 'clear',
                             fn: function () {
-                                _this.clear(name);
+                                $view.clear(name);
                             }
                         };
                         return;
@@ -2467,7 +2466,6 @@ function $ViewProvider() {
             * Views can also be refreshed by calling the `refresh` method.
             */
             $view.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
-                var _this = this;
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -2480,7 +2478,7 @@ function $ViewProvider() {
                     transaction.records[name] = {
                         act: 'setOrUpdate',
                         fn: function () {
-                            _this.setOrUpdate(name, template, controller, locals, sticky);
+                            $view.setOrUpdate(name, template, controller, locals, sticky);
                         }
                     };
                     return;
@@ -2496,7 +2494,8 @@ function $ViewProvider() {
                 views[name].locals = locals;
                 if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                     raiseRefresh(name, {
-                        sticky: true
+                        $locals: locals,
+                        sticky: sticky
                     });
                 } else {
                     views[name].version++;
@@ -2535,7 +2534,6 @@ function $ViewProvider() {
             * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
             */
             $view.setIfAbsent = function (name, templateOrArgs, controller, locals) {
-                var _this = this;
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -2548,7 +2546,7 @@ function $ViewProvider() {
                         transaction.records[name] = {
                             act: 'setIfAbsent',
                             fn: function () {
-                                _this.setIfAbsent(name, template, controller, locals);
+                                $view.setIfAbsent(name, template, controller, locals);
                             }
                         };
                     }
@@ -2632,20 +2630,21 @@ function $ViewProvider() {
             * Refreshes a named view.
             */
             $view.refresh = function (name, data) {
-                var _this = this;
                 if(isUndefined(name)) {
                     forEach(views, function (val, key) {
-                        $view.refesh(key, data);
+                        $view.refresh(key, data);
                     });
                 } else if(transaction) {
                     transaction.records[name] = {
                         act: 'refresh',
                         fn: function () {
-                            _this.refresh(name, data);
+                            $view.refresh(name, data);
                         }
                     };
                     return;
                 } else {
+                    //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
+                    data.$locals = views[name] && views[name].locals;
                     raiseRefresh(name, data);
                 }
             };
@@ -2849,6 +2848,7 @@ var jemViewDirective = [
                     if(viewScope) {
                         viewScope.$destroy();
                         viewScope = null;
+                        version = -1;
                     }
                 }
                 function clearContent(doAnimate) {
