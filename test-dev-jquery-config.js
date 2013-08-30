@@ -27,6 +27,7 @@ files = [
   'src/state/stateRules.js',
   'src/state/stateFactory.js',
   'src/state/stateUrlBuilder.js',
+  'src/state/transition.js',
     
   'src/legacy/templateDecorator.js',
     

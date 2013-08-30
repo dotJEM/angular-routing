@@ -1188,6 +1188,7 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 /// <reference path="common.ts" />
 /// <reference path="interfaces.d.ts" />
 /// <reference path="state/state.ts" />
+/// <reference path="state/transition.ts" />
 /// <reference path="state/stateFactory.ts" />
 /// <reference path="state/stateRules.ts" />
 /// <reference path="state/stateComparer.ts" />
@@ -1699,22 +1700,17 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), cancel = false, transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
-                    }, forceReload), transition = {
-                        cancel: function () {
-                            cancel = true;
-                        },
-                        goto: function (state, params) {
-                            cancel = true;
-                            goto({
-                                state: state,
-                                params: {
-                                    all: params
-                                },
-                                updateroute: true
-                            });
-                        }
-                    };
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
+                    }, forceReload), transition = new Transition(goto);
+                    //{
+                    //    cancel: function () {
+                    //        cancel = true;
+                    //    },
+                    //    goto: (state, params?) => {
+                    //        cancel = true;
+                    //        goto({ state: state, params: { all: params }, updateroute: true });
+                    //    }
+                    //};
                     if(!forceReload && !changed.stateChanges) {
                         if(changed.paramChanges) {
                             raiseUpdate(params.all || {
@@ -1746,7 +1742,7 @@ var $StateProvider = [
                         return;
                     }
                     emit.before(transition);
-                    if(cancel) {
+                    if(transition.canceled) {
                         //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                         //      That is if this was even triggered by an URL change in the first place.
                         return;
@@ -1806,7 +1802,7 @@ var $StateProvider = [
                             });
                             return promise.then(function () {
                                 emit.between(transition);
-                                if(cancel) {
+                                if(transition.canceled) {
                                     transaction.cancel();
                                     //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                                     //      That is if this was even triggered by an URL change in teh first place.
@@ -1826,7 +1822,7 @@ var $StateProvider = [
                             transaction.cancel();
                             $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                         }).then(function () {
-                            if(!cancel) {
+                            if(!transition.canceled) {
                                 transition.cancel = function () {
                                     throw Error("Can't cancel transition in after handler");
                                 };
@@ -2209,6 +2205,32 @@ var StateUrlBuilder = (function () {
         }));
     };
     return StateUrlBuilder;
+})();
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../common.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="stateRules.ts" />
+/// <reference path="stateFactory.ts" />
+var Transition = (function () {
+    function Transition(gotofn) {
+        this.gotofn = gotofn;
+        this.canceled = false;
+    }
+    Transition.prototype.cancel = function () {
+        this.canceled = true;
+    };
+    Transition.prototype.goto = function (state, params) {
+        this.cancel();
+        this.goto({
+            state: state,
+            params: {
+                all: params
+            },
+            updateroute: true
+        });
+    };
+    return Transition;
 })();
 
 /// <reference path="../lib/angular/angular-1.0.d.ts" />

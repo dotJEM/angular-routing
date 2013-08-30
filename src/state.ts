@@ -3,6 +3,7 @@
 /// <reference path="interfaces.d.ts" />
 
 /// <reference path="state/state.ts" />
+/// <reference path="state/transition.ts" />
 /// <reference path="state/stateFactory.ts" />
 /// <reference path="state/stateRules.ts" />
 /// <reference path="state/stateComparer.ts" />
@@ -513,7 +514,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 fromState = $state.current,
                 emit = $transition.find($state.current, toState),
 
-                cancel = false,
                 transaction,
                 scrollTo,
                 changed = comparer.compare(
@@ -523,15 +523,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     params && params.all || {},
                     forceReload),
 
-                transition = {
-                    cancel: function () {
-                        cancel = true;
-                    },
-                    goto: (state, params?) => {
-                        cancel = true;
-                        goto({ state: state, params: { all: params }, updateroute: true });
-                    }
-                };
+                transition = new Transition(goto);
 
             if (!forceReload && !changed.stateChanges) {
                 if (changed.paramChanges) {
@@ -558,7 +550,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
 
             emit.before(transition);
-            if (cancel) {
+            if (transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
                 return;
@@ -623,7 +615,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     return promise.then(function () => {
                         emit.between(transition);
 
-                        if (cancel) {
+                        if (transition.canceled) {
                             transaction.cancel();
                             //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                             //      That is if this was even triggered by an URL change in teh first place.
@@ -645,7 +637,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     transaction.cancel();
                     $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                 }).then(() => {
-                    if (!cancel) {
+                    if (!transition.canceled) {
                         transition.cancel = function () {
                             throw Error("Can't cancel transition in after handler");
                         };
