@@ -500,6 +500,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             $rootScope.$broadcast('$stateUpdate', $state.current);
         }
 
+        
+
         function goto(args: { state; params?; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -549,6 +551,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 });
 
                 var mergedParams = extend(paramsObj, (params && params.all))
+                //TODO: One problem here is that if you passed in "optional" parameters to goto, and the to-state has
+                //      a route, we actually end up loosing those
                 $route.change(extend({}, to.route, { params: mergedParams }));
                 return;
             }

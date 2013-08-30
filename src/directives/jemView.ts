@@ -88,7 +88,6 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 if (viewScope) {
                     viewScope.$destroy();
                     viewScope = null;
-                    
                 }
             }
 

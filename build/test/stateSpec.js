@@ -1265,6 +1265,13 @@ describe('$stateProvider', function () {
                 expect($state.isActive('fubar.cv')).toBe(false);
             });
         });
+        it('false on partial state names', function () {
+            inject(function ($location, $route, $state) {
+                goto('about.cv.child');
+                expect($state.isActive('child')).toBe(false);
+                expect($state.isActive('cv')).toBe(false);
+            });
+        });
     });
     describe("lookup", function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider) {

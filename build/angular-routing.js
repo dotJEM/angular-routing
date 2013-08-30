@@ -1737,6 +1737,8 @@ var $StateProvider = [
                             }
                         });
                         var mergedParams = extend(paramsObj, (params && params.all));
+                        //TODO: One problem here is that if you passed in "optional" parameters to goto, and the to-state has
+                        //      a route, we actually end up loosing those
                         $route.change(extend({
                         }, to.route, {
                             params: mergedParams
