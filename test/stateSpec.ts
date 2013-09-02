@@ -1477,6 +1477,26 @@ describe('$stateProvider', function () {
             scope.$digest();
         }
 
+        //it('error raises error', function () {
+        //    mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+        //        $stateProvider
+        //            .state('home', {
+        //                views: { tpl: { template: "tpl" } },
+        //                resolve: { home: function () { throw Error('42'); } }
+        //            })
+        //    });
+
+        //    inject(function ($view, $state: dotjem.routing.IStateService, $rootScope) {
+        //        var spy = spyOn(scope, '$broadcast');
+        //        spy.andCallThrough();
+
+        //        goto("home");
+                
+        //        expect(spy.calls).toBe('$stateChangeStart');
+        //        expect(spy.calls[1].args[0]).toBe('$stateChangeError');
+        //    });
+        //});
+
         it('single resolve provides value', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider

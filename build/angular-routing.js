@@ -1377,7 +1377,8 @@ var $StateProvider = [
             '$stateTransition', 
             '$location', 
             '$scroll', 
-            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll) {
+            '$resolver', 
+            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll, $resolver) {
                 /**
                 * @ngdoc object
                 * @name dotjem.routing.$state
@@ -1702,15 +1703,6 @@ var $StateProvider = [
                         $route: route
                     }), fromState = $state.current, emit = $transition.find($state.current, toState), transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
                     }, forceReload), transition = new Transition(goto);
-                    //{
-                    //    cancel: function () {
-                    //        cancel = true;
-                    //    },
-                    //    goto: (state, params?) => {
-                    //        cancel = true;
-                    //        goto({ state: state, params: { all: params }, updateroute: true });
-                    //    }
-                    //};
                     if(!forceReload && !changed.stateChanges) {
                         if(changed.paramChanges) {
                             raiseUpdate(params.all || {
@@ -1754,26 +1746,10 @@ var $StateProvider = [
                             }, promises = [];
                             transaction = $view.beginUpdate();
                             $view.clear();
-                            function resolve(args) {
-                                var values = [], keys = [];
-                                angular.forEach(args || {
-                                }, function (value, key) {
-                                    keys.push(key);
-                                    values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
-                                });
-                                var def = $q.defer();
-                                $q.all(values).then(function (values) {
-                                    angular.forEach(values, function (value, index) {
-                                        locals[keys[index]] = value;
-                                    });
-                                    def.resolve(locals);
-                                });
-                                return def.promise;
-                            }
                             var promise = $q.when(0);
                             forEach(changed.array, function (change, index) {
                                 promise = promise.then(function () {
-                                    return resolve(change.state.resolve);
+                                    return $resolver.resolveAll(change.state.resolve, locals);
                                 }).then(function (locals) {
                                     if(change.isChanged) {
                                         useUpdate = true;
@@ -1836,6 +1812,46 @@ var $StateProvider = [
             }        ];
     }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);
+var $ResolverProvider = [
+    function () {
+        'use strict';
+        this.$get = [
+            '$q', 
+            '$injector', 
+            function ($q, $injector) {
+                var $service = {
+                };
+                $service.resolveAll = function (args, locals) {
+                    var values = [], keys = [];
+                    if(isUndefined(locals)) {
+                        locals = {
+                        };
+                    }
+                    var def = $q.defer();
+                    angular.forEach(args || {
+                    }, function (value, key) {
+                        keys.push(key);
+                        //TODO: Allow simple values?
+                        try  {
+                            values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
+                        } catch (e) {
+                            def.reject(e);
+                        }
+                    });
+                    $q.all(values).then(function (values) {
+                        angular.forEach(values, function (value, index) {
+                            locals[keys[index]] = value;
+                        });
+                        def.resolve(locals);
+                    }, function (error) {
+                        def.reject(error);
+                    });
+                    return def.promise;
+                };
+                return $service;
+            }        ];
+    }];
+angular.module('dotjem.routing').provider('$resolver', $ResolverProvider);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../common.ts" />
