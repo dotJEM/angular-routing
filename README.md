@@ -5,7 +5,7 @@
 #### Latest release v0.4.1:
  - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.4.1/build/angular-routing.js)
  - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.4.1/build/angular-routing.min.js)
- - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.3.2/build)
+ - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.4.1/build)
 
 #### Latest build (currently not automated, so not 100% the latest always):
  - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/master/build/angular-routing.js)
@@ -115,3 +115,5 @@ http://plnkr.co/ or http://jsfiddle.net/.
 
 Othherwise, try to capture as much detail as possible, there more that is known about the issue and context
 the easier it is to help.
+
+Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:Eyh6fj
