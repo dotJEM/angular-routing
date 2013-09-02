@@ -115,3 +115,5 @@ http://plnkr.co/ or http://jsfiddle.net/.
 
 Othherwise, try to capture as much detail as possible, there more that is known about the issue and context
 the easier it is to help.
+
+Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:Eyh6fj
