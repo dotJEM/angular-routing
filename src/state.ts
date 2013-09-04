@@ -558,7 +558,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if (!event.defaultPrevented) {
-                $q.when(toState).then(() => {
+                $q.when(toState).then(function {
                     var useUpdate = false,
                         locals = {},
                         promises = [];
@@ -567,13 +567,11 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     $view.clear();
 
                     var promise = $q.when(0);
-
                     
-
                     forEach(changed.array, (change, index) => {
                         promise = promise.then(function () {
                             return $resolver
-                                .resolveAll(change.state.resolve, locals);
+                                .resolveAll(change.state.resolve, locals, useUpdate);
                         }).then(function (locals) {
                             if (change.isChanged)
                                 useUpdate = true;
@@ -620,10 +618,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         transaction.commit();
                         $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
                     })
-                }, function(error) {
-                    transaction.cancel();
-                    $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
-                }).then(() => {
+                }).then(function {
                     if (!transition.canceled) {
                         transition.cancel = function () {
                             throw Error("Can't cancel transition in after handler");
@@ -633,6 +628,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         $scroll(scrollTo);
                     }
                     //Note: nothing to do here.
+                }, function (error) {
+                    transaction.cancel();
+                    $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                 });
             }
         }
@@ -647,10 +645,11 @@ var $ResolverProvider = [function () {
     function ($q: ng.IQService, $injector: ng.auto.IInjectorService) {
         var $service: any = {};
 
-        $service.resolveAll = function (args: any, locals?: any) {
+        $service.resolveAll = function (args: any, locals?: any, clearCache?: bool) {
             var values = [], keys = [];
             if (isUndefined(locals))
                 locals = {};
+            
 
             var def = $q.defer();
             
@@ -660,7 +659,7 @@ var $ResolverProvider = [function () {
                 try {
                     values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
                 } catch (e){
-                    def.reject(e);
+                    def.reject("Could not resolve " + key);
                 }
             });
 

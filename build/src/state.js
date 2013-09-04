@@ -563,7 +563,7 @@ var $StateProvider = [
                             var promise = $q.when(0);
                             forEach(changed.array, function (change, index) {
                                 promise = promise.then(function () {
-                                    return $resolver.resolveAll(change.state.resolve, locals);
+                                    return $resolver.resolveAll(change.state.resolve, locals, useUpdate);
                                 }).then(function (locals) {
                                     if(change.isChanged) {
                                         useUpdate = true;
@@ -608,9 +608,6 @@ var $StateProvider = [
                                 transaction.commit();
                                 $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
                             });
-                        }, function (error) {
-                            transaction.cancel();
-                            $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                         }).then(function () {
                             if(!transition.canceled) {
                                 transition.cancel = function () {
@@ -620,7 +617,10 @@ var $StateProvider = [
                                 $scroll(scrollTo);
                             }
                             //Note: nothing to do here.
-                                                    });
+                                                    }, function (error) {
+                            transaction.cancel();
+                            $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
+                        });
                     }
                 }
             }        ];
@@ -635,7 +635,7 @@ var $ResolverProvider = [
             function ($q, $injector) {
                 var $service = {
                 };
-                $service.resolveAll = function (args, locals) {
+                $service.resolveAll = function (args, locals, clearCache) {
                     var values = [], keys = [];
                     if(isUndefined(locals)) {
                         locals = {
@@ -649,7 +649,7 @@ var $ResolverProvider = [
                         try  {
                             values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
                         } catch (e) {
-                            def.reject(e);
+                            def.reject("Could not resolve " + key);
                         }
                     });
                     $q.all(values).then(function (values) {
