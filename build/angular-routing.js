@@ -1377,8 +1377,8 @@ var $StateProvider = [
             '$stateTransition', 
             '$location', 
             '$scroll', 
-            '$resolver', 
-            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll, $resolver) {
+            '$resolve', 
+            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll, $resolve) {
                 /**
                 * @ngdoc object
                 * @name dotjem.routing.$state
@@ -1739,80 +1739,83 @@ var $StateProvider = [
                         //      That is if this was even triggered by an URL change in the first place.
                         return;
                     }
-                    var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
-                    if(!event.defaultPrevented) {
-                        $q.when(toState).then(function () {
-                            var useUpdate = false, locals = {
-                            }, promises = [];
-                            transaction = $view.beginUpdate();
-                            $view.clear();
-                            var promise = $q.when(0);
-                            forEach(changed.array, function (change, index) {
-                                promise = promise.then(function () {
-                                    return $resolver.resolveAll(change.state.resolve, locals, useUpdate);
-                                }).then(function (locals) {
-                                    if(change.isChanged) {
-                                        useUpdate = true;
+                    //var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
+                    if($rootScope.$broadcast('$stateChangeStart', toState, fromState).defaultPrevented) {
+                        return;
+                    }
+                    $q.when(toState).then(function () {
+                        var useUpdate = false, alllocals = {
+                        }, promises = [];
+                        transaction = $view.beginUpdate();
+                        $view.clear();
+                        var promise = $q.when(0);
+                        forEach(changed.array, function (change, index) {
+                            promise = promise.then(function () {
+                                useUpdate = change.isChanged || useUpdate;
+                                if(useUpdate) {
+                                    $resolve.clear(change.state.resolve);
+                                }
+                                return $resolve.all(change.state.resolve);
+                            }).then(function (locals) {
+                                alllocals = extend(alllocals, locals);
+                                scrollTo = change.state.scrollTo;
+                                forEach(change.state.views, function (view, name) {
+                                    var sticky, fn;
+                                    if(view.sticky) {
+                                        sticky = view.sticky;
+                                        if((fn = injectFn(sticky)) != null) {
+                                            sticky = fn($injector, {
+                                                $to: toState,
+                                                $from: fromState
+                                            });
+                                        } else if(!isString(sticky)) {
+                                            sticky = change.state.fullname;
+                                        }
                                     }
-                                    scrollTo = change.state.scrollTo;
-                                    forEach(change.state.views, function (view, name) {
-                                        var sticky, fn;
-                                        if(view.sticky) {
-                                            sticky = view.sticky;
-                                            if((fn = injectFn(sticky)) != null) {
-                                                sticky = fn($injector, {
-                                                    $to: toState,
-                                                    $from: fromState
-                                                });
-                                            } else if(!isString(sticky)) {
-                                                sticky = change.state.fullname;
-                                            }
-                                        }
-                                        if(useUpdate || isDefined(sticky)) {
-                                            $view.setOrUpdate(name, view.template, view.controller, copy(locals), sticky);
-                                        } else {
-                                            $view.setIfAbsent(name, view.template, view.controller, copy(locals));
-                                        }
-                                    });
+                                    if(useUpdate || isDefined(sticky)) {
+                                        $view.setOrUpdate(name, view.template, view.controller, copy(alllocals), sticky);
+                                    } else {
+                                        $view.setIfAbsent(name, view.template, view.controller, copy(alllocals));
+                                    }
                                 });
                             });
-                            return promise.then(function () {
-                                emit.between(transition);
-                                if(transition.canceled) {
-                                    transaction.cancel();
-                                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                                    //      That is if this was even triggered by an URL change in teh first place.
-                                    return;
-                                }
-                                current = to;
-                                currentParams = params;
-                                $state.params = params.path || {
-                                };
-                                $state.params.$all = params.all;
-                                $state.params.$search = params.search;
-                                $state.current = toState;
-                                transaction.commit();
-                                $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
-                            });
-                        }).then(function () {
-                            if(!transition.canceled) {
-                                transition.cancel = function () {
-                                    throw Error("Can't cancel transition in after handler");
-                                };
-                                emit.after(transition);
-                                $scroll(scrollTo);
-                            }
-                            //Note: nothing to do here.
-                                                    }, function (error) {
-                            transaction.cancel();
-                            $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                         });
-                    }
+                        return promise.then(function () {
+                            emit.between(transition);
+                            if(transition.canceled) {
+                                transaction.cancel();
+                                //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                                //      That is if this was even triggered by an URL change in teh first place.
+                                return;
+                            }
+                            current = to;
+                            currentParams = params;
+                            $state.params = params.path || {
+                            };
+                            $state.params.$all = params.all;
+                            $state.params.$search = params.search;
+                            $state.current = toState;
+                            transaction.commit();
+                            $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                        });
+                    }).then(function () {
+                        if(!transition.canceled) {
+                            transition.cancel = function () {
+                                throw Error("Can't cancel transition in after handler");
+                            };
+                            emit.after(transition);
+                            $scroll(scrollTo);
+                        }
+                        //Note: nothing to do here.
+                                            }, function (error) {
+                        transaction.cancel();
+                        $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
+                    });
                 }
             }        ];
     }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);
-var $ResolverProvider = [
+var $ResolveProvider = [
     function () {
         'use strict';
         this.$get = [
@@ -1821,24 +1824,45 @@ var $ResolverProvider = [
             function ($q, $injector) {
                 var $service = {
                 };
-                $service.resolveAll = function (args, locals, clearCache) {
-                    var values = [], keys = [];
-                    if(isUndefined(locals)) {
-                        locals = {
+                var cache = {
+                };
+                $service.push = function (key, value) {
+                    cache[key] = value;
+                };
+                $service.clear = function (arg) {
+                    if(isUndefined(arg)) {
+                        cache = {
                         };
                     }
+                    if(isString(arg)) {
+                        delete cache[arg];
+                    } else if(isObject(arg)) {
+                        angular.forEach(arg, function (value, key) {
+                            $service.clear(key);
+                        });
+                    } else if(isArray(arg)) {
+                        angular.forEach(arg, function (key) {
+                            $service.clear(key);
+                        });
+                    }
+                };
+                $service.all = function (args) {
+                    var values = [], keys = [];
                     var def = $q.defer();
-                    angular.forEach(args || {
-                    }, function (value, key) {
+                    angular.forEach(args, function (value, key) {
                         keys.push(key);
-                        //TODO: Allow simple values?
                         try  {
-                            values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
+                            if(!(key in cache)) {
+                                cache[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
+                            }
+                            values.push(cache[key]);
                         } catch (e) {
                             def.reject("Could not resolve " + key);
                         }
                     });
                     $q.all(values).then(function (values) {
+                        var locals = {
+                        };
                         angular.forEach(values, function (value, index) {
                             locals[keys[index]] = value;
                         });
@@ -1851,7 +1875,7 @@ var $ResolverProvider = [
                 return $service;
             }        ];
     }];
-angular.module('dotjem.routing').provider('$resolver', $ResolverProvider);
+angular.module('dotjem.routing').provider('$resolve', $ResolveProvider);
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../common.ts" />
