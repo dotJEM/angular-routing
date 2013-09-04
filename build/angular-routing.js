@@ -1745,25 +1745,24 @@ var $StateProvider = [
                     }
                     $q.when(toState).then(function () {
                         var useUpdate = false, alllocals = {
-                        }, promises = [];
+                        };
                         transaction = $view.beginUpdate();
                         $view.clear();
                         var promise = $q.when(0);
-                        forEach(changed.array, function (change, index) {
+                        forEach(changed.array, function (change) {
                             promise = promise.then(function () {
-                                useUpdate = change.isChanged || useUpdate;
-                                if(useUpdate) {
+                                if(useUpdate = change.isChanged || useUpdate) {
                                     $resolve.clear(change.state.resolve);
                                 }
                                 return $resolve.all(change.state.resolve);
                             }).then(function (locals) {
-                                alllocals = extend(alllocals, locals);
+                                alllocals = extend({
+                                }, alllocals, locals);
                                 scrollTo = change.state.scrollTo;
                                 forEach(change.state.views, function (view, name) {
                                     var sticky, fn;
-                                    if(view.sticky) {
-                                        sticky = view.sticky;
-                                        if((fn = injectFn(sticky)) != null) {
+                                    if(sticky = view.sticky) {
+                                        if(fn = injectFn(sticky)) {
                                             sticky = fn($injector, {
                                                 $to: toState,
                                                 $from: fromState
@@ -1773,9 +1772,9 @@ var $StateProvider = [
                                         }
                                     }
                                     if(useUpdate || isDefined(sticky)) {
-                                        $view.setOrUpdate(name, view.template, view.controller, copy(alllocals), sticky);
+                                        $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
                                     } else {
-                                        $view.setIfAbsent(name, view.template, view.controller, copy(alllocals));
+                                        $view.setIfAbsent(name, view.template, view.controller, alllocals);
                                     }
                                 });
                             });

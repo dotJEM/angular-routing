@@ -501,8 +501,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             $rootScope.$broadcast('$stateUpdate', $state.current);
         }
 
-        
-
         function goto(args: { state; params?; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
@@ -548,7 +546,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 $route.change(extend({}, to.route, { params: mergedParams }));
                 return;
             }
-
+            
             emit.before(transition);
             if (transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
@@ -562,33 +560,28 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             $q.when(toState).then(function {
                 var useUpdate = false,
-                    alllocals = {},
-                    promises = [];
+                    alllocals = {};
 
                 transaction = $view.beginUpdate();
                 $view.clear();
 
                 var promise = $q.when(0);
-                    
-                forEach(changed.array, (change, index) => {
+                forEach(changed.array, function (change) {
 
                     promise = promise.then(function () {
-                        useUpdate = change.isChanged || useUpdate;
-                        if (useUpdate)
+                        if (useUpdate = change.isChanged || useUpdate)
                             $resolve.clear(change.state.resolve);
 
-                        return $resolve
-                            .all(change.state.resolve);
+                        return $resolve.all(change.state.resolve);
                     }).then(function (locals) {
-
-                        alllocals = extend(alllocals, locals);
+                        
+                        alllocals = extend({},alllocals, locals);
                         scrollTo = change.state.scrollTo;
 
-                        forEach(change.state.views, (view, name) => {
+                        forEach(change.state.views, function (view, name) {
                             var sticky, fn;
-                            if (view.sticky) {
-                                sticky = view.sticky;
-                                if ((fn = injectFn(sticky)) != null) {
+                            if (sticky = view.sticky) {
+                                if (fn = injectFn(sticky)) {
                                     sticky = fn($injector, { $to: toState, $from: fromState });
                                 } else if (!isString(sticky)) {
                                     sticky = change.state.fullname;
@@ -596,12 +589,13 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                             }
 
                             if (useUpdate || isDefined(sticky)) {
-                                $view.setOrUpdate(name, view.template, view.controller, copy(alllocals), sticky);
+                                $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
                             } else {
-                                $view.setIfAbsent(name, view.template, view.controller, copy(alllocals));
+                                $view.setIfAbsent(name, view.template, view.controller, alllocals);
                             }
                         });
                     });
+
                 });
 
                 return promise.then(function {
