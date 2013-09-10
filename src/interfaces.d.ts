@@ -107,6 +107,7 @@ module dotjem.routing {
         transition: any;
         reload: (state?) => void;
         current?: any;
+        params?: any;
         lookup(path: string): any;
         goto(state: string, params?: any);
         goto(state: any, params?: any);

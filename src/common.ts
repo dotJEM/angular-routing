@@ -60,7 +60,23 @@ interface IParam {
     lastIndex: number;
 }
 
+function buildParams(all, path, search) {
+  var par = copy(all || {});
+  par.$path = copy(path || {});
+  par.$search = copy(search || {});
+  return par;
+}
 
+function buildParamsFromObject(params?) {
+    var par = copy(params && params.all || {});
+    par.$path = copy(params && params.path || {});
+    par.$search = copy(params && params.search || {});
+    return par;
+
+    // params.path || {};
+    // $state.params.$all = params.all;
+    // $state.params.$search = params.search;
+}
 
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.

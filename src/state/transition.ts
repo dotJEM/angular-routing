@@ -17,7 +17,7 @@ class Transition {
 
     public goto(state, params?) {
         this.cancel();
-        this.goto({ state: state, params: { all: params }, updateroute: true })
+        this.gotofn({ state: state, params: { all: params }, updateroute: true })
     }
 
 }

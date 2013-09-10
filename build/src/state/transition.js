@@ -13,7 +13,7 @@ var Transition = (function () {
     };
     Transition.prototype.goto = function (state, params) {
         this.cancel();
-        this.goto({
+        this.gotofn({
             state: state,
             params: {
                 all: params

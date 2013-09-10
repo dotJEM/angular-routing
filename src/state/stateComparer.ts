@@ -29,7 +29,8 @@ class StateComparer {
             count = Math.max(fromArray.length, toArray.length),
             fromAtIndex,
             toAtIndex,
-            c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+            stateChanges = false,
+            paramChanges = !equals(fromParams, toParams);
 
         for (var i = 0; i < count; i++) {
             fromAtIndex = fromArray[fromArray.length - i - 1];

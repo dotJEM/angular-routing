@@ -173,7 +173,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
      * - `onEnter`: `{string|function|Object=}` value 
      * - `onExit`: `{string|function|Object=}` value 
      * - `reloadOnSearch`: `{boolean=}` If associated with a route, should that route reload on search. 
-     * - `scrollTo`: {string=} – A element to scroll to when the state has been loaded.
+     * - `scrollTo`: {string=} ï¿½ A element to scroll to when the state has been loaded.
      *
      * @returns {Object} self
      *
@@ -558,7 +558,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             if ($rootScope.$broadcast('$stateChangeStart', toState, fromState).defaultPrevented)
                 return
 
-            $q.when(toState).then(function {
+            $q.when(toState).then(function() {
                 var useUpdate = false,
                     alllocals = {};
 
@@ -598,7 +598,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
                 });
 
-                return promise.then(function {
+                return promise.then(function() {
                     emit.between(transition);
 
                     if (transition.canceled) {
@@ -611,15 +611,13 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     current = to;
                     currentParams = params;
 
-                    $state.params = params.path || {};
-                    $state.params.$all = params.all;
-                    $state.params.$search = params.search;
+                    $state.params = buildParams(params.all, params.path, params.search);
                     $state.current = toState;
 
                     transaction.commit();
                     $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
                 })
-            }).then(function {
+            }).then(function() {
                 if (!transition.canceled) {
                     transition.cancel = function () {
                         throw Error("Can't cancel transition in after handler");

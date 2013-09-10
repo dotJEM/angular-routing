@@ -42,6 +42,27 @@ function injectFn(arg) {
     }
     return null;
 }
+function buildParams(all, path, search) {
+    var par = copy(all || {
+    });
+    par.$path = copy(path || {
+    });
+    par.$search = copy(search || {
+    });
+    return par;
+}
+function buildParamsFromObject(params) {
+    var par = copy(params && params.all || {
+    });
+    par.$path = copy(params && params.path || {
+    });
+    par.$search = copy(params && params.search || {
+    });
+    return par;
+    // params.path || {};
+    // $state.params.$all = params.all;
+    // $state.params.$search = params.search;
+    }
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
 function toKeyValue(obj) {
@@ -1789,10 +1810,7 @@ var $StateProvider = [
                             }
                             current = to;
                             currentParams = params;
-                            $state.params = params.path || {
-                            };
-                            $state.params.$all = params.all;
-                            $state.params.$search = params.search;
+                            $state.params = buildParams(params.all, params.path, params.search);
                             $state.current = toState;
                             transaction.commit();
                             $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
@@ -2130,7 +2148,7 @@ var StateComparer = (function () {
     };
     StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
         var fromArray = this.buildStateArray(from, fromParams || {
-        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, stateChanges = false, paramChanges = !equals(fromParams, toParams);
         for(var i = 0; i < count; i++) {
             fromAtIndex = fromArray[fromArray.length - i - 1];
             toAtIndex = toArray[toArray.length - i - 1];
@@ -2265,7 +2283,7 @@ var Transition = (function () {
     };
     Transition.prototype.goto = function (state, params) {
         this.cancel();
-        this.goto({
+        this.gotofn({
             state: state,
             params: {
                 all: params

@@ -26,7 +26,7 @@ var StateComparer = (function () {
     };
     StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
         var fromArray = this.buildStateArray(from, fromParams || {
-        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, stateChanges = false, paramChanges = !equals(fromParams, toParams);
         for(var i = 0; i < count; i++) {
             fromAtIndex = fromArray[fromArray.length - i - 1];
             toAtIndex = toArray[toArray.length - i - 1];

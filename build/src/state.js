@@ -603,10 +603,7 @@ var $StateProvider = [
                             }
                             current = to;
                             currentParams = params;
-                            $state.params = params.path || {
-                            };
-                            $state.params.$all = params.all;
-                            $state.params.$search = params.search;
+                            $state.params = buildParams(params.all, params.path, params.search);
                             $state.current = toState;
                             transaction.commit();
                             $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
