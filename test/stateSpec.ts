@@ -1537,6 +1537,60 @@ describe('$stateProvider', function () {
             });
         });
 
+        it('can use parent resolves in resolve', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { first: function () { return "first"; } }
+                    })
+                    .state('top.mid', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { second: function (first) { return first + " second"; } }
+                    })
+                    .state('top.mid.low', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { last: function (second, first) { return first + " "+ second + " last"; } }
+                    })
+            });
+
+            inject(function ($view, $state: dotjem.routing.IStateService) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({ first: 'first' });
+                expect(loc[1]).toEqual({ first: 'first', second: 'first second' });
+                expect(loc[2]).toEqual({ first: 'first', second: 'first second', last: 'first first second last' });
+            });
+        });
+
+        it('can use parent resolves in resolve', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+                $stateProvider
+                    .state('top', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { val: function () { return "first"; } }
+                    })
+                    .state('top.mid', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { val: function (val) { return val + ".second"; } }
+                    })
+                    .state('top.mid.low', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { val: function (val) { return val + ".last"; } }
+                    })
+            });
+
+            inject(function ($view, $state: dotjem.routing.IStateService) {
+                goto("top");
+                expect(loc[0]).toEqual({ val: 'first' });
+
+                goto("top.mid");
+                expect(loc[1]).toEqual({ val: 'first.second' });
+
+                goto("top.mid.low");
+                expect(loc[2]).toEqual({ val: 'first.second.last' });
+            });
+        });
+
         it('multiple resolve with same name gets overwritten', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider

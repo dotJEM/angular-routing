@@ -572,7 +572,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         if (useUpdate = change.isChanged || useUpdate)
                             $resolve.clear(change.state.resolve);
 
-                        return $resolve.all(change.state.resolve);
+                        return $resolve.all(change.state.resolve, alllocals);
                     }).then(function (locals) {
                         
                         alllocals = extend({},alllocals, locals);
@@ -668,16 +668,18 @@ var $ResolveProvider = [function () {
             }
         }
 
-        $service.all = function (args: any) {
-            var values = [], keys = [];
-
-            var def = $q.defer();
+        $service.all = function (args: any, locals: any) {
+            var values = [], keys = [], def = $q.defer();
             
             angular.forEach(args, function (value, key) {
+                var ifn: IInjector;
                 keys.push(key);
                 try {
                     if (!(key in cache)) {
-                        cache[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
+                        if (isString(value))
+                            cache[key] = angular.isString(value);
+                        else if ((ifn = injectFn(value)) != null)
+                            cache[key] = ifn($injector, locals);
                     }
                     values.push(cache[key]);
                 } catch (e){
