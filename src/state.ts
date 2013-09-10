@@ -494,6 +494,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         }
 
         function raiseUpdate(all, path, search) {
+            $state.params = buildParams(all, path, search);
+
             var dst = $state.current.$params;
             dst.all = all;
             dst.path = path;

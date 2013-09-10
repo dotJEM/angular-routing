@@ -348,16 +348,20 @@ describe('$stateProvider', function () {
             });
         });
 
-        it('can register states with and without routes', function () {
-            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+        it('can register states with and without routes', function () {
+
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+
                 $stateProvider
                     .state('top', { route: '/top', name: 'top' })
                     .state('top.center', { name: 'top.center' })
                     .state('top.center.one', { route: '/one', name: 'top.center.one' })
-                    .state('top.center.two', { route: '/two', name: 'top.center.two' });
+                    .state('top.center.two', { route: '/two', name: 'top.center.two' });
+
             });
 
-            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
+
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', <any>spy);
 
@@ -378,7 +382,8 @@ describe('$stateProvider', function () {
 
                 expect($state.current.name).toBe('top.center.two');
                 expect(spy.mostRecentCall.args[2].name).toBe('top.center.one');
-            });
+            });
+
         });
 
         it('states invoke view service with view on change', function () {
@@ -574,7 +579,7 @@ describe('$stateProvider', function () {
 
                 go('/top/1');
                 expect($state.current.name).toBe('top');
-                expect($state.current.$params.all.top).toBe('1');
+                expect($state.params.top).toBe('1');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -584,7 +589,7 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2');
                 expect($state.current.name).toBe('top');
-                expect($state.current.$params.all.top).toBe('2');
+                expect($state.params.top).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -594,8 +599,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('1');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('1');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(2);
@@ -606,8 +611,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/2');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('2');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -617,8 +622,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2/sub/2');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.$params.all.top).toBe('2');
-                expect($state.current.$params.all.sub).toBe('2');
+                expect($state.params.top).toBe('2');
+                expect($state.params.sub).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(2);
@@ -629,9 +634,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1/bot/1');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('1');
-                expect($state.current.$params.all.bot).toBe('1');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('1');
+                expect($state.params.bot).toBe('1');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(3);
@@ -643,9 +648,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1/bot/2');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('1');
-                expect($state.current.$params.all.bot).toBe('2');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('1');
+                expect($state.params.bot).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(1);
@@ -655,9 +660,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2/sub/1/bot/2');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.$params.all.top).toBe('2');
-                expect($state.current.$params.all.sub).toBe('1');
-                expect($state.current.$params.all.bot).toBe('2');
+                expect($state.params.top).toBe('2');
+                expect($state.params.sub).toBe('1');
+                expect($state.params.bot).toBe('2');
                 expect(spy.wasCalled).toBe(true);
 
                 expect(viewSpy.callCount).toBe(3);
@@ -671,7 +676,8 @@ describe('$stateProvider', function () {
     //Note: Integration tests between $transition and $state etc.
 
     describe("$transition $routeChangeSuccess", () => {
-        it('Correct Transitions are called on state change.', function () {
+        it('Correct Transitions are called on state change.', function () {
+
             var last;
             mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
                 $stateProvider
@@ -693,8 +699,10 @@ describe('$stateProvider', function () {
                         .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->about', from: $from, to: $to }; }])
                         .transition('blog', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->gallery', from: $from, to: $to }; }])
                         .transition('about', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->blog', from: $from, to: $to }; }])
-                        .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
-                        .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
+                        .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
+
+                        .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
+
                         .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
             });
 
@@ -702,27 +710,34 @@ describe('$stateProvider', function () {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
-                }
+                }
+
                 go('/blog');
                 expect(last).toBeUndefined();
 
                 go('/about');
-                expect(last.name).toBe('blog->about');
+                expect(last.name).toBe('blog->about');
+
                 go('/gallery');
-                expect(last.name).toBe('about->gallery');
+                expect(last.name).toBe('about->gallery');
+
                 go('/blog');
-                expect(last.name).toBe('gallery->blog');
+                expect(last.name).toBe('gallery->blog');
+
                 go('/gallery');
-                expect(last.name).toBe('blog->gallery');
+                expect(last.name).toBe('blog->gallery');
+
                 go('/about');
-                expect(last.name).toBe('gallery->about');
+                expect(last.name).toBe('gallery->about');
+
                 go('/blog');
                 expect(last.name).toBe('about->blog');
             });
         });
 
         it('Transitions can be canceled.', function () {
-            mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+
                 $stateProvider
                     .state('home', { route: '/', name: 'about' })
 
@@ -750,7 +765,8 @@ describe('$stateProvider', function () {
                 function go(path: string) {
                     $location.path(path);
                     scope.$digest();
-                }
+                }
+
                 go('/blog');
                 go('/admin');
                 expect($state.current.name).toBe('blog');
@@ -771,7 +787,8 @@ describe('$stateProvider', function () {
 
     describe("goto", function () {
 
-        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+
             $stateProvider
                 .state('home', { route: '/', name: 'about' })
 
@@ -874,7 +891,8 @@ describe('$stateProvider', function () {
 
     describe("url", function () {
 
-        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+
             $stateProvider
                 .state('home', { route: '/', name: 'about' })
 
@@ -945,7 +963,8 @@ describe('$stateProvider', function () {
 
     describe("is", function () {
 
-        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+
             $stateProvider
                 .state('home', { route: '/', name: 'about' })
 
@@ -994,7 +1013,8 @@ describe('$stateProvider', function () {
 
     describe("isActive", function () {
 
-        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+        beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+
             $stateProvider
                 .state('home', { route: '/', name: 'about' })
 
@@ -1640,7 +1660,7 @@ describe('$stateProvider', function () {
         function go(path: string) {
             spy.reset();
             location.url(path);
-            scope.$digest();
+            scope.$apply(function() { });
         }
 
         function goto(target: string, params: any) {
@@ -1679,6 +1699,10 @@ describe('$stateProvider', function () {
 
                 go('/post/42?p=pre');
                 expect(find('$stateUpdate')).toBeDefined();
+                expect($state.params.p).toBe('pre');
+                expect($state.params.param).toBe('42');
+                expect($state.params.$search.p).toBe('pre');
+                expect($state.params.$path.param).toBe('42');
                 expect(find('$stateChangeSuccess')).toBeUndefined();
             });
         });

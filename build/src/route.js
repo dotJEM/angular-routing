@@ -227,8 +227,8 @@ function $RouteProvider() {
     }
     function interpolate(url, params) {
         //TODO: Are we missing calls to some "Encode URI component"?
-                var result = [], name = "", index = 0;
-        forEach(parseParams(url), function (param, idx) {
+                var name = "", index = 0;
+        forEach(parseParams(url), function (param) {
             var formatter = function (val) {
                 return val.toString();
             }, converter = createParameter(param.name, param.converter, param.args).converter();
@@ -399,7 +399,7 @@ function $RouteProvider() {
         };
     });
     this.convert('', function () {
-        return function (param) {
+        return function () {
             return true;
         };
     });
@@ -559,7 +559,7 @@ function $RouteProvider() {
             }
             function findroute(currentPath) {
                 var params, match;
-                forEach(routes, function (route, path) {
+                forEach(routes, function (route) {
                     if(!match && (params = route.match(currentPath))) {
                         match = buildmatch(route, params, $location.search());
                     }
@@ -571,9 +571,9 @@ function $RouteProvider() {
             function update() {
                 var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
                 if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
-                    lastRoute.params = next.params;
-                    lastRoute.searchParams = next.searchParams;
-                    lastRoute.pathParams = next.pathParams;
+                    lastRoute.params = nextRoute.params;
+                    lastRoute.searchParams = nextRoute.searchParams;
+                    lastRoute.pathParams = nextRoute.pathParams;
                     copy(nextRoute.params, $routeParams);
                     $rootScope.$broadcast('$routeUpdate', lastRoute);
                 } else if(next || lastRoute) {
@@ -587,7 +587,7 @@ function $RouteProvider() {
                         }
                         var dp = $q.when(nextRoute);
                         if(nextRoute) {
-                            forEach(decorators, function (decorator, name) {
+                            forEach(decorators, function (decorator) {
                                 dp = dp.then(function () {
                                     //Note: must keep nextRoute as "this" context here.
                                     var decorated = $injector.invoke(decorator, nextRoute, {

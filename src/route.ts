@@ -262,8 +262,8 @@ function $RouteProvider() {
     function interpolate(url, params) {
         //TODO: Are we missing calls to some "Encode URI component"?
 
-        var result = [], name = "", index = 0;
-        forEach(parseParams(url), (param: IParam, idx) => {
+        var name = "", index = 0;
+        forEach(parseParams(url), (param: IParam) => {
             var formatter = (val) => val.toString(),
                 converter = createParameter(param.name, param.converter, param.args).converter();
             if (!isFunction(converter) && isDefined(converter.format))
@@ -450,7 +450,7 @@ function $RouteProvider() {
         };
     });
 
-    this.convert('', () => { return (param) => { return true; }; });
+    this.convert('', () => { return () => { return true; }; });
 
     //Service Factory
     this.$get = [<any>'$rootScope', '$location', '$q', '$injector', '$routeParams',
@@ -617,7 +617,7 @@ function $RouteProvider() {
             var params,
                 match;
 
-            forEach(routes, (route: IRoute, path: string) => {
+            forEach(routes, (route: IRoute) => {
                 if (!match && (params = route.match(currentPath))) {
                     match = buildmatch(route, params, $location.search());
                 }
@@ -637,9 +637,9 @@ function $RouteProvider() {
                 && angular.equals(nextRoute.pathParams, lastRoute.pathParams)
                 && !nextRoute.reloadOnSearch) {
 
-                lastRoute.params = next.params;
-                lastRoute.searchParams = next.searchParams;
-                lastRoute.pathParams = next.pathParams;
+                lastRoute.params = nextRoute.params;
+                lastRoute.searchParams = nextRoute.searchParams;
+                lastRoute.pathParams = nextRoute.pathParams;
 
                 copy(nextRoute.params, $routeParams);
 
@@ -656,7 +656,7 @@ function $RouteProvider() {
 
                     var dp: ng.IPromise = $q.when(nextRoute);
                     if (nextRoute) {
-                        forEach(decorators, (decorator, name) => {
+                        forEach(decorators, (decorator) => {
                             dp = dp.then(() => {
                                 //Note: must keep nextRoute as "this" context here.
                                 var decorated = $injector.invoke(decorator, nextRoute, { $next: nextRoute });
