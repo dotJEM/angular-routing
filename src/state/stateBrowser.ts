@@ -25,7 +25,7 @@ class StateBrowser {
 
     public resolve(origin, path): State {
         var siblingSelector = this.siblingRegex.exec(path),// path.match(this.siblingRegex),
-            nameSelector = this.nameRegex.test(path),
+            //nameSelector = this.nameRegex.test(path),
             selected = origin,
             sections: string[];
 
@@ -55,7 +55,7 @@ class StateBrowser {
 
     private selectSibling(index: number, selected: State): State {
         var children = [],
-            currentIndex;
+            currentIndex = 0;
 
         forEach(selected.parent.children, (child) => {
             children.push(child);

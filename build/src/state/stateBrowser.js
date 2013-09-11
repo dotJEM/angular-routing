@@ -18,8 +18,9 @@ var StateBrowser = (function () {
     };
     StateBrowser.prototype.resolve = function (origin, path) {
         var _this = this;
-        var siblingSelector = this.siblingRegex.exec(path), nameSelector = // path.match(this.siblingRegex),
-        this.nameRegex.test(path), selected = origin, sections;
+        var siblingSelector = this.siblingRegex.exec(path), selected = // path.match(this.siblingRegex),
+        //nameSelector = this.nameRegex.test(path),
+        origin, sections;
         if(siblingSelector) {
             selected = this.selectSibling(Number(siblingSelector[1]), selected);
         } else if(this.nameRegex.test(path)) {
@@ -43,7 +44,7 @@ var StateBrowser = (function () {
         }, selected.self) || undefined;
     };
     StateBrowser.prototype.selectSibling = function (index, selected) {
-        var children = [], currentIndex;
+        var children = [], currentIndex = 0;
         forEach(selected.parent.children, function (child) {
             children.push(child);
             if(selected.fullname === child.fullname) {

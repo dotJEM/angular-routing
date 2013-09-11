@@ -12,6 +12,13 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "dotjem.routing.$resolve",
+      "shortName": "$resolve",
+      "type": "object",
+      "keywords": "$injector $q $resolve an api array cache clear clears dotjem for from in into is key keys list method object of push pushes remove resolve resolver resolvers routing service states the to used value values"
+    },
+    {
+      "section": "api",
       "id": "dotjem.routing.$route",
       "shortName": "$route",
       "type": "object",
