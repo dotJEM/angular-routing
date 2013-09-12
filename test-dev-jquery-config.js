@@ -20,6 +20,7 @@ files = [
   'src/template.js',
   'src/view.js',
   'src/scroll.js',
+  'src/resolve.js',
 
   'src/state/state.js',
   'src/state/stateBrowser.js',
