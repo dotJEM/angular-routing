@@ -47,6 +47,9 @@
     <None Include="resources.md" />
     <None Include="src\legacy\prefix" />
     <None Include="src\legacy\suffix" />
+    <None Include="test\stateSpec.js.map">
+      <DependentUpon>stateSpec.ts</DependentUpon>
+    </None>
     <None Include="version.yaml" />
   </ItemGroup>
   <ItemGroup>
