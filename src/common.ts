@@ -60,8 +60,9 @@ interface IParam {
     lastIndex: number;
 }
 
-function buildParams(all, path, search) {
+function buildParams(all?, path?, search?) {
   var par = copy(all || {});
+  par.$all = copy(all || {});
   par.$path = copy(path || {});
   par.$search = copy(search || {});
   return par;

@@ -421,19 +421,16 @@ var $StateProvider = [
                 * @returns {boolean} true if the stats mathces, otherwise false.
                 */
                 var urlbuilder = new StateUrlBuilder($route);
-                var forceReload = null, current = root, currentParams = {
-                }, $state = {
+                var forceReload = null, current = root, $state = //currentParams = {},
+                {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
                     root,
                     current: root.self,
-                    params: {
-                    },
+                    params: buildParams(),
                     goto: function (state, params) {
                         goto({
                             state: state,
-                            params: {
-                                all: params
-                            },
+                            params: buildParams(params),
                             updateroute: true
                         });
                     },
@@ -453,29 +450,31 @@ var $StateProvider = [
                     }
                 };
                 $rootScope.$on('$routeChangeSuccess', function () {
-                    var route = $route.current, params;
+                    var route = $route.current;
                     if(route) {
-                        params = {
-                            all: route.params,
-                            path: route.pathParams,
-                            search: route.searchParams
-                        };
+                        //params =
+                        //{
+                        //    all: route.params,
+                        //    path: route.pathParams,
+                        //    search: route.searchParams
+                        //};
                         if(route.state) {
                             goto({
                                 state: route.state,
-                                params: params,
+                                params: buildParams(route.params, route.pathParams, route.searchParams),
                                 route: route
                             });
                         }
                     } else {
                         goto({
-                            state: root
+                            state: root,
+                            params: buildParams()
                         });
                     }
                 });
                 $rootScope.$on('$routeUpdate', function () {
                     var route = $route.current;
-                    raiseUpdate(route.params, route.pathParams, route.searchParams);
+                    raiseUpdate(buildParams(route.params, route.pathParams, route.searchParams));
                 });
                 return $state;
                 function reload(state) {
@@ -495,17 +494,14 @@ var $StateProvider = [
                     $rootScope.$evalAsync(function () {
                         goto({
                             state: current,
-                            params: currentParams,
+                            params: $state.params,
                             route: $route.current
                         });
                     });
                 }
-                function raiseUpdate(all, path, search) {
-                    $state.params = buildParams(all, path, search);
-                    var dst = $state.current.$params;
-                    dst.all = all;
-                    dst.path = path;
-                    dst.search = search;
+                function raiseUpdate(params) {
+                    $state.params = params;
+                    $state.current.$params = params;
                     $rootScope.$broadcast('$stateUpdate', $state.current);
                 }
                 function goto(args) {
@@ -516,14 +512,10 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params && fromState.$params.all, params && params.all || {
-                    }, forceReload), transition = new Transition(goto);
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params, toState.$params, forceReload), transition = new Transition(goto);
                     if(!forceReload && !changed.stateChanges) {
                         if(changed.paramChanges) {
-                            raiseUpdate(params.all || {
-                            }, params.path || {
-                            }, params.search || {
-                            });
+                            raiseUpdate(params);
                         }
                         return;
                     }
@@ -532,14 +524,13 @@ var $StateProvider = [
                         //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                         //      maybe we can refactor those together
                                                 var paramsObj = {
-                        }, allFrom = (fromState.$params && fromState.$params.all) || {
-                        };
+                        }, allFrom = $state.params.$all;
                         forEach(to.route.params, function (param, name) {
                             if(name in allFrom) {
                                 paramsObj[name] = allFrom[name];
                             }
                         });
-                        var mergedParams = extend(paramsObj, (params && params.all));
+                        var mergedParams = extend(paramsObj, params.$all);
                         //TODO: One problem here is that if you passed in "optional" parameters to goto, and the to-state has
                         //      a route, we actually end up loosing those
                         $route.change(extend({
@@ -603,8 +594,8 @@ var $StateProvider = [
                                 return;
                             }
                             current = to;
-                            currentParams = params;
-                            $state.params = buildParams(params.all, params.path, params.search);
+                            //currentParams = params;
+                            $state.params = params;
                             $state.current = toState;
                             transaction.commit();
                             $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);

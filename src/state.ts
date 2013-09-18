@@ -432,16 +432,24 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
         var forceReload = null,
             current = root,
-            currentParams = {},
+            //currentParams = {},
             $state: any = {
                 // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
                 current: root.self,
-                params: {},
-                goto: (state, params) => { goto({ state: state, params: { all: params }, updateroute: true }); },
-                lookup: (path) => browser.resolve(current, path),
+                params: buildParams(),
+                goto: function(state, params) {
+                    goto({
+                        state: state,
+                        params: buildParams(params),
+                        updateroute: true
+                    });
+                },
+                lookup: function (path) {
+                    return browser.resolve(current, path);
+                },
                 reload: reload,
-                url: (state?, params?) => {
+                url: function(state?, params?) {
                     state = isDefined(state) ? browser.lookup(toName(state)) : current;
                     return urlbuilder.buildUrl($state.current, state, params);
                 },
@@ -450,26 +458,30 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             };
 
         $rootScope.$on('$routeChangeSuccess', function () {
-            var route = $route.current,
-                params;
+            var route = $route.current;
 
             if (route) {
-                params = {
-                    all: route.params,
-                    path: route.pathParams,
-                    search: route.searchParams
-                };
+                //params =
+                //{
+                //    all: route.params,
+                //    path: route.pathParams,
+                //    search: route.searchParams
+                //};
 
                 if (route.state) {
-                    goto({ state: route.state, params: params, route: route });
+                    goto({
+                        state: route.state,
+                        params: buildParams(route.params, route.pathParams, route.searchParams),
+                        route: route
+                    });
                 }
             } else {
-                goto({ state: root });
+                goto({ state: root, params: buildParams() });
             }
         });
         $rootScope.$on('$routeUpdate', () => {
             var route = $route.current;
-            raiseUpdate(route.params, route.pathParams, route.searchParams);
+            raiseUpdate(buildParams(route.params, route.pathParams, route.searchParams));
         });
         return $state;
 
@@ -489,21 +501,17 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
 
             $rootScope.$evalAsync(() => {
-                goto({ state: current, params: currentParams, route: $route.current });
+                goto({ state: current, params: $state.params, route: $route.current });
             });
         }
 
-        function raiseUpdate(all, path, search) {
-            $state.params = buildParams(all, path, search);
-
-            var dst = $state.current.$params;
-            dst.all = all;
-            dst.path = path;
-            dst.search = search;
+        function raiseUpdate(params) {
+            $state.params = params;
+            $state.current.$params = params;
             $rootScope.$broadcast('$stateUpdate', $state.current);
         }
 
-        function goto(args: { state; params?; route?; updateroute?; }) {
+        function goto(args: { state; params; route?; updateroute?; }) {
 
             //TODO: This list of declarations seems to indicate that we are doing more that we should in a single function.
             //      should try to refactor it if possible.
@@ -519,15 +527,15 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 changed = comparer.compare(
                     browser.lookup(toName($state.current)),
                     to,
-                    fromState.$params && fromState.$params.all,
-                    params && params.all || {},
+                    fromState.$params,
+                    toState.$params,
                     forceReload),
 
                 transition = new Transition(goto);
 
             if (!forceReload && !changed.stateChanges) {
                 if (changed.paramChanges) {
-                    raiseUpdate(params.all || {}, params.path || {}, params.search || {})
+                    raiseUpdate(params);
                 }
                 return;
             }
@@ -537,12 +545,15 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             if (args.updateroute && to.route) {
                 //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                 //      maybe we can refactor those together
-                var paramsObj = {}, allFrom = (fromState.$params && fromState.$params.all) || {};
-                forEach(to.route.params, (param, name) => {
-                    if (name in allFrom) paramsObj[name] = allFrom[name];
+                var paramsObj = {},
+                    allFrom = $state.params.$all;
+
+                forEach(to.route.params, function(param, name) {
+                    if (name in allFrom)
+                        paramsObj[name] = allFrom[name];
                 });
 
-                var mergedParams = extend(paramsObj, (params && params.all))
+                var mergedParams = extend(paramsObj, params.$all)
                 //TODO: One problem here is that if you passed in "optional" parameters to goto, and the to-state has
                 //      a route, we actually end up loosing those
                 $route.change(extend({}, to.route, { params: mergedParams }));
@@ -611,9 +622,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     }
 
                     current = to;
-                    currentParams = params;
+                    //currentParams = params;
 
-                    $state.params = buildParams(params.all, params.path, params.search);
+                    $state.params = params;
                     $state.current = toState;
 
                     transaction.commit();

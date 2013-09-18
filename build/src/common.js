@@ -36,6 +36,8 @@ function injectFn(arg) {
 function buildParams(all, path, search) {
     var par = copy(all || {
     });
+    par.$all = copy(all || {
+    });
     par.$path = copy(path || {
     });
     par.$search = copy(search || {

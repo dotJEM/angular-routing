@@ -24,8 +24,7 @@ class StateBrowser {
     }
 
     public resolve(origin, path): State {
-        var siblingSelector = this.siblingRegex.exec(path),// path.match(this.siblingRegex),
-            //nameSelector = this.nameRegex.test(path),
+        var siblingSelector = this.siblingRegex.exec(path),
             selected = origin,
             sections: string[];
 
@@ -50,7 +49,7 @@ class StateBrowser {
         if (selected === this.root)
             throw Error(errors.expressionOutOfBounds);
 
-        return selected && extend({}, selected.self) || undefined;
+        return selected && copy(selected.self) || undefined;
     }
 
     private selectSibling(index: number, selected: State): State {
