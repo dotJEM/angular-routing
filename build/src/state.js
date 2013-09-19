@@ -425,7 +425,9 @@ var $StateProvider = [
                 {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
                     root,
-                    current: root.self,
+                    current: extend(root.self, {
+                        $params: buildParams()
+                    }),
                     params: buildParams(),
                     goto: function (state, params) {
                         goto({

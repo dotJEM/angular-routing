@@ -436,7 +436,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             $state: any = {
                 // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
-                current: root.self,
+                current: extend(root.self, { $params: buildParams() }),
                 params: buildParams(),
                 goto: function(state, params) {
                     goto({
