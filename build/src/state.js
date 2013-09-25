@@ -507,7 +507,7 @@ var $StateProvider = [
                     }, to.self, {
                         $params: params,
                         $route: route
-                    }), fromState = $state.current, emit = $transition.find($state.current, toState), transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params, toState.$params, forceReload), transition = new Transition(goto);
+                    }), fromState = $state.current, emit = $transition.find($state.current, toState), transaction, scrollTo, changed = comparer.compare(browser.lookup(toName($state.current)), to, fromState.$params, toState.$params, forceReload), transition = new Transition(goto), promise;
                     if(!forceReload && !changed.stateChanges) {
                         if(changed.paramChanges) {
                             raiseUpdate(params);
@@ -538,12 +538,13 @@ var $StateProvider = [
                     if(transition.canceled) {
                         //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                         //      That is if this was even triggered by an URL change in the first place.
+                        $rootScope.$broadcast('$stateChangeAborted', toState, fromState);
                         return;
                     }
                     if($rootScope.$broadcast('$stateChangeStart', toState, fromState).defaultPrevented) {
                         return;
                     }
-                    $q.when(toState).then(function () {
+                    promise = $q.when(toState).then(function () {
                         var useUpdate = false, alllocals = {
                         };
                         transaction = $view.beginUpdate();
@@ -585,6 +586,7 @@ var $StateProvider = [
                                 transaction.cancel();
                                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                                 //      That is if this was even triggered by an URL change in teh first place.
+                                $rootScope.$broadcast('$stateChangeAborted', toState, fromState);
                                 return;
                             }
                             current = to;
@@ -594,6 +596,7 @@ var $StateProvider = [
                             $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
                         });
                     }).then(function () {
+                        promise = null;
                         if(!transition.canceled) {
                             transition.cancel = function () {
                                 throw Error("Can't cancel transition in after handler");
@@ -603,6 +606,7 @@ var $StateProvider = [
                         }
                         //Note: nothing to do here.
                                             }, function (error) {
+                        promise = null;
                         transaction.cancel();
                         $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
                     });

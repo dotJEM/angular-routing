@@ -75,7 +75,15 @@ var jemViewDirective = [
                 scope.$on('$stateChangeSuccess', function () {
                     return update(doAnimate);
                 });
+                scope.$on('$stateChangeStart', function () {
+                    return progress(doAnimate);
+                });
+                scope.$on('$stateChangeAborted', function () {
+                    return progress(doAnimate);
+                });
                 update(false);
+                function progress(doAnimate) {
+                }
                 function destroyScope() {
                     if(viewScope) {
                         viewScope.$destroy();

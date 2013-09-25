@@ -437,7 +437,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 root: root,
                 current: extend(root.self, { $params: buildParams() }),
                 params: buildParams(),
-                goto: function(state, params) {
+                goto: function (state, params) {
                     goto({
                         state: state,
                         params: buildParams(params),
@@ -448,7 +448,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     return browser.resolve(current, path);
                 },
                 reload: reload,
-                url: function(state?, params?) {
+                url: function (state?, params?) {
                     state = isDefined(state) ? browser.lookup(toName(state)) : current;
                     return urlbuilder.buildUrl($state.current, state, params);
                 },
@@ -523,7 +523,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     toState.$params,
                     forceReload),
 
-                transition = new Transition(goto);
+                transition = new Transition(goto),
+                promise;
 
             if (!forceReload && !changed.stateChanges) {
                 if (changed.paramChanges) {
@@ -540,7 +541,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 var paramsObj = {},
                     allFrom = $state.params.$all;
 
-                forEach(to.route.params, function(param, name) {
+                forEach(to.route.params, function (param, name) {
                     if (name in allFrom)
                         paramsObj[name] = allFrom[name];
                 });
@@ -551,88 +552,93 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 $route.change(extend({}, to.route, { params: mergedParams }));
                 return;
             }
-            
+
             emit.before(transition);
             if (transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
+                $rootScope.$broadcast('$stateChangeAborted', toState, fromState);
                 return;
             }
 
             if ($rootScope.$broadcast('$stateChangeStart', toState, fromState).defaultPrevented)
                 return
 
-            $q.when(toState).then(function() {
-                var useUpdate = false,
-                    alllocals = {};
+            promise = $q.when(toState)
+                .then(function () {
+                    var useUpdate = false,
+                        alllocals = {};
 
-                transaction = $view.beginUpdate();
-                $view.clear();
+                    transaction = $view.beginUpdate();
+                    $view.clear();
 
-                var promise = $q.when(0);
-                forEach(changed.array, function (change) {
+                    var promise = $q.when(0);
+                    forEach(changed.array, function (change) {
 
-                    promise = promise.then(function () {
-                        if (useUpdate = change.isChanged || useUpdate)
-                            $resolve.clear(change.state.resolve);
+                        promise = promise.then(function () {
+                            if (useUpdate = change.isChanged || useUpdate)
+                                $resolve.clear(change.state.resolve);
 
-                        return $resolve.all(change.state.resolve, alllocals);
-                    }).then(function (locals) {
-                        
-                        alllocals = extend({},alllocals, locals);
-                        scrollTo = change.state.scrollTo;
+                            return $resolve.all(change.state.resolve, alllocals);
+                        }).then(function (locals) {
 
-                        forEach(change.state.views, function (view, name) {
-                            var sticky, fn;
-                            if (sticky = view.sticky) {
-                                if (fn = injectFn(sticky)) {
-                                    sticky = fn($injector, { $to: toState, $from: fromState });
-                                } else if (!isString(sticky)) {
-                                    sticky = change.state.fullname;
+                            alllocals = extend({}, alllocals, locals);
+                            scrollTo = change.state.scrollTo;
+
+                            forEach(change.state.views, function (view, name) {
+                                var sticky, fn;
+                                if (sticky = view.sticky) {
+                                    if (fn = injectFn(sticky)) {
+                                        sticky = fn($injector, { $to: toState, $from: fromState });
+                                    } else if (!isString(sticky)) {
+                                        sticky = change.state.fullname;
+                                    }
                                 }
-                            }
 
-                            if (useUpdate || isDefined(sticky)) {
-                                $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                            } else {
-                                $view.setIfAbsent(name, view.template, view.controller, alllocals);
-                            }
+                                if (useUpdate || isDefined(sticky)) {
+                                    $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
+                                } else {
+                                    $view.setIfAbsent(name, view.template, view.controller, alllocals);
+                                }
+                            });
                         });
+
                     });
 
-                });
+                    return promise.then(function () {
+                        emit.between(transition);
 
-                return promise.then(function() {
-                    emit.between(transition);
+                        if (transition.canceled) {
+                            transaction.cancel();
+                            //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                            //      That is if this was even triggered by an URL change in teh first place.
+                            $rootScope.$broadcast('$stateChangeAborted', toState, fromState);
+                            return;
+                        }
 
-                    if (transition.canceled) {
-                        transaction.cancel();
-                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                        //      That is if this was even triggered by an URL change in teh first place.
-                        return;
+                        current = to;
+                        $state.params = params;
+                        $state.current = toState;
+
+                        transaction.commit();
+                        $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
+                    })
+                }).then(function () {
+                    promise = null;
+                    if (!transition.canceled) {
+                        transition.cancel = function () {
+                            throw Error("Can't cancel transition in after handler");
+                        };
+                        emit.after(transition);
+
+                        $scroll(scrollTo);
                     }
-
-                    current = to;
-                    $state.params = params;
-                    $state.current = toState;
-
-                    transaction.commit();
-                    $rootScope.$broadcast('$stateChangeSuccess', toState, fromState);
-                })
-            }).then(function() {
-                if (!transition.canceled) {
-                    transition.cancel = function () {
-                        throw Error("Can't cancel transition in after handler");
-                    };
-                    emit.after(transition);
-
-                    $scroll(scrollTo);
-                }
-                //Note: nothing to do here.
-            }, function (error) {
-                transaction.cancel();
-                $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
-            });
+                    //Note: nothing to do here.
+                }, function (error) {
+                    promise = null;
+                    transaction.cancel();
+                    $rootScope.$broadcast('$stateChangeError', toState, fromState, error);
+                });
         }
     }];
 }];

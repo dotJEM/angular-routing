@@ -21,7 +21,11 @@ function ($scroll, $timeout: ng.ITimeoutService) {
         restrict: 'ECA',
         terminal: false,
         link: function (scope, element: JQuery, attr) {
-            var name = attr['jemAnchor'] || attr.id;
+            var name = attr['jemAnchor'] || attr.id,
+                //Note: Default delay to 1 as it seems that the $timeout is instantly executed
+                //      although the angular team says it should wait untill any digest is done.
+                //      Using 1 seems to work.
+                delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
 
             //$scroll.$register(name, element);
 
@@ -36,9 +40,9 @@ function ($scroll, $timeout: ng.ITimeoutService) {
             function scroll(target: any) {
                 if (target === name) {
                     //Note: Delay scroll untill any digest is done.
-                    $timeout(() => {
+                    $timeout(function() {
                         element[0].scrollIntoView();
-                    }, 100);
+                    }, delay);
                 }
             }
         }
@@ -46,3 +50,4 @@ function ($scroll, $timeout: ng.ITimeoutService) {
 }];
 
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
+angular.module('dotjem.routing').directive('xId', jemAnchorDirective);
