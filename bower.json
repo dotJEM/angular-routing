@@ -1,6 +1,6 @@
 ﻿{
   "name": "angular-routing",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "main": "./build/angular-routing.min.js",
   "dependencies": {
     "angular": ">= 1.1.4"
