@@ -2986,13 +2986,13 @@ var jemViewDirective = [
                     return update(doAnimate);
                 });
                 scope.$on('$stateChangeStart', function () {
-                    return progress(doAnimate);
+                    return progress(doAnimate, false);
                 });
                 scope.$on('$stateChangeAborted', function () {
-                    return progress(doAnimate);
+                    return progress(doAnimate, true);
                 });
                 update(false);
-                function progress(doAnimate) {
+                function progress(doAnimate, cancel) {
                 }
                 function destroyScope() {
                     if(viewScope) {
@@ -3092,7 +3092,7 @@ var jemAnchorDirective = [
         };
     }];
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
-angular.module('dotjem.routing').directive('xId', jemAnchorDirective);
+angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 
 
 //NOTE: Expose for testing
