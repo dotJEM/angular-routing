@@ -181,6 +181,11 @@ function $RouteProvider() {
     *    More converters can be registered using the {@link dotjem.routing.routeProvider#convert convert}
     *    function.
     *
+    *    In addition to converters, it is possible to allow a parameter to catch all for both the old and new
+    *    using an asterisk just before the parameter name, like:  (`:*name`) and (`{*name}`)
+    *    or with converters (`array:*name}`) and (`contains(substring):*name}`).
+    *    (Note: `array` and `contains` are not exist in the source and was purely for demonstration purposes)
+    *
     * @param {Object} route Mapping information to be assigned to `$route.current` on route
     *    match.
     *
@@ -364,7 +369,7 @@ function $RouteProvider() {
     function escape(exp) {
         return exp.replace(esc, "\\$&");
     }
-    var paramsRegex = new RegExp('\x2F((:(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\w+)\\}))', 'g');
+    var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
     function parseParams(path) {
         var match, params = [];
         if(path === null) {
@@ -372,9 +377,10 @@ function $RouteProvider() {
         }
         while((match = paramsRegex.exec(path)) !== null) {
             params.push({
-                name: match[3] || match[9],
-                converter: match[6] || '',
-                args: match[8],
+                name: match[4] || match[11],
+                catchAll: (match[3] || match[10]) === '*',
+                converter: match[7] || '',
+                args: match[9],
                 index: match.index,
                 lastIndex: paramsRegex.lastIndex
             });
@@ -401,7 +407,11 @@ function $RouteProvider() {
         forEach(parseParams(path), function (param, idx) {
             var cname = '';
             regex += escape(path.slice(index, param.index));
-            regex += '/([^\\/]*)';
+            if(param.catchAll) {
+                regex += '/(.*)';
+            } else {
+                regex += '/([^\\/]*)';
+            }
             if(param.converter !== '') {
                 cname = ":" + param.converter;
             }

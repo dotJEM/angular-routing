@@ -58,6 +58,7 @@ interface IParam {
     args: string;
     index: number;
     lastIndex: number;
+    catchAll: bool;
 }
 
 function buildParams(all?, path?, search?) {

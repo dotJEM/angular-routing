@@ -77,7 +77,12 @@ would only match a parameter starting with one or two digits followed by a numbe
 characters between 'a' and 'z'.</p>
 
 <p>More converters can be registered using the <a href="#/api/dotjem.routing.routeProvider#convert">convert</a>
-function.</p></li>
+function.</p>
+
+<p>In addition to converters, it is possible to allow a parameter to catch all for both the old and new
+using an asterisk just before the parameter name, like:  (<code>:*name</code>) and (<code>{*name}</code>)
+or with converters (<code>array:*name}</code>) and (<code>contains(substring):*name}</code>).
+(Note: <code>array</code> and <code>contains</code> are not exist in the source and was purely for demonstration purposes)</p></li>
 <li><code ng:non-bindable="">route – {Object} – </code>
 <p>Mapping information to be assigned to <code>$route.current</code> on route
 match.</p>
