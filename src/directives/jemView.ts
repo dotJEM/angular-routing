@@ -82,12 +82,12 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 }
             });
             scope.$on('$stateChangeSuccess', () => update(doAnimate));
-            scope.$on('$stateChangeStart', () => progress(doAnimate));
-            scope.$on('$stateChangeAborted', () => progress(doAnimate));
+            scope.$on('$stateChangeStart', () => progress(doAnimate, false));
+            scope.$on('$stateChangeAborted', () => progress(doAnimate, true));
 
             update(false);
 
-            function progress(doAnimate) {
+            function progress(doAnimate, cancel) {
 
             }
 
