@@ -67,12 +67,12 @@ function buildParamsFromObject(params) {
     }
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
-function toKeyValue(obj) {
+function toKeyValue(obj, prepend) {
     var parts = [];
     forEach(obj, function (value, key) {
         parts.push(encodeUriQuery(key, true) + (value === true ? '' : '=' + encodeUriQuery(value, true)));
     });
-    return parts.length ? parts.join('&') : '';
+    return parts.length ? prepend + parts.join('&') : '';
 }
 /**
 * We need our custom method because encodeURIComponent is too aggressive and doesn't follow
@@ -659,7 +659,7 @@ function $RouteProvider() {
                 format: function (route, params) {
                     var params = params || {
                     };
-                    return interpolate(route, params) + toKeyValue(params);
+                    return interpolate(route, params) + toKeyValue(params, '?');
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);
@@ -1630,8 +1630,7 @@ var $StateProvider = [
                 * @returns {boolean} true if the stats mathces, otherwise false.
                 */
                 var urlbuilder = new StateUrlBuilder($route);
-                var forceReload = null, current = root, $state = //currentParams = {},
-                {
+                var forceReload = null, current = root, $state = {
                     root: // NOTE: root should not be used in general, it is exposed for testing purposes.
                     root,
                     current: extend(root.self, {
@@ -1663,12 +1662,6 @@ var $StateProvider = [
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var route = $route.current;
                     if(route) {
-                        //params =
-                        //{
-                        //    all: route.params,
-                        //    path: route.pathParams,
-                        //    search: route.searchParams
-                        //};
                         if(route.state) {
                             goto({
                                 state: route.state,
@@ -1756,7 +1749,6 @@ var $StateProvider = [
                         //      That is if this was even triggered by an URL change in the first place.
                         return;
                     }
-                    //var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
                     if($rootScope.$broadcast('$stateChangeStart', toState, fromState).defaultPrevented) {
                         return;
                     }
@@ -1805,7 +1797,6 @@ var $StateProvider = [
                                 return;
                             }
                             current = to;
-                            //currentParams = params;
                             $state.params = params;
                             $state.current = toState;
                             transaction.commit();

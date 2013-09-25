@@ -81,12 +81,12 @@ function buildParamsFromObject(params?) {
 
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
-function toKeyValue(obj) {
+function toKeyValue(obj, prepend?) {
     var parts = [];
     forEach(obj, function (value, key) {
         parts.push(encodeUriQuery(key, true) + (value === true ? '' : '=' + encodeUriQuery(value, true)));
     });
-    return parts.length ? parts.join('&') : '';
+    return parts.length ? prepend + parts.join('&') : '';
 }
 
 /**

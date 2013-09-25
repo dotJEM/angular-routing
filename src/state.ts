@@ -432,7 +432,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
         var forceReload = null,
             current = root,
-            //currentParams = {},
             $state: any = {
                 // NOTE: root should not be used in general, it is exposed for testing purposes.
                 root: root,
@@ -461,13 +460,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             var route = $route.current;
 
             if (route) {
-                //params =
-                //{
-                //    all: route.params,
-                //    path: route.pathParams,
-                //    search: route.searchParams
-                //};
-
                 if (route.state) {
                     goto({
                         state: route.state,
@@ -567,7 +559,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 return;
             }
 
-            //var event = $rootScope.$broadcast('$stateChangeStart', toState, fromState);
             if ($rootScope.$broadcast('$stateChangeStart', toState, fromState).defaultPrevented)
                 return
 
@@ -622,8 +613,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     }
 
                     current = to;
-                    //currentParams = params;
-
                     $state.params = params;
                     $state.current = toState;
 

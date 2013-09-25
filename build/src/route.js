@@ -541,7 +541,7 @@ function $RouteProvider() {
                 format: function (route, params) {
                     var params = params || {
                     };
-                    return interpolate(route, params) + toKeyValue(params);
+                    return interpolate(route, params) + toKeyValue(params, '?');
                 }
             };
             $rootScope.$on('$locationChangeSuccess', update);

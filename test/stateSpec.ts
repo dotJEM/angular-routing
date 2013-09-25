@@ -959,6 +959,25 @@ describe('$stateProvider', function () {
                 expect($state.url()).toBe('/gallery/4224/details/1');
             });
         });
+
+        it('builds route with search parameters', function () {
+            inject(function ($location: ng.ILocationService,
+                $route: ng.IRouteService,
+                $state: dotjem.routing.IStateService) {
+
+                goto('gallery', { id: 42 });
+                expect($state.url()).toBe('/gallery/42');
+                expect($state.url(undefined, { id: 51, search: 'hello' })).toBe('/gallery/51?search=hello');
+                expect($state.url('gallery', { search: 'hello' })).toBe('/gallery/42?search=hello');
+                expect($state.url('gallery', { id: 51, search: 'hello' })).toBe('/gallery/51?search=hello');
+                
+                goto('gallery', { id: 4224 });
+                expect($state.url()).toBe('/gallery/4224');
+
+                goto('gallery.details', { id: 4224, page: 1});
+                expect($state.url(undefined, { search: 'search', other: 'other' })).toBe('/gallery/4224/details/1?search=search&other=other');
+            });
+        });
     });
 
     describe("is", function () {

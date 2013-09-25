@@ -595,7 +595,7 @@ function $RouteProvider() {
                 },
                 format: function (route: string, params?: any) {
                     var params = params || {};
-                    return interpolate(route, params) + toKeyValue(params);
+                    return interpolate(route, params) + toKeyValue(params, '?');
                 }
             };
 
