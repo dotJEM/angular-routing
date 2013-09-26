@@ -1551,6 +1551,21 @@ describe('$stateProvider', function () {
             });
         });
 
+        it('to and from are available to resolves', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+                $stateProvider
+                    .state('home', {
+                        views: { 'tpl': { template: "tpl" } },
+                        resolve: { home: function ($to, $from) { return $to.$fullname + " - " + $from.$fullname; } }
+                    })
+            });
+
+            inject(function ($view, $state: dotjem.routing.IStateService) {
+                goto("home");
+                expect(loc[0]).toEqual({ home: "root.home - root" });
+            });
+        });
+
         it('multiple resolve provides values', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider

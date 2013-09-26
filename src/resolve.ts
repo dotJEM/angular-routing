@@ -86,7 +86,7 @@ var $ResolveProvider = [function () {
             }
         }
 
-        $service.all = function (args: any, locals: any) {
+        $service.all = function (args: any, locals: any, scoped: any) {
             var values = [], keys = [], def = $q.defer();
 
             angular.forEach(args, function (value, key) {
@@ -97,7 +97,7 @@ var $ResolveProvider = [function () {
                         if (isString(value))
                             cache[key] = angular.isString(value);
                         else if ((ifn = injectFn(value)) != null)
-                            cache[key] = ifn($injector, locals);
+                            cache[key] = ifn($injector, extend({},locals,scoped));
                     }
                     values.push(cache[key]);
                 } catch (e) {

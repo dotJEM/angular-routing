@@ -1774,7 +1774,10 @@ var $StateProvider = [
                                 if(useUpdate = change.isChanged || useUpdate) {
                                     $resolve.clear(change.state.resolve);
                                 }
-                                return $resolve.all(change.state.resolve, alllocals);
+                                return $resolve.all(change.state.resolve, alllocals, {
+                                    $to: toState,
+                                    $from: fromState
+                                });
                             }).then(function (locals) {
                                 alllocals = extend({
                                 }, alllocals, locals);
@@ -1920,7 +1923,7 @@ var $ResolveProvider = [
                         });
                     }
                 };
-                $service.all = function (args, locals) {
+                $service.all = function (args, locals, scoped) {
                     var values = [], keys = [], def = $q.defer();
                     angular.forEach(args, function (value, key) {
                         var ifn;
@@ -1930,7 +1933,8 @@ var $ResolveProvider = [
                                 if(isString(value)) {
                                     cache[key] = angular.isString(value);
                                 } else if((ifn = injectFn(value)) != null) {
-                                    cache[key] = ifn($injector, locals);
+                                    cache[key] = ifn($injector, extend({
+                                    }, locals, scoped));
                                 }
                             }
                             values.push(cache[key]);

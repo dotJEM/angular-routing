@@ -555,7 +555,10 @@ var $StateProvider = [
                                 if(useUpdate = change.isChanged || useUpdate) {
                                     $resolve.clear(change.state.resolve);
                                 }
-                                return $resolve.all(change.state.resolve, alllocals);
+                                return $resolve.all(change.state.resolve, alllocals, {
+                                    $to: toState,
+                                    $from: fromState
+                                });
                             }).then(function (locals) {
                                 alllocals = extend({
                                 }, alllocals, locals);
