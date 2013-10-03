@@ -397,6 +397,75 @@ function $ViewProvider() {
             * @description
             * Cancels the view transaction, discarding any changes that may have been recorded.
             */
+            //function beginUpdate(): dotjem.routing.IViewTransaction {
+            //    //$view.beginUpdate = function () {
+            //    if (transaction)
+            //        throw new Error("Can't start multiple transactions");
+            //    return transaction = createTransaction();
+            //    function createTransaction(): dotjem.routing.IViewTransaction {
+            //        var records = {},
+            //            trx;
+            //        return trx = {
+            //            completed: false,
+            //            commit: function () {
+            //                trx.completed = true;
+            //                forEach(records, (rec) => { rec.fn(); })
+            //            },
+            //            cancel: function () { trx.completed = true; },
+            //            clear: function (name?: string) {
+            //                if (isUndefined(name)) {
+            //                    forEach(views, (val, key) => {
+            //                        trx.clear(key);
+            //                    });
+            //                    return trx;
+            //                }
+            //                records[name] = {
+            //                    act: 'clear',
+            //                    fn: () => {
+            //                        clear(name);
+            //                    }
+            //                };
+            //                return trx;
+            //            },
+            //            setOrUpdate: function (name: string, template?: any, controller?: any, locals?: any, sticky?: any) {
+            //                records[name] = {
+            //                    act: 'setOrUpdate',
+            //                    fn: () => {
+            //                        setOrUpdate(name, template, controller, locals, sticky);
+            //                    }
+            //                };
+            //                return trx;
+            //            },
+            //            setIfAbsent: function (name: string, template?: any, controller?: any, locals?: any) {
+            //                if (!containsView(records, name) || records[name].act === 'clear') {
+            //                    records[name] = {
+            //                        act: 'setIfAbsent',
+            //                        fn: () => {
+            //                            setIfAbsent(name, template, controller, locals);
+            //                        }
+            //                    };
+            //                }
+            //                return trx;
+            //            },
+            //            refresh: function (name?: string, data?: any) {
+            //                if (isUndefined(name)) {
+            //                    forEach(views, (val, key) => {
+            //                        trx.refresh(key, data);
+            //                    });
+            //                    return trx;
+            //                }
+            //                records[name] = {
+            //                    act: 'refresh',
+            //                    fn: () => {
+            //                        refresh(name, data);
+            //                    }
+            //                };
+            //                return trx;
+            //            },
+            //            get: get
+            //        }
+            //    }
+            //}
             function beginUpdate() {
                 //$view.beginUpdate = function () {
                 if(transaction) {
@@ -415,7 +484,13 @@ function $ViewProvider() {
                     },
                     cancel: function () {
                         transaction = null;
-                    }
+                    },
+                    get: get,
+                    clear: clear,
+                    refresh: refresh,
+                    setOrUpdate: setOrUpdate,
+                    setIfAbsent: setIfAbsent,
+                    beginUpdate: beginUpdate
                 };
             }
             return $view;

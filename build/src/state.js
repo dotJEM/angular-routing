@@ -550,8 +550,8 @@ var $StateProvider = [
                         var useUpdate = false, alllocals = {
                         };
                         transaction = $view.beginUpdate();
-                        //transaction.clear();
-                        $view.clear();
+                        transaction.clear();
+                        //$view.clear();
                         var promise = $q.when(0);
                         forEach(changed.array, function (change) {
                             promise = promise.then(function () {
@@ -579,12 +579,12 @@ var $StateProvider = [
                                         }
                                     }
                                     if(useUpdate || view.force || isDefined(sticky)) {
-                                        //transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                                        $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                                    } else {
-                                        //transaction.setIfAbsent(name, view.template, view.controller, alllocals);
-                                        $view.setIfAbsent(name, view.template, view.controller, alllocals);
-                                    }
+                                        transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
+                                        //$view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
+                                                                            } else {
+                                        transaction.setIfAbsent(name, view.template, view.controller, alllocals);
+                                        //$view.setIfAbsent(name, view.template, view.controller, alllocals);
+                                                                            }
                                 });
                             });
                         });
