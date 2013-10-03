@@ -30,10 +30,17 @@ function $ViewProvider() {
      *
      */
     this.$get = [<any>'$rootScope', '$q', '$template',
-    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: dotjem.routing.ITemplateService) {
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $template: dotjem.routing.ITemplateService): dotjem.routing.IViewTransaction {
         var views = {},
             transaction = null,
-            $view: any = {};
+            $view: any = {
+                get: get ,
+                clear: clear,
+                refresh: refresh,
+                setOrUpdate: setOrUpdate,
+                setIfAbsent: setIfAbsent,
+                beginUpdate: beginUpdate
+            };
 
         function isArgs(args) {
             return isObject(args)
@@ -108,7 +115,7 @@ function $ViewProvider() {
          * @description
          * Clears the named view.
          */
-        $view.clear = function (name?: string) {
+        function clear(name?: string) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
                     $view.clear(key);
@@ -127,6 +134,7 @@ function $ViewProvider() {
 
                 raiseUpdated(name);
             }
+            return $view;
         };
 
         /**
@@ -172,7 +180,8 @@ function $ViewProvider() {
          * <br/>
          * Views can also be refreshed by calling the `refresh` method.
          */
-        $view.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
+        function setOrUpdate(name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
+            //$view.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
             var template = templateOrArgs;
             if (isArgs(templateOrArgs)) {
                 template = templateOrArgs.template;
@@ -190,13 +199,13 @@ function $ViewProvider() {
                         $view.setOrUpdate(name, template, controller, locals, sticky);
                     }
                 };
-                return;
+                return $view;
             }
 
             if (!containsView(views, name)) {
                 views[name] = { version: -1 };
             }
-            
+
             //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
             //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
             //      largely care of this, it could be an optimization to not do this?
@@ -204,7 +213,7 @@ function $ViewProvider() {
             views[name].controller = controller;
             views[name].locals = locals;
 
-            
+
             if (isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                 raiseRefresh(name, {
                     $locals: locals,
@@ -216,6 +225,7 @@ function $ViewProvider() {
 
                 raiseUpdated(name);
             }
+            return $view;
         };
 
         /**
@@ -249,7 +259,8 @@ function $ViewProvider() {
          * @description
          * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
          */
-        $view.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
+        function setIfAbsent(name: string, templateOrArgs?: any, controller?: any, locals?: any) {
+            //        $view.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
             var template = templateOrArgs;
             if (isArgs(templateOrArgs)) {
                 template = templateOrArgs.template;
@@ -268,7 +279,7 @@ function $ViewProvider() {
                         }
                     };
                 }
-                return;
+                return $view;
             }
 
             if (!containsView(views, name)) {
@@ -281,6 +292,7 @@ function $ViewProvider() {
                 };
                 raiseUpdated(name);
             }
+            return $view;
         }
 
         /**
@@ -322,7 +334,7 @@ function $ViewProvider() {
          * - `locals`: `{Object=}` value An optional map of dependencies which should be injected into the controller.
          * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
          */
-        $view.get = function (name?: string) {
+        function get (name?: string) {
             //TODO: return copies instead of actuals...
             if (isUndefined(name))
                 return views;
@@ -352,7 +364,8 @@ function $ViewProvider() {
          * @description
          * Refreshes a named view.
          */
-        $view.refresh = function (name?: string, data?: any) {
+        function refresh(name?: string, data?: any) {
+            //$view.refresh = function (name?: string, data?: any) {
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
                     $view.refresh(key, data);
@@ -364,12 +377,13 @@ function $ViewProvider() {
                         $view.refresh(name, data);
                     }
                 };
-                return;
+                return $view;
             } else {
                 //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
                 data.$locals = views[name] && views[name].locals;
                 raiseRefresh(name, data);
             }
+            return $view;
         }
 
         /**
@@ -411,7 +425,8 @@ function $ViewProvider() {
          * @description
          * Cancels the view transaction, discarding any changes that may have been recorded.
          */
-        $view.beginUpdate = function () {
+        function beginUpdate() {
+            //$view.beginUpdate = function () {
             if (transaction)
                 throw new Error("Can't start multiple transactions");
 

@@ -34,6 +34,12 @@ function $ViewProvider() {
         function ($rootScope, $q, $template) {
             var views = {
             }, transaction = null, $view = {
+                get: get,
+                clear: clear,
+                refresh: refresh,
+                setOrUpdate: setOrUpdate,
+                setIfAbsent: setIfAbsent,
+                beginUpdate: beginUpdate
             };
             function isArgs(args) {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
@@ -99,7 +105,7 @@ function $ViewProvider() {
             * @description
             * Clears the named view.
             */
-            $view.clear = function (name) {
+            function clear(name) {
                 if(isUndefined(name)) {
                     forEach(views, function (val, key) {
                         $view.clear(key);
@@ -117,7 +123,9 @@ function $ViewProvider() {
                     delete views[name];
                     raiseUpdated(name);
                 }
-            };
+                return $view;
+            }
+            ;
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#setOrUpdate
@@ -160,7 +168,8 @@ function $ViewProvider() {
             * <br/>
             * Views can also be refreshed by calling the `refresh` method.
             */
-            $view.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
+            function setOrUpdate(name, templateOrArgs, controller, locals, sticky) {
+                //$view.setOrUpdate = function (name: string, templateOrArgs?: any, controller?: any, locals?: any, sticky?: string) {
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -176,7 +185,7 @@ function $ViewProvider() {
                             $view.setOrUpdate(name, template, controller, locals, sticky);
                         }
                     };
-                    return;
+                    return $view;
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -199,7 +208,9 @@ function $ViewProvider() {
                     views[name].sticky = sticky;
                     raiseUpdated(name);
                 }
-            };
+                return $view;
+            }
+            ;
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#setIfAbsent
@@ -230,7 +241,8 @@ function $ViewProvider() {
             * @description
             * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
             */
-            $view.setIfAbsent = function (name, templateOrArgs, controller, locals) {
+            function setIfAbsent(name, templateOrArgs, controller, locals) {
+                //        $view.setIfAbsent = function (name: string, templateOrArgs?: any, controller?: any, locals?: any) {
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -247,7 +259,7 @@ function $ViewProvider() {
                             }
                         };
                     }
-                    return;
+                    return $view;
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -259,7 +271,8 @@ function $ViewProvider() {
                     };
                     raiseUpdated(name);
                 }
-            };
+                return $view;
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#get
@@ -298,7 +311,7 @@ function $ViewProvider() {
             * - `locals`: `{Object=}` value An optional map of dependencies which should be injected into the controller.
             * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             */
-            $view.get = function (name) {
+            function get(name) {
                 //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
                     return views;
@@ -306,7 +319,8 @@ function $ViewProvider() {
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return views[name];
-            };
+            }
+            ;
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#refresh
@@ -326,7 +340,8 @@ function $ViewProvider() {
             * @description
             * Refreshes a named view.
             */
-            $view.refresh = function (name, data) {
+            function refresh(name, data) {
+                //$view.refresh = function (name?: string, data?: any) {
                 if(isUndefined(name)) {
                     forEach(views, function (val, key) {
                         $view.refresh(key, data);
@@ -338,13 +353,14 @@ function $ViewProvider() {
                             $view.refresh(name, data);
                         }
                     };
-                    return;
+                    return $view;
                 } else {
                     //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
                     data.$locals = views[name] && views[name].locals;
                     raiseRefresh(name, data);
                 }
-            };
+                return $view;
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#beginUpdate
@@ -381,7 +397,8 @@ function $ViewProvider() {
             * @description
             * Cancels the view transaction, discarding any changes that may have been recorded.
             */
-            $view.beginUpdate = function () {
+            function beginUpdate() {
+                //$view.beginUpdate = function () {
                 if(transaction) {
                     throw new Error("Can't start multiple transactions");
                 }
@@ -400,7 +417,7 @@ function $ViewProvider() {
                         transaction = null;
                     }
                 };
-            };
+            }
             return $view;
         }    ];
 }
