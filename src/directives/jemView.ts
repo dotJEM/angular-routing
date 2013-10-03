@@ -126,6 +126,8 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                                 clone.html(html);
                                 if (doAnimate)
                                     $animate.enter(clone, null, element);
+                                else
+                                    element.after(clone);
 
                                 var link = $compile(clone.contents()),
                                     locals;
