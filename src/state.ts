@@ -573,8 +573,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         alllocals = {};
 
                     transaction = $view.beginUpdate();
-                    //transaction.clear();
-                    $view.clear();
+                    transaction.clear();
+                    //$view.clear();
 
                     var promise = $q.when(0);
                     forEach(changed.array, function (change) {
@@ -600,11 +600,11 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                                 }
 
                                 if (useUpdate || view.force || isDefined(sticky)) {
-                                    //transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                                    $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
+                                    transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
+                                    //$view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
                                 } else {
-                                    //transaction.setIfAbsent(name, view.template, view.controller, alllocals);
-                                    $view.setIfAbsent(name, view.template, view.controller, alllocals);
+                                    transaction.setIfAbsent(name, view.template, view.controller, alllocals);
+                                    //$view.setIfAbsent(name, view.template, view.controller, alllocals);
                                 }
                             });
                         });

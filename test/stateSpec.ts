@@ -1499,12 +1499,21 @@ describe('$stateProvider', function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider) {
             return function ($rootScope, $state, $view) {
                 loc = []
-                spyOn($view, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
+                //spyOn($view, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
+                //    loc.push(locals);
+                //});
+                //spyOn($view, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
+                //    loc.push(locals);
+                //});
+                var trx = $view.beginUpdate();
+                spyOn(trx, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
                     loc.push(locals);
                 });
-                spyOn($view, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
+                spyOn(trx, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
                     loc.push(locals);
                 });
+                spyOn($view, 'beginUpdate').andReturn(trx);
+
                 scope = $rootScope;
                 state = $state;
             };
