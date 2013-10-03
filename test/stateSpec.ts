@@ -399,8 +399,10 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
-                spyOn($view, 'setIfAbsent');
-                var viewSpy = spyOn($view, 'setOrUpdate');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'setIfAbsent');
+                var viewSpy = spyOn(trx, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); viewSpy.reset(); }
@@ -472,8 +474,10 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
-                spyOn($view, 'setIfAbsent');
-                var setOrUpdate = spyOn($view, 'setOrUpdate');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'setIfAbsent');
+                var setOrUpdate = spyOn(trx, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); setOrUpdate.reset(); }
@@ -519,8 +523,10 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
-                spyOn($view, 'setIfAbsent');
-                var viewSpy = spyOn($view, 'setOrUpdate');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'setIfAbsent');
+                var viewSpy = spyOn(trx, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); viewSpy.reset(); }
@@ -572,9 +578,12 @@ describe('$stateProvider', function () {
                     scope.$digest();
                 };
 
-                var viewSpy = spyOn($view, 'setOrUpdate');
-                spyOn($view, 'setIfAbsent');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'setIfAbsent');
+                var viewSpy = spyOn(trx, 'setOrUpdate');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
+
                 scope.$on('$stateChangeSuccess', <any>spy);
 
                 go('/top/1');
