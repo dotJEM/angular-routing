@@ -549,9 +549,11 @@ var $StateProvider = [
                     promise = $q.when(toState).then(function () {
                         var useUpdate = false, alllocals = {
                         };
+                        if(transaction && !transaction.completed) {
+                            transaction.cancel();
+                        }
                         transaction = $view.beginUpdate();
                         transaction.clear();
-                        //$view.clear();
                         var promise = $q.when(0);
                         forEach(changed.array, function (change) {
                             promise = promise.then(function () {
@@ -580,11 +582,9 @@ var $StateProvider = [
                                     }
                                     if(useUpdate || view.force || isDefined(sticky)) {
                                         transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                                        //$view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                                                                            } else {
+                                    } else {
                                         transaction.setIfAbsent(name, view.template, view.controller, alllocals);
-                                        //$view.setIfAbsent(name, view.template, view.controller, alllocals);
-                                                                            }
+                                    }
                                 });
                             });
                         });
