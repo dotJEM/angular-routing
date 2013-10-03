@@ -1753,6 +1753,8 @@ var $StateProvider = [
                         }));
                         return;
                     }
+                    //transaction = $view.beginUpdate();
+                    //transaction.clear();
                     emit.before(transition);
                     if(transition.canceled) {
                         //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
@@ -1767,6 +1769,7 @@ var $StateProvider = [
                         var useUpdate = false, alllocals = {
                         };
                         transaction = $view.beginUpdate();
+                        //transaction.clear();
                         $view.clear();
                         var promise = $q.when(0);
                         forEach(changed.array, function (change) {
@@ -1794,9 +1797,11 @@ var $StateProvider = [
                                             sticky = change.state.fullname;
                                         }
                                     }
-                                    if(useUpdate || isDefined(sticky)) {
+                                    if(useUpdate || view.force || isDefined(sticky)) {
+                                        //transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
                                         $view.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
                                     } else {
+                                        //transaction.setIfAbsent(name, view.template, view.controller, alllocals);
                                         $view.setIfAbsent(name, view.template, view.controller, alllocals);
                                     }
                                 });
@@ -3048,6 +3053,12 @@ var jemViewDirective = [
         };
     }];
 angular.module('dotjem.routing').directive('jemView', jemViewDirective);
+function createRenderer() {
+    function progessRenderer() {
+    }
+    function viewRenderer() {
+    }
+}
 
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />

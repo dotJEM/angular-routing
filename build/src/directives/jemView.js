@@ -134,3 +134,9 @@ var jemViewDirective = [
         };
     }];
 angular.module('dotjem.routing').directive('jemView', jemViewDirective);
+function createRenderer() {
+    function progessRenderer() {
+    }
+    function viewRenderer() {
+    }
+}
