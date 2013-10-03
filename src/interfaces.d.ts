@@ -15,6 +15,7 @@ module dotjem.routing {
     interface IViewTransaction extends IViewServiceBase {
         commit();
         cancel();
+        completed: bool;
     }
 
     interface IViewServiceBase {
