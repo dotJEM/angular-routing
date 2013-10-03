@@ -12,23 +12,27 @@ module dotjem.routing {
         [name: string]: IView;
     }
 
-    interface IViewTransaction {
+    interface IViewTransaction extends IViewServiceBase {
         commit();
         cancel();
     }
 
-    interface IViewService {
+    interface IViewServiceBase {
         clear(name?: string);
-        
+
         setOrUpdate(name: string, template?: any, controller?: any, locals?: any, sticky?: string);
         setOrUpdate(name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; });
 
         setIfAbsent(name: string, template?: any, controller?: any, locals?: any);
         setIfAbsent(name: string, args: { template?: any; controller?: any; locals?: any; });
+
         get (name: string): IView;
         get (): IViewMap;
-        refresh(name?: string, data?: any);
 
+        refresh(name?: string, data?: any);
+    }
+
+    interface IViewService extends IViewServiceBase {
         beginUpdate(): IViewTransaction;
     }
 
