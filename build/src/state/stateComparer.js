@@ -32,7 +32,7 @@ var StateComparer = (function () {
             toAtIndex = toArray[toArray.length - i - 1];
             if(isUndefined(toAtIndex)) {
                 toArray[0].isChanged = stateChanges = true;
-            } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+            } else if(isUndefined(fromAtIndex) || forceReload === toAtIndex.state.fullname || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
                 toAtIndex.isChanged = stateChanges = true;
             } else {
                 toAtIndex.isChanged = false;
