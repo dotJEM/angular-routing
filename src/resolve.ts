@@ -1,14 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
-
-/// <reference path="state/state.ts" />
-/// <reference path="state/transition.ts" />
-/// <reference path="state/stateFactory.ts" />
-/// <reference path="state/stateRules.ts" />
-/// <reference path="state/stateComparer.ts" />
-/// <reference path="state/stateBrowser.ts" />
-/// <reference path="state/stateUrlBuilder.ts" />
+/// <reference path="refs.d.ts" />
 
 var $ResolveProvider = [function () {
     'use strict';

@@ -1,37 +1,30 @@
 ﻿routerFiles = {
-    'router': [
-      //'tssrc/routeProvider.js',
-      //'tssrc/stateProvider.js',
-      //'tssrc/templateProvider.js',
-      //'tssrc/viewDirective.js',
-      'tssrc/viewService.js'
-    ]
-};
-
-if (exports) {
-    exports.files = routerFiles;
-    exports.mergeFiles = function mergeFiles() {
-        var files = [];
-
-        [].splice.call(arguments, 0).forEach(function (file) {
-            if (file.match(/testacular/)) {
-                files.push(file);
-            } else {
-                angularFiles[file].forEach(function (f) {
-                    // replace @ref
-                    var match = f.match(/^\@(.*)/);
-                    if (match) {
-                        var deps = routerFiles[match[1]];
-                        files = files.concat(deps);
-                    } else {
-                        if (!/jstd|jasmine/.test(f)) { //TODO(i): remove once we don't have jstd/jasmine in repo
-                            files.push(f);
-                        }
-                    }
-                });
-            }
-        });
-
-        return files;
+    "router": {
+        "prefix": ["src/prefix"],
+        "files": [
+            "src/common.js",
+            "src/route.js",
+            "src/stateTransition.js",
+            "src/state.js",
+            "src/resolve.js",
+            "src/template.js",
+            "src/view.js",
+            "src/scroll.js",
+            "src/state/state.js",
+            "src/state/stateBrowser.js",
+            "src/state/stateComparer.js",
+            "src/state/stateFactory.js",
+            "src/state/stateRules.js",
+            "src/state/stateUrlBuilder.js",
+            "src/state/transition/visitors.js",
+            "src/directives/jemView.js",
+            "src/directives/jemAnchor.js"
+        ],
+        "suffix": ["src/suffix"]
+    },
+    "legacy": {
+        "prefix": ["src/legacy/prefix"],
+        "files": ["src/legacy/templateDecorator.js"],
+        "suffix": ["src/legacy/suffix"]
     }
-}
+};

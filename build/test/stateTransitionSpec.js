@@ -19,45 +19,7 @@ describe('$stateTransitionProvider', function () {
         };
     }));
     describe("find", function () {
-        //it('returns emitter', function () {
-        //    var provider: dotjem.routing.ITransitionProvider,
-        //        tr = [];
-        //    mock.module(function ($transitionProvider: dotjem.routing.ITransitionProvider) {
-        //        $transitionProvider
-        //        .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //    });
-        //    mock.inject(function ($transition: dotjem.routing.ITransitionService) {
-        //        var x = $transition.find({ fullname: 'blog' }, { fullname: 'about' });
-        //    });
-        //});
-        //it('returns emitter', function () {
-        //    var provider: dotjem.routing.ITransitionProvider,
-        //        tr = [];
-        //    mock.module(function ($transitionProvider: dotjem.routing.ITransitionProvider) {
-        //        $transitionProvider
-        //        .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //    });
-        //    mock.inject(function ($transition: dotjem.routing.ITransitionService) {
-        //        var x = $transition.find({ fullname: 'blog' }, { fullname: 'about' });
-        //    });
-        //});
-            });
+    });
     describe("transition validation", function () {
         it('valid passes', function () {
             var provider;
