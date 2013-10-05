@@ -58,7 +58,7 @@ module.exports = function (grunt) {
                         'build/src/state/stateFactory.js',
                         'build/src/state/stateRules.js',
                         'build/src/state/stateUrlBuilder.js',
-                        'build/src/state/transition.js',
+                        'build/src/state/transition/visitors.js',
                         'build/src/directives/jemView.js',
                         'build/src/directives/jemAnchor.js',
                         'src/suffix'],

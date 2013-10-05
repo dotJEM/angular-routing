@@ -94,17 +94,31 @@
     <Content Include="src\directives\jemView.min.js">
       <DependentUpon>jemView.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="src\refs.d.ts" />
     <Content Include="src\resolve.js">
       <DependentUpon>resolve.ts</DependentUpon>
+    </Content>
+    <Content Include="src\scroll.min.js">
+      <DependentUpon>scroll.ts</DependentUpon>
     </Content>
     <Content Include="src\state.min.js">
       <DependentUpon>state.ts</DependentUpon>
     </Content>
+    <Content Include="src\stateTransition.min.js">
+      <DependentUpon>stateTransition.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state\refs.d.ts" />
     <Content Include="src\state\state.js">
       <DependentUpon>state.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="src\state\stateBrowser.ts" />
+    <Content Include="src\state\state.min.js">
+      <DependentUpon>state.ts</DependentUpon>
+    </Content>
     <Content Include="src\state\stateBrowser.js">
+      <DependentUpon>stateBrowser.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\stateBrowser.min.js">
       <DependentUpon>stateBrowser.ts</DependentUpon>
     </Content>
     <Content Include="src\state\stateComparer.js">
@@ -123,6 +137,10 @@
     <TypeScriptCompile Include="src\state\transition.ts" />
     <Content Include="src\state\transition.js">
       <DependentUpon>transition.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="src\state\transition\visitors.ts" />
+    <Content Include="src\state\transition\visitors.js">
+      <DependentUpon>visitors.ts</DependentUpon>
     </Content>
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
