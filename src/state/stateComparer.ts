@@ -39,7 +39,7 @@ class StateComparer {
             if (isUndefined(toAtIndex)) {
                 toArray[0].isChanged = stateChanges = true;
             } else if (isUndefined(fromAtIndex)
-                    || (forceReload && forceReload == toAtIndex.state.fullname)
+                    || forceReload === toAtIndex.state.fullname
                     || toAtIndex.state.fullname !== fromAtIndex.state.fullname
                     || !equals(toAtIndex.params, fromAtIndex.params)) {
                 toAtIndex.isChanged = stateChanges = true;
