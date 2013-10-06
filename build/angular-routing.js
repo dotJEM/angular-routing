@@ -19,7 +19,7 @@ var dotjem;
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element;
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root';
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -1100,7 +1100,7 @@ function $StateTransitionProvider() {
     }
     function lookup(name) {
         var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
-        names[0] === 'root' ? 1 : 0;
+        names[0] === rootName ? 1 : 0;
         for(; i < names.length; i++) {
             if(!(names[i] in current.children)) {
                 current.children[names[i]] = {
@@ -1163,7 +1163,7 @@ function $StateTransitionProvider() {
                 };
             }
             function trimRoot(path) {
-                if(path[0] === 'root') {
+                if(path[0] === rootName) {
                     path.splice(0, 1);
                 }
                 return path;
@@ -1199,7 +1199,7 @@ function $StateTransitionProvider() {
                 return handlers;
             }
             function findTransitions(from) {
-                var current = root, names = from.split('.'), transitions = [], index = names[0] === 'root' ? 1 : 0;
+                var current = root, names = from.split('.'), transitions = [], index = names[0] === rootName ? 1 : 0;
                 do {
                     if('*' in current.children) {
                         transitions.push(current.children['*']);
@@ -1344,7 +1344,7 @@ var $StateProvider = [
         //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
-                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
+                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {
         }), browser = new StateBrowser(root), comparer = new StateComparer();
         /**
         * @ngdoc method
@@ -1689,8 +1689,8 @@ var $StateProvider = [
                         if(isString(state) || isObject(state)) {
                             forceReload = toName(state);
                             //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                            if(forceReload.indexOf('root') !== 0) {
-                                forceReload = 'root.' + forceReload;
+                            if(forceReload.indexOf(rootName) !== 0) {
+                                forceReload = rootName + '.' + forceReload;
                             }
                         } else if(state) {
                             forceReload = root.fullname;
@@ -2631,7 +2631,7 @@ var State = (function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
     State.prototype.is = function (state) {
-        return this.fullname === state || this.fullname === 'root.' + state;
+        return this.fullname === state || this.fullname === rootName + '.' + state;
     };
     State.prototype.isActive = function (state) {
         if(this.is(state)) {
@@ -2651,7 +2651,7 @@ var StateBrowser = (function () {
         this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     }
     StateBrowser.prototype.lookup = function (fullname, stop) {
-        var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+        var current = this.root, names = fullname.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -2845,10 +2845,9 @@ var StateRules = (function () {
     function StateRules() { }
     StateRules.nameValidation = /^\w+(\.\w+)*?$/;
     StateRules.validateName = function validateName(name) {
-        if(StateRules.nameValidation.test(name)) {
-            return;
+        if(!StateRules.nameValidation.test(name) || name === rootName) {
+            throw new Error("Invalid name: '" + name + "'.");
         }
-        throw new Error("Invalid name: '" + name + "'.");
     };
     return StateRules;
 })();
@@ -3322,5 +3321,6 @@ dotjem.StateComparer = StateComparer;
 dotjem.StateFactory = StateFactory;
 dotjem.StateRules = StateRules;
 dotjem.StateUrlBuilder = StateUrlBuilder;
+dotjem.RootName = rootName;
 
 })(window, document, dotjem || (dotjem = {}));

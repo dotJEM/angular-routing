@@ -11,7 +11,7 @@ class StateBrowser {
     public lookup(fullname: string, stop?: number) {
         var current = this.root,
             names = fullname.split('.'),
-            i = names[0] === 'root' ? 1 : 0,
+            i = names[0] === rootName ? 1 : 0,
             stop = isDefined(stop) ? stop : 0;
 
         for (; i < names.length - stop; i++) {

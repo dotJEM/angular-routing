@@ -76,5 +76,15 @@ describe('state.stateRules', function () {
                 }).toThrow("Invalid name: '.almost.valid'.");
             });
         });
+        it('rejects reserved rootName as name', function () {
+            inject(function () {
+                //Note: Root name actually fails because it contains a $atm, which is not valid for names...
+                //      but should we change it at some point, it would be nice to be notified with a failing test if we suddenly
+                //      where to allow a state with same name as root.
+                expect(function () {
+                    test.StateRules.validateName(test.RootName);
+                }).toThrow(test.replaceWithRoot("Invalid name: 'root'."));
+            });
+        });
     });
 });

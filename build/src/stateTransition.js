@@ -349,7 +349,7 @@ function $StateTransitionProvider() {
     }
     function lookup(name) {
         var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
-        names[0] === 'root' ? 1 : 0;
+        names[0] === rootName ? 1 : 0;
         for(; i < names.length; i++) {
             if(!(names[i] in current.children)) {
                 current.children[names[i]] = {
@@ -412,7 +412,7 @@ function $StateTransitionProvider() {
                 };
             }
             function trimRoot(path) {
-                if(path[0] === 'root') {
+                if(path[0] === rootName) {
                     path.splice(0, 1);
                 }
                 return path;
@@ -448,7 +448,7 @@ function $StateTransitionProvider() {
                 return handlers;
             }
             function findTransitions(from) {
-                var current = root, names = from.split('.'), transitions = [], index = names[0] === 'root' ? 1 : 0;
+                var current = root, names = from.split('.'), transitions = [], index = names[0] === rootName ? 1 : 0;
                 do {
                     if('*' in current.children) {
                         transitions.push(current.children['*']);

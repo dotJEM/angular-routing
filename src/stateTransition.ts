@@ -356,7 +356,7 @@ function $StateTransitionProvider() {
         var current = root,
             names = name.split('.'),
             //If name contains root explicitly, skip that one
-            i = names[0] === 'root' ? 1:0;
+            i = names[0] === rootName ? 1:0;
 
         for (; i < names.length; i++) {
             if (!(names[i] in current.children))
@@ -409,7 +409,7 @@ function $StateTransitionProvider() {
         }
 
         function trimRoot(path: string[]) {
-            if (path[0] === 'root')
+            if (path[0] === rootName)
                 path.splice(0,1);
             return path;
         }
@@ -454,7 +454,7 @@ function $StateTransitionProvider() {
             var current = root,
                 names = from.split('.'),
                 transitions = [],
-                index = names[0] === 'root' ? 1: 0;
+                index = names[0] === rootName ? 1: 0;
 
             do {
 

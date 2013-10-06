@@ -1,7 +1,5 @@
 /// <reference path="testcommon.ts" />
 
-
-
 describe('$stateProvider', function () {
     'use strict';
     var mock = angular.mock;
@@ -60,8 +58,10 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($state: dotjem.routing.IStateService) {
-                expect(function () { provider.state('valid.sub1', {}); }).toThrow("Could not locate 'valid' under 'root'.");
-                expect(function () { provider.state('another.sub1', {}); }).toThrow("Could not locate 'another' under 'root'.");
+                expect(function () { provider.state('valid.sub1', {}); })
+                    .toThrow(test.replaceWithRoot("Could not locate 'valid' under 'root'."));
+                expect(function () { provider.state('another.sub1', {}); })
+                    .toThrow(test.replaceWithRoot("Could not locate 'another' under 'root'."));
                 expect(stringifyState($state.root)).toBe("()");
 
                 provider.state('valid', {});
@@ -71,8 +71,10 @@ describe('$stateProvider', function () {
                 expect(function () { provider.state('valid.sub1', {}); }).not.toThrow();
                 expect(function () { provider.state('another.sub1', {}); }).not.toThrow();
 
-                expect(function () { provider.state('valid.sub2.deep', {}); }).toThrow("Could not locate 'sub2' under 'root.valid'.");
-                expect(function () { provider.state('another.sub2.deep', {}); }).toThrow("Could not locate 'sub2' under 'root.another'.");
+                expect(function () { provider.state('valid.sub2.deep', {}); })
+                    .toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.valid'."));
+                expect(function () { provider.state('another.sub2.deep', {}); })
+                    .toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.another'."));
 
                 expect(stringifyState($state.root)).toBe("(valid(sub1()),another(sub1()))");
             });
@@ -118,7 +120,7 @@ describe('$stateProvider', function () {
             inject(function ($state: dotjem.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
-                expect(state.fullname).toBe('root.blog.recent');
+                expect(state.fullname).toBe(test.replaceWithRoot('root.blog.recent'));
             });
         });
 
@@ -172,7 +174,7 @@ describe('$stateProvider', function () {
             inject(function ($state: dotjem.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
-                expect(state.fullname).toBe('root.blog.recent');
+                expect(state.fullname).toBe(test.replaceWithRoot('root.blog.recent'));
                 //TODO: Figure out which one we wan't, should we preserve children or not?
                 //expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
                 expect(stringifyState($state.root)).toBe("(blog(recent()))");
@@ -200,7 +202,7 @@ describe('$stateProvider', function () {
             inject(function ($state: dotjem.routing.IStateService) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
-                expect(state.fullname).toBe('root.blog.recent');
+                expect(state.fullname).toBe(test.replaceWithRoot('root.blog.recent'));
                 //TODO: Figure out which one we wan't, should we preserve children or not?
                 //expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
                 expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
@@ -247,7 +249,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
             });
         });
 
@@ -273,7 +275,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
 
                 $location.path('/about');
                 scope.$digest();
@@ -309,7 +311,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
 
                 $location.path('/blog/42');
                 scope.$digest();
@@ -338,7 +340,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
 
                 $location.path('/blog/42');
                 scope.$digest();
@@ -369,7 +371,7 @@ describe('$stateProvider', function () {
                 scope.$digest();
 
                 expect($state.current.name).toBe('top');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
 
                 $location.path('/top/one');
                 scope.$digest();
@@ -490,11 +492,11 @@ describe('$stateProvider', function () {
 
                 go('/top');
                 expect($state.current.name).toBe('top');
-                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, 'root.top']);
+                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, test.nameWithRoot('root.top')]);
 
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
-                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, 'root.top']);
+                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, test.nameWithRoot('root.top')]);
 
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
@@ -502,11 +504,11 @@ describe('$stateProvider', function () {
 
                 go('/ban');
                 expect($state.current.name).toBe('ban');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, 'root.ban']);
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, test.nameWithRoot('root.ban')]);
 
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, 'root.ban.tar']);
+                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, test.nameWithRoot('root.ban.tar')]);
             });
         });
 
@@ -1157,21 +1159,21 @@ describe('$stateProvider', function () {
             it('lookup ./state1', function () {
                 inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     var state = $state.lookup("./state1");
-                    expect(state.$fullname).toBe('root.state1');
+                    expect(state.$fullname).toBe(test.replaceWithRoot('root.state1'));
                 });
             });
 
             it('lookup state1/top3/mid2/bot1', function () {
                 inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     var state = $state.lookup("state1/top3/mid2/bot1");
-                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                    expect(state.$fullname).toBe(test.replaceWithRoot('root.state1.top3.mid2.bot1'));
                 });
             });
 
             it('lookup [1]', function () {
                 inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     var state = $state.lookup("[1]");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.replaceWithRoot('root.state2'));
                 });
             });
         });
@@ -1185,7 +1187,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("top1");
-                    expect(state.$fullname).toBe('root.state1.top1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top1'));
                 });
             });
 
@@ -1194,7 +1196,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("state1.top2");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
 
@@ -1203,7 +1205,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("./top1");
-                    expect(state.$fullname).toBe('root.state1.top1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top1'));
                 });
             });
 
@@ -1212,7 +1214,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("top3/mid2");
-                    expect(state.$fullname).toBe('root.state1.top3.mid2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top3.mid2'));
                 });
             });
 
@@ -1221,7 +1223,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("top3/mid2/bot1");
-                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top3.mid2.bot1'));
                 });
             });
 
@@ -1230,7 +1232,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[0]");
-                    expect(state.$fullname).toBe('root.state1.top1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top1'));
                 });
             });
 
@@ -1239,7 +1241,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[-1]");
-                    expect(state.$fullname).toBe('root.state1.top3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top3'));
                 });
             });
 
@@ -1248,7 +1250,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[-2]");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
 
@@ -1257,7 +1259,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[1]");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
 
@@ -1266,7 +1268,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup(".");
-                    expect(state.$fullname).toBe('root.state1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1'));
                 });
             });
 
@@ -1275,7 +1277,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("../state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
 
@@ -1284,7 +1286,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("../state2/top2");
-                    expect(state.$fullname).toBe('root.state2.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2.top2'));
                 });
             });
 
@@ -1293,7 +1295,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("/state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
 
@@ -1302,7 +1304,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("$node(1)");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
 
@@ -1311,7 +1313,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("$node(-1)");
-                    expect(state.$fullname).toBe('root.state3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state3'));
                 });
             });
 
@@ -1320,7 +1322,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("$node(5)");
-                    expect(state.$fullname).toBe('root.state3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state3'));
                 });
             });
 
@@ -1329,7 +1331,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("$node(-7)");
-                    expect(state.$fullname).toBe('root.state3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state3'));
                 });
             });
 
@@ -1379,7 +1381,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("bot1");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot1'));
                 });
             });
 
@@ -1388,7 +1390,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("state1.top2");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
 
@@ -1397,7 +1399,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("./bot1");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot1'));
                 });
             });
 
@@ -1406,7 +1408,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[0]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot1'));
                 });
             });
 
@@ -1415,7 +1417,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[-1]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot3'));
                 });
             });
 
@@ -1424,7 +1426,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[-2]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot2'));
                 });
             });
 
@@ -1433,7 +1435,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("[1]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot2'));
                 });
             });
 
@@ -1442,7 +1444,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup(".");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2'));
                 });
             });
 
@@ -1451,7 +1453,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("..");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
 
@@ -1460,7 +1462,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("../..");
-                    expect(state.$fullname).toBe('root.state1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1'));
                 });
             });
 
@@ -1469,7 +1471,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("../../top2");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
 
@@ -1478,7 +1480,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("../../../state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
 
@@ -1487,7 +1489,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("../../../state2/top2");
-                    expect(state.$fullname).toBe('root.state2.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2.top2'));
                 });
             });
 
@@ -1496,7 +1498,7 @@ describe('$stateProvider', function () {
                     goto(target);
 
                     var state = $state.lookup("/state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
         });
@@ -1580,7 +1582,7 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("home");
-                expect(loc[0]).toEqual({ home: "root.home - root" });
+                expect(loc[0]).toEqual({ home: test.replaceWithRoot("root.home - root") });
             });
         });
 

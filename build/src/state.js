@@ -125,7 +125,7 @@ var $StateProvider = [
         //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
-                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState('root', {
+                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {
         }), browser = new StateBrowser(root), comparer = new StateComparer();
         /**
         * @ngdoc method
@@ -470,8 +470,8 @@ var $StateProvider = [
                         if(isString(state) || isObject(state)) {
                             forceReload = toName(state);
                             //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                            if(forceReload.indexOf('root') !== 0) {
-                                forceReload = 'root.' + forceReload;
+                            if(forceReload.indexOf(rootName) !== 0) {
+                                forceReload = rootName + '.' + forceReload;
                             }
                         } else if(state) {
                             forceReload = root.fullname;
