@@ -134,10 +134,6 @@
     <Content Include="src\state\stateUrlBuilder.js">
       <DependentUpon>stateUrlBuilder.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="src\state\transition.ts" />
-    <Content Include="src\state\transition.js">
-      <DependentUpon>transition.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="src\state\transition\visitors.ts" />
     <Content Include="src\state\transition\visitors.js">
       <DependentUpon>visitors.ts</DependentUpon>

@@ -24,7 +24,8 @@ var isDefined = angular.isDefined,
     extend = angular.extend,
     copy = angular.copy,
     equals = angular.equals,
-    element = angular.element;
+    element = angular.element,
+    rootName = '$root';
 
 function inherit(parent, extra?) {
     return extend(new (extend(function () { }, { prototype: parent }))(), extra);

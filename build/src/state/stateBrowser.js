@@ -7,7 +7,7 @@ var StateBrowser = (function () {
         this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     }
     StateBrowser.prototype.lookup = function (fullname, stop) {
-        var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+        var current = this.root, names = fullname.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");

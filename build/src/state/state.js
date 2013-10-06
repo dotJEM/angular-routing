@@ -112,7 +112,7 @@ var State = (function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
     State.prototype.is = function (state) {
-        return this.fullname === state || this.fullname === 'root.' + state;
+        return this.fullname === state || this.fullname === rootName + '.' + state;
     };
     State.prototype.isActive = function (state) {
         if(this.is(state)) {

@@ -66,7 +66,7 @@ class State {
     }
 
     public is(state: string) {
-        return this.fullname === state || this.fullname === 'root.' + state;
+        return this.fullname === state || this.fullname === rootName + '.' + state;
     }
 
     public isActive(state: string) {
