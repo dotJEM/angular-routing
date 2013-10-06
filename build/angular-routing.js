@@ -1707,7 +1707,8 @@ var $StateProvider = [
                     });
                 }
                 function goto(args) {
-                    var ctx = context = context.next().execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    var ctx = context = context.next();
+                    ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast('$stateChangeStart', context.toState, $state.current).defaultPrevented) {
@@ -1715,6 +1716,7 @@ var $StateProvider = [
                         }
                     }).execute(cmd.beginTransaction($view));
                     if(ctx.ended) {
+                        context = ctx;
                         return;
                     }
                     var scrollTo, useUpdate = false, alllocals = {
