@@ -48,6 +48,9 @@ class Context {
         next.previous = this;
         next.from = this.to;
 
+        //Note: to allow garbage collection.
+        this.previous = null;
+
         return next;
     }
 

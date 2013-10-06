@@ -106,6 +106,8 @@ var Context = (function () {
         var next = new Context(this.$state);
         next.previous = this;
         next.from = this.to;
+        //Note: to allow garbage collection.
+        this.previous = null;
         return next;
     };
     Context.prototype.execute = function (visitor) {
