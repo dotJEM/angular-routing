@@ -39,8 +39,8 @@ function $ViewProvider() {
                 get: get,
                 clear: clear,
                 refresh: refresh,
-                setOrUpdate: setOrUpdate,
-                setIfAbsent: setIfAbsent,
+                update: update,
+                create: create,
                 beginUpdate: beginUpdate
             };
             function isArgs(args) {
@@ -66,7 +66,7 @@ function $ViewProvider() {
             * @param {State} name Name of the view that was updated.
             */
             function raiseUpdated(name) {
-                $rootScope.$broadcast('$viewUpdate', name);
+                $rootScope.$broadcast(EVENTS.VIEW_UPDATE, name);
             }
             /**
             * @ngdoc event
@@ -82,7 +82,23 @@ function $ViewProvider() {
             * @param {State} name Name of the view that was refreshed.
             */
             function raiseRefresh(name, data) {
-                $rootScope.$broadcast('$viewRefresh', name, data);
+                $rootScope.$broadcast(EVENTS.VIEW_REFRESH, name, data);
+            }
+            /**
+            * @ngdoc event
+            * @name dotjem.routing.$view#$viewPrep
+            * @eventOf dotjem.routing.$view
+            *
+            * @eventType broadcast on root scope
+            *
+            * @description
+            * Broadcasted when a view refreshed, if a transaction is active this will not occur before that is commited.
+            *
+            * @param {Object} angularEvent Synthetic event object.
+            * @param {State} name Name of the view that was refreshed.
+            */
+            function raisePrepare(name, data) {
+                $rootScope.$broadcast(EVENTS.VIEW_PREP, name, data);
             }
             function containsView(map, name) {
                 return (name in map) && map[name] !== null;
@@ -164,7 +180,7 @@ function $ViewProvider() {
             * <br/>
             * Views can also be refreshed by calling the `refresh` method.
             */
-            function setOrUpdate(name, templateOrArgs, controller, locals, sticky) {
+            function update(name, templateOrArgs, controller, locals, sticky) {
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -174,7 +190,7 @@ function $ViewProvider() {
                 }
                 ensureName(name);
                 if(!trx.completed) {
-                    return trx.setOrUpdate(name, template, controller, locals, sticky);
+                    return trx.update(name, template, controller, locals, sticky);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -230,7 +246,7 @@ function $ViewProvider() {
             * @description
             * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
             */
-            function setIfAbsent(name, templateOrArgs, controller, locals) {
+            function create(name, templateOrArgs, controller, locals) {
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -239,7 +255,7 @@ function $ViewProvider() {
                 }
                 ensureName(name);
                 if(!trx.completed) {
-                    return trx.setIfAbsent(name, template, controller, locals);
+                    return trx.create(name, template, controller, locals);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -391,6 +407,9 @@ function $ViewProvider() {
                             });
                         },
                         cancel: function () {
+                            raisePrepare(name, {
+                                type: 'cancel'
+                            });
                             trx.completed = true;
                         },
                         clear: function (name) {
@@ -408,23 +427,41 @@ function $ViewProvider() {
                             };
                             return trx;
                         },
-                        setOrUpdate: function (name, template, controller, locals, sticky) {
+                        prepUpdate: function (name, template, controller, sticky) {
+                            raisePrepare(name, {
+                                type: 'update'
+                            });
+                            return function (locals) {
+                                trx.update(name, template, controller, locals, sticky);
+                                return trx;
+                            };
+                        },
+                        prepCreate: function (name, template, controller) {
+                            raisePrepare(name, {
+                                type: 'create'
+                            });
+                            return function (locals) {
+                                trx.create(name, template, controller, locals);
+                                return trx;
+                            };
+                        },
+                        update: function (name, template, controller, locals, sticky) {
                             ensureName(name);
                             records[name] = {
                                 act: 'setOrUpdate',
                                 fn: function () {
-                                    setOrUpdate(name, template, controller, locals, sticky);
+                                    update(name, template, controller, locals, sticky);
                                 }
                             };
                             return trx;
                         },
-                        setIfAbsent: function (name, template, controller, locals) {
+                        create: function (name, template, controller, locals) {
                             ensureName(name);
                             if(!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
                                     act: 'setIfAbsent',
                                     fn: function () {
-                                        setIfAbsent(name, template, controller, locals);
+                                        create(name, template, controller, locals);
                                     }
                                 };
                             }

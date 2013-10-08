@@ -431,8 +431,8 @@ describe('$stateProvider', function () {
             inject(function ($location, $route, $state, $view) {
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var viewSpy = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 function reset() {
                     spy.reset();
@@ -529,8 +529,8 @@ describe('$stateProvider', function () {
             inject(function ($location, $route, $state, $view) {
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var setOrUpdate = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var setOrUpdate = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 function reset() {
                     spy.reset();
@@ -649,8 +649,8 @@ describe('$stateProvider', function () {
             inject(function ($location, $route, $state, $view) {
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var viewSpy = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 function reset() {
                     spy.reset();
@@ -718,8 +718,8 @@ describe('$stateProvider', function () {
                 ;
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var viewSpy = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 go('/top/1');
@@ -1624,17 +1624,11 @@ describe('$stateProvider', function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider) {
             return function ($rootScope, $state, $view) {
                 loc = [];
-                //spyOn($view, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
-                //    loc.push(locals);
-                //});
-                //spyOn($view, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
-                //    loc.push(locals);
-                //});
                 var trx = $view.beginUpdate();
-                spyOn(trx, 'setOrUpdate').andCallFake(function (name, template, controller, locals, sticky) {
+                spyOn(trx, 'update').andCallFake(function (name, template, controller, locals, sticky) {
                     loc.push(locals);
                 });
-                spyOn(trx, 'setIfAbsent').andCallFake(function (name, template, controller, locals) {
+                spyOn(trx, 'create').andCallFake(function (name, template, controller, locals) {
                     loc.push(locals);
                 });
                 spyOn($view, 'beginUpdate').andReturn(trx);
@@ -1666,8 +1660,9 @@ describe('$stateProvider', function () {
                 var spy = spyOn(scope, '$broadcast');
                 spy.andCallThrough();
                 goto("home");
-                expect(spy.calls[0].args[0]).toBe('$stateChangeStart');
-                expect(spy.calls[1].args[0]).toBe('$stateChangeError');
+                expect(spy.calls[0].args[0]).toBe('$viewPrep');
+                expect(spy.calls[1].args[0]).toBe('$stateChangeStart');
+                expect(spy.calls[2].args[0]).toBe('$stateChangeError');
             });
         });
         it('single resolve provides value', function () {

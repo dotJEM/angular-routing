@@ -106,3 +106,17 @@ var errors = {
     expressionOutOfBounds: "Expression out of bounds.",
     couldNotFindStateForPath: "Could find state for path."
 };
+var EVENTS = {
+    LOCATION_CHANGE: '$locationChangeSuccess',
+    ROUTE_UPDATE: '$routeUpdate',
+    ROUTE_CHANGE_START: '$routeChangeStart',
+    ROUTE_CHANGE_SUCCESS: '$routeChangeSuccess',
+    ROUTE_CHANGE_ERROR: '$routeChangeError',
+    STATE_UPDATE: '$stateUpdate',
+    STATE_CHANGE_START: '$stateChangeStart',
+    STATE_CHANGE_SUCCESS: '$stateChangeSuccess',
+    STATE_CHANGE_ERROR: '$stateChangeError',
+    VIEW_UPDATE: '$viewUpdate',
+    VIEW_REFRESH: '$viewRefresh',
+    VIEW_PREP: '$viewPrep'
+};

@@ -403,8 +403,8 @@ describe('$stateProvider', function () {
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var viewSpy = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); viewSpy.reset(); }
@@ -478,8 +478,8 @@ describe('$stateProvider', function () {
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var setOrUpdate = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var setOrUpdate = spyOn(trx, 'update');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); setOrUpdate.reset(); }
@@ -527,8 +527,8 @@ describe('$stateProvider', function () {
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var viewSpy = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 function reset() { spy.reset(); viewSpy.reset(); }
@@ -582,8 +582,8 @@ describe('$stateProvider', function () {
 
                 var trx = $view.beginUpdate();
                 spyOn($view, 'beginUpdate').andReturn(trx);
-                spyOn(trx, 'setIfAbsent');
-                var viewSpy = spyOn(trx, 'setOrUpdate');
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
                 scope.$on('$stateChangeSuccess', <any>spy);
@@ -1510,17 +1510,12 @@ describe('$stateProvider', function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider: dotjem.routing.IStateProvider) {
             return function ($rootScope, $state, $view) {
                 loc = []
-                //spyOn($view, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
-                //    loc.push(locals);
-                //});
-                //spyOn($view, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
-                //    loc.push(locals);
-                //});
+
                 var trx = $view.beginUpdate();
-                spyOn(trx, 'setOrUpdate').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
+                spyOn(trx, 'update').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
                     loc.push(locals);
                 });
-                spyOn(trx, 'setIfAbsent').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
+                spyOn(trx, 'create').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
                     loc.push(locals);
                 });
                 spyOn($view, 'beginUpdate').andReturn(trx);
@@ -1550,9 +1545,10 @@ describe('$stateProvider', function () {
                 spy.andCallThrough();
 
                 goto("home");
-                
-                expect(spy.calls[0].args[0]).toBe('$stateChangeStart');
-                expect(spy.calls[1].args[0]).toBe('$stateChangeError');
+
+                expect(spy.calls[0].args[0]).toBe('$viewPrep');
+                expect(spy.calls[1].args[0]).toBe('$stateChangeStart');
+                expect(spy.calls[2].args[0]).toBe('$stateChangeError');
             });
         });
 

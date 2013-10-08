@@ -15,7 +15,7 @@ describe('$view', function () {
     describe("setOrUpdate", function () {
         it('saves initial view state', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "template"
                 });
                 var view = $view.get('name');
@@ -25,10 +25,10 @@ describe('$view', function () {
         });
         it('updates view state and increments version', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "fubar"
                 });
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "template"
                 });
                 var view = $view.get('name');
@@ -38,11 +38,11 @@ describe('$view', function () {
         });
         it('cleared view gets reinitialized', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "fubar"
                 });
                 $view.clear("name");
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "template"
                 });
                 var view = $view.get('name');
@@ -53,7 +53,7 @@ describe('$view', function () {
         it('raises $viewUpdate with viewName', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "fubar"
                 });
                 expect(spy.callCount).toBe(1);
@@ -61,7 +61,7 @@ describe('$view', function () {
                     '$viewUpdate', 
                     "name"
                 ]);
-                $view.setOrUpdate("name", {
+                $view.update("name", {
                     html: "template"
                 });
                 expect(spy.callCount).toBe(2);
@@ -74,7 +74,7 @@ describe('$view', function () {
         it('raises $viewUpdate with viewName for each view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "fubar"
                 });
                 expect(spy.callCount).toBe(1);
@@ -82,7 +82,7 @@ describe('$view', function () {
                     '$viewUpdate', 
                     "root"
                 ]);
-                $view.setOrUpdate("sub", {
+                $view.update("sub", {
                     html: "template"
                 });
                 expect(spy.callCount).toBe(2);
@@ -95,7 +95,7 @@ describe('$view', function () {
         it('raises $viewRefresh when sticky tag matches', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "fubar"
                 }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
@@ -103,7 +103,7 @@ describe('$view', function () {
                     '$viewUpdate', 
                     "root"
                 ]);
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "template"
                 }, null, null, "sticky");
                 expect(spy.callCount).toBe(2);
@@ -120,7 +120,7 @@ describe('$view', function () {
         it('raises $viewUpdate when sticky tag differs', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "fubar"
                 }, null, null, "sticky");
                 expect(spy.callCount).toBe(1);
@@ -128,7 +128,7 @@ describe('$view', function () {
                     '$viewUpdate', 
                     "root"
                 ]);
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "template"
                 }, null, null, "sticky2");
                 expect(spy.callCount).toBe(2);
@@ -141,7 +141,7 @@ describe('$view', function () {
         it('raises $viewUpdate when sticky tag is undefined', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "fubar"
                 }, null, null, undefined);
                 expect(spy.callCount).toBe(1);
@@ -149,7 +149,7 @@ describe('$view', function () {
                     '$viewUpdate', 
                     "root"
                 ]);
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "template"
                 }, null, null, undefined);
                 expect(spy.callCount).toBe(2);
@@ -163,7 +163,7 @@ describe('$view', function () {
     describe("refresh", function () {
         it('raises $viewRefresh with provided data', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate('root', {
+                $view.update('root', {
                     html: "fubar"
                 });
                 var spy = spyOn(scope, '$broadcast');
@@ -182,7 +182,7 @@ describe('$view', function () {
         });
         it('raises $viewRefresh and preserves locals', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate('root', {
+                $view.update('root', {
                     html: "fubar"
                 }, '', {
                     local: "hello"
@@ -207,7 +207,7 @@ describe('$view', function () {
     describe("setIfAbsent", function () {
         it('saves initial view state', function () {
             mock.inject(function ($view) {
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "template"
                 });
                 var view = $view.get('name');
@@ -217,10 +217,10 @@ describe('$view', function () {
         });
         it('does not update view state if it already exists', function () {
             mock.inject(function ($view) {
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "template"
                 });
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "fubar"
                 });
                 var view = $view.get('name');
@@ -230,11 +230,11 @@ describe('$view', function () {
         });
         it('updates view state if it was cleared', function () {
             mock.inject(function ($view) {
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "fubar"
                 });
                 $view.clear("name");
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "template"
                 });
                 var view = $view.get('name');
@@ -245,12 +245,12 @@ describe('$view', function () {
         it('raises $viewUpdated with viewName only for first call', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "fubar"
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("name");
-                $view.setIfAbsent("name", {
+                $view.create("name", {
                     html: "template"
                 });
                 expect(spy.callCount).toBe(1);
@@ -259,12 +259,12 @@ describe('$view', function () {
         it('raises $viewUpdated with viewName for each view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "fubar"
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
-                $view.setIfAbsent("sub", {
+                $view.create("sub", {
                     html: "template"
                 });
                 expect(spy.callCount).toBe(2);
@@ -275,13 +275,13 @@ describe('$view', function () {
     describe("clear", function () {
         it('no parameters clears state', function () {
             mock.inject(function ($view) {
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root template"
                 });
-                $view.setIfAbsent("sub1", {
+                $view.create("sub1", {
                     html: "sub1 template"
                 });
-                $view.setIfAbsent("sub2", {
+                $view.create("sub2", {
                     html: "sub2 template"
                 });
                 $view.clear();
@@ -292,13 +292,13 @@ describe('$view', function () {
         });
         it('with parameters will set view to undefined (delete it)', function () {
             mock.inject(function ($view) {
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root template"
                 });
-                $view.setIfAbsent("sub1", {
+                $view.create("sub1", {
                     html: "sub1 template"
                 });
-                $view.setIfAbsent("sub2", {
+                $view.create("sub2", {
                     html: "sub2 template"
                 });
                 $view.clear("sub2");
@@ -309,13 +309,13 @@ describe('$view', function () {
         });
         it('clear raises $viewUpdated with viewName for cleared view', function () {
             mock.inject(function ($view) {
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root template"
                 });
-                $view.setIfAbsent("sub1", {
+                $view.create("sub1", {
                     html: "sub1 template"
                 });
-                $view.setIfAbsent("sub2", {
+                $view.create("sub2", {
                     html: "sub2 template"
                 });
                 var spy = spyOn(scope, '$broadcast');
@@ -332,19 +332,19 @@ describe('$view', function () {
         it('raised when setOrUpdate is called', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "root template"
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "sub1 template"
                 });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "sub2 template"
                 });
                 expect(spy.callCount).toBe(3);
@@ -355,17 +355,17 @@ describe('$view', function () {
         it('raised only first time when setIfAbsent is called with same name', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root template"
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root template"
                 });
                 expect(spy.callCount).toBe(1);
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root template"
                 });
                 expect(spy.callCount).toBe(1);
@@ -373,13 +373,13 @@ describe('$view', function () {
         });
         it('raised on clear with name', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate("view1", {
+                $view.update("view1", {
                     html: "view1 template"
                 });
-                $view.setOrUpdate("view2", {
+                $view.update("view2", {
                     html: "view2 template"
                 });
-                $view.setOrUpdate("view3", {
+                $view.update("view3", {
                     html: "view3 template"
                 });
                 var spy = spyOn(scope, '$broadcast');
@@ -402,10 +402,10 @@ describe('$view', function () {
         it('setIfAbsent does not overwrite even during transactional update', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root"
                 });
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "fubar"
                 });
                 trx.commit();
@@ -415,10 +415,10 @@ describe('$view', function () {
         it('get returns old state untill commit is called', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "root"
                 });
-                $view.setIfAbsent("root", {
+                $view.create("root", {
                     html: "fubar"
                 });
                 expect($view.get("root")).toBeUndefined();
@@ -430,13 +430,13 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
-                $view.setOrUpdate("view1", {
+                $view.update("view1", {
                     html: "view1 template"
                 });
-                $view.setOrUpdate("view2", {
+                $view.update("view2", {
                     html: "view2 template"
                 });
-                $view.setOrUpdate("view3", {
+                $view.update("view3", {
                     html: "view3 template"
                 });
                 expect(spy.callCount).toBe(0);
@@ -451,22 +451,22 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
-                $view.setOrUpdate("view1", {
+                $view.update("view1", {
                     html: "view1 template"
                 });
-                $view.setOrUpdate("view2", {
+                $view.update("view2", {
                     html: "view2 template"
                 });
-                $view.setOrUpdate("view3", {
+                $view.update("view3", {
                     html: "view3 template"
                 });
-                $view.setOrUpdate("view1", {
+                $view.update("view1", {
                     html: "view1 template"
                 });
-                $view.setOrUpdate("view2", {
+                $view.update("view2", {
                     html: "view2 template"
                 });
-                $view.setOrUpdate("view3", {
+                $view.update("view3", {
                     html: "view3 template"
                 });
                 expect(spy.callCount).toBe(0);
@@ -481,23 +481,24 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
-                $view.setOrUpdate("view1", {
+                $view.update("view1", {
                     html: "view1 template"
                 });
-                $view.setOrUpdate("view2", {
+                $view.update("view2", {
                     html: "view2 template"
                 });
-                $view.setOrUpdate("view3", {
+                $view.update("view3", {
                     html: "view3 template"
                 });
                 expect(spy.callCount).toBe(0);
                 trx.cancel();
-                expect(spy.callCount).toBe(0);
+                expect(spy.callCount).toBe(1);
+                expect(spy.calls[0].args[0]).toBe('$viewPrep');
             });
         });
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "root"
                 });
                 var trx = $view.beginUpdate();
@@ -509,7 +510,7 @@ describe('$view', function () {
         });
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view) {
-                $view.setOrUpdate("root", {
+                $view.update("root", {
                     html: "root"
                 });
                 var spy = spyOn(scope, '$broadcast');
