@@ -6,6 +6,8 @@ var Context = (function () {
         };
         this.aborted = false;
         this.completed = false;
+        this._prep = {
+        };
         this.properties = {
         };
         this._$state = _$state;
@@ -136,6 +138,21 @@ var Context = (function () {
         }
         return this;
     };
+    Context.prototype.prepUpdate = function (state, name, template, controller, sticky) {
+        var prep = (this._prep[state] = this._prep[state] || {
+        });
+        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
+    };
+    Context.prototype.prepCreate = function (state, name, template, controller) {
+        var prep = (this._prep[state] = this._prep[state] || {
+        });
+        prep[name] = this.transaction.prepCreate(name, template, controller);
+    };
+    Context.prototype.completePrep = function (state, locals) {
+        forEach(this._prep[state], function (value, key) {
+            value(locals);
+        });
+    };
     return Context;
 })();
 var cmd = {
@@ -242,10 +259,32 @@ var cmd = {
             }
         };
     },
-    beginTransaction: function ($view) {
+    beginTransaction: function ($view, $injector) {
         return function (context) {
             context.transaction = $view.beginUpdate();
             context.transaction.clear();
+            var updating = false;
+            forEach(context.changed.array, function (change) {
+                updating = updating || change.isChanged;
+                forEach(change.state.views, function (view, name) {
+                    var sticky, fn;
+                    if(sticky = view.sticky) {
+                        if(fn = injectFn(sticky)) {
+                            sticky = fn($injector, {
+                                $to: context.toState,
+                                $from: context.$state.current
+                            });
+                        } else if(!isString(sticky)) {
+                            sticky = change.state.fullname;
+                        }
+                    }
+                    if(updating || view.force || isDefined(sticky)) {
+                        context.prepUpdate(change.state.fullname, name, view.template, view.controller, sticky);
+                    } else {
+                        context.prepCreate(change.state.fullname, name, view.template, view.controller);
+                    }
+                });
+            });
         };
     }
 };

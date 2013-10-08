@@ -442,7 +442,7 @@ var $StateProvider = [
                     }
                 };
                 var context = new Context($state, root).complete();
-                $rootScope.$on('$routeChangeSuccess', function () {
+                $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                     var route = $route.current;
                     if(route) {
                         if(route.state) {
@@ -458,11 +458,11 @@ var $StateProvider = [
                         });
                     }
                 });
-                $rootScope.$on('$routeUpdate', function () {
+                $rootScope.$on(EVENTS.ROUTE_UPDATE, function () {
                     var route = $route.current, params = buildParams(route.params, route.pathParams, route.searchParams);
                     $state.params = params;
                     $state.current.$params = params;
-                    $rootScope.$broadcast('$stateUpdate', $state.current);
+                    $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
                 });
                 return $state;
                 function reload(state) {
@@ -491,23 +491,21 @@ var $StateProvider = [
                     var ctx = context = context.next();
                     ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
-                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.before()).execute(function (context) {
-                        if($rootScope.$broadcast('$stateChangeStart', context.toState, $state.current).defaultPrevented) {
+                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
+                        if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
                             context.abort();
                         }
-                    }).execute(cmd.beginTransaction($view));
+                    });
                     if(ctx.ended) {
                         context = ctx;
                         return;
                     }
                     var scrollTo, useUpdate = false, alllocals = {
                     };
-                    //transaction = $view.beginUpdate();
-                    //transaction.clear();
                     var promise = $q.when('');
                     forEach(ctx.changed.array, function (change) {
                         promise = promise.then(function () {
-                            if(useUpdate = change.isChanged || useUpdate) {
+                            if(useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
                             return $resolve.all(change.state.resolve, alllocals, {
@@ -515,27 +513,9 @@ var $StateProvider = [
                                 $from: $state.current
                             });
                         }).then(function (locals) {
-                            alllocals = extend({
-                            }, alllocals, locals);
+                            ctx.completePrep(change.state.fullname, alllocals = extend({
+                            }, alllocals, locals));
                             scrollTo = change.state.scrollTo;
-                            forEach(change.state.views, function (view, name) {
-                                var sticky, fn;
-                                if(sticky = view.sticky) {
-                                    if(fn = injectFn(sticky)) {
-                                        sticky = fn($injector, {
-                                            $to: ctx.toState,
-                                            $from: $state.current
-                                        });
-                                    } else if(!isString(sticky)) {
-                                        sticky = change.state.fullname;
-                                    }
-                                }
-                                if(useUpdate || view.force || isDefined(sticky)) {
-                                    ctx.transaction.setOrUpdate(name, view.template, view.controller, alllocals, sticky);
-                                } else {
-                                    ctx.transaction.setIfAbsent(name, view.template, view.controller, alllocals);
-                                }
-                            });
                         });
                     });
                     return promise.then(function () {
@@ -545,11 +525,11 @@ var $StateProvider = [
                             $state.params = context.params;
                             $state.current = context.toState;
                             context.transaction.commit();
-                            $rootScope.$broadcast('$stateChangeSuccess', context.toState, fromState);
+                            $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
                         }).execute(cmd.after($scroll, scrollTo)).complete();
                     }, function (error) {
                         context = ctx.execute(function (context) {
-                            $rootScope.$broadcast('$stateChangeError', context.toState, $state.current, error);
+                            $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
                             context.abort();
                         });
                     });

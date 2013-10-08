@@ -31,8 +31,8 @@ class Context {
     get transition() { return this.properties.transition; }
     set transition(value) { this.properties.transition = value; }
 
-    get transaction() { return this.properties.transaction; }
-    set transaction(value) { this.properties.transaction = value; }
+    get transaction():dotjem.routing.IViewTransaction { return this.properties.transaction; }
+    set transaction(value: dotjem.routing.IViewTransaction) { this.properties.transaction = value; }
 
     constructor(_$state, current?) {
         this.properties = {};
@@ -83,6 +83,25 @@ class Context {
             this.transaction.cancel();
 
         return this;
+    }
+
+    private _prep: any = {};
+
+    // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
+    public prepUpdate(state: string, name, template, controller, sticky) {
+        var prep = (this._prep[state] = this._prep[state] || {});
+        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
+    }
+
+    public prepCreate(state: string, name, template, controller) {
+        var prep = (this._prep[state] = this._prep[state] || {});
+        prep[name] = this.transaction.prepCreate(name, template, controller);
+    }
+
+    public completePrep(state: string, locals?: any) {
+        forEach(this._prep[state], function (value, key) {
+            value(locals);
+        });
     }
 }
 
@@ -211,10 +230,31 @@ var cmd = {
         }
     },
 
-    beginTransaction: function ($view): ICommand {
+    beginTransaction: function ($view, $injector): ICommand {
         return function (context: Context) {
             context.transaction = $view.beginUpdate();
             context.transaction.clear();
+
+            var updating = false;
+            forEach(context.changed.array, function (change) {
+                updating = updating || change.isChanged;
+                forEach(change.state.views, function (view, name) {
+                    var sticky, fn;
+                    if (sticky = view.sticky) {
+                        if (fn = injectFn(sticky)) {
+                            sticky = fn($injector, { $to: context.toState, $from: context.$state.current });
+                        } else if (!isString(sticky)) {
+                            sticky = change.state.fullname;
+                        }
+                    }
+
+                    if (updating || view.force || isDefined(sticky)) {
+                        context.prepUpdate(change.state.fullname, name, view.template, view.controller, sticky);
+                    } else {
+                        context.prepCreate(change.state.fullname, name, view.template, view.controller);
+                    }
+                })
+            })
         }
     }
 };

@@ -69,10 +69,10 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 animate = $animator(scope, attr),
                 version = -1;
 
-            scope.$on('$viewChanged', function(event, updatedName) {
+            scope.$on(EVENTS.VIEW_UPDATE, function(event, updatedName) {
                 if (updatedName === name) update(doAnimate);
             });
-            scope.$on('$viewRefresh', function (event, refreshName, refreshData) {
+            scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
                 if (refreshName === name) {
                     if (isFunction(viewScope.refresh)) {
                         viewScope.refresh(refreshData);
@@ -81,13 +81,13 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                     }
                 }
             });
-            scope.$on('$stateChangeSuccess', () => update(doAnimate));
-            scope.$on('$stateChangeStart', () => progress(doAnimate, false));
-            scope.$on('$stateChangeAborted', () => progress(doAnimate, true));
+            scope.$on('$viewPrep', function (event, name, data) {
+                prepare(name, doAnimate, data)
+            });
 
             update(false);
 
-            function progress(doAnimate, cancel) {
+            function prepare(name, doAnimate, cancel) {
 
             }
 

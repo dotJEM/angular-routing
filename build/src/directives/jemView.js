@@ -58,12 +58,12 @@ var jemViewDirective = [
             terminal: true,
             link: function (scope, element, attr) {
                 var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
-                scope.$on('$viewChanged', function (event, updatedName) {
+                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);
                     }
                 });
-                scope.$on('$viewRefresh', function (event, refreshName, refreshData) {
+                scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
                     if(refreshName === name) {
                         if(isFunction(viewScope.refresh)) {
                             viewScope.refresh(refreshData);
@@ -72,17 +72,11 @@ var jemViewDirective = [
                         }
                     }
                 });
-                scope.$on('$stateChangeSuccess', function () {
-                    return update(doAnimate);
-                });
-                scope.$on('$stateChangeStart', function () {
-                    return progress(doAnimate, false);
-                });
-                scope.$on('$stateChangeAborted', function () {
-                    return progress(doAnimate, true);
+                scope.$on('$viewPrep', function (event, name, data) {
+                    prepare(name, doAnimate, data);
                 });
                 update(false);
-                function progress(doAnimate, cancel) {
+                function prepare(name, doAnimate, cancel) {
                 }
                 function destroyScope() {
                     if(viewScope) {
