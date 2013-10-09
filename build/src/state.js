@@ -488,6 +488,11 @@ var $StateProvider = [
                     });
                 }
                 function goto(args) {
+                    //var xx;
+                    //xx.next()
+                    //    .success(function (ctx) { context = ctx; })
+                    //    .error(function (ctx) { })
+                    //    .always()
                     var ctx = context = context.next();
                     ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
@@ -518,7 +523,7 @@ var $StateProvider = [
                             scrollTo = change.state.scrollTo;
                         });
                     });
-                    return promise.then(function () {
+                    promise.then(function () {
                         context = ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;

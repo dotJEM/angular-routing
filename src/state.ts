@@ -492,6 +492,12 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         }
 
         function goto(args: { state; params; updateroute?; }) {
+            //var xx;
+            //xx.next()
+            //    .success(function (ctx) { context = ctx; })
+            //    .error(function (ctx) { })
+            //    .always()
+
             var ctx = context = context.next();
             ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params))
                 .execute(cmd.createEmitter($transition))
@@ -534,7 +540,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             });
 
-            return promise.then(function () {
+            promise.then(function () {
                 context = ctx
                     .execute(cmd.between($rootScope))
                     .execute(function (context: Context) {

@@ -2,10 +2,6 @@ var app = angular.module('demo', [
   'demo.home', 'demo.about', 'demo.contact',
   'dotjem.routing']);
 
-app.config(function($locationProvider) {
-    $locationProvider.html5Mode(true);
-});
-
 app.controller('siteController', ['$scope', '$state', '$browser',
   function ($scope, $state, $browser) {
       var cache = {};
