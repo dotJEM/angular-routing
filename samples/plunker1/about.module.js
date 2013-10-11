@@ -3,7 +3,7 @@ angular.module('demo.about', ['dotjem.routing'])
     sp.state('about', {
       route: '/about',
       resolve: {
-        item: function($timeout, $q) {
+        item: function($timeout) {
           return $timeout(function() {
             return 42;
           }, 500);

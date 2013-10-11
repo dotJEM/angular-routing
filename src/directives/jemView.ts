@@ -54,8 +54,8 @@ interface IViewScope extends ng.IScope {
  * @param {string} name The name of the view where the broadcast originated.
  * @param {Object} name Any data that may have been provided for a refresh.
  */
-var jemViewDirective = [<any>'$state', '$scroll', '$compile', '$controller', '$view', '$animator',
-function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewService, $animator) {
+var jemViewDirective = [<any>'$state', '$scroll', '$compile', '$controller', '$view', '$animator', '$template',
+function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewService, $animator, $template) {
     'use strict';
     return {
         restrict: 'ECA',
@@ -67,7 +67,10 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
                 animate = $animator(scope, attr),
-                version = -1;
+                version = -1,
+                loader = (attr.loader && $template.get(attr.loader)) || null,
+                activeLoader: JQuery;
+            //loader = "none | page | view" loader - template = "loader.html"
 
             scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                 if (updatedName === name) update(doAnimate);
@@ -81,14 +84,32 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                     }
                 }
             });
-            scope.$on('$viewPrep', function (event, name, data) {
-                prepare(name, doAnimate, data)
+            scope.$on('$viewPrep', function (event, prepName, data) {
+                if (prepName === name && data.type === 'update') {
+                    displayLoader();
+                } else if (data.type === 'cancel') {
+                    removeLoader();
+                }
             });
 
             update(false);
 
-            function prepare(name, doAnimate, cancel) {
+            function removeLoader() {
+                if (isDefined(activeLoader)) {
+                    activeLoader.remove();
+                    activeLoader = undefined;
 
+                    element.contents().show();
+                }
+            }
+
+            function displayLoader() {
+                if (loader !== null) {
+                    loader.then((html) => {
+                        element.contents().hide();
+                        element.append(activeLoader = angular.element(html));
+                    });
+                }
             }
 
             function destroyScope() {
