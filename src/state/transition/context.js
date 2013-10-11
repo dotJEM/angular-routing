@@ -1,4 +1,3 @@
-/// <reference path="../../refs.d.ts" />
 var Context = (function () {
     function Context(_$state, onComplete, current) {
         this.aborted = false;
@@ -30,7 +29,6 @@ var Context = (function () {
         var next = new Context(this.$state, onComplete);
         next.previous = this;
         next.from = this.to;
-        //Note: to allow garbage collection.
         this.previous = null;
         return next;
     };
@@ -59,8 +57,7 @@ var Context = (function () {
         }
         return this;
     };
-    Context.prototype.prepUpdate = // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
-    function (state, name, template, controller, sticky) {
+    Context.prototype.prepUpdate = function (state, name, template, controller, sticky) {
         var prep = (this._prep[state] = this._prep[state] || {
         });
         prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);

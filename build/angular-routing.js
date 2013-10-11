@@ -1680,7 +1680,6 @@ var $StateProvider = [
                         return current.isActive(toName(state));
                     }
                 };
-                var context = new Context($state, root).complete();
                 $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                     var route = $route.current;
                     if(route) {
@@ -1703,7 +1702,6 @@ var $StateProvider = [
                     $state.current.$params = params;
                     $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
                 });
-                return $state;
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
@@ -1726,13 +1724,16 @@ var $StateProvider = [
                         });
                     });
                 }
+                var context = new Context($state, function (ctx) {
+                }, root).complete();
+                var running = context;
                 function goto(args) {
-                    //var xx;
-                    //xx.next()
-                    //    .success(function (ctx) { context = ctx; })
-                    //    .error(function (ctx) { })
-                    //    .always()
-                    var ctx = context = context.next();
+                    if(!running.ended) {
+                        running.abort();
+                    }
+                    var ctx = running = context.next(function (ctx) {
+                        context = ctx;
+                    });
                     ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
@@ -1741,7 +1742,6 @@ var $StateProvider = [
                         }
                     });
                     if(ctx.ended) {
-                        context = ctx;
                         return;
                     }
                     var scrollTo, useUpdate = false, alllocals = {
@@ -1763,7 +1763,7 @@ var $StateProvider = [
                         });
                     });
                     promise.then(function () {
-                        context = ctx.execute(cmd.between($rootScope)).execute(function (context) {
+                        ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;
                             $state.params = context.params;
@@ -1772,12 +1772,13 @@ var $StateProvider = [
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
                         }).execute(cmd.after($scroll, scrollTo)).complete();
                     }, function (error) {
-                        context = ctx.execute(function (context) {
+                        ctx.execute(function (context) {
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
                             context.abort();
                         });
                     });
                 }
+                return $state;
             }        ];
     }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);
@@ -2038,7 +2039,7 @@ function $ViewProvider() {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
             }
             function ensureName(name) {
-                if(name === 'undefined') {
+                if(isUndefined(name)) {
                     throw new Error('Must define a view name.');
                 }
             }
@@ -2439,7 +2440,7 @@ function $ViewProvider() {
                         update: function (name, template, controller, locals, sticky) {
                             ensureName(name);
                             records[name] = {
-                                act: 'setOrUpdate',
+                                act: 'update',
                                 fn: function () {
                                     update(name, template, controller, locals, sticky);
                                 }
@@ -2450,7 +2451,7 @@ function $ViewProvider() {
                             ensureName(name);
                             if(!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
-                                    act: 'setIfAbsent',
+                                    act: 'create',
                                     fn: function () {
                                         create(name, template, controller, locals);
                                     }
@@ -3076,19 +3077,14 @@ var cmd = {
 
 /// <reference path="../../refs.d.ts" />
 var Context = (function () {
-    function Context(_$state, current) {
-        this.previous = {
-        };
-        this.properties = {
-        };
+    function Context(_$state, onComplete, current) {
         this.aborted = false;
         this.completed = false;
         this._prep = {
         };
-        this.properties = {
-        };
         this._$state = _$state;
         this.to = current;
+        this.onComplete = onComplete;
     }
     Object.defineProperty(Context.prototype, "$state", {
         get: function () {
@@ -3097,107 +3093,6 @@ var Context = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(Context.prototype, "to", {
-        get: function () {
-            return this.properties.to;
-        },
-        set: function (value) {
-            this.properties.to = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "from", {
-        get: function () {
-            return this.properties.from;
-        },
-        set: function (value) {
-            this.properties.from = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "params", {
-        get: function () {
-            return this.properties.params;
-        },
-        set: function (value) {
-            this.properties.params = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "emit", {
-        get: function () {
-            return this.properties.emit;
-        },
-        set: function (value) {
-            this.properties.emit = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "changed", {
-        get: function () {
-            return this.properties.changed;
-        },
-        set: function (value) {
-            this.properties.changed = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "toState", {
-        get: function () {
-            return this.properties.toState;
-        },
-        set: function (value) {
-            this.properties.toState = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "transition", {
-        get: function () {
-            return this.properties.transition;
-        },
-        set: function (value) {
-            this.properties.transition = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "transaction", {
-        get: function () {
-            return this.properties.transaction;
-        },
-        set: function (value) {
-            this.properties.transaction = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Context.prototype.next = function () {
-        if(!this.ended) {
-            this.abort();
-        }
-        var next = new Context(this.$state);
-        next.previous = this;
-        next.from = this.to;
-        //Note: to allow garbage collection.
-        this.previous = null;
-        return next;
-    };
-    Context.prototype.execute = function (visitor) {
-        if(this.ended) {
-            return this;
-        }
-        visitor(this);
-        if(this.aborted) {
-            return this.previous;
-        }
-        return this;
-    };
     Object.defineProperty(Context.prototype, "ended", {
         get: function () {
             return this.aborted || this.completed;
@@ -3205,14 +3100,39 @@ var Context = (function () {
         enumerable: true,
         configurable: true
     });
+    Context.prototype.next = function (onComplete) {
+        if(!this.ended) {
+            this.abort();
+        }
+        var next = new Context(this.$state, onComplete);
+        next.previous = this;
+        next.from = this.to;
+        //Note: to allow garbage collection.
+        this.previous = null;
+        return next;
+    };
+    Context.prototype.execute = function (visitor) {
+        if(!this.ended) {
+            visitor(this);
+            if(this.aborted) {
+                return this.previous;
+            }
+        }
+        return this;
+    };
     Context.prototype.complete = function () {
-        this.completed = true;
+        if(!this.ended) {
+            this.onComplete(this);
+            this.completed = true;
+        }
         return this;
     };
     Context.prototype.abort = function () {
-        this.aborted = true;
-        if(this.transaction && !this.transaction.completed) {
-            this.transaction.cancel();
+        if(!this.ended) {
+            this.aborted = true;
+            if(this.transaction && !this.transaction.completed) {
+                this.transaction.cancel();
+            }
         }
         return this;
     };

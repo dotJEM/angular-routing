@@ -1810,4 +1810,8 @@ describe('$stateProvider', function () {
             });
         });
     });
+
+    describe("reloadOnSearch", () => {
+
+    })
 });

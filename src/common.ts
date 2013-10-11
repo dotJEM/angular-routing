@@ -161,3 +161,4 @@ var EVENTS = {
     VIEW_REFRESH: '$viewRefresh',
     VIEW_PREP: '$viewPrep'
 }
+

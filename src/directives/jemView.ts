@@ -69,7 +69,7 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 animate = $animator(scope, attr),
                 version = -1;
 
-            scope.$on(EVENTS.VIEW_UPDATE, function(event, updatedName) {
+            scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                 if (updatedName === name) update(doAnimate);
             });
             scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {

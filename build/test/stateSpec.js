@@ -2064,4 +2064,6 @@ describe('$stateProvider', function () {
             });
         });
     });
+    describe("reloadOnSearch", function () {
+    });
 });

@@ -47,7 +47,7 @@ function $ViewProvider() {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
             }
             function ensureName(name) {
-                if(name === 'undefined') {
+                if(isUndefined(name)) {
                     throw new Error('Must define a view name.');
                 }
             }
@@ -448,7 +448,7 @@ function $ViewProvider() {
                         update: function (name, template, controller, locals, sticky) {
                             ensureName(name);
                             records[name] = {
-                                act: 'setOrUpdate',
+                                act: 'update',
                                 fn: function () {
                                     update(name, template, controller, locals, sticky);
                                 }
@@ -459,7 +459,7 @@ function $ViewProvider() {
                             ensureName(name);
                             if(!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
-                                    act: 'setIfAbsent',
+                                    act: 'create',
                                     fn: function () {
                                         create(name, template, controller, locals);
                                     }

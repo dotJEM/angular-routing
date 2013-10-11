@@ -445,7 +445,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 isActive: (state) => current.isActive(toName(state))
             };
 
-        var context = new Context($state, root).complete();
+        
 
         $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
             var route = $route.current;
@@ -469,7 +469,6 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             $state.current.$params = params;
             $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
         });
-        return $state;
 
         function reload(state?) {
             if (isDefined(state)) {
@@ -491,14 +490,14 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             });
         }
 
-        function goto(args: { state; params; updateroute?; }) {
-            //var xx;
-            //xx.next()
-            //    .success(function (ctx) { context = ctx; })
-            //    .error(function (ctx) { })
-            //    .always()
+        var context = new Context($state, (ctx: Context) => { }, root).complete();
+        var running = context;
 
-            var ctx = context = context.next();
+        function goto(args: { state; params; updateroute?; }) {
+            if (!running.ended)
+                running.abort();
+
+            var ctx = running = context.next(function (ctx: Context) { context = ctx; });
             ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params))
                 .execute(cmd.createEmitter($transition))
                 .execute(cmd.buildChanges(forceReload))
@@ -513,10 +512,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 .execute(function (context: Context) {
                     if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented)
                         context.abort();
-                });
+                })
+
 
             if (ctx.ended) {
-                context = ctx;
                 return;
             }
 
@@ -541,9 +540,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             });
 
             promise.then(function () {
-                context = ctx
+                ctx
                     .execute(cmd.between($rootScope))
                     .execute(function (context: Context) {
+
                         current = context.to;
                         var fromState = $state.current;
                         $state.params = context.params;
@@ -555,13 +555,14 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     .execute(cmd.after($scroll, scrollTo))
                     .complete();
             }, function (error) {
-                context = ctx
+                ctx
                     .execute(function (context: Context) {
                         $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
                         context.abort();
                     });
             });
         }
+        return $state;
     }];
 }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);

@@ -1,50 +1,37 @@
 /// <reference path="../../refs.d.ts" />
 
 class Context {
-    private previous: any = {};
-    private properties: any = {};
+    private previous: any;
+
     private _$state: dotjem.routing.IStateService;
 
+    get $state(): dotjem.routing.IStateService { return this._$state; }
+    public get ended() { return this.aborted || this.completed; }
+
+    public to: any;
+    public from: any;
+    public params: any;
+    public emit: any;
+    public changed: any;
+    public toState: any;
+    public transition: any;
+    public transaction: dotjem.routing.IViewTransaction;
     public aborted: bool = false;
     public completed: bool = false;
+    public onComplete: ICommand;
 
-    get $state(): dotjem.routing.IStateService { return this._$state; }
-
-    get to() { return this.properties.to; }
-    set to(value) { this.properties.to = value; }
-
-    get from() { return this.properties.from; }
-    set from(value) { this.properties.from = value; }
-
-    get params() { return this.properties.params; }
-    set params(value) { this.properties.params = value; }
-
-    get emit() { return this.properties.emit; }
-    set emit(value) { this.properties.emit = value; }
-
-    get changed() { return this.properties.changed; }
-    set changed(value) { this.properties.changed = value; }
-
-    get toState() { return this.properties.toState; }
-    set toState(value) { this.properties.toState = value; }
-
-    get transition() { return this.properties.transition; }
-    set transition(value) { this.properties.transition = value; }
-
-    get transaction(): dotjem.routing.IViewTransaction { return this.properties.transaction; }
-    set transaction(value: dotjem.routing.IViewTransaction) { this.properties.transaction = value; }
-
-    constructor(_$state, current?) {
-        this.properties = {};
+    constructor(_$state, onComplete: ICommand, current?) {
         this._$state = _$state;
         this.to = current;
+        this.onComplete = onComplete;
     }
 
-    public next() {
-        if (!this.ended)
-            this.abort();
+    public next(onComplete: ICommand) {
+        if (!this.ended) {
+            this.abort()
+        } 
 
-        var next = new Context(this.$state);
+        var next = new Context(this.$state, onComplete);
         next.previous = this;
         next.from = this.to;
 
@@ -55,33 +42,29 @@ class Context {
     }
 
     public execute(visitor: ICommand) {
-        if (this.ended)
-            return this;
-
-        visitor(this);
-
-        if (this.aborted) {
-            return this.previous;
+        if (!this.ended) {
+            visitor(this);
+            if (this.aborted) {
+                return this.previous;
+            }
+        }
+        return this;
+    }
+    
+    public complete() {
+        if (!this.ended) {
+            this.onComplete(this);
+            this.completed = true;
         }
         return this;
     }
 
-    public get ended() {
-        return this.aborted || this.completed;
-    }
-
-
-    public complete() {
-        this.completed = true;
-        return this;
-    }
-
     public abort() {
-        this.aborted = true;
-
-        if (this.transaction && !this.transaction.completed)
-            this.transaction.cancel();
-
+        if (!this.ended) {
+            this.aborted = true;
+            if (this.transaction && !this.transaction.completed)
+                this.transaction.cancel();
+        }
         return this;
     }
 
