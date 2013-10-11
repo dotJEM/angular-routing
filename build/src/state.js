@@ -427,11 +427,16 @@ var $StateProvider = [
                         });
                     },
                     lookup: function (path) {
-                        return browser.resolve(current, path);
+                        return browser.resolve(current, path, true);
                     },
                     reload: reload,
                     url: function (state, params) {
-                        state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                        if(isDefined(state)) {
+                            //state = browser.lookup(toName(state));
+                            state = browser.resolve(current, toName(state), false);
+                        } else {
+                            state = current;
+                        }
                         return urlbuilder.buildUrl($state.current, state, params);
                     },
                     is: function (state) {
@@ -495,7 +500,7 @@ var $StateProvider = [
                     var ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
-                    ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {

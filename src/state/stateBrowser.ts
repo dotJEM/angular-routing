@@ -1,18 +1,18 @@
 /// <reference path="state.ts" />
 
 class StateBrowser {
-    private nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+    private nameRegex = new RegExp('^(' + escapeRegex(rootName) + '\\.)?\\w+(\\.\\w+)*$');
     private siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
     private indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     
-    constructor(private root: State) {
-    }
+    constructor(private root: State) {}
 
-    public lookup(fullname: string, stop?: number) {
+    public lookup(path: string, stop?: number) {
         var current = this.root,
-            names = fullname.split('.'),
+            names = path.split('.'),
             i = names[0] === rootName ? 1 : 0,
             stop = isDefined(stop) ? stop : 0;
+
 
         for (; i < names.length - stop; i++) {
             if (!(names[i] in current.children))
@@ -23,7 +23,7 @@ class StateBrowser {
         return current;
     }
 
-    public resolve(origin, path): State {
+    public resolve(origin, path, wrap?): State {
         var siblingSelector = this.siblingRegex.exec(path),
             selected = origin,
             sections: string[];
@@ -49,7 +49,11 @@ class StateBrowser {
         if (selected === this.root)
             throw Error(errors.expressionOutOfBounds);
 
-        return selected && copy(selected.self) || undefined;
+        if (selected)
+            if (wrap)
+                return copy(selected.self)
+            return selected;
+        return undefined;
     }
 
     private selectSibling(index: number, selected: State): State {
@@ -112,7 +116,7 @@ class StateBrowser {
             return selected.children[exp];
         }
 
-        throw Error(errors.couldNotFindStateForPath);
+        throw Error(errors.couldNotFindStateForPath + ": " + exp);
     }
 
 }

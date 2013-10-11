@@ -11,11 +11,14 @@ interface ICommand {
 //}
 
 var cmd = {
-    initializeContext: function (next, params): ICommand {
+    initializeContext: function (next, params, browser: StateBrowser): ICommand {
         return function (context: Context) {
-            context.to = next;
+            //context.to = browser.resolve(context.from, next, false);
+            var to = browser.resolve(context.from, next, false);
+            //var to = browser.lookup(next);
+            context.to = to;
             context.params = params;
-            context.toState = extend({}, next.self, { $params: params });
+            context.toState = extend({}, to.self, { $params: params });
         }
     },
 

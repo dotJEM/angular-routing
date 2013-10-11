@@ -4,12 +4,15 @@
 //    export function initialize() { }
 //}
 var cmd = {
-    initializeContext: function (next, params) {
+    initializeContext: function (next, params, browser) {
         return function (context) {
-            context.to = next;
+            //context.to = browser.resolve(context.from, next, false);
+            var to = browser.resolve(context.from, next, false);
+            //var to = browser.lookup(next);
+            context.to = to;
             context.params = params;
             context.toState = extend({
-            }, next.self, {
+            }, to.self, {
                 $params: params
             });
         };

@@ -106,6 +106,10 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
+var esc = /[-\/\\^$*+?.()|[\]{}]/g;
+function escapeRegex(exp) {
+    return exp.replace(esc, "\\$&");
+}
 var errors = {
     routeCannotBeUndefined: 'Can not set route to undefined.',
     valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
@@ -381,10 +385,6 @@ var $RouteProvider = [
             name += url.substr(index);
             return name;
         }
-        var esc = /[-\/\\^$*+?.()|[\]{}]/g;
-        function escape(exp) {
-            return exp.replace(esc, "\\$&");
-        }
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path) {
             var match, params = [];
@@ -422,7 +422,7 @@ var $RouteProvider = [
             }
             forEach(parseParams(path), function (param, idx) {
                 var cname = '';
-                regex += escape(path.slice(index, param.index));
+                regex += escapeRegex(path.slice(index, param.index));
                 if(param.catchAll) {
                     regex += '/(.*)';
                 } else {
@@ -439,7 +439,7 @@ var $RouteProvider = [
                 segments.push(createParameter(param.name, param.converter, param.args));
                 index = param.lastIndex;
             });
-            regex += escape(path.substr(index));
+            regex += escapeRegex(path.substr(index));
             name += path.substr(index);
             if(!caseSensitive) {
                 name = name.toLowerCase();
@@ -1666,11 +1666,16 @@ var $StateProvider = [
                         });
                     },
                     lookup: function (path) {
-                        return browser.resolve(current, path);
+                        return browser.resolve(current, path, true);
                     },
                     reload: reload,
                     url: function (state, params) {
-                        state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                        if(isDefined(state)) {
+                            //state = browser.lookup(toName(state));
+                            state = browser.resolve(current, toName(state), false);
+                        } else {
+                            state = current;
+                        }
                         return urlbuilder.buildUrl($state.current, state, params);
                     },
                     is: function (state) {
@@ -1734,7 +1739,7 @@ var $StateProvider = [
                     var ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
-                    ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
@@ -2689,12 +2694,12 @@ var State = (function () {
 var StateBrowser = (function () {
     function StateBrowser(root) {
         this.root = root;
-        this.nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+        this.nameRegex = new RegExp('^(' + escapeRegex(rootName) + '\\.)?\\w+(\\.\\w+)*$');
         this.siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
         this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     }
-    StateBrowser.prototype.lookup = function (fullname, stop) {
-        var current = this.root, names = fullname.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+    StateBrowser.prototype.lookup = function (path, stop) {
+        var current = this.root, names = path.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -2703,7 +2708,7 @@ var StateBrowser = (function () {
         }
         return current;
     };
-    StateBrowser.prototype.resolve = function (origin, path) {
+    StateBrowser.prototype.resolve = function (origin, path, wrap) {
         var _this = this;
         var siblingSelector = this.siblingRegex.exec(path), selected = origin, sections;
         if(siblingSelector) {
@@ -2725,7 +2730,13 @@ var StateBrowser = (function () {
         if(selected === this.root) {
             throw Error(errors.expressionOutOfBounds);
         }
-        return selected && copy(selected.self) || undefined;
+        if(selected) {
+            if(wrap) {
+                return copy(selected.self);
+            }
+        }
+        return selected;
+        return undefined;
     };
     StateBrowser.prototype.selectSibling = function (index, selected) {
         var children = [], currentIndex = 0;
@@ -2775,7 +2786,7 @@ var StateBrowser = (function () {
         if(exp in selected.children) {
             return selected.children[exp];
         }
-        throw Error(errors.couldNotFindStateForPath);
+        throw Error(errors.couldNotFindStateForPath + ": " + exp);
     };
     return StateBrowser;
 })();
@@ -2933,12 +2944,15 @@ var StateUrlBuilder = (function () {
 //    export function initialize() { }
 //}
 var cmd = {
-    initializeContext: function (next, params) {
+    initializeContext: function (next, params, browser) {
         return function (context) {
-            context.to = next;
+            //context.to = browser.resolve(context.from, next, false);
+            var to = browser.resolve(context.from, next, false);
+            //var to = browser.lookup(next);
+            context.to = to;
             context.params = params;
             context.toState = extend({
-            }, next.self, {
+            }, to.self, {
                 $params: params
             });
         };

@@ -1182,15 +1182,6 @@ describe('$stateProvider', function () {
         describe('at state1', function () {
             var target = 'state1';
 
-            it('lookup top1', function () {
-                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
-                    goto(target);
-
-                    var state = $state.lookup("top1");
-                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top1'));
-                });
-            });
-
             it('lookup state1.top2', function () {
                 inject(function ($location, $route, $state: dotjem.routing.IStateService) {
                     goto(target);
@@ -1375,15 +1366,6 @@ describe('$stateProvider', function () {
 
         describe('at state1.top2.mid2', function () {
             var target = 'state1.top2.mid2';
-
-            it('lookup bot1', function () {
-                inject(function ($location, $route, $state: dotjem.routing.IStateService) {
-                    goto(target);
-
-                    var state = $state.lookup("bot1");
-                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot1'));
-                });
-            });
 
             it('lookup state1.top2', function () {
                 inject(function ($location, $route, $state: dotjem.routing.IStateService) {

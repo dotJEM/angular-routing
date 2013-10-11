@@ -1,10 +1,11 @@
 var cmd = {
-    initializeContext: function (next, params) {
+    initializeContext: function (next, params, browser) {
         return function (context) {
-            context.to = next;
+            var to = browser.resolve(context.from, next, false);
+            context.to = to;
             context.params = params;
             context.toState = extend({
-            }, next.self, {
+            }, to.self, {
                 $params: params
             });
         };

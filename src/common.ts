@@ -134,6 +134,11 @@ function encodeUriQuery(val, pctEncodeSpaces) {
                replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
 
+var esc = /[-\/\\^$*+?.()|[\]{}]/g;
+function escapeRegex(exp: string) {
+    return exp.replace(esc, "\\$&");
+}
+
 var errors = {
     routeCannotBeUndefined: 'Can not set route to undefined.',
     valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",

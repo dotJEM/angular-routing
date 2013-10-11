@@ -434,11 +434,16 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     });
                 },
                 lookup: function (path) {
-                    return browser.resolve(current, path);
+                    return browser.resolve(current, path, true);
                 },
                 reload: reload,
                 url: function (state?, params?) {
-                    state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                    if (isDefined(state)) {
+                        //state = browser.lookup(toName(state));
+                        state = browser.resolve(current, toName(state), false);
+                    } else {
+                        state = current;
+                    }
                     return urlbuilder.buildUrl($state.current, state, params);
                 },
                 is: (state) => current.is(toName(state)),
@@ -498,7 +503,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 running.abort();
 
             var ctx = running = context.next(function (ctx: Context) { context = ctx; });
-            ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params))
+            ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
                 .execute(cmd.createEmitter($transition))
                 .execute(cmd.buildChanges(forceReload))
                 .execute(cmd.createTransition(goto))

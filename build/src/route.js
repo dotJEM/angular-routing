@@ -249,10 +249,6 @@ var $RouteProvider = [
             name += url.substr(index);
             return name;
         }
-        var esc = /[-\/\\^$*+?.()|[\]{}]/g;
-        function escape(exp) {
-            return exp.replace(esc, "\\$&");
-        }
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path) {
             var match, params = [];
@@ -290,7 +286,7 @@ var $RouteProvider = [
             }
             forEach(parseParams(path), function (param, idx) {
                 var cname = '';
-                regex += escape(path.slice(index, param.index));
+                regex += escapeRegex(path.slice(index, param.index));
                 if(param.catchAll) {
                     regex += '/(.*)';
                 } else {
@@ -307,7 +303,7 @@ var $RouteProvider = [
                 segments.push(createParameter(param.name, param.converter, param.args));
                 index = param.lastIndex;
             });
-            regex += escape(path.substr(index));
+            regex += escapeRegex(path.substr(index));
             name += path.substr(index);
             if(!caseSensitive) {
                 name = name.toLowerCase();

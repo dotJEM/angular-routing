@@ -97,6 +97,10 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
+var esc = /[-\/\\^$*+?.()|[\]{}]/g;
+function escapeRegex(exp) {
+    return exp.replace(esc, "\\$&");
+}
 var errors = {
     routeCannotBeUndefined: 'Can not set route to undefined.',
     valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
