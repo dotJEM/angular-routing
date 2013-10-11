@@ -83,12 +83,12 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                     }
                 });
 				scope.$on('$viewPrep', function (event, name, data) {
-					prepare(name, doAnimate, data)
+					prepare(name, data)
 				});
 
                 update(false);
 
-				function prepare(name, doAnimate, cancel) {
+				function prepare(name, data) {
                 }
 
                 function cleanupView(doAnimate) {
