@@ -20,17 +20,21 @@ configuration of the <code>$state</code> service.</p>
 <p>The enter and leave animation occur concurrently.</p></div>
 <h2 id="Usage">Usage</h2>
 <div class="usage">as element:<pre class="prettyprint linenums">&lt;jem-view
-       name="{string}"&gt;
+       name="{string}"
+       loader="{string}"&gt;
 &lt;/jem-view&gt;</pre>
-as attribute<pre class="prettyprint linenums">&lt;ANY jem-view="{string}"&gt;
+as attribute<pre class="prettyprint linenums">&lt;ANY jem-view="{string}"
+     loader="{string}"&gt;
    ...
 &lt;/ANY&gt;</pre>
-as class<pre class="prettyprint linenums">&lt;ANY class="jem-view: {string};"&gt;
+as class<pre class="prettyprint linenums">&lt;ANY class="jem-view: {string}; loader: {string};"&gt;
    ...
 &lt;/ANY&gt;</pre>
 <h3 id="Parameters">Parameters</h3>
 <ul class="parameters"><li><code ng:non-bindable="">jemView|name – {string} – </code>
 <p>Name of the view</p></li>
+<li><code ng:non-bindable="">loader – {string} – </code>
+<p>Url to a template to display while the view is prepared.</p></li>
 </ul>
 </div>
 <div class="member event"><h2 id="Events">Events</h2>

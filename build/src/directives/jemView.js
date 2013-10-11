@@ -17,6 +17,7 @@
 * The enter and leave animation occur concurrently.
 *
 * @param {string} jemView|name Name of the view
+* @param {string} loader Url to a template to display while the view is prepared.
 */
 /**
 * @ngdoc event
@@ -59,7 +60,6 @@ var jemViewDirective = [
             terminal: true,
             link: function (scope, element, attr) {
                 var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
-                //loader = "none | page | view" loader - template = "loader.html"
                 scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);

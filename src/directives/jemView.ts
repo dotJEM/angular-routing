@@ -25,6 +25,7 @@ interface IViewScope extends ng.IScope {
  * The enter and leave animation occur concurrently.
  *
  * @param {string} jemView|name Name of the view
+ * @param {string} loader Url to a template to display while the view is prepared.
  */
 
 /**
@@ -70,7 +71,6 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                 version = -1,
                 loader = (attr.loader && $template.get(attr.loader)) || null,
                 activeLoader: JQuery;
-            //loader = "none | page | view" loader - template = "loader.html"
 
             scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                 if (updatedName === name) update(doAnimate);

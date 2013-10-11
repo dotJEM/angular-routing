@@ -2137,7 +2137,7 @@ function $ViewProvider() {
             ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2160,7 +2160,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2215,7 +2215,7 @@ function $ViewProvider() {
             ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to set as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2232,7 +2232,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -3210,7 +3210,6 @@ var jemViewDirective = [
             terminal: true,
             link: function (scope, element, attr) {
                 var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
-                //loader = "none | page | view" loader - template = "loader.html"
                 scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);

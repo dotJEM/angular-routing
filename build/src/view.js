@@ -140,7 +140,7 @@ function $ViewProvider() {
             ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -163,7 +163,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -218,7 +218,7 @@ function $ViewProvider() {
             ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to set as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -235,7 +235,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
