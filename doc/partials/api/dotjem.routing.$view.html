@@ -43,15 +43,41 @@ Any outside services are also able to create transactional updates by calling th
 </ul>
 </div>
 </li>
-<li><h3 id="get">get(name)</h3>
-<div class="get"><p>Gets the configuration for a namved view. If a transaction is in progress, updates provided by that will not be reflected untill
-it is comitted.</p><h4 id="Parameters">Parameters</h4>
+<li><h3 id="create">create(name, template, controller, locals)</h3>
+<div class="create"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
-<p>The name of the view for which to get the configuration.</p></li>
+<p>The name of the view to update as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p></li>
+<li><code ng:non-bindable="">template – {string|object} – </code>
+<p>The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</p></li>
+<li><code ng:non-bindable="">controller<i>(optional)</i> – {function=} – </code>
+<p>The view confroller either as a function or a named controller defined on the module or a referenced module.</p></li>
+<li><code ng:non-bindable="">locals<i>(optional)</i> – {object=} – </code>
+<p>An optional map of dependencies which should be injected into the controller.</p></li>
 </ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Object}</code>
-– <p>A view configuration object, this object may defined the following properties:</p>
+</div>
+</li>
+<li><h3 id="create">create(name, args)</h3>
+<div class="create"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
+<p>The name of the view to set as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p></li>
+<li><code ng:non-bindable="">args – {object} – </code>
+<p>View update arguments</p>
+
+<p>args properties:</p>
+
+<ul>
+<li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
+<li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
+<li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
+</ul></li>
+</ul>
+</div>
+</li>
+<li><h3 id="get">get()</h3>
+<div class="get"><p>Gets all current view configurations. If a transaction is in progress, updates provided by that will not be reflected untill
+it is comitted.</p><h4 id="Returns">Returns</h4>
+<div class="returns"><code ng:non-bindable="">{Array}</code>
+– <p>A list of view configuration objects, each object may defined the following properties:</p>
 
 <ul>
 <li><code>name</code>: <code>{string}</code> The name of the view.</li>
@@ -63,11 +89,15 @@ it is comitted.</p><h4 id="Parameters">Parameters</h4>
 </ul></div>
 </div>
 </li>
-<li><h3 id="get">get()</h3>
-<div class="get"><p>Gets all current view configurations. If a transaction is in progress, updates provided by that will not be reflected untill
-it is comitted.</p><h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Array}</code>
-– <p>A list of view configuration objects, each object may defined the following properties:</p>
+<li><h3 id="get">get(name)</h3>
+<div class="get"><p>Gets the configuration for a namved view. If a transaction is in progress, updates provided by that will not be reflected untill
+it is comitted.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
+<p>The name of the view for which to get the configuration.</p></li>
+</ul>
+<h4 id="Returns">Returns</h4>
+<div class="returns"><code ng:non-bindable="">{Object}</code>
+– <p>A view configuration object, this object may defined the following properties:</p>
 
 <ul>
 <li><code>name</code>: <code>{string}</code> The name of the view.</li>
@@ -91,38 +121,8 @@ it is comitted.</p><h4 id="Returns">Returns</h4>
 </ul>
 </div>
 </li>
-<li><h3 id="setIfAbsent">setIfAbsent(name, args)</h3>
-<div class="setifabsent"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
-<p>The name of the view to set as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p></li>
-<li><code ng:non-bindable="">args – {object} – </code>
-<p>View update arguments</p>
-
-<p>args properties:</p>
-
-<ul>
-<li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
-<li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
-<li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
-</ul></li>
-</ul>
-</div>
-</li>
-<li><h3 id="setIfAbsent">setIfAbsent(name, template, controller, locals)</h3>
-<div class="setifabsent"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
-<p>The name of the view to update as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p></li>
-<li><code ng:non-bindable="">template – {string|object} – </code>
-<p>The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</p></li>
-<li><code ng:non-bindable="">controller<i>(optional)</i> – {function=} – </code>
-<p>The view confroller either as a function or a named controller defined on the module or a referenced module.</p></li>
-<li><code ng:non-bindable="">locals<i>(optional)</i> – {object=} – </code>
-<p>An optional map of dependencies which should be injected into the controller.</p></li>
-</ul>
-</div>
-</li>
-<li><h3 id="setOrUpdate">setOrUpdate(name, args)</h3>
-<div class="setorupdate"><p>Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
+<li><h3 id="update">update(name, args)</h3>
+<div class="update"><p>Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
 <br/>
 If the view is marked sticky it will only force an update if the sticky flag is different than the previous one. In cases where it
 is the same the <code>$viewRefresh</code> event will be raised instead.
@@ -144,8 +144,8 @@ Views can also be refreshed by calling the <code>refresh</code> method.</p><h4 i
 </ul>
 </div>
 </li>
-<li><h3 id="setOrUpdate">setOrUpdate(name, template, controller, locals, sticky)</h3>
-<div class="setorupdate"><p>Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
+<li><h3 id="update">update(name, template, controller, locals, sticky)</h3>
+<div class="update"><p>Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
 <br/>
 If the view is marked sticky it will only force an update if the sticky flag is different than the previous one. In cases where it
 is the same the <code>$viewRefresh</code> event will be raised instead.
@@ -167,7 +167,22 @@ Views can also be refreshed by calling the <code>refresh</code> method.</p><h4 i
 </ul>
 </div>
 <div class="member event"><h2 id="Events">Events</h2>
-<ul class="events"><li><h3 id="$viewRefresh">$viewRefresh</h3>
+<ul class="events"><li><h3 id="$viewPrep">$viewPrep</h3>
+<div class="$viewprep"><p>Broadcasted when a view refreshed, if a transaction is active this will not occur before that is commited.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">broadcast</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">root scope</div>
+</div>
+<h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">angularEvent – {Object} – </code>
+<p>Synthetic event object.</p></li>
+<li><code ng:non-bindable="">name – {State} – </code>
+<p>Name of the view that was refreshed.</p></li>
+</ul>
+</div>
+</li>
+<li><h3 id="$viewRefresh">$viewRefresh</h3>
 <div class="$viewrefresh"><p>Broadcasted when a view refreshed, if a transaction is active this will not occur before that is commited.</p><div class="inline"><h4 id="Type.">Type:</h4>
 <div class="type-">broadcast</div>
 </div>

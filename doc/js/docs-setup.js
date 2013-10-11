@@ -12,6 +12,13 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "dotjem.routing.$resolve",
+      "shortName": "$resolve",
+      "type": "object",
+      "keywords": "$injector $q $resolve an api array cache clear clears dotjem for from in into is key keys list method object of push pushes remove resolve resolver resolvers routing service states the to used value values"
+    },
+    {
+      "section": "api",
       "id": "dotjem.routing.$route",
       "shortName": "$route",
       "type": "object",
@@ -22,7 +29,7 @@ NG_DOCS={
       "id": "dotjem.routing.$routeProvider",
       "shortName": "$routeProvider",
       "type": "object",
-      "keywords": "$location $route $routechangesuccess $routeparams $routeprovider $routeupdate action activated adds after agains against all allows an and any api applying are assigned be before between bracket brackets broadcasted browser by called calling can case cerverter change changes characters colon configuring contain contains convert converter converters curly current custom decorate decorating decorator default defined definition digits doesn dotjem event example existing expected expression expressions extracted false followed following folowing for from function further given groups if ignorecase in information input insensitive is it just mach mapping match matchcase matched matches matching method missing more name named new next ng no num number numeric numerical object of on one only option or other otherwise overwrites parameter parameters params path performed precent properties raised redirection redirectto redundant regex registered registering regular reload return root route routeprovider routes routing scope search see self sensitive service set sets should slash specific specify starting state still stored string syntax templateurl that the then this through to trailing trigger turns two under up update url used using value values when which will with would"
+      "keywords": "$location $route $routechangesuccess $routeparams $routeprovider $routeupdate action activated addition adds after agains against all allow allows an and any api applying are array assigned asterisk be before between both bracket brackets broadcasted browser by called calling can case catch cerverter change changes characters colon configuring contain contains convert converter converters curly current custom decorate decorating decorator default defined definition demonstration digits doesn dotjem event example exist existing expected expression expressions extracted false followed following folowing for from function further given groups if ignorecase in information input insensitive is it just like mach mapping match matchcase matched matches matching method missing more name named new next ng no not num number numeric numerical object of old on one only option or other otherwise overwrites parameter parameters params path performed possible precent properties purely purposes raised redirection redirectto redundant regex registered registering regular reload return root route routeprovider routes routing scope search see self sensitive service set sets should slash source specific specify starting state still stored string syntax templateurl that the then this through to trailing trigger turns two under up update url used using value values was when which will with would"
     },
     {
       "section": "api",
@@ -36,7 +43,7 @@ NG_DOCS={
       "id": "dotjem.routing.$state",
       "shortName": "$state",
       "type": "object",
-      "keywords": "$injector $location $node $q $rootscope $route $scroll $state $stateprovider $statetransition $view above activate activated active address all allows already also an and another any api are as associated at bar be browser build but by call called can cases change child childparam contains current currently define defined defines defining demonstrate directly does dotjem down either error errors etc example examples expression finally first flow following for force from full generate generating get gochild gohome goto has have here hierachy home homeparam however if implicitly important in include included index inspired instead is isn it last leaf leave loaded location lookup means method must name need next node not object of on only optionally or out overflow param parameters params parent particular path paths possible previous redefined reference relative reload reloaded root route routing say select selected selection selector selectors selects self separator set sibling specify specifying state states subset such supports syntax system that the their then these they this those through throw thrown to transition true under url use used using valid views we when where will wish with without won would xpath you"
+      "keywords": "$injector $location $node $q $rootscope $route $scroll $state $stateprovider $statetransition $view above activate activated active address against all allows already also an and another any api are as associated at bar be browser build but by call called can cases change check checks child childparam contains current currently define defined defines defining demonstrate directly does dotjem down either error errors etc example examples expression false finally first flow following for force from full generate generating get gochild gohome goto has have here hierachy home homeparam however if implicitly important in include included index inspired instead is isn it last leaf leave loaded location lookup matches mathces means method must name need next node not object of on only optionally or otherwise out overflow param parameters params parent particular path paths possible previous provided redefined reference relative reload reloaded root route routing say select selected selection selector selectors selects self separator set sibling specify specifying state states stats subset such supports syntax system that the their then these they this those through throw thrown to transition true under url use used using valid views we when where will wish with without won would xpath you"
     },
     {
       "section": "api",
@@ -71,7 +78,7 @@ NG_DOCS={
       "id": "dotjem.routing.$view",
       "shortName": "$view",
       "type": "object",
-      "keywords": "$q $rootscope $state $statetransitionprovider $template $view $viewrefresh able accessing actually all allows already also an and another any api applied applying are args arguments as be been before beginupdate but by call calling can cancel cases causes change changes clear cleared clears comitted commit completion configuration configurations confroller containing context controller create current currently data define defined dependencies details different directive dom done dotjem each either enables etc event fall flag following for force forces function get gets has if ignored in indicating information injected instead into is it jemview known list locals map marked may means method module more name named namved new not object objects of on one only optional or outside previous primarily progress properties provided raised record referenced reflected refresh refreshed refreshes returned routing run same scope see send series service services set setifabsent setorupdate sets should starts state sticky template templates than that the them then these they this through to transaction transactional transition transitions type under untill update updated updates used value version view views was way ways we when whenever where which will with within won yet"
+      "keywords": "$q $rootscope $state $statetransitionprovider $template $view $viewrefresh able accessing actually all allows already also an and another any api applied applying are args arguments as be been before beginupdate but by call calling can cancel cases causes change changes clear cleared clears comitted commit completion configuration configurations confroller containing context controller create current currently data define defined dependencies details different directive dom done dotjem each either enables etc event fall flag following for force forces function get gets has if ignored in indicating information injected instead into is it jemview known list locals map marked may means method module more name named namved new not object objects of on one only optional or outside previous primarily progress properties provided raised record referenced reflected refresh refreshed refreshes returned routing run same scope see send series service services set sets should starts state sticky template templates than that the them then these they this through to transaction transactional transition transitions type under untill update updated updates used value version view views was way ways we when whenever where which will with within won yet"
     },
     {
       "section": "api",
@@ -85,7 +92,7 @@ NG_DOCS={
       "id": "dotjem.routing.directive:jemView",
       "shortName": "jemView",
       "type": "directive",
-      "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current directive dotjem eca enter every existing file html included including index into is it jemview layout leave main name new occur of overview rendered route routing service state template that the time to used view with"
+      "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current directive display dotjem eca enter every existing file html included including index into is it jemview layout leave loader main name new occur of overview prepared rendered route routing service state template that the time to url used view while with"
     },
     {
       "section": "api",
