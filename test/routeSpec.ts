@@ -621,6 +621,13 @@ describe('$routeProvider', function () {
             });
         });
 
+        it('with missing parameters throws error', function () {
+            mock.inject(function ($route: dotjem.routing.IRouteService) {
+                expect(() => { $route.format('/look/:one/:two'); })
+                    .toThrow("Could not find parameter 'one' when building url for route '/look/:one/:two', ensure that all required parameters are provided.");
+            });
+        });
+
         it('regex converter throws error when values does not match', function () {
             //TODO: Built in regex should check for valid parameters.
             mock.inject(function ($route: dotjem.routing.IRouteService) {

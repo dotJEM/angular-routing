@@ -374,11 +374,14 @@ var $RouteProvider = [
             forEach(parseParams(url), function (param) {
                 var formatter = function (val) {
                     return val.toString();
-                }, converter = createParameter(param.name, param.converter, param.args).converter();
+                }, converter = createParameter(param.name, param.converter, param.args).converter(), paramValue = params[param.name];
+                if(isUndefined(paramValue)) {
+                    throw Error("Could not find parameter '" + param.name + "' when building url for route '" + url + "', ensure that all required parameters are provided.");
+                }
                 if(!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
                 }
-                name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
+                name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
             });
