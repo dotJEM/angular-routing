@@ -6,19 +6,19 @@
 
 /**
  * @ngdoc directive
- * @name dotjem.routing.directive:jemAnchor
- * @restrict ECA
+ * @name dotjem.routing.directive:sref
+ * @restrict AC
  * 
  * @description
- * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+ * Provides a link to a state.
  *
  * @element ANY
- * @param {string} jemAnchor|id Identifier of the anchor
+ * @param {string} params Parameters for the state link.
  */
 var jemLinkDirective = [<any>'$state', '$route', 
 function ($state, $route) {
     return {
-        restrict: 'A',
+        restrict: 'AC',
         terminal: false,
         scope: {
             sref: '=',

@@ -3314,7 +3314,18 @@ angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 /**
 * @ngdoc directive
 * @name dotjem.routing.directive:jemAnchor
-* @restrict ECA
+* @restrict AC
+*
+* @description
+* Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+*
+* @element ANY
+* @param {string} jemAnchor|id Identifier of the anchor
+*/
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:id
+* @restrict AC
 *
 * @description
 * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
@@ -3327,7 +3338,7 @@ var jemAnchorDirective = [
     '$timeout', 
     function ($scroll, $timeout) {
         return {
-            restrict: 'ECA',
+            restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
                 var name = attr['jemAnchor'] || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
@@ -3362,21 +3373,21 @@ angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 'use strict';
 /**
 * @ngdoc directive
-* @name dotjem.routing.directive:jemAnchor
-* @restrict ECA
+* @name dotjem.routing.directive:sref
+* @restrict AC
 *
 * @description
-* Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+* Provides a link to a state.
 *
 * @element ANY
-* @param {string} jemAnchor|id Identifier of the anchor
+* @param {string} params Parameters for the state link.
 */
 var jemLinkDirective = [
     '$state', 
     '$route', 
     function ($state, $route) {
         return {
-            restrict: 'A',
+            restrict: 'AC',
             terminal: false,
             scope: {
                 sref: '=',
