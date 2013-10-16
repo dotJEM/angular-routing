@@ -28,7 +28,8 @@ module.exports = function (config) {
             'src/state/stateFactory.js',
             'src/state/stateRules.js',
             'src/state/stateUrlBuilder.js',
-            'src/state/transition/visitors.js',
+            'src/state/transition/commands.js',
+            'src/state/transition/context.js',
 
             'src/directives/jemView.js',
             'src/directives/jemAnchor.js',

@@ -25,6 +25,7 @@ interface IViewScope extends ng.IScope {
  * The enter and leave animation occur concurrently.
  *
  * @param {string} jemView|name Name of the view
+ * @param {string} loader Url to a template to display while the view is prepared.
  */
 
 /**
@@ -54,25 +55,28 @@ interface IViewScope extends ng.IScope {
  * @param {string} name The name of the view where the broadcast originated.
  * @param {Object} name Any data that may have been provided for a refresh.
  */
-var jemViewDirective = [<any>'$state', '$compile', '$controller', '$view', '$animate',
-function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $animate) {
+var jemViewDirective = [<any>'$state', '$compile', '$controller', '$view', '$animate', '$template',
+function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $animate, $template) {
     'use strict';
     return {
         restrict: 'ECA',
         terminal: true,
         priority: 1000,
         transclude: 'element',
-        compile: function(element: JQuery, attr, linker) {
+        compile: function (element: JQuery, attr, linker) {
             return function (scope, element: JQuery, attr) {
                 var viewScope: IViewScope,
                     viewElement: JQuery,
                     name = attr['jemView'] || attr.name,
                     onloadExp = attr.onload || '',
-                    version = -1;
+                    version = -1,
+                    loader = (attr.loader && $template.get(attr.loader)) || null,
+                    activeLoader: JQuery;
 
-                scope.$on(EVENTS.VIEW_UPDATE, function(event, updatedName) {
+                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                     if (updatedName === name) update(true);
                 });
+
                 scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
                     if (refreshName === name) {
                         if (isFunction(viewScope.refresh)) {
@@ -82,13 +86,33 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                         }
                     }
                 });
-				scope.$on('$viewPrep', function (event, name, data) {
-					prepare(name, data)
-				});
+
+                scope.$on('$viewPrep', function (event, prepName, data) {
+                    if (prepName === name && data.type === 'update') {
+                        displayLoader();
+                    } else if (data.type === 'cancel') {
+                        removeLoader();
+                    }
+                });
 
                 update(false);
 
-				function prepare(name, data) {
+                function removeLoader() {
+                    if (isDefined(activeLoader)) {
+                        activeLoader.remove();
+                        activeLoader = undefined;
+
+                        element.contents().show();
+                    }
+                }
+
+                function displayLoader() {
+                    if (loader !== null) {
+                        loader.then((html) => {
+                            element.contents().hide();
+                            element.append(activeLoader = angular.element(html));
+                        });
+                    }
                 }
 
                 function cleanupView(doAnimate) {
@@ -119,7 +143,7 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
 
                         view.template.then((html) => {
                             var newScope = scope.$new();
-                            linker(newScope, function(clone) {
+                            linker(newScope, function (clone) {
                                 cleanupView(doAnimate);
 
                                 clone.html(html);

@@ -238,20 +238,19 @@ var $RouteProvider = [
             forEach(parseParams(url), function (param) {
                 var formatter = function (val) {
                     return val.toString();
-                }, converter = createParameter(param.name, param.converter, param.args).converter();
+                }, converter = createParameter(param.name, param.converter, param.args).converter(), paramValue = params[param.name];
+                if(isUndefined(paramValue)) {
+                    throw Error("Could not find parameter '" + param.name + "' when building url for route '" + url + "', ensure that all required parameters are provided.");
+                }
                 if(!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
                 }
-                name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
+                name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
             });
             name += url.substr(index);
             return name;
-        }
-        var esc = /[-\/\\^$*+?.()|[\]{}]/g;
-        function escape(exp) {
-            return exp.replace(esc, "\\$&");
         }
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path) {
@@ -290,7 +289,7 @@ var $RouteProvider = [
             }
             forEach(parseParams(path), function (param, idx) {
                 var cname = '';
-                regex += escape(path.slice(index, param.index));
+                regex += escapeRegex(path.slice(index, param.index));
                 if(param.catchAll) {
                     regex += '/(.*)';
                 } else {
@@ -307,7 +306,7 @@ var $RouteProvider = [
                 segments.push(createParameter(param.name, param.converter, param.args));
                 index = param.lastIndex;
             });
-            regex += escape(path.substr(index));
+            regex += escapeRegex(path.substr(index));
             name += path.substr(index);
             if(!caseSensitive) {
                 name = name.toLowerCase();

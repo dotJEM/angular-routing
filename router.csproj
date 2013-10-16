@@ -134,10 +134,14 @@
     <Content Include="src\state\stateUrlBuilder.js">
       <DependentUpon>stateUrlBuilder.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="src\state\transition\visitors.ts" />
-    <Content Include="src\state\transition\visitors.js">
-      <DependentUpon>visitors.ts</DependentUpon>
+    <Content Include="src\state\transition\commands.js">
+      <DependentUpon>commands.ts</DependentUpon>
     </Content>
+    <Content Include="src\state\transition\commands.ts" />
+    <Content Include="src\state\transition\context.js">
+      <DependentUpon>context.ts</DependentUpon>
+    </Content>
+    <Content Include="src\state\transition\context.ts" />
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
     <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />

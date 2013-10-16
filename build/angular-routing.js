@@ -106,6 +106,10 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
+var esc = /[-\/\\^$*+?.()|[\]{}]/g;
+function escapeRegex(exp) {
+    return exp.replace(esc, "\\$&");
+}
 var errors = {
     routeCannotBeUndefined: 'Can not set route to undefined.',
     valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
@@ -370,20 +374,19 @@ var $RouteProvider = [
             forEach(parseParams(url), function (param) {
                 var formatter = function (val) {
                     return val.toString();
-                }, converter = createParameter(param.name, param.converter, param.args).converter();
+                }, converter = createParameter(param.name, param.converter, param.args).converter(), paramValue = params[param.name];
+                if(isUndefined(paramValue)) {
+                    throw Error("Could not find parameter '" + param.name + "' when building url for route '" + url + "', ensure that all required parameters are provided.");
+                }
                 if(!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
                 }
-                name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
+                name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
             });
             name += url.substr(index);
             return name;
-        }
-        var esc = /[-\/\\^$*+?.()|[\]{}]/g;
-        function escape(exp) {
-            return exp.replace(esc, "\\$&");
         }
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path) {
@@ -422,7 +425,7 @@ var $RouteProvider = [
             }
             forEach(parseParams(path), function (param, idx) {
                 var cname = '';
-                regex += escape(path.slice(index, param.index));
+                regex += escapeRegex(path.slice(index, param.index));
                 if(param.catchAll) {
                     regex += '/(.*)';
                 } else {
@@ -439,7 +442,7 @@ var $RouteProvider = [
                 segments.push(createParameter(param.name, param.converter, param.args));
                 index = param.lastIndex;
             });
-            regex += escape(path.substr(index));
+            regex += escapeRegex(path.substr(index));
             name += path.substr(index);
             if(!caseSensitive) {
                 name = name.toLowerCase();
@@ -1666,11 +1669,16 @@ var $StateProvider = [
                         });
                     },
                     lookup: function (path) {
-                        return browser.resolve(current, path);
+                        return browser.resolve(current, path, true);
                     },
                     reload: reload,
                     url: function (state, params) {
-                        state = isDefined(state) ? browser.lookup(toName(state)) : current;
+                        if(isDefined(state)) {
+                            //state = browser.lookup(toName(state));
+                            state = browser.resolve(current, toName(state), false);
+                        } else {
+                            state = current;
+                        }
                         return urlbuilder.buildUrl($state.current, state, params);
                     },
                     is: function (state) {
@@ -1680,7 +1688,6 @@ var $StateProvider = [
                         return current.isActive(toName(state));
                     }
                 };
-                var context = new Context($state, root).complete();
                 $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                     var route = $route.current;
                     if(route) {
@@ -1703,7 +1710,6 @@ var $StateProvider = [
                     $state.current.$params = params;
                     $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
                 });
-                return $state;
                 function reload(state) {
                     if(isDefined(state)) {
                         if(isString(state) || isObject(state)) {
@@ -1726,9 +1732,17 @@ var $StateProvider = [
                         });
                     });
                 }
+                var context = new Context($state, function (ctx) {
+                }, root).complete();
+                var running = context;
                 function goto(args) {
-                    var ctx = context = context.next();
-                    ctx = ctx.execute(cmd.initializeContext(browser.lookup(toName(args.state)), args.params)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    if(!running.ended) {
+                        running.abort();
+                    }
+                    var ctx = running = context.next(function (ctx) {
+                        context = ctx;
+                    });
+                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
@@ -1736,7 +1750,6 @@ var $StateProvider = [
                         }
                     });
                     if(ctx.ended) {
-                        context = ctx;
                         return;
                     }
                     var scrollTo, useUpdate = false, alllocals = {
@@ -1757,8 +1770,8 @@ var $StateProvider = [
                             scrollTo = change.state.scrollTo;
                         });
                     });
-                    return promise.then(function () {
-                        context = ctx.execute(cmd.between($rootScope)).execute(function (context) {
+                    promise.then(function () {
+                        ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;
                             $state.params = context.params;
@@ -1767,12 +1780,13 @@ var $StateProvider = [
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
                         }).execute(cmd.after($scroll, scrollTo)).complete();
                     }, function (error) {
-                        context = ctx.execute(function (context) {
+                        ctx.execute(function (context) {
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
                             context.abort();
                         });
                     });
                 }
+                return $state;
             }        ];
     }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);
@@ -2033,7 +2047,7 @@ function $ViewProvider() {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
             }
             function ensureName(name) {
-                if(name === 'undefined') {
+                if(isUndefined(name)) {
                     throw new Error('Must define a view name.');
                 }
             }
@@ -2126,7 +2140,7 @@ function $ViewProvider() {
             ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2149,7 +2163,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2204,7 +2218,7 @@ function $ViewProvider() {
             ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to set as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2221,7 +2235,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -2434,7 +2448,7 @@ function $ViewProvider() {
                         update: function (name, template, controller, locals, sticky) {
                             ensureName(name);
                             records[name] = {
-                                act: 'setOrUpdate',
+                                act: 'update',
                                 fn: function () {
                                     update(name, template, controller, locals, sticky);
                                 }
@@ -2445,7 +2459,7 @@ function $ViewProvider() {
                             ensureName(name);
                             if(!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
-                                    act: 'setIfAbsent',
+                                    act: 'create',
                                     fn: function () {
                                         create(name, template, controller, locals);
                                     }
@@ -2683,12 +2697,12 @@ var State = (function () {
 var StateBrowser = (function () {
     function StateBrowser(root) {
         this.root = root;
-        this.nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+        this.nameRegex = new RegExp('^(' + escapeRegex(rootName) + '\\.)?\\w+(\\.\\w+)*$');
         this.siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
         this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     }
-    StateBrowser.prototype.lookup = function (fullname, stop) {
-        var current = this.root, names = fullname.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+    StateBrowser.prototype.lookup = function (path, stop) {
+        var current = this.root, names = path.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -2697,7 +2711,7 @@ var StateBrowser = (function () {
         }
         return current;
     };
-    StateBrowser.prototype.resolve = function (origin, path) {
+    StateBrowser.prototype.resolve = function (origin, path, wrap) {
         var _this = this;
         var siblingSelector = this.siblingRegex.exec(path), selected = origin, sections;
         if(siblingSelector) {
@@ -2719,7 +2733,13 @@ var StateBrowser = (function () {
         if(selected === this.root) {
             throw Error(errors.expressionOutOfBounds);
         }
-        return selected && copy(selected.self) || undefined;
+        if(selected) {
+            if(wrap) {
+                return copy(selected.self);
+            }
+        }
+        return selected;
+        return undefined;
     };
     StateBrowser.prototype.selectSibling = function (index, selected) {
         var children = [], currentIndex = 0;
@@ -2769,7 +2789,7 @@ var StateBrowser = (function () {
         if(exp in selected.children) {
             return selected.children[exp];
         }
-        throw Error(errors.couldNotFindStateForPath);
+        throw Error(errors.couldNotFindStateForPath + ": " + exp);
     };
     return StateBrowser;
 })();
@@ -2921,173 +2941,21 @@ var StateUrlBuilder = (function () {
     return StateUrlBuilder;
 })();
 
-/// <reference path="../../refs.d.ts" />
-var Context = (function () {
-    function Context(_$state, current) {
-        this.previous = {
-        };
-        this.properties = {
-        };
-        this.aborted = false;
-        this.completed = false;
-        this._prep = {
-        };
-        this.properties = {
-        };
-        this._$state = _$state;
-        this.to = current;
-    }
-    Object.defineProperty(Context.prototype, "$state", {
-        get: function () {
-            return this._$state;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "to", {
-        get: function () {
-            return this.properties.to;
-        },
-        set: function (value) {
-            this.properties.to = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "from", {
-        get: function () {
-            return this.properties.from;
-        },
-        set: function (value) {
-            this.properties.from = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "params", {
-        get: function () {
-            return this.properties.params;
-        },
-        set: function (value) {
-            this.properties.params = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "emit", {
-        get: function () {
-            return this.properties.emit;
-        },
-        set: function (value) {
-            this.properties.emit = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "changed", {
-        get: function () {
-            return this.properties.changed;
-        },
-        set: function (value) {
-            this.properties.changed = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "toState", {
-        get: function () {
-            return this.properties.toState;
-        },
-        set: function (value) {
-            this.properties.toState = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "transition", {
-        get: function () {
-            return this.properties.transition;
-        },
-        set: function (value) {
-            this.properties.transition = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Context.prototype, "transaction", {
-        get: function () {
-            return this.properties.transaction;
-        },
-        set: function (value) {
-            this.properties.transaction = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Context.prototype.next = function () {
-        if(!this.ended) {
-            this.abort();
-        }
-        var next = new Context(this.$state);
-        next.previous = this;
-        next.from = this.to;
-        //Note: to allow garbage collection.
-        this.previous = null;
-        return next;
-    };
-    Context.prototype.execute = function (visitor) {
-        if(this.ended) {
-            return this;
-        }
-        visitor(this);
-        if(this.aborted) {
-            return this.previous;
-        }
-        return this;
-    };
-    Object.defineProperty(Context.prototype, "ended", {
-        get: function () {
-            return this.aborted || this.completed;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Context.prototype.complete = function () {
-        this.completed = true;
-        return this;
-    };
-    Context.prototype.abort = function () {
-        this.aborted = true;
-        if(this.transaction && !this.transaction.completed) {
-            this.transaction.cancel();
-        }
-        return this;
-    };
-    Context.prototype.prepUpdate = // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
-    function (state, name, template, controller, sticky) {
-        var prep = (this._prep[state] = this._prep[state] || {
-        });
-        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
-    };
-    Context.prototype.prepCreate = function (state, name, template, controller) {
-        var prep = (this._prep[state] = this._prep[state] || {
-        });
-        prep[name] = this.transaction.prepCreate(name, template, controller);
-    };
-    Context.prototype.completePrep = function (state, locals) {
-        forEach(this._prep[state], function (value, key) {
-            value(locals);
-        });
-    };
-    return Context;
-})();
+//TODO: Refactor into:
+//      so we can put into seperate files.
+//module cmd {
+//    export function initialize() { }
+//}
 var cmd = {
-    initializeContext: function (next, params) {
+    initializeContext: function (next, params, browser) {
         return function (context) {
-            context.to = next;
+            //context.to = browser.resolve(context.from, next, false);
+            var to = browser.resolve(context.from, next, false);
+            //var to = browser.lookup(next);
+            context.to = to;
             context.params = params;
             context.toState = extend({
-            }, next.self, {
+            }, to.self, {
                 $params: params
             });
         };
@@ -3224,6 +3092,86 @@ var cmd = {
     }
 };
 
+/// <reference path="../../refs.d.ts" />
+var Context = (function () {
+    function Context(_$state, onComplete, current) {
+        this.aborted = false;
+        this.completed = false;
+        this._prep = {
+        };
+        this._$state = _$state;
+        this.to = current;
+        this.onComplete = onComplete;
+    }
+    Object.defineProperty(Context.prototype, "$state", {
+        get: function () {
+            return this._$state;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Context.prototype, "ended", {
+        get: function () {
+            return this.aborted || this.completed;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Context.prototype.next = function (onComplete) {
+        if(!this.ended) {
+            this.abort();
+        }
+        var next = new Context(this.$state, onComplete);
+        next.previous = this;
+        next.from = this.to;
+        //Note: to allow garbage collection.
+        this.previous = null;
+        return next;
+    };
+    Context.prototype.execute = function (visitor) {
+        if(!this.ended) {
+            visitor(this);
+            if(this.aborted) {
+                return this.previous;
+            }
+        }
+        return this;
+    };
+    Context.prototype.complete = function () {
+        if(!this.ended) {
+            this.onComplete(this);
+            this.completed = true;
+        }
+        return this;
+    };
+    Context.prototype.abort = function () {
+        if(!this.ended) {
+            this.aborted = true;
+            if(this.transaction && !this.transaction.completed) {
+                this.transaction.cancel();
+            }
+        }
+        return this;
+    };
+    Context.prototype.prepUpdate = // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
+    function (state, name, template, controller, sticky) {
+        var prep = (this._prep[state] = this._prep[state] || {
+        });
+        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
+    };
+    Context.prototype.prepCreate = function (state, name, template, controller) {
+        var prep = (this._prep[state] = this._prep[state] || {
+        });
+        prep[name] = this.transaction.prepCreate(name, template, controller);
+    };
+    Context.prototype.completePrep = function (state, locals) {
+        forEach(this._prep[state], function (value, key) {
+            value(locals);
+        });
+    };
+    return Context;
+})();
+
 /**
 * @ngdoc event
 * @name dotjem.routing.directive:jemView#$viewContentLoaded
@@ -3252,84 +3200,112 @@ var cmd = {
 */
 var jemViewDirective = [
     '$state', 
-    '$scroll', 
     '$compile', 
     '$controller', 
     '$view', 
-    '$animator', 
-    function ($state, $scroll, $compile, $controller, $view, $animator) {
+    '$animate', 
+    '$template', 
+    function ($state, $compile, $controller, $view, $animate, $template) {
         'use strict';
         return {
             restrict: 'ECA',
             terminal: true,
-            link: function (scope, element, attr) {
-                var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
-                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                    if(updatedName === name) {
-                        update(doAnimate);
-                    }
-                });
-                scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
-                    if(refreshName === name) {
-                        if(isFunction(viewScope.refresh)) {
-                            viewScope.refresh(refreshData);
-                        } else {
-                            viewScope.$broadcast('$refresh', refreshName, refreshData);
+            priority: 1000,
+            transclude: 'element',
+            compile: function (element, attr, linker) {
+                return function (scope, element, attr) {
+                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
+                    scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
+                        if(updatedName === name) {
+                            update(true);
                         }
-                    }
-                });
-                scope.$on('$viewPrep', function (event, name, data) {
-                    prepare(name, doAnimate, data);
-                });
-                update(false);
-                function prepare(name, doAnimate, cancel) {
-                }
-                function destroyScope() {
-                    if(viewScope) {
-                        viewScope.$destroy();
-                        viewScope = null;
-                    }
-                }
-                function clearContent(doAnimate) {
-                    if(doAnimate) {
-                        animate.leave(element.contents(), element);
-                    } else {
-                        element.html('');
-                    }
-                    destroyScope();
-                }
-                function update(doAnimate) {
-                    var view = $view.get(name), controller;
-                    if(view && view.template) {
-                        if(view.version === version) {
-                            return;
-                        }
-                        version = view.version;
-                        controller = view.controller;
-                        view.template.then(function (html) {
-                            clearContent(doAnimate);
-                            if(doAnimate) {
-                                animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                    });
+                    scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
+                        if(refreshName === name) {
+                            if(isFunction(viewScope.refresh)) {
+                                viewScope.refresh(refreshData);
                             } else {
-                                element.html(html);
+                                viewScope.$broadcast('$refresh', refreshName, refreshData);
                             }
-                            var link = $compile(element.contents()), locals;
-                            viewScope = scope.$new();
-                            if(controller) {
-                                locals = copy(view.locals);
-                                locals.$scope = viewScope;
-                                controller = $controller(controller, locals);
-                                element.contents().data('$ngControllerController', controller);
-                            }
-                            link(viewScope);
-                            viewScope.$emit('$viewContentLoaded');
-                            viewScope.$eval(onloadExp);
-                        });
-                    } else {
-                        version = -1;
-                        clearContent(doAnimate);
+                        }
+                    });
+                    scope.$on('$viewPrep', function (event, prepName, data) {
+                        if(prepName === name && data.type === 'update') {
+                            displayLoader();
+                        } else if(data.type === 'cancel') {
+                            removeLoader();
+                        }
+                    });
+                    update(false);
+                    function removeLoader() {
+                        if(isDefined(activeLoader)) {
+                            activeLoader.remove();
+                            activeLoader = undefined;
+                            element.contents().show();
+                        }
                     }
-                }
+                    function displayLoader() {
+                        if(loader !== null) {
+                            loader.then(function (html) {
+                                element.contents().hide();
+                                element.append(activeLoader = angular.element(html));
+                            });
+                        }
+                    }
+                    function cleanupView(doAnimate) {
+                        if(viewScope) {
+                            viewScope.$destroy();
+                            viewScope = null;
+                        }
+                        if(viewElement) {
+                            if(doAnimate) {
+                                $animate.leave(viewElement);
+                            } else {
+                                viewElement.remove();
+                            }
+                            viewElement = null;
+                        }
+                    }
+                    function update(doAnimate) {
+                        var view = $view.get(name), controller;
+                        if(view && view.template) {
+                            if(view.version === version) {
+                                return;
+                            }
+                            version = view.version;
+                            controller = view.controller;
+                            view.template.then(function (html) {
+                                var newScope = scope.$new();
+                                linker(newScope, function (clone) {
+                                    cleanupView(doAnimate);
+                                    clone.html(html);
+                                    if(doAnimate) {
+                                        $animate.enter(clone, null, element);
+                                    } else {
+                                        element.after(clone);
+                                    }
+                                    var link = $compile(clone.contents()), locals;
+                                    viewScope = newScope;
+                                    viewElement = clone;
+                                    if(controller) {
+                                        locals = extend({
+                                        }, view.locals);
+                                        locals.$scope = viewScope;
+                                        controller = $controller(controller, locals);
+                                        clone.data('$ngControllerController', controller);
+                                        clone.children().data('$ngControllerController', controller);
+                                    }
+                                    link(viewScope);
+                                    viewScope.$emit('$viewContentLoaded');
+                                    viewScope.$eval(onloadExp);
+                                });
+                            });
+                        } else {
+                            version = -1;
+                            cleanupView(doAnimate);
+                        }
+                    }
+                };
             }
         };
     }];

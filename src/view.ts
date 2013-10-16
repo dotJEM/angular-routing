@@ -51,7 +51,7 @@ function $ViewProvider() {
         }
 
         function ensureName(name: string) {
-            if (name === 'undefined') {
+            if (isUndefined(name)) {
                 throw new Error('Must define a view name.');
             }
         };
@@ -149,7 +149,7 @@ function $ViewProvider() {
 
         /**
          * @ngdoc method
-         * @name dotjem.routing.$view#setOrUpdate
+         * @name dotjem.routing.$view#update
          * @methodOf dotjem.routing.$view
          *
          * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -173,7 +173,7 @@ function $ViewProvider() {
 
         /**
          * @ngdoc method
-         * @name dotjem.routing.$view#setOrUpdate
+         * @name dotjem.routing.$view#update
          * @methodOf dotjem.routing.$view
          *
          * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -213,8 +213,7 @@ function $ViewProvider() {
             views[name].template = $template.get(template);
             views[name].controller = controller;
             views[name].locals = locals;
-
-
+            
             if (isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                 raiseRefresh(name, {
                     $locals: locals,
@@ -231,7 +230,7 @@ function $ViewProvider() {
 
         /**
          * @ngdoc method
-         * @name dotjem.routing.$view#setIfAbsent
+         * @name dotjem.routing.$view#create
          * @methodOf dotjem.routing.$view
          *
          * @param {string} name The name of the view to set as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -249,7 +248,7 @@ function $ViewProvider() {
 
         /**
          * @ngdoc method
-         * @name dotjem.routing.$view#setIfAbsent
+         * @name dotjem.routing.$view#create
          * @methodOf dotjem.routing.$view
          *
          * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -426,7 +425,9 @@ function $ViewProvider() {
                             return;
 
                         trx.completed = true;
-                        forEach(records, (rec) => { rec.fn(); })
+                        forEach(records, (rec) => {
+                            rec.fn();
+                        })
                     },
                     cancel: function () {
                         raisePrepare(name, { type: 'cancel' });
@@ -466,7 +467,7 @@ function $ViewProvider() {
                         ensureName(name);
 
                         records[name] = {
-                            act: 'setOrUpdate',
+                            act: 'update',
                             fn: () => {
                                 update(name, template, controller, locals, sticky);
                             }
@@ -478,7 +479,7 @@ function $ViewProvider() {
 
                         if (!containsView(records, name) || records[name].act === 'clear') {
                             records[name] = {
-                                act: 'setIfAbsent',
+                                act: 'create',
                                 fn: () => {
                                     create(name, template, controller, locals);
                                 }
