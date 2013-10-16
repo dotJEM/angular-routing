@@ -597,6 +597,12 @@ var $RouteProvider = [<any>'$locationProvider',
                 baseElement,
                 $route: any = {
                     routes: routes,
+                    html5Mode: function () {
+                        return $locationProvider.html5Mode();
+                    },
+                    hashPrefix: function () {
+                        return $locationProvider.hashPrefix();
+                    },
                     reload: function () {
                         forceReload = true;
                         $rootScope.$evalAsync(update);

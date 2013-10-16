@@ -89,6 +89,13 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "dotjem.routing.directive:jemAnchor",
+      "shortName": "jemAnchor",
+      "type": "directive",
+      "keywords": "$scroll an anchor any api directive dotjem eca for identifier jemanchor of point provides routing service the to use"
+    },
+    {
+      "section": "api",
       "id": "dotjem.routing.directive:jemView",
       "shortName": "jemView",
       "type": "directive",
