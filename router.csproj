@@ -53,6 +53,7 @@
     <None Include="test\stateSpec.js.map">
       <DependentUpon>stateSpec.ts</DependentUpon>
     </None>
+    <None Include="tslint.json" />
     <None Include="version.yaml" />
   </ItemGroup>
   <ItemGroup>

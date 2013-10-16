@@ -148,6 +148,15 @@ module.exports = function (grunt) {
                 html5Mode: false,
             },
             all: ['build/src/**/*.js']
+        },
+        
+        tslint: {
+            options: {
+                configuration: grunt.file.readJSON("tslint.json")
+            },
+            files: {
+                src: ['src/**/*.ts']
+            }
         }
     });
 
@@ -162,6 +171,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-ngdocs');
+    grunt.loadNpmTasks('grunt-tslint');
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
