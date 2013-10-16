@@ -32,6 +32,7 @@ module.exports = function (config) {
             
             'src/directives/jemView.js',
             'src/directives/jemAnchor.js',
+            'src/directives/jemLink.js',
 
             'src/legacy/templateDecorator.js',
 

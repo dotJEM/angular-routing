@@ -7,7 +7,19 @@
 /**
  * @ngdoc directive
  * @name dotjem.routing.directive:jemAnchor
- * @restrict ECA
+ * @restrict AC
+ * 
+ * @description
+ * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+ *
+ * @element ANY
+ * @param {string} jemAnchor|id Identifier of the anchor
+ */
+
+/**
+ * @ngdoc directive
+ * @name dotjem.routing.directive:id
+ * @restrict AC
  * 
  * @description
  * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
@@ -18,7 +30,7 @@
 var jemAnchorDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {
-        restrict: 'ECA',
+        restrict: 'AC',
         terminal: false,
         link: function (scope, element: JQuery, attr) {
             var name = attr['jemAnchor'] || attr.id,
@@ -48,6 +60,5 @@ function ($scroll, $timeout: ng.ITimeoutService) {
         }
     };
 }];
-
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);

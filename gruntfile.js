@@ -62,6 +62,7 @@ module.exports = function (grunt) {
                         'build/src/state/transition/context.js',
                         'build/src/directives/jemView.js',
                         'build/src/directives/jemAnchor.js',
+                        'build/src/directives/jemLink.js',
                         'src/suffix'],
                 dest: 'build/<%= pkg.name %>.js'
             },

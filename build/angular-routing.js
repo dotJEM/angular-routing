@@ -374,11 +374,14 @@ var $RouteProvider = [
             forEach(parseParams(url), function (param) {
                 var formatter = function (val) {
                     return val.toString();
-                }, converter = createParameter(param.name, param.converter, param.args).converter();
+                }, converter = createParameter(param.name, param.converter, param.args).converter(), paramValue = params[param.name];
+                if(isUndefined(paramValue)) {
+                    throw Error("Could not find parameter '" + param.name + "' when building url for route '" + url + "', ensure that all required parameters are provided.");
+                }
                 if(!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
                 }
-                name += url.slice(index, param.index) + '/' + formatter(params[param.name]);
+                name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
             });
@@ -671,6 +674,12 @@ var $RouteProvider = [
                 */
                                 var forceReload = false, baseElement, $route = {
                     routes: routes,
+                    html5Mode: function () {
+                        return $locationProvider.html5Mode();
+                    },
+                    hashPrefix: function () {
+                        return $locationProvider.hashPrefix();
+                    },
                     reload: function () {
                         forceReload = true;
                         $rootScope.$evalAsync(update);
@@ -3305,7 +3314,18 @@ angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 /**
 * @ngdoc directive
 * @name dotjem.routing.directive:jemAnchor
-* @restrict ECA
+* @restrict AC
+*
+* @description
+* Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+*
+* @element ANY
+* @param {string} jemAnchor|id Identifier of the anchor
+*/
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:id
+* @restrict AC
 *
 * @description
 * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
@@ -3318,7 +3338,7 @@ var jemAnchorDirective = [
     '$timeout', 
     function ($scroll, $timeout) {
         return {
-            restrict: 'ECA',
+            restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
                 var name = attr['jemAnchor'] || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
@@ -3346,6 +3366,58 @@ var jemAnchorDirective = [
     }];
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="../common.ts" />
+'use strict';
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:sref
+* @restrict AC
+*
+* @description
+* Provides a link to a state.
+*
+* @element ANY
+* @param {string} params Parameters for the state link.
+*/
+var jemLinkDirective = [
+    '$state', 
+    '$route', 
+    function ($state, $route) {
+        return {
+            restrict: 'AC',
+            terminal: false,
+            scope: {
+                sref: '=',
+                params: '='
+            },
+            link: function (scope, element, attr) {
+                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix();
+                function applyHref(link) {
+                    if(!html5) {
+                        link = '#' + prefix + link;
+                    }
+                    element.attr('href', link);
+                }
+                if(tag === 'a') {
+                    scope.$watch('sref', function () {
+                        applyHref($state.url(scope.sref, scope.params));
+                    });
+                    scope.$watch('params', function () {
+                        applyHref($state.url(scope.sref, scope.params));
+                    });
+                    applyHref($state.url(scope.sref, scope.params));
+                } else {
+                    element.click(function (event) {
+                        $state.goto(scope.sref, scope.params);
+                    });
+                }
+            }
+        };
+    }];
+angular.module('dotjem.routing').directive('sref', jemLinkDirective);
 
 
 //NOTE: Expose for testing
