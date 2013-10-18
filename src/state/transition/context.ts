@@ -28,7 +28,7 @@ class Context {
 
     public next(onComplete: ICommand) {
         if (!this.ended) {
-            this.abort()
+            this.abort();
         } 
 
         var next = new Context(this.$state, onComplete);

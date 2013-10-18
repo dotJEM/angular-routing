@@ -176,7 +176,7 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'build', 'karma', 'ngdocs']);
+    grunt.registerTask('default', ['clean', 'tslint', 'build', 'karma', 'ngdocs']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
     grunt.registerTask('docs', ['clean', 'build', 'ngdocs']);

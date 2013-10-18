@@ -517,8 +517,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 .execute(function (context: Context) {
                     if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented)
                         context.abort();
-                })
-
+                });
 
             if (ctx.ended) {
                 return;

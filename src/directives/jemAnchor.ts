@@ -33,7 +33,7 @@ function ($scroll, $timeout: ng.ITimeoutService) {
         restrict: 'AC',
         terminal: false,
         link: function (scope, element: JQuery, attr) {
-            var name = attr['jemAnchor'] || attr.id,
+            var name = attr.jemAnchor || attr.id,
                 //Note: Default delay to 1 as it seems that the $timeout is instantly executed
                 //      although the angular team says it should wait untill any digest is done.
                 //      Using 1 seems to work.

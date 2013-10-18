@@ -72,9 +72,8 @@ function $TemplateProvider() {
             'get': function (template): ng.IPromise {
                 if (isString(template)) {
                     if (urlmatcher.test(template))
-                        return getFromUrl(template)
-                    else
-                        return $q.when(template);
+                        return getFromUrl(template);
+                    return $q.when(template);
                 }
 
                 if (isFunction(template) || isArray(template))
@@ -85,7 +84,7 @@ function $TemplateProvider() {
 
                 throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
             }
-        }
+        };
         return $template;
     }];
 }

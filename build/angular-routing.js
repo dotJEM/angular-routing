@@ -19,7 +19,7 @@ var dotjem;
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root';
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root', noop = angular.noop;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -61,10 +61,7 @@ function buildParamsFromObject(params) {
     par.$search = copy(params && params.search || {
     });
     return par;
-    // params.path || {};
-    // $state.params.$all = params.all;
-    // $state.params.$search = params.search;
-    }
+}
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
 function toKeyValue(obj, prepend) {
@@ -342,8 +339,7 @@ var $RouteProvider = [
                             };
                         }
                     } else {
-                        fn = function () {
-                        };
+                        fn = noop;
                     }
                 }
                 return fn($location, next);
@@ -460,8 +456,7 @@ var $RouteProvider = [
         }
         function createMatcher(path, expression) {
             if(path == null) {
-                return function (location) {
-                };
+                return noop;
             }
             return function (location) {
                 var match = location.match(expression.exp), dst = {
@@ -1986,9 +1981,8 @@ function $TemplateProvider() {
                     if(isString(template)) {
                         if(urlmatcher.test(template)) {
                             return getFromUrl(template);
-                        } else {
-                            return $q.when(template);
                         }
+                        return $q.when(template);
                     }
                     if(isFunction(template) || isArray(template)) {
                         return getFromFunction(template);
@@ -3341,7 +3335,7 @@ var jemAnchorDirective = [
             restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr['jemAnchor'] || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
+                var name = attr.jemAnchor || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
                 //      although the angular team says it should wait untill any digest is done.
                 //      Using 1 seems to work.
                 isDefined(attr.delay) ? Number(attr.delay) : 1;
@@ -3370,7 +3364,6 @@ angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 /// <reference path="../../lib/angular/angular-1.0.d.ts" />
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
-'use strict';
 /**
 * @ngdoc directive
 * @name dotjem.routing.directive:sref
@@ -3386,6 +3379,7 @@ var jemLinkDirective = [
     '$state', 
     '$route', 
     function ($state, $route) {
+        'use strict';
         return {
             restrict: 'AC',
             terminal: false,

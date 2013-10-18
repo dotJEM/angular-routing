@@ -80,7 +80,7 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
                     if (isFunction(viewScope.refresh)) {
                         viewScope.refresh(refreshData);
                     } else {
-                        viewScope.$broadcast('$refresh', refreshName, refreshData)
+                        viewScope.$broadcast('$refresh', refreshName, refreshData);
                     }
                 }
             });
@@ -122,10 +122,11 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
             }
 
             function clearContent(doAnimate) {
-                if (doAnimate)
+                if (doAnimate) {
                     animate.leave(element.contents(), element);
-                else
+                } else {
                     element.html('');
+                }
 
                 destroyScope();
             }
@@ -143,11 +144,11 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
 
                     view.template.then((html) => {
                         clearContent(doAnimate);
-                        if (doAnimate)
+                        if (doAnimate) {
                             animate.enter(angular.element('<div></div>').html(html).contents(), element);
-                        else
+                        } else {
                             element.html(html);
-
+                        }
                         var link = $compile(element.contents()),
                             locals;
 

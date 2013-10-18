@@ -238,7 +238,7 @@ function $StateTransitionProvider() {
         } else if (isFunction(handler) || isArray(handler)) {
             this.transition('*', state, handler);
         }
-    }
+    };
 
     /**
      * @ngdoc method
@@ -267,7 +267,7 @@ function $StateTransitionProvider() {
         } else if (isFunction(handler) || isArray(handler)) {
             this.transition(state, '*', handler);
         }
-    }
+    };
 
     /**
      * @ngdoc method
@@ -360,7 +360,7 @@ function $StateTransitionProvider() {
 
         for (; i < names.length; i++) {
             if (!(names[i] in current.children))
-                current.children[names[i]] = { children: {}, targets: {} }
+                current.children[names[i]] = { children: {}, targets: {} };
             current = current.children[names[i]];
         }
         return current;
@@ -402,9 +402,9 @@ function $StateTransitionProvider() {
             }
 
             return {
-                before: function(tc) { emit(h => h.before, tc) },
-                between: function (tc) { emit(h => h.between, tc) },
-                after: function (tc) { emit(h => h.after, tc) },
+                before: function (tc) { emit(h => h.before, tc); },
+                between: function (tc) { emit(h => h.between, tc); },
+                after: function (tc) { emit(h => h.after, tc); },
             };
         }
 
@@ -468,7 +468,7 @@ function $StateTransitionProvider() {
                 } else {
                     break;
                 }
-            } while(index++ < names.length)
+            } while (index++ < names.length);
             return transitions;
         }
     }];

@@ -206,8 +206,7 @@ var $RouteProvider = [
                             };
                         }
                     } else {
-                        fn = function () {
-                        };
+                        fn = noop;
                     }
                 }
                 return fn($location, next);
@@ -324,8 +323,7 @@ var $RouteProvider = [
         }
         function createMatcher(path, expression) {
             if(path == null) {
-                return function (location) {
-                };
+                return noop;
             }
             return function (location) {
                 var match = location.match(expression.exp), dst = {

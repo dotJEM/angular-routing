@@ -74,9 +74,8 @@ function $TemplateProvider() {
                     if(isString(template)) {
                         if(urlmatcher.test(template)) {
                             return getFromUrl(template);
-                        } else {
-                            return $q.when(template);
                         }
+                        return $q.when(template);
                     }
                     if(isFunction(template) || isArray(template)) {
                         return getFromFunction(template);

@@ -35,7 +35,7 @@ var $ResolveProvider = [function () {
          */
         $service.push = function (key: string, value: any) {
             cache[key] = value;
-        }
+        };
 
         /**
          * @ngdoc method
@@ -59,8 +59,9 @@ var $ResolveProvider = [function () {
          * Clears a list of values in the resolver.
          */
         $service.clear = function (arg?: any) {
-            if (isUndefined(arg))
+            if (isUndefined(arg)) {
                 cache = {};
+            }
 
             if (isString(arg)) {
                 delete cache[arg];
@@ -74,7 +75,7 @@ var $ResolveProvider = [function () {
                     $service.clear(key);
                 });
             }
-        }
+        };
 
         $service.all = function (args: any, locals: any, scoped: any) {
             var values = [], keys = [], def = $q.defer();
@@ -84,10 +85,11 @@ var $ResolveProvider = [function () {
                 keys.push(key);
                 try {
                     if (!(key in cache)) {
-                        if (isString(value))
+                        if (isString(value)) {
                             cache[key] = angular.isString(value);
-                        else if ((ifn = injectFn(value)) != null)
-                            cache[key] = ifn($injector, extend({},locals,scoped));
+                        } else if ((ifn = injectFn(value)) != null) {
+                            cache[key] = ifn($injector, extend({}, locals, scoped));
+                        }
                     }
                     values.push(cache[key]);
                 } catch (e) {
@@ -96,7 +98,7 @@ var $ResolveProvider = [function () {
             });
 
             $q.all(values).then(function (values) {
-                var locals = {}
+                var locals = {};
                 angular.forEach(values, function (value, index) {
                     locals[keys[index]] = value;
                 });
@@ -104,7 +106,7 @@ var $ResolveProvider = [function () {
             }, function (error) { def.reject(error); });
 
             return def.promise;
-        }
+        };
 
         return $service;
     }];

@@ -32,7 +32,7 @@ var jemAnchorDirective = [
             restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr['jemAnchor'] || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
+                var name = attr.jemAnchor || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
                 //      although the angular team says it should wait untill any digest is done.
                 //      Using 1 seems to work.
                 isDefined(attr.delay) ? Number(attr.delay) : 1;

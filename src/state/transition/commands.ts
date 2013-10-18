@@ -19,13 +19,13 @@ var cmd = {
             context.to = to;
             context.params = params;
             context.toState = extend({}, to.self, { $params: params });
-        }
+        };
     },
 
     createEmitter: function ($transition): ICommand {
         return function (context: Context) {
-            context.emit = $transition.find(context.$state.current, context.toState)
-        }
+            context.emit = $transition.find(context.$state.current, context.toState);
+        };
     },
 
     buildChanges: function (force): ICommand {
@@ -37,7 +37,7 @@ var cmd = {
                     context.$state.params,
                     context.params,
                     force);
-        }
+        };
     },
 
     createTransition: function (gotofn): ICommand {
@@ -51,9 +51,9 @@ var cmd = {
                     trx.canceled = true;
                     gotofn({ state: state, params: { all: params }, updateroute: true });
                 }
-            }
+            };
             context.transition = trx;
-        }
+        };
     },
 
     raiseUpdate: function ($rootScope): ICommand {
@@ -69,7 +69,7 @@ var cmd = {
                 }
                 context.abort();
             }
-        }
+        };
     },
 
     updateRoute: function ($route, update): ICommand {
@@ -87,14 +87,14 @@ var cmd = {
                         paramsObj[name] = allFrom[name];
                 });
 
-                var mergedParams = extend(paramsObj, context.params.$all)
+                var mergedParams = extend(paramsObj, context.params.$all);
                 //TODO: One problem here is that if you passed in "optional" parameters to goto, and the to-state has
                 //      a route, we actually end up loosing those
                 $route.change(extend({}, route, { params: mergedParams }));
 
                 context.abort();
             }
-        }
+        };
     },
 
     before: function (): ICommand {
@@ -106,7 +106,7 @@ var cmd = {
                 //$rootScope.$broadcast('$stateChangeAborted', toState, fromState);
                 context.abort();
             }
-        }
+        };
     },
 
     between: function ($rootScope): ICommand {
@@ -118,7 +118,7 @@ var cmd = {
                 $rootScope.$broadcast('$stateChangeAborted', context.toState, context.$state.current);
                 context.abort();
             }
-        }
+        };
     },
 
     after: function ($scroll, scrollTo): ICommand {
@@ -131,7 +131,7 @@ var cmd = {
 
                 $scroll(scrollTo);
             }
-        }
+        };
     },
 
     beginTransaction: function ($view, $injector): ICommand {
@@ -157,8 +157,8 @@ var cmd = {
                     } else {
                         context.prepCreate(change.state.fullname, name, view.template, view.controller);
                     }
-                })
-            })
-        }
+                });
+            });
+        };
     }
 };

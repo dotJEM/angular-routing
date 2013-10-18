@@ -2,8 +2,6 @@
 /// <reference path="../interfaces.d.ts" />
 /// <reference path="../common.ts" />
 
-'use strict';
-
 /**
  * @ngdoc directive
  * @name dotjem.routing.directive:sref
@@ -15,8 +13,9 @@
  * @element ANY
  * @param {string} params Parameters for the state link.
  */
-var jemLinkDirective = [<any>'$state', '$route', 
+var jemLinkDirective = [<any>'$state', '$route',
 function ($state, $route) {
+    'use strict';
     return {
         restrict: 'AC',
         terminal: false,
