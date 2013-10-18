@@ -28,28 +28,6 @@ The UI-Route project can be found here: https://github.com/angular-ui/ui-router
 One important note is that this is developed using TypeScript, yet following the
 basic style of how Angular modules, services and directives is written
 
-## UI Router Comparison
-
-Some of these are probably more subjevtive that objective, but I will try to be fair to UI Router.
-
-#### Advantages
-
-* Seperation of Application State and View State
-* Full support for transition control between state, not just enter/exit or a global state changed handler
-* A Simpler view model that still adds more flexibility through the view service
-* Sibling lookup in terms of "next" and "prev".
-* Parameter converters, UI Router has support for regex parameters but it seems more limited
-* Providing means to simply refresh views rather than reloading templates as well (see sticky and $view-refresh)
-
-#### Disadvantages
-
-* No un-nanmed views.
-* No abstract states. (Angular Routing don't need them)
-* No support for route matching through functions.
-* Less used.
-* Bigger footprint.
-* Not compatible with angular 1.0.x
-
 ## Main goal
 
 The goal is to provide a routing concept for Angular that provides a way to
