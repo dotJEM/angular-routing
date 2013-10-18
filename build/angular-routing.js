@@ -3218,7 +3218,7 @@ var jemViewDirective = [
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
+                var viewScope, controller, name = attr.jemView || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = attr.loader && scope.$eval(attr.loader) || null, activeLoader;
                 scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);
@@ -3250,7 +3250,7 @@ var jemViewDirective = [
                 }
                 function displayLoader() {
                     if(loader !== null) {
-                        loader.then(function (html) {
+                        $template.get(loader).then(function (html) {
                             element.contents().hide();
                             element.append(activeLoader = angular.element(html));
                         });

@@ -61,15 +61,15 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
     return {
         restrict: 'ECA',
         terminal: true,
-        link: function (scope, element: JQuery, attr) {
+        link: function (scope: ng.IScope, element: JQuery, attr) {
             var viewScope: IViewScope,
                 controller,
-                name = attr['jemView'] || attr.name,
+                name = attr.jemView || attr.name,
                 doAnimate = isDefined(attr.ngAnimate),
                 onloadExp = attr.onload || '',
                 animate = $animator(scope, attr),
                 version = -1,
-                loader = (attr.loader && $template.get(attr.loader)) || null,
+                loader = attr.loader && scope.$eval(attr.loader) || null,
                 activeLoader: JQuery;
 
             scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
@@ -105,10 +105,12 @@ function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewSer
 
             function displayLoader() {
                 if (loader !== null) {
-                    loader.then((html) => {
-                        element.contents().hide();
-                        element.append(activeLoader = angular.element(html));
-                    });
+                    $template
+                        .get(loader)
+                        .then((html) => {
+                            element.contents().hide();
+                            element.append(activeLoader = angular.element(html));
+                        });
                 }
             }
 
