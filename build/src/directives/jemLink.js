@@ -25,21 +25,22 @@ var jemLinkDirective = [
                 params: '='
             },
             link: function (scope, element, attr) {
-                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix();
-                function applyHref(link) {
+                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = {
+                    a: 'href',
+                    form: 'action'
+                };
+                function apply(link) {
+                    //NOTE: Is this correct for forms?
                     if(!html5) {
                         link = '#' + prefix + link;
                     }
-                    element.attr('href', link);
+                    element.attr(attr[tag], link);
                 }
-                if(tag === 'a') {
-                    scope.$watch('sref', function () {
-                        applyHref($state.url(scope.sref, scope.params));
+                if(tag in attr) {
+                    scope.$watch('[sref,params]', function () {
+                        apply($state.url(scope.sref, scope.params));
                     });
-                    scope.$watch('params', function () {
-                        applyHref($state.url(scope.sref, scope.params));
-                    });
-                    applyHref($state.url(scope.sref, scope.params));
+                    apply($state.url(scope.sref, scope.params));
                 } else {
                     element.click(function (event) {
                         $state.goto(scope.sref, scope.params);
