@@ -3400,7 +3400,10 @@ var jemLinkDirective = [
                     element.attr(attr[tag], link);
                 }
                 if(tag in attr) {
-                    scope.$watch('[sref,params]', function () {
+                    scope.$watch('params', function () {
+                        apply($state.url(scope.sref, scope.params));
+                    });
+                    scope.$watch('sref', function () {
                         apply($state.url(scope.sref, scope.params));
                     });
                     apply($state.url(scope.sref, scope.params));
