@@ -12,6 +12,7 @@
  *
  * @element ANY
  * @param {string} params Parameters for the state link.
+ * @param {string} activeClass Class to add when the state targeted is active.
  */
 var jemLinkDirective = [<any>'$state', '$route',
 function ($state, $route) {
@@ -21,15 +22,21 @@ function ($state, $route) {
         terminal: false,
         scope: {
             sref: '=',
-            params: '='
+            params: '=',
+            activeClass: '@'
         },
-        link: function (scope, element: JQuery, attr) {
+        link: function (scope, element: JQuery, attrs) {
             var tag = element[0].tagName.toLowerCase(),
                 html5 = $route.html5Mode(),
                 prefix = $route.hashPrefix(),
-                attr = { a: 'href', form: 'action' };
+                attr = { a: 'href', form: 'action' },
+                activeFn = noop;
 
-            function apply(link: string) {
+            if (isDefined(scope.activeClass))
+                activeFn = active;
+
+            function apply() {
+                var link = $state.url(scope.sref, scope.params);
                 //NOTE: Is this correct for forms?
                 if (!html5)
                     link = '#' + prefix + link;
@@ -37,14 +44,24 @@ function ($state, $route) {
                 element.attr(attr[tag], link);
             }
 
+            function active() {
+                if (!isDefined(scope.activeClass))
+                    return;
+
+                if ($state.isActive(scope.sref)) {
+                    attrs.$addClass(scope.activeClass);
+                } else {
+                    attrs.$remove(scope.activeClass);
+                }
+            }
+
+            scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+
             if (tag in attr) {
-                scope.$watch('params', function () {
-                    apply($state.url(scope.sref, scope.params));
-                });
-                scope.$watch('sref', function () {
-                    apply($state.url(scope.sref, scope.params));
-                });
-                apply($state.url(scope.sref, scope.params));
+                scope.$watch('params', apply);
+                scope.$watch('sref', apply);
+                apply();
+                activeFn();
             } else {
                 element.click(function (event) {
                     $state.goto(scope.sref, scope.params);
