@@ -19,12 +19,6 @@ function ($state, $route) {
     'use strict';
     return {
         restrict: 'AC',
-        terminal: false,
-        scope: {
-            sref: '=',
-            params: '=',
-            activeClass: '@'
-        },
         link: function (scope, element: JQuery, attrs) {
             var tag = element[0].tagName.toLowerCase(),
                 html5 = $route.html5Mode(),
@@ -32,11 +26,13 @@ function ($state, $route) {
                 attr = { a: 'href', form: 'action' },
                 activeFn = noop;
 
-            if (isDefined(scope.activeClass))
+            if (isDefined(attrs.activeClass))
                 activeFn = active;
 
             function apply() {
-                var link = $state.url(scope.sref, scope.params);
+                var sref = scope.$eval(attrs.sref),
+                    params = scope.$eval(attrs.params),
+                    link = $state.url(sref, params);
                 //NOTE: Is this correct for forms?
                 if (!html5)
                     link = '#' + prefix + link;
@@ -45,26 +41,24 @@ function ($state, $route) {
             }
 
             function active() {
-                if (!isDefined(scope.activeClass))
-                    return;
-
-                if ($state.isActive(scope.sref)) {
-                    attrs.$addClass(scope.activeClass);
+                var sref = scope.$eval(attrs.sref);
+                if ($state.isActive(sref)) {
+                    element.addClass(attrs.activeClass);
                 } else {
-                    attrs.$remove(scope.activeClass);
+                    element.remove(attrs.activeClass);
                 }
             }
 
             scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
 
             if (tag in attr) {
-                scope.$watch('params', apply);
-                scope.$watch('sref', apply);
-                apply();
-                activeFn();
+                attrs.$observe('params', apply);
+                attrs.$observe('sref', apply);
             } else {
-                element.click(function (event) {
-                    $state.goto(scope.sref, scope.params);
+                element.click(function () {
+                    scope.$apply(function () {
+                        $state.goto(scope.sref, scope.params);
+                    });
                 });
             }
         }
