@@ -17,7 +17,7 @@ The samples and api reference are currently a work in progress:
  - **Api Reference:** http://dotjem.github.io/angular-routing/doc/
  - **Samples:** http://dotjem.github.com/angular-routing/samples/
 
-# Version 0.5.1
+# Version 0.5.2
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
 to provide what I belive is more "true states" where the transitions could be
@@ -94,4 +94,4 @@ http://plnkr.co/ or http://jsfiddle.net/.
 Othherwise, try to capture as much detail as possible, there more that is known about the issue and context
 the easier it is to help.
 
-Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:Eyh6fj
+Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:bOnvMydEvu3FcNNjEo9c
