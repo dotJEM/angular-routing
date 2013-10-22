@@ -45,7 +45,7 @@ function ($state, $route) {
                 if ($state.isActive(sref)) {
                     element.addClass(attrs.activeClass);
                 } else {
-                    element.remove(attrs.activeClass);
+                    element.removeClass(attrs.activeClass);
                 }
             }
 

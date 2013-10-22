@@ -41,7 +41,7 @@ var jemLinkDirective = [
                     if($state.isActive(sref)) {
                         element.addClass(attrs.activeClass);
                     } else {
-                        element.remove(attrs.activeClass);
+                        element.removeClass(attrs.activeClass);
                     }
                 }
                 scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
