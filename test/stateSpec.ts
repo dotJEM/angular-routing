@@ -93,6 +93,19 @@ describe('$stateProvider', function () {
             });
         });
 
+        it('can define onEnter', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+                $stateProvider
+                    .state('blog', {
+                        name: 'blog', onEnter: function () { }
+                    })
+            });
+
+            inject(function ($state: dotjem.routing.IStateService) {
+                expect(stringifyState($state.root)).toBe("(blog())");
+            });
+        });
+
         it('can define state hierarchy using . notation', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider

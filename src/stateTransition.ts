@@ -1,6 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 
 /**
  * @ngdoc object
@@ -183,7 +181,6 @@
 function $StateTransitionProvider() {
     'use strict';
     var root = { children: {}, targets: {} },
-        validation = /^\w+(\.\w+)*(\.[*])?$/,
         _this = this;
 
     function alignHandler(obj) {
@@ -328,8 +325,8 @@ function $StateTransitionProvider() {
     };
 
     function validate(from: string, to: string) {
-        var fromValid = validateTarget(from),
-            toValid = validateTarget(to);
+        var fromValid = StateRules.validateTarget(from), 
+            toValid = StateRules.validateTarget(to);
 
         if (fromValid && toValid) // && from !== to
             return;
@@ -346,11 +343,7 @@ function $StateTransitionProvider() {
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
     
-    function validateTarget(target: string) {
-        if (target === '*' || validation.test(target))
-            return true;
-        return false;
-    }
+
     
     function lookup(name: string) {
         var current = root,

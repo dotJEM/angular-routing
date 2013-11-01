@@ -773,9 +773,7 @@ var $RouteProvider = [
 angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
 });
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 /**
 * @ngdoc object
 * @name dotjem.routing.$stateTransitionProvider
@@ -961,7 +959,7 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
-    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+    }, _this = this;
     function alignHandler(obj) {
         var result = {
             handler: {
@@ -1101,7 +1099,7 @@ function $StateTransitionProvider() {
         return this;
     };
     function validate(from, to) {
-        var fromValid = validateTarget(from), toValid = validateTarget(to);
+        var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
         if(fromValid && toValid) {
             // && from !== to
             return;
@@ -1115,12 +1113,6 @@ function $StateTransitionProvider() {
         //if (from === to && from.indexOf('*') === -1)
         //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
-    }
-    function validateTarget(target) {
-        if(target === '*' || validation.test(target)) {
-            return true;
-        }
-        return false;
     }
     function lookup(name) {
         var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
@@ -2901,10 +2893,17 @@ var StateFactory = (function () {
 var StateRules = (function () {
     function StateRules() { }
     StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
     StateRules.validateName = function validateName(name) {
         if(!StateRules.nameValidation.test(name) || name === rootName) {
             throw new Error("Invalid name: '" + name + "'.");
         }
+    };
+    StateRules.validateTarget = function validateTarget(target) {
+        if(target === '*' || StateRules.targetValidation.test(target)) {
+            return true;
+        }
+        return false;
     };
     return StateRules;
 })();
