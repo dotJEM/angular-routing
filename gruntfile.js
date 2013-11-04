@@ -48,17 +48,21 @@ module.exports = function (grunt) {
                         'build/src/route.js',
                         'build/src/stateTransition.js',
                         'build/src/state.js',
+                        'build/src/resolve.js',
+                        'build/src/template.js',
+                        'build/src/view.js',
+                        'build/src/scroll.js',
                         'build/src/state/state.js',
                         'build/src/state/stateBrowser.js',
                         'build/src/state/stateComparer.js',
                         'build/src/state/stateFactory.js',
                         'build/src/state/stateRules.js',
                         'build/src/state/stateUrlBuilder.js',
-                        'build/src/template.js',
-                        'build/src/view.js',
-                        'build/src/scroll.js',
+                        'build/src/state/transition/commands.js',
+                        'build/src/state/transition/context.js',
                         'build/src/directives/jemView.js',
                         'build/src/directives/jemAnchor.js',
+                        'build/src/directives/jemLink.js',
                         'src/suffix'],
                 dest: 'build/<%= pkg.name %>.js'
             },
@@ -145,6 +149,15 @@ module.exports = function (grunt) {
                 html5Mode: false,
             },
             all: ['build/src/**/*.js']
+        },
+        
+        tslint: {
+            options: {
+                configuration: grunt.file.readJSON("tslint.json")
+            },
+            files: {
+                src: ['src/**/*.ts']
+            }
         }
     });
 
@@ -159,10 +172,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-ngdocs');
+    grunt.loadNpmTasks('grunt-tslint');
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'build', 'karma', 'ngdocs']);
+    grunt.registerTask('default', ['clean', 'tslint', 'build', 'karma', 'ngdocs']);
     grunt.registerTask('release', ['default', 'copy:release']);
     grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
     grunt.registerTask('docs', ['clean', 'build', 'ngdocs']);

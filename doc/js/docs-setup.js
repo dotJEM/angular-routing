@@ -106,7 +106,7 @@ NG_DOCS={
       "id": "dotjem.routing.directive:sref",
       "shortName": "sref",
       "type": "directive",
-      "keywords": "ac any api directive dotjem for link parameters params provides routing state the to"
+      "keywords": "ac active activeclass add any api class directive dotjem for is link parameters params provides routing state targeted the to when"
     },
     {
       "section": "api",

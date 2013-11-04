@@ -24,26 +24,28 @@ var isDefined = angular.isDefined,
     extend = angular.extend,
     copy = angular.copy,
     equals = angular.equals,
-    element = angular.element;
+    element = angular.element,
+    rootName = '$root',
+    noop = angular.noop;
 
 function inherit(parent, extra?) {
     return extend(new (extend(function () { }, { prototype: parent }))(), extra);
 }
 
-function toName(named: any) : string {
+function toName(named: any): string {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 
 function injectFn(arg: any): IInjector {
     if (isFunction(arg)) {
-        return function(injector: ng.auto.IInjectorService, locals?) {
+        return function (injector: ng.auto.IInjectorService, locals?) {
             return injector.invoke(arg, arg, locals);
-        }
+        };
     } else if (isArray(arg)) {
         var fn = arg[arg.length - 1];
         return function (injector: ng.auto.IInjectorService, locals?) {
             return injector.invoke(arg, fn, locals);
-        }
+        };
     }
     return null;
 }
@@ -58,18 +60,32 @@ interface IParam {
     args: string;
     index: number;
     lastIndex: number;
+    catchAll: bool;
 }
 
+function buildParams(all?, path?, search?) {
+    var par = copy(all || {});
+    par.$all = copy(all || {});
+    par.$path = copy(path || {});
+    par.$search = copy(search || {});
+    return par;
+}
 
+function buildParamsFromObject(params?) {
+    var par = copy(params && params.all || {});
+    par.$path = copy(params && params.path || {});
+    par.$search = copy(params && params.search || {});
+    return par;
+}
 
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
-function toKeyValue(obj) {
+function toKeyValue(obj, prepend?) {
     var parts = [];
     forEach(obj, function (value, key) {
         parts.push(encodeUriQuery(key, true) + (value === true ? '' : '=' + encodeUriQuery(value, true)));
     });
-    return parts.length ? parts.join('&') : '';
+    return parts.length ? prepend + parts.join('&') : '';
 }
 
 /**
@@ -115,6 +131,11 @@ function encodeUriQuery(val, pctEncodeSpaces) {
                replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
 
+var esc = /[-\/\\^$*+?.()|[\]{}]/g;
+function escapeRegex(exp: string) {
+    return exp.replace(esc, "\\$&");
+}
+
 var errors = {
     routeCannotBeUndefined: 'Can not set route to undefined.',
     valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
@@ -123,4 +144,22 @@ var errors = {
     invalidBrowserPathExpression: "Invalid path expression.",
     expressionOutOfBounds: "Expression out of bounds.",
     couldNotFindStateForPath: "Could find state for path."
-}
+};
+
+var EVENTS = {
+    LOCATION_CHANGE: '$locationChangeSuccess',
+
+    ROUTE_UPDATE: '$routeUpdate',
+    ROUTE_CHANGE_START: '$routeChangeStart',
+    ROUTE_CHANGE_SUCCESS: '$routeChangeSuccess',
+    ROUTE_CHANGE_ERROR: '$routeChangeError',
+
+    STATE_UPDATE: '$stateUpdate',
+    STATE_CHANGE_START: '$stateChangeStart',
+    STATE_CHANGE_SUCCESS: '$stateChangeSuccess',
+    STATE_CHANGE_ERROR: '$stateChangeError',
+
+    VIEW_UPDATE: '$viewUpdate',
+    VIEW_REFRESH: '$viewRefresh',
+    VIEW_PREP: '$viewPrep'
+};

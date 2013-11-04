@@ -26,7 +26,7 @@ class StateFactory {
     }
 
     public createState(fullname: string, state: dotjem.routing.IState, parent?: State): State {
-        var name = fullname.split('.').pop()
+        var name = fullname.split('.').pop();
         if (isDefined(parent))
             fullname = parent.fullname + "." + name;
 

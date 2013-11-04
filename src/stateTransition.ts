@@ -238,7 +238,7 @@ function $StateTransitionProvider() {
         } else if (isFunction(handler) || isArray(handler)) {
             this.transition('*', state, handler);
         }
-    }
+    };
 
     /**
      * @ngdoc method
@@ -267,7 +267,7 @@ function $StateTransitionProvider() {
         } else if (isFunction(handler) || isArray(handler)) {
             this.transition(state, '*', handler);
         }
-    }
+    };
 
     /**
      * @ngdoc method
@@ -356,11 +356,11 @@ function $StateTransitionProvider() {
         var current = root,
             names = name.split('.'),
             //If name contains root explicitly, skip that one
-            i = names[0] === 'root' ? 1:0;
+            i = names[0] === rootName ? 1:0;
 
         for (; i < names.length; i++) {
             if (!(names[i] in current.children))
-                current.children[names[i]] = { children: {}, targets: {} }
+                current.children[names[i]] = { children: {}, targets: {} };
             current = current.children[names[i]];
         }
         return current;
@@ -402,14 +402,14 @@ function $StateTransitionProvider() {
             }
 
             return {
-                before: function(tc) { emit(h => h.before, tc) },
-                between: function (tc) { emit(h => h.between, tc) },
-                after: function (tc) { emit(h => h.after, tc) },
+                before: function (tc) { emit(h => h.before, tc); },
+                between: function (tc) { emit(h => h.between, tc); },
+                after: function (tc) { emit(h => h.after, tc); },
             };
         }
 
         function trimRoot(path: string[]) {
-            if (path[0] === 'root')
+            if (path[0] === rootName)
                 path.splice(0,1);
             return path;
         }
@@ -454,7 +454,7 @@ function $StateTransitionProvider() {
             var current = root,
                 names = from.split('.'),
                 transitions = [],
-                index = names[0] === 'root' ? 1: 0;
+                index = names[0] === rootName ? 1: 0;
 
             do {
 
@@ -468,7 +468,7 @@ function $StateTransitionProvider() {
                 } else {
                     break;
                 }
-            } while(index++ < names.length)
+            } while (index++ < names.length);
             return transitions;
         }
     }];

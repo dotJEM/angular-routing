@@ -17,7 +17,7 @@ var StateUrlBuilder = (function () {
         //TODO: This is very similar to what we do in buildStateArray -> extractParams,
         //      maybe we can refactor those together
                 var paramsObj = {
-        }, allFrom = (c && c.$params && c.$params.all) || {
+        }, allFrom = c && c.$params.$all || {
         };
         forEach(target.route.params, function (param, name) {
             if(name in allFrom) {

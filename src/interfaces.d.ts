@@ -12,23 +12,31 @@ module dotjem.routing {
         [name: string]: IView;
     }
 
-    interface IViewTransaction {
+    interface IViewTransaction extends IViewServiceBase {
         commit();
         cancel();
+        completed: bool;
+
+        prepUpdate(name: string, template?: any, controller?: any, sticky?: string): (locals?: any) => IViewServiceBase;
+        prepCreate(name: string, template?: any, controller?: any): (locals?: any) => IViewServiceBase;
     }
 
-    interface IViewService {
-        clear(name?: string);
-        
-        setOrUpdate(name: string, template?: any, controller?: any, locals?: any, sticky?: string);
-        setOrUpdate(name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; });
+    interface IViewServiceBase {
+        clear(name?: string): IViewServiceBase;
 
-        setIfAbsent(name: string, template?: any, controller?: any, locals?: any);
-        setIfAbsent(name: string, args: { template?: any; controller?: any; locals?: any; });
+        update(name: string, template?: any, controller?: any, locals?: any, sticky?: string): IViewServiceBase;
+        update(name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }): IViewServiceBase;
+
+        create(name: string, template?: any, controller?: any, locals?: any): IViewServiceBase;
+        create(name: string, args: { template?: any; controller?: any; locals?: any; }): IViewServiceBase;
+
         get (name: string): IView;
         get (): IViewMap;
-        refresh(name?: string, data?: any);
 
+        refresh(name?: string, data?: any): IViewServiceBase;
+    }
+
+    interface IViewService extends IViewServiceBase {
         beginUpdate(): IViewTransaction;
     }
 
@@ -107,11 +115,16 @@ module dotjem.routing {
         transition: any;
         reload: (state?) => void;
         current?: any;
+        params?: any;
         lookup(path: string): any;
         goto(state: string, params?: any);
         goto(state: any, params?: any);
         url(state?: string, params?: any);
         url(state?: any, params?: any);
+        is(state?: string);
+        is(state?: any);
+        isActive(state?: string);
+        isActive(state?: any);
     }
 
     interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }

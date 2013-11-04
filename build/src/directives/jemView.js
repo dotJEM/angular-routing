@@ -17,6 +17,7 @@
 * The enter and leave animation occur concurrently.
 *
 * @param {string} jemView|name Name of the view
+* @param {string} loader Url to a template to display while the view is prepared.
 */
 /**
 * @ngdoc event
@@ -51,19 +52,20 @@ var jemViewDirective = [
     '$controller', 
     '$view', 
     '$animator', 
-    function ($state, $scroll, $compile, $controller, $view, $animator) {
+    '$template', 
+    function ($state, $scroll, $compile, $controller, $view, $animator, $template) {
         'use strict';
         return {
             restrict: 'ECA',
             terminal: true,
             link: function (scope, element, attr) {
-                var viewScope, controller, name = attr['jemView'] || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1;
-                scope.$on('$viewChanged', function (event, updatedName) {
+                var viewScope, controller, name = attr.jemView || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = attr.loader && scope.$eval(attr.loader) || null, activeLoader;
+                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                     if(updatedName === name) {
                         update(doAnimate);
                     }
                 });
-                scope.$on('$viewRefresh', function (event, refreshName, refreshData) {
+                scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
                     if(refreshName === name) {
                         if(isFunction(viewScope.refresh)) {
                             viewScope.refresh(refreshData);
@@ -72,10 +74,29 @@ var jemViewDirective = [
                         }
                     }
                 });
-                scope.$on('$stateChangeSuccess', function () {
-                    return update(doAnimate);
+                scope.$on('$viewPrep', function (event, prepName, data) {
+                    if(prepName === name && data.type === 'update') {
+                        displayLoader();
+                    } else if(data.type === 'cancel') {
+                        removeLoader();
+                    }
                 });
                 update(false);
+                function removeLoader() {
+                    if(isDefined(activeLoader)) {
+                        activeLoader.remove();
+                        activeLoader = undefined;
+                        element.contents().show();
+                    }
+                }
+                function displayLoader() {
+                    if(loader !== null) {
+                        $template.get(loader).then(function (html) {
+                            element.contents().hide();
+                            element.append(activeLoader = angular.element(html));
+                        });
+                    }
+                }
                 function destroyScope() {
                     if(viewScope) {
                         viewScope.$destroy();
@@ -118,6 +139,7 @@ var jemViewDirective = [
                             viewScope.$eval(onloadExp);
                         });
                     } else {
+                        version = -1;
                         clearContent(doAnimate);
                     }
                 }

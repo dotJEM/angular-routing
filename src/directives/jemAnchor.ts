@@ -7,7 +7,19 @@
 /**
  * @ngdoc directive
  * @name dotjem.routing.directive:jemAnchor
- * @restrict ECA
+ * @restrict AC
+ * 
+ * @description
+ * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+ *
+ * @element ANY
+ * @param {string} jemAnchor|id Identifier of the anchor
+ */
+
+/**
+ * @ngdoc directive
+ * @name dotjem.routing.directive:id
+ * @restrict AC
  * 
  * @description
  * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
@@ -18,10 +30,14 @@
 var jemAnchorDirective = [<any>'$scroll', '$timeout',
 function ($scroll, $timeout: ng.ITimeoutService) {
     return {
-        restrict: 'ECA',
+        restrict: 'AC',
         terminal: false,
         link: function (scope, element: JQuery, attr) {
-            var name = attr['jemAnchor'] || attr.id;
+            var name = attr.jemAnchor || attr.id,
+                //Note: Default delay to 1 as it seems that the $timeout is instantly executed
+                //      although the angular team says it should wait untill any digest is done.
+                //      Using 1 seems to work.
+                delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
 
             //$scroll.$register(name, element);
 
@@ -36,13 +52,13 @@ function ($scroll, $timeout: ng.ITimeoutService) {
             function scroll(target: any) {
                 if (target === name) {
                     //Note: Delay scroll untill any digest is done.
-                    $timeout(() => {
+                    $timeout(function() {
                         element[0].scrollIntoView();
-                    }, 100);
+                    }, delay);
                 }
             }
         }
     };
 }];
-
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
+angular.module('dotjem.routing').directive('id', jemAnchorDirective);

@@ -332,6 +332,49 @@ describe('$routeProvider', function () {
                 expect(Object.keys($route.routes).length).toBe(2);
             });
         });
+        it('catch all parameters', function () {
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/{*url}', {
+                    message: "catchAll"
+                });
+            });
+            mock.inject(function ($route, $location) {
+                spyOn($location, 'path').andReturn('/route/with/long/path');
+                var next;
+                scope.$on('$routeChangeSuccess', function (self, n) {
+                    next = n;
+                });
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.message).toBe('catchAll');
+                expect(next.params.url).toBe('route/with/long/path');
+            });
+        });
+        it('can define more specific routes before catch all', function () {
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/Book/{*url}', {
+                    message: "bookRoute"
+                }).when('/{*url}', {
+                    message: "catchAll"
+                });
+            });
+            mock.inject(function ($route, $location) {
+                var next;
+                scope.$on('$routeChangeSuccess', function (self, n) {
+                    next = n;
+                });
+                $location.url('/Book/with/catch/all');
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.message).toBe('bookRoute');
+                expect(next.params.url).toBe('with/catch/all');
+                $location.url('/route/with/long/path');
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.message).toBe('catchAll');
+                expect(next.params.url).toBe('route/with/long/path');
+            });
+        });
     });
     describe("decorate", function () {
         it('converts message paramter into template parameter', function () {
@@ -475,6 +518,38 @@ describe('$routeProvider', function () {
                 expect(converterArgs.age).toBe(42);
             });
         });
+        it('can use catch all with parameters', function () {
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/Book/{contains(catch):*param}', {
+                    message: "bookRoute"
+                }).when('/Customer/{contains(catch):*param}', {
+                    message: "customerRoute"
+                }).convert('contains', function (substring) {
+                    return function (param) {
+                        if(param.search(substring) != -1) {
+                            return true;
+                        }
+                        return false;
+                    };
+                });
+            });
+            mock.inject(function ($route, $location) {
+                var next;
+                scope.$on('$routeChangeSuccess', function (self, n) {
+                    next = n;
+                });
+                $location.url('/Book/with/catch/all');
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.message).toBe('bookRoute');
+                expect(next.params.param).toBe('with/catch/all');
+                $location.url('/Customer/with/catch/all');
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.message).toBe('customerRoute');
+                expect(next.params.param).toBe('with/catch/all');
+            });
+        });
     });
     describe("otherwise", function () {
         // Tested in legacy specs for now.
@@ -517,6 +592,13 @@ describe('$routeProvider', function () {
                 expect($route.format('/look/{regex([0-9]*):one}', {
                     one: 1
                 })).toBe('/look/1');
+            });
+        });
+        it('with missing parameters throws error', function () {
+            mock.inject(function ($route) {
+                expect(function () {
+                    $route.format('/look/:one/:two');
+                }).toThrow("Could not find parameter 'one' when building url for route '/look/:one/:two', ensure that all required parameters are provided.");
             });
         });
         it('regex converter throws error when values does not match', function () {

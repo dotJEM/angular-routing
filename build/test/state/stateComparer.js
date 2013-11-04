@@ -26,13 +26,13 @@ var StateComparer = (function () {
     };
     StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
         var fromArray = this.buildStateArray(from, fromParams || {
-        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, stateChanges = false, paramChanges = !equals(fromParams, toParams);
         for(var i = 0; i < count; i++) {
             fromAtIndex = fromArray[fromArray.length - i - 1];
             toAtIndex = toArray[toArray.length - i - 1];
             if(isUndefined(toAtIndex)) {
                 toArray[0].isChanged = stateChanges = true;
-            } else if(isUndefined(fromAtIndex) || (forceReload && forceReload == toAtIndex.state.fullname) || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+            } else if(isUndefined(fromAtIndex) || forceReload === toAtIndex.state.fullname || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
                 toAtIndex.isChanged = stateChanges = true;
             } else {
                 toAtIndex.isChanged = false;

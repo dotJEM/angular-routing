@@ -64,5 +64,26 @@ class State {
              : isDefined(this.parent) ? this.parent.resolveRoute()
              : '';
     }
-}
 
+    public is(state: string) {
+        return this.fullname === state || this.fullname === rootName + '.' + state;
+    }
+
+    public isActive(state: string) {
+        if (this.is(state))
+            return true;
+
+        return this.parent && this.parent.isActive(state) || false;
+    }
+
+    public clone() {
+        var clone = new State(this.name, this.fullname, this.self, this.parent);
+        forEach(this.children, (val, key) => {
+            clone.add(val.clone());
+        });
+        if (this.route) clone.route = this.route;
+        if (this.reloadOnOptional) clone.reloadOnOptional = this.reloadOnOptional;
+
+        return clone;
+    }
+}

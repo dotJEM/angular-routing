@@ -117,6 +117,16 @@
     <Content Include="samples\legacy\tpl\home.html" />
     <Content Include="samples\metro.bootstrap.min.css" />
     <Content Include="samples\metro.bootstrap.overwrites.css" />
+    <Content Include="samples\plunker1\about.html" />
+    <Content Include="samples\plunker1\about.module.js" />
+    <Content Include="samples\plunker1\contact.html" />
+    <Content Include="samples\plunker1\contact.module.js" />
+    <Content Include="samples\plunker1\demo.js" />
+    <Content Include="samples\plunker1\home.html" />
+    <Content Include="samples\plunker1\home.module.js" />
+    <Content Include="samples\plunker1\index.html" />
+    <Content Include="samples\plunker1\progress.html" />
+    <Content Include="samples\plunker1\style.css" />
     <Content Include="samples\simple\index.html" />
     <Content Include="samples\simple\script\application.js" />
     <Content Include="samples\simple\tpl\about.html" />

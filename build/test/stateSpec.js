@@ -45,11 +45,11 @@ describe('$stateProvider', function () {
                 expect(function () {
                     provider.state('valid.sub1', {
                     });
-                }).toThrow("Could not locate 'valid' under 'root'.");
+                }).toThrow(test.replaceWithRoot("Could not locate 'valid' under 'root'."));
                 expect(function () {
                     provider.state('another.sub1', {
                     });
-                }).toThrow("Could not locate 'another' under 'root'.");
+                }).toThrow(test.replaceWithRoot("Could not locate 'another' under 'root'."));
                 expect(stringifyState($state.root)).toBe("()");
                 provider.state('valid', {
                 });
@@ -67,11 +67,11 @@ describe('$stateProvider', function () {
                 expect(function () {
                     provider.state('valid.sub2.deep', {
                     });
-                }).toThrow("Could not locate 'sub2' under 'root.valid'.");
+                }).toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.valid'."));
                 expect(function () {
                     provider.state('another.sub2.deep', {
                     });
-                }).toThrow("Could not locate 'sub2' under 'root.another'.");
+                }).toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.another'."));
                 expect(stringifyState($state.root)).toBe("(valid(sub1()),another(sub1()))");
             });
         });
@@ -120,7 +120,7 @@ describe('$stateProvider', function () {
             inject(function ($state) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
-                expect(state.fullname).toBe('root.blog.recent');
+                expect(state.fullname).toBe(test.replaceWithRoot('root.blog.recent'));
             });
         });
         it('can define hierarchy using object notation', function () {
@@ -175,7 +175,7 @@ describe('$stateProvider', function () {
             inject(function ($state) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
-                expect(state.fullname).toBe('root.blog.recent');
+                expect(state.fullname).toBe(test.replaceWithRoot('root.blog.recent'));
                 //TODO: Figure out which one we wan't, should we preserve children or not?
                 //expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
                 expect(stringifyState($state.root)).toBe("(blog(recent()))");
@@ -205,7 +205,7 @@ describe('$stateProvider', function () {
             inject(function ($state) {
                 var state = locate($state.root, 'blog.recent');
                 expect(state.self.name).toBe('recent');
-                expect(state.fullname).toBe('root.blog.recent');
+                expect(state.fullname).toBe(test.replaceWithRoot('root.blog.recent'));
                 //TODO: Figure out which one we wan't, should we preserve children or not?
                 //expect(stringifyState($state.root)).toBe("(blog(recent(under()),item()))");
                 expect(stringifyState($state.root)).toBe("(blog(recent(),item()))");
@@ -252,7 +252,7 @@ describe('$stateProvider', function () {
                 $location.path('/blog');
                 scope.$digest();
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
             });
         });
         it('will broadcast $stateChangeSuccess that has the former state as argument', function () {
@@ -274,7 +274,7 @@ describe('$stateProvider', function () {
                 $location.path('/blog');
                 scope.$digest();
                 expect($state.current.name).toBe('blog');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
                 $location.path('/about');
                 scope.$digest();
                 expect($state.current.name).toBe('about');
@@ -308,7 +308,7 @@ describe('$stateProvider', function () {
                 $location.path('/blog/recent');
                 scope.$digest();
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
                 $location.path('/blog/42');
                 scope.$digest();
                 expect($state.current.name).toBe('blog.details');
@@ -337,7 +337,7 @@ describe('$stateProvider', function () {
                 $location.path('/blog/recent');
                 scope.$digest();
                 expect($state.current.name).toBe('blog.recent');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
                 $location.path('/blog/42');
                 scope.$digest();
                 expect($state.current.name).toBe('blog.details');
@@ -365,7 +365,7 @@ describe('$stateProvider', function () {
                 $location.path('/top');
                 scope.$digest();
                 expect($state.current.name).toBe('top');
-                expect(spy.mostRecentCall.args[2].$fullname).toBe('root');
+                expect(spy.mostRecentCall.args[2].$fullname).toBe(test.replaceWithRoot('root'));
                 $location.path('/top/one');
                 scope.$digest();
                 expect($state.current.name).toBe('top.center.one');
@@ -429,8 +429,10 @@ describe('$stateProvider', function () {
                 });
             });
             inject(function ($location, $route, $state, $view) {
-                spyOn($view, 'setIfAbsent');
-                var viewSpy = spyOn($view, 'setOrUpdate');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 function reset() {
                     spy.reset();
@@ -525,8 +527,10 @@ describe('$stateProvider', function () {
                 });
             });
             inject(function ($location, $route, $state, $view) {
-                spyOn($view, 'setIfAbsent');
-                var setOrUpdate = spyOn($view, 'setOrUpdate');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'create');
+                var setOrUpdate = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 function reset() {
                     spy.reset();
@@ -546,7 +550,7 @@ describe('$stateProvider', function () {
                     undefined, 
                     {
                     }, 
-                    'root.top'
+                    test.nameWithRoot('root.top')
                 ]);
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
@@ -556,7 +560,7 @@ describe('$stateProvider', function () {
                     undefined, 
                     {
                     }, 
-                    'root.top'
+                    test.nameWithRoot('root.top')
                 ]);
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
@@ -576,7 +580,7 @@ describe('$stateProvider', function () {
                     undefined, 
                     {
                     }, 
-                    'root.ban'
+                    test.nameWithRoot('root.ban')
                 ]);
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
@@ -586,7 +590,7 @@ describe('$stateProvider', function () {
                     undefined, 
                     {
                     }, 
-                    'root.ban.tar'
+                    test.nameWithRoot('root.ban.tar')
                 ]);
             });
         });
@@ -643,8 +647,10 @@ describe('$stateProvider', function () {
                 });
             });
             inject(function ($location, $route, $state, $view) {
-                spyOn($view, 'setIfAbsent');
-                var viewSpy = spyOn($view, 'setOrUpdate');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 function reset() {
                     spy.reset();
@@ -710,13 +716,15 @@ describe('$stateProvider', function () {
                     scope.$digest();
                 }
                 ;
-                var viewSpy = spyOn($view, 'setOrUpdate');
-                spyOn($view, 'setIfAbsent');
+                var trx = $view.beginUpdate();
+                spyOn($view, 'beginUpdate').andReturn(trx);
+                spyOn(trx, 'create');
+                var viewSpy = spyOn(trx, 'update');
                 var spy = jasmine.createSpy('mySpy');
                 scope.$on('$stateChangeSuccess', spy);
                 go('/top/1');
                 expect($state.current.name).toBe('top');
-                expect($state.current.$params.all.top).toBe('1');
+                expect($state.params.top).toBe('1');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
@@ -724,7 +732,7 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2');
                 expect($state.current.name).toBe('top');
-                expect($state.current.$params.all.top).toBe('2');
+                expect($state.params.top).toBe('2');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
@@ -732,8 +740,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('1');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('1');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(2);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
@@ -742,8 +750,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/2');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('2');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('2');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('sub');
@@ -751,8 +759,8 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2/sub/2');
                 expect($state.current.name).toBe('sub');
-                expect($state.current.$params.all.top).toBe('2');
-                expect($state.current.$params.all.sub).toBe('2');
+                expect($state.params.top).toBe('2');
+                expect($state.params.sub).toBe('2');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(2);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
@@ -761,9 +769,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1/bot/1');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('1');
-                expect($state.current.$params.all.bot).toBe('1');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('1');
+                expect($state.params.bot).toBe('1');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(3);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
@@ -773,9 +781,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/1/sub/1/bot/2');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.$params.all.top).toBe('1');
-                expect($state.current.$params.all.sub).toBe('1');
-                expect($state.current.$params.all.bot).toBe('2');
+                expect($state.params.top).toBe('1');
+                expect($state.params.sub).toBe('1');
+                expect($state.params.bot).toBe('2');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(1);
                 expect(viewSpy.calls[0].args[0]).toBe('bot');
@@ -783,9 +791,9 @@ describe('$stateProvider', function () {
                 viewSpy.reset();
                 go('/top/2/sub/1/bot/2');
                 expect($state.current.name).toBe('bot');
-                expect($state.current.$params.all.top).toBe('2');
-                expect($state.current.$params.all.sub).toBe('1');
-                expect($state.current.$params.all.bot).toBe('2');
+                expect($state.params.top).toBe('2');
+                expect($state.params.sub).toBe('1');
+                expect($state.params.bot).toBe('2');
                 expect(spy.wasCalled).toBe(true);
                 expect(viewSpy.callCount).toBe(3);
                 expect(viewSpy.calls[0].args[0]).toBe('top');
@@ -1162,6 +1170,147 @@ describe('$stateProvider', function () {
                 expect($state.url()).toBe('/gallery/4224/details/1');
             });
         });
+        it('builds route with search parameters', function () {
+            inject(function ($location, $route, $state) {
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url()).toBe('/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51,
+                    search: 'hello'
+                })).toBe('/gallery/51?search=hello');
+                expect($state.url('gallery', {
+                    search: 'hello'
+                })).toBe('/gallery/42?search=hello');
+                expect($state.url('gallery', {
+                    id: 51,
+                    search: 'hello'
+                })).toBe('/gallery/51?search=hello');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url()).toBe('/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url(undefined, {
+                    search: 'search',
+                    other: 'other'
+                })).toBe('/gallery/4224/details/1?search=search&other=other');
+            });
+        });
+    });
+    describe("is", function () {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
+            $stateProvider.state('home', {
+                route: '/',
+                name: 'about'
+            }).state('about', {
+                route: '/about',
+                name: 'about'
+            }).state('about.cv', {
+                route: '/cv',
+                name: 'about.cv'
+            }).state('about.cv.child', {
+                route: '/cv',
+                name: 'about.cv'
+            }).state('about.other', {
+                route: '/other',
+                name: 'about.other'
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target, params) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+        it('true on matched states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about');
+                expect($state.is('about')).toBe(true);
+                goto('about.other');
+                expect($state.is('about.other')).toBe(true);
+            });
+        });
+        it('false on unmatched states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about');
+                expect($state.is('fubar')).toBe(false);
+                goto('about.other');
+                expect($state.is('about.fubar')).toBe(false);
+            });
+        });
+    });
+    describe("isActive", function () {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
+            $stateProvider.state('home', {
+                route: '/',
+                name: 'about'
+            }).state('about', {
+                route: '/about',
+                name: 'about'
+            }).state('about.cv', {
+                route: '/cv',
+                name: 'about.cv'
+            }).state('about.cv.child', {
+                route: '/cv',
+                name: 'about.cv'
+            }).state('about.other', {
+                route: '/other',
+                name: 'about.other'
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target, params) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+        it('true on matched states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about');
+                expect($state.isActive('about')).toBe(true);
+                goto('about.other');
+                expect($state.isActive('about.other')).toBe(true);
+            });
+        });
+        it('true on child states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about.cv.child');
+                expect($state.isActive('about')).toBe(true);
+                goto('about.cv.child');
+                expect($state.isActive('about.cv')).toBe(true);
+            });
+        });
+        it('false on unmatched states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about');
+                expect($state.isActive('fubar')).toBe(false);
+                goto('about.other');
+                expect($state.isActive('about.fubar')).toBe(false);
+            });
+        });
+        it('false on unmatched parent states', function () {
+            inject(function ($location, $route, $state) {
+                goto('about.cv.child');
+                expect($state.isActive('about.fubar')).toBe(false);
+                expect($state.isActive('fubar.cv')).toBe(false);
+            });
+        });
+        it('false on partial state names', function () {
+            inject(function ($location, $route, $state) {
+                goto('about.cv.child');
+                expect($state.isActive('child')).toBe(false);
+                expect($state.isActive('cv')).toBe(false);
+            });
+        });
     });
     describe("lookup", function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider) {
@@ -1198,141 +1347,134 @@ describe('$stateProvider', function () {
             it('lookup ./state1', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("./state1");
-                    expect(state.$fullname).toBe('root.state1');
+                    expect(state.$fullname).toBe(test.replaceWithRoot('root.state1'));
                 });
             });
             it('lookup state1/top3/mid2/bot1', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("state1/top3/mid2/bot1");
-                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                    expect(state.$fullname).toBe(test.replaceWithRoot('root.state1.top3.mid2.bot1'));
                 });
             });
             it('lookup [1]', function () {
                 inject(function ($location, $route, $state) {
                     var state = $state.lookup("[1]");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.replaceWithRoot('root.state2'));
                 });
             });
         });
         describe('at state1', function () {
             var target = 'state1';
-            it('lookup top1', function () {
-                inject(function ($location, $route, $state) {
-                    goto(target);
-                    var state = $state.lookup("top1");
-                    expect(state.$fullname).toBe('root.state1.top1');
-                });
-            });
             it('lookup state1.top2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("state1.top2");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
             it('lookup ./top1', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("./top1");
-                    expect(state.$fullname).toBe('root.state1.top1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top1'));
                 });
             });
             it('lookup top3/mid2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("top3/mid2");
-                    expect(state.$fullname).toBe('root.state1.top3.mid2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top3.mid2'));
                 });
             });
             it('lookup top3/mid2/bot1', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("top3/mid2/bot1");
-                    expect(state.$fullname).toBe('root.state1.top3.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top3.mid2.bot1'));
                 });
             });
             it('lookup [0]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[0]");
-                    expect(state.$fullname).toBe('root.state1.top1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top1'));
                 });
             });
             it('lookup [-1]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-1]");
-                    expect(state.$fullname).toBe('root.state1.top3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top3'));
                 });
             });
             it('lookup [-2]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-2]");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
             it('lookup [1]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[1]");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
             it('lookup .', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup(".");
-                    expect(state.$fullname).toBe('root.state1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1'));
                 });
             });
             it('lookup ../state2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
             it('lookup ../state2/top2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../state2/top2");
-                    expect(state.$fullname).toBe('root.state2.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2.top2'));
                 });
             });
             it('lookup /state2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("/state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
             it('lookup $node(1)', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(1)");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
             it('lookup $node(-1)', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(-1)");
-                    expect(state.$fullname).toBe('root.state3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state3'));
                 });
             });
             it('lookup $node(5)', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(5)");
-                    expect(state.$fullname).toBe('root.state3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state3'));
                 });
             });
             it('lookup $node(-7)', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("$node(-7)");
-                    expect(state.$fullname).toBe('root.state3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state3'));
                 });
             });
             it('lookup .. throws error', function () {
@@ -1370,102 +1512,95 @@ describe('$stateProvider', function () {
         });
         describe('at state1.top2.mid2', function () {
             var target = 'state1.top2.mid2';
-            it('lookup bot1', function () {
-                inject(function ($location, $route, $state) {
-                    goto(target);
-                    var state = $state.lookup("bot1");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
-                });
-            });
             it('lookup state1.top2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("state1.top2");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
             it('lookup ./bot1', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("./bot1");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot1'));
                 });
             });
             it('lookup [0]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[0]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot1'));
                 });
             });
             it('lookup [-1]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-1]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot3');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot3'));
                 });
             });
             it('lookup [-2]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[-2]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot2'));
                 });
             });
             it('lookup [1]', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("[1]");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2.bot2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2.bot2'));
                 });
             });
             it('lookup .', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup(".");
-                    expect(state.$fullname).toBe('root.state1.top2.mid2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2.mid2'));
                 });
             });
             it('lookup ..', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("..");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
             it('lookup ../..', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../..");
-                    expect(state.$fullname).toBe('root.state1');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1'));
                 });
             });
             it('lookup ../../top2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../../top2");
-                    expect(state.$fullname).toBe('root.state1.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state1.top2'));
                 });
             });
             it('lookup ../../../state2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../../../state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
             it('lookup ../../../state2/top2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("../../../state2/top2");
-                    expect(state.$fullname).toBe('root.state2.top2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2.top2'));
                 });
             });
             it('lookup /state2', function () {
                 inject(function ($location, $route, $state) {
                     goto(target);
                     var state = $state.lookup("/state2");
-                    expect(state.$fullname).toBe('root.state2');
+                    expect(state.$fullname).toBe(test.nameWithRoot('root.state2'));
                 });
             });
         });
@@ -1475,12 +1610,14 @@ describe('$stateProvider', function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider) {
             return function ($rootScope, $state, $view) {
                 loc = [];
-                spyOn($view, 'setOrUpdate').andCallFake(function (name, template, controller, locals, sticky) {
+                var trx = $view.beginUpdate();
+                spyOn(trx, 'update').andCallFake(function (name, template, controller, locals, sticky) {
                     loc.push(locals);
                 });
-                spyOn($view, 'setIfAbsent').andCallFake(function (name, template, controller, locals) {
+                spyOn(trx, 'create').andCallFake(function (name, template, controller, locals) {
                     loc.push(locals);
                 });
+                spyOn($view, 'beginUpdate').andReturn(trx);
                 scope = $rootScope;
                 state = $state;
             };
@@ -1490,6 +1627,30 @@ describe('$stateProvider', function () {
             state.goto(target);
             scope.$digest();
         }
+        it('error raises error', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('home', {
+                    views: {
+                        tpl: {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        home: function () {
+                            throw Error('42');
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state, $rootScope) {
+                var spy = spyOn(scope, '$broadcast');
+                spy.andCallThrough();
+                goto("home");
+                expect(spy.calls[0].args[0]).toBe('$viewPrep');
+                expect(spy.calls[1].args[0]).toBe('$stateChangeStart');
+                expect(spy.calls[2].args[0]).toBe('$stateChangeError');
+            });
+        });
         it('single resolve provides value', function () {
             mod(function ($stateProvider) {
                 $stateProvider.state('home', {
@@ -1509,6 +1670,28 @@ describe('$stateProvider', function () {
                 goto("home");
                 expect(loc[0]).toEqual({
                     home: 42
+                });
+            });
+        });
+        it('to and from are available to resolves', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('home', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        home: function ($to, $from) {
+                            return $to.$fullname + " - " + $from.$fullname;
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("home");
+                expect(loc[0]).toEqual({
+                    home: test.replaceWithRoot("root.home - root")
                 });
             });
         });
@@ -1562,6 +1745,111 @@ describe('$stateProvider', function () {
                     top: 'top stuff',
                     mid: 'middle',
                     low: 'lowser'
+                });
+            });
+        });
+        it('can use parent resolves in resolve', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        first: function () {
+                            return "first";
+                        }
+                    }
+                }).state('top.mid', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        second: function (first) {
+                            return first + " second";
+                        }
+                    }
+                }).state('top.mid.low', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        last: function (second, first) {
+                            return first + " " + second + " last";
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("top.mid.low");
+                expect(loc[0]).toEqual({
+                    first: 'first'
+                });
+                expect(loc[1]).toEqual({
+                    first: 'first',
+                    second: 'first second'
+                });
+                expect(loc[2]).toEqual({
+                    first: 'first',
+                    second: 'first second',
+                    last: 'first first second last'
+                });
+            });
+        });
+        it('can use parent resolves in resolve', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('top', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        val: function () {
+                            return "first";
+                        }
+                    }
+                }).state('top.mid', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        val: function (val) {
+                            return val + ".second";
+                        }
+                    }
+                }).state('top.mid.low', {
+                    views: {
+                        'tpl': {
+                            template: "tpl"
+                        }
+                    },
+                    resolve: {
+                        val: function (val) {
+                            return val + ".last";
+                        }
+                    }
+                });
+            });
+            inject(function ($view, $state) {
+                goto("top");
+                expect(loc[0]).toEqual({
+                    val: 'first'
+                });
+                goto("top.mid");
+                expect(loc[1]).toEqual({
+                    val: 'first.second'
+                });
+                goto("top.mid.low");
+                expect(loc[2]).toEqual({
+                    val: 'first.second.last'
                 });
             });
         });
@@ -1655,7 +1943,8 @@ describe('$stateProvider', function () {
         function go(path) {
             spy.reset();
             location.url(path);
-            scope.$digest();
+            scope.$apply(function () {
+            });
         }
         function goto(target, params) {
             spy.reset();
@@ -1688,6 +1977,10 @@ describe('$stateProvider', function () {
                 expect(find('$stateChangeSuccess')).toBeDefined();
                 go('/post/42?p=pre');
                 expect(find('$stateUpdate')).toBeDefined();
+                expect($state.params.p).toBe('pre');
+                expect($state.params.param).toBe('42');
+                expect($state.params.$search.p).toBe('pre');
+                expect($state.params.$path.param).toBe('42');
                 expect(find('$stateChangeSuccess')).toBeUndefined();
             });
         });
@@ -1756,5 +2049,7 @@ describe('$stateProvider', function () {
                 expect(find('$stateChangeSuccess')).toBeUndefined();
             });
         });
+    });
+    describe("reloadOnSearch", function () {
     });
 });

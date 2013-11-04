@@ -2,12 +2,12 @@
 var StateBrowser = (function () {
     function StateBrowser(root) {
         this.root = root;
-        this.nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+        this.nameRegex = new RegExp('^(' + escapeRegex(rootName) + '\\.)?\\w+(\\.\\w+)*$');
         this.siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
         this.indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     }
-    StateBrowser.prototype.lookup = function (fullname, stop) {
-        var current = this.root, names = fullname.split('.'), i = names[0] === 'root' ? 1 : 0, stop = isDefined(stop) ? stop : 0;
+    StateBrowser.prototype.lookup = function (path, stop) {
+        var current = this.root, names = path.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
         for(; i < names.length - stop; i++) {
             if(!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
@@ -16,10 +16,9 @@ var StateBrowser = (function () {
         }
         return current;
     };
-    StateBrowser.prototype.resolve = function (origin, path) {
+    StateBrowser.prototype.resolve = function (origin, path, wrap) {
         var _this = this;
-        var siblingSelector = this.siblingRegex.exec(path), nameSelector = // path.match(this.siblingRegex),
-        this.nameRegex.test(path), selected = origin, sections;
+        var siblingSelector = this.siblingRegex.exec(path), selected = origin, sections;
         if(siblingSelector) {
             selected = this.selectSibling(Number(siblingSelector[1]), selected);
         } else if(this.nameRegex.test(path)) {
@@ -39,11 +38,16 @@ var StateBrowser = (function () {
         if(selected === this.root) {
             throw Error(errors.expressionOutOfBounds);
         }
-        return selected && extend({
-        }, selected.self) || undefined;
+        if(selected) {
+            if(wrap) {
+                return copy(selected.self);
+            }
+        }
+        return selected;
+        return undefined;
     };
     StateBrowser.prototype.selectSibling = function (index, selected) {
-        var children = [], currentIndex;
+        var children = [], currentIndex = 0;
         forEach(selected.parent.children, function (child) {
             children.push(child);
             if(selected.fullname === child.fullname) {
@@ -90,7 +94,7 @@ var StateBrowser = (function () {
         if(exp in selected.children) {
             return selected.children[exp];
         }
-        throw Error(errors.couldNotFindStateForPath);
+        throw Error(errors.couldNotFindStateForPath + ": " + exp);
     };
     return StateBrowser;
 })();

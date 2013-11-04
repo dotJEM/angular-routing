@@ -111,5 +111,14 @@ var State = (function () {
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
+    State.prototype.is = function (state) {
+        return this.fullname === state || this.fullname === rootName + '.' + state;
+    };
+    State.prototype.isActive = function (state) {
+        if(this.is(state)) {
+            return true;
+        }
+        return this.parent && this.parent.isActive(state) || false;
+    };
     return State;
 })();

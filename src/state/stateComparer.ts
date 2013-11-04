@@ -19,7 +19,7 @@ class StateComparer {
             current = state;
         do {
             states.push({ state: current, params: extractParams() });
-        } while (current = current.parent)
+        } while (current = current.parent);
         return states;
     }
 
@@ -29,7 +29,8 @@ class StateComparer {
             count = Math.max(fromArray.length, toArray.length),
             fromAtIndex,
             toAtIndex,
-            c, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+            stateChanges = false,
+            paramChanges = !equals(fromParams, toParams);
 
         for (var i = 0; i < count; i++) {
             fromAtIndex = fromArray[fromArray.length - i - 1];
@@ -38,7 +39,7 @@ class StateComparer {
             if (isUndefined(toAtIndex)) {
                 toArray[0].isChanged = stateChanges = true;
             } else if (isUndefined(fromAtIndex)
-                    || (forceReload && forceReload == toAtIndex.state.fullname)
+                    || forceReload === toAtIndex.state.fullname
                     || toAtIndex.state.fullname !== fromAtIndex.state.fullname
                     || !equals(toAtIndex.params, fromAtIndex.params)) {
                 toAtIndex.isChanged = stateChanges = true;

@@ -6,5 +6,6 @@ dotjem.StateComparer = StateComparer;
 dotjem.StateFactory = StateFactory;
 dotjem.StateRules = StateRules;
 dotjem.StateUrlBuilder = StateUrlBuilder;
+dotjem.RootName = rootName;
 
 })(window, document, dotjem || (dotjem = {}));

@@ -6,15 +6,18 @@
 <div class="description"><p>Provides a link to a state.</p></div>
 <h2 id="Usage">Usage</h2>
 <div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY sref
-     params="{string}"&gt;
+     params="{string}"
+     activeClass="{string}"&gt;
    ...
 &lt;/ANY&gt;</pre>
-as class<pre class="prettyprint linenums">&lt;ANY class="sref params: {string};"&gt;
+as class<pre class="prettyprint linenums">&lt;ANY class="sref params: {string}; activeClass: {string};"&gt;
    ...
 &lt;/ANY&gt;</pre>
 <h3 id="Parameters">Parameters</h3>
 <ul class="parameters"><li><code ng:non-bindable="">params – {string} – </code>
 <p>Parameters for the state link.</p></li>
+<li><code ng:non-bindable="">activeClass – {string} – </code>
+<p>Class to add when the state targeted is active.</p></li>
 </ul>
 </div>
 </div>

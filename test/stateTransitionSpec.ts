@@ -26,51 +26,7 @@ describe('$stateTransitionProvider', function () {
     }));
 
     describe("find", () => {
-        //it('returns emitter', function () {
-        //    var provider: dotjem.routing.ITransitionProvider,
-        //        tr = [];
-        //    mock.module(function ($transitionProvider: dotjem.routing.ITransitionProvider) {
-        //        $transitionProvider
 
-        //        .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about.*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //        .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //    });
-
-        //    mock.inject(function ($transition: dotjem.routing.ITransitionService) {
-        //        var x = $transition.find({ fullname: 'blog' }, { fullname: 'about' });
-
-        //    });
-        //});
-
-        //it('returns emitter', function () {
-        //    var provider: dotjem.routing.ITransitionProvider,
-        //        tr = [];
-        //    mock.module(function ($transitionProvider: dotjem.routing.ITransitionProvider) {
-        //        $transitionProvider
-
-        //        .transition('*', '*', [<any>'$from', '$to', ($from, $to) => {
-        //            tr.push({ from: $from, to: $to });
-        //        }])
-        //    });
-
-        //    mock.inject(function ($transition: dotjem.routing.ITransitionService) {
-        //        var x = $transition.find({ fullname: 'blog' }, { fullname: 'about' });
-
-        //    });
-        //});
     });
 
     describe("transition validation", () => {
@@ -250,15 +206,15 @@ describe('$stateTransitionProvider', function () {
                 scope.$digest();
 
                 expect(transitions.length).toBe(1);
-                expect(transitions[0].from.$fullname).toBe('root');
-                expect(transitions[0].to.$fullname).toBe('root.blog.recent');
+                expect(transitions[0].from.$fullname).toBe(test.nameWithRoot('root'));
+                expect(transitions[0].to.$fullname).toBe(test.nameWithRoot('root.blog.recent'));
 
                 $location.path('/blog/42');
                 scope.$digest();
 
                 expect(transitions.length).toBe(2);
-                expect(transitions[1].from.$fullname).toBe('root.blog.recent');
-                expect(transitions[1].to.$fullname).toBe('root.blog.details');
+                expect(transitions[1].from.$fullname).toBe(test.nameWithRoot('root.blog.recent'));
+                expect(transitions[1].to.$fullname).toBe(test.nameWithRoot('root.blog.details'));
             });
         });
 
@@ -302,8 +258,8 @@ describe('$stateTransitionProvider', function () {
 
                 expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
                 expect(message.length).toBe(4);
-                expect(trs[0].from.$fullname).toBe('root.blog');
-                expect(trs[0].to.$fullname).toBe('root.about');
+                expect(trs[0].from.$fullname).toBe(test.nameWithRoot('root.blog'));
+                expect(trs[0].to.$fullname).toBe(test.nameWithRoot('root.about'));
             });
         });
 
@@ -346,8 +302,8 @@ describe('$stateTransitionProvider', function () {
 
                 expect(message.join()).toBe('blog > about.*,blog > about,blog.* > about.*,blog.* > about');
                 expect(message.length).toBe(4);
-                expect(trs[0].from.$fullname).toBe('root.blog.recent');
-                expect(trs[0].to.$fullname).toBe('root.about');
+                expect(trs[0].from.$fullname).toBe(test.nameWithRoot('root.blog.recent'));
+                expect(trs[0].to.$fullname).toBe(test.nameWithRoot('root.about'));
             });
         });
 
@@ -392,7 +348,7 @@ describe('$stateTransitionProvider', function () {
 
                 expect(message.join()).toBe('blog > about.*,blog.* > about.*');
                 expect(message.length).toBe(2);
-                expect(trs[0].from.$fullname).toBe('root.blog.recent');
-                expect(trs[0].to.$fullname).toBe('root.about.cv');            });        });
+                expect(trs[0].from.$fullname).toBe(test.nameWithRoot('root.blog.recent'));
+                expect(trs[0].to.$fullname).toBe(test.nameWithRoot('root.about.cv'));            });        });
     });
 });

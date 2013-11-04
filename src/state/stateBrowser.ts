@@ -1,18 +1,18 @@
 /// <reference path="state.ts" />
 
 class StateBrowser {
-    private nameRegex = new RegExp('^\\w+(\\.\\w+)+$');
+    private nameRegex = new RegExp('^(' + escapeRegex(rootName) + '\\.)?\\w+(\\.\\w+)*$');
     private siblingRegex = new RegExp('^\\$node\\(([-+]?\\d+)\\)$');
     private indexRegex = new RegExp('^\\[(-?\\d+)\\]$');
     
-    constructor(private root: State) {
-    }
+    constructor(private root: State) {}
 
-    public lookup(fullname: string, stop?: number) {
+    public lookup(path: string, stop?: number) {
         var current = this.root,
-            names = fullname.split('.'),
-            i = names[0] === 'root' ? 1 : 0,
+            names = path.split('.'),
+            i = names[0] === rootName ? 1 : 0,
             stop = isDefined(stop) ? stop : 0;
+
 
         for (; i < names.length - stop; i++) {
             if (!(names[i] in current.children))
@@ -23,9 +23,8 @@ class StateBrowser {
         return current;
     }
 
-    public resolve(origin, path): State {
-        var siblingSelector = this.siblingRegex.exec(path),// path.match(this.siblingRegex),
-            nameSelector = this.nameRegex.test(path),
+    public resolve(origin, path, wrap?): State {
+        var siblingSelector = this.siblingRegex.exec(path),
             selected = origin,
             sections: string[];
 
@@ -50,12 +49,16 @@ class StateBrowser {
         if (selected === this.root)
             throw Error(errors.expressionOutOfBounds);
 
-        return selected && extend({}, selected.self) || undefined;
+        if (selected)
+            if (wrap)
+                return copy(selected.self);
+            return selected;
+        return undefined;
     }
 
     private selectSibling(index: number, selected: State): State {
         var children = [],
-            currentIndex;
+            currentIndex = 0;
 
         forEach(selected.parent.children, (child) => {
             children.push(child);
@@ -65,7 +68,7 @@ class StateBrowser {
         });
 
         while (index < 0)
-            index += children.length
+            index += children.length;
 
         index = (currentIndex + index) % children.length;
         return children[index];
@@ -103,7 +106,7 @@ class StateBrowser {
             });
 
             if (Math.abs(index) >= children.length) {
-                throw Error(errors.expressionOutOfBounds)
+                throw Error(errors.expressionOutOfBounds);
             }
 
             return index < 0 ? children[children.length + index] : children[index];
@@ -113,7 +116,7 @@ class StateBrowser {
             return selected.children[exp];
         }
 
-        throw Error(errors.couldNotFindStateForPath);
+        throw Error(errors.couldNotFindStateForPath + ": " + exp);
     }
 
 }

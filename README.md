@@ -1,11 +1,12 @@
 # dotJEM Angular Routing
 
-[![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
+Master: [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
+Angular v1.2rc: [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=Angular-1.2.0-rc.2)](https://travis-ci.org/dotJEM/angular-routing)
 
-#### Latest release v0.3.2:
- - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.3.2/build/angular-routing.js)
- - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.3.2/build/angular-routing.min.js)
- - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.3.2/build)
+#### Latest release v0.5.2:
+ - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.5.2/build/angular-routing.js)
+ - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.5.2/build/angular-routing.min.js)
+ - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.5.2/build)
 
 #### Latest build (currently not automated, so not 100% the latest always):
  - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/master/build/angular-routing.js)
@@ -16,7 +17,7 @@ The samples and api reference are currently a work in progress:
  - **Api Reference:** http://dotjem.github.io/angular-routing/doc/
  - **Samples:** http://dotjem.github.com/angular-routing/samples/
 
-# NOTE: Pre-release version 0.3.2 
+# Version 0.5.2
 
 Inspired by the UI-Router project by Angular-ui, this project came to life as I wanted
 to provide what I belive is more "true states" where the transitions could be
@@ -26,28 +27,6 @@ The UI-Route project can be found here: https://github.com/angular-ui/ui-router
 
 One important note is that this is developed using TypeScript, yet following the
 basic style of how Angular modules, services and directives is written
-
-## UI Router Comparison
-
-Some of these are probably more subjevtive that objective, but I will try to be fair to UI Router.
-
-#### Advantages
-
-* Seperation of Application State and View State
-* Full support for transition control between state, not just enter/exit or a global state changed handler
-* A Simpler view model that still adds more flexibility through the view service
-* Support for a XPath like lookup of states based on current state or root state.
-* Parameter converters, UI Router has support for regex parameters but it seems more limited
-
-#### Disadvantages
-
-* No un-nanmed views
-* No abstract states
-* No ui-sref directive (planned on some form at least)
-** For now, you should be able to bind the url method of $state to the scope and use that in an "a" tag.
-* No support for route matching through functions
-* Less used
-* Bigger footprint
 
 ## Main goal
 
@@ -104,7 +83,7 @@ or modify what happens during a transition.
 
 #### Requires
 
-* AngularJS 1.1.4 or above
+* AngularJS 1.1.4 or 1.1.5
 
 ## Reporting Issues
 
@@ -114,3 +93,5 @@ http://plnkr.co/ or http://jsfiddle.net/.
 
 Othherwise, try to capture as much detail as possible, there more that is known about the issue and context
 the easier it is to help.
+
+Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:bOnvMydEvu3FcNNjEo9c

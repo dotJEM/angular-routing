@@ -1,13 +1,3 @@
-/// <reference path="../src/interfaces.d.ts" />
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../lib/angular/angular-mocks-1.0.d.ts" />
-/// <reference path="../lib/jasmine/jasmine.d.ts" />
-/// <reference path="../src/state/state.ts" />
-/// <reference path="../src/state/stateBrowser.ts" />
-/// <reference path="../src/state/stateComparer.ts" />
-/// <reference path="../src/state/stateFactory.ts" />
-/// <reference path="../src/state/stateRules.ts" />
-/// <reference path="../src/state/stateUrlBuilder.ts" />
 var test = (function (dotjem) {
     if(angular.isUndefined(dotjem.State)) {
         dotjem.State = State;
@@ -27,6 +17,18 @@ var test = (function (dotjem) {
     if(angular.isUndefined(dotjem.StateUrlBuilder)) {
         dotjem.StateUrlBuilder = StateUrlBuilder;
     }
+    if(angular.isUndefined(dotjem.RootName)) {
+        dotjem.RootName = rootName;
+    }
+    dotjem.nameWithRoot = function (name) {
+        if(name.indexOf('root') === 0) {
+            return dotjem.RootName + name.substring(4);
+        }
+        return name.charAt(0) === '.' ? dotjem.RootName + name : dotjem.RootName + '.' + name;
+    };
+    dotjem.replaceWithRoot = function (name, sub) {
+        return name.replace(new RegExp(sub || 'root', 'g'), dotjem.RootName);
+    };
     return dotjem;
 })(typeof dotjem != 'undefined' ? dotjem : {
 });

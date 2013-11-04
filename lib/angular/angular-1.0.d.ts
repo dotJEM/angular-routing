@@ -198,7 +198,9 @@ module ng {
     // BrowserService
     // TODO undocumented, so we need to get it from the source code
     ///////////////////////////////////////////////////////////////////////////
-    interface IBrowserService {}
+    interface IBrowserService {
+        baseHref(): string;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // TimeoutService

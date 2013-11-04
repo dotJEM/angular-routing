@@ -33,13 +33,21 @@ function $ViewProvider() {
         '$template', 
         function ($rootScope, $q, $template) {
             var views = {
-            }, transaction = null, $view = {
+            }, trx = {
+                completed: true
+            }, $view = {
+                get: get,
+                clear: clear,
+                refresh: refresh,
+                update: update,
+                create: create,
+                beginUpdate: beginUpdate
             };
             function isArgs(args) {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
             }
             function ensureName(name) {
-                if(name === 'undefined') {
+                if(isUndefined(name)) {
                     throw new Error('Must define a view name.');
                 }
             }
@@ -58,7 +66,7 @@ function $ViewProvider() {
             * @param {State} name Name of the view that was updated.
             */
             function raiseUpdated(name) {
-                $rootScope.$broadcast('$viewUpdate', name);
+                $rootScope.$broadcast(EVENTS.VIEW_UPDATE, name);
             }
             /**
             * @ngdoc event
@@ -74,7 +82,23 @@ function $ViewProvider() {
             * @param {State} name Name of the view that was refreshed.
             */
             function raiseRefresh(name, data) {
-                $rootScope.$broadcast('$viewRefresh', name, data);
+                $rootScope.$broadcast(EVENTS.VIEW_REFRESH, name, data);
+            }
+            /**
+            * @ngdoc event
+            * @name dotjem.routing.$view#$viewPrep
+            * @eventOf dotjem.routing.$view
+            *
+            * @eventType broadcast on root scope
+            *
+            * @description
+            * Broadcasted when a view refreshed, if a transaction is active this will not occur before that is commited.
+            *
+            * @param {Object} angularEvent Synthetic event object.
+            * @param {State} name Name of the view that was refreshed.
+            */
+            function raisePrepare(name, data) {
+                $rootScope.$broadcast(EVENTS.VIEW_PREP, name, data);
             }
             function containsView(map, name) {
                 return (name in map) && map[name] !== null;
@@ -99,29 +123,24 @@ function $ViewProvider() {
             * @description
             * Clears the named view.
             */
-            $view.clear = function (name) {
-                var _this = this;
+            function clear(name) {
+                if(!trx.completed) {
+                    return trx.clear(name);
+                }
                 if(isUndefined(name)) {
                     forEach(views, function (val, key) {
-                        _this.clear(key);
+                        $view.clear(key);
                     });
                 } else {
-                    if(transaction) {
-                        transaction.records[name] = {
-                            act: 'clear',
-                            fn: function () {
-                                _this.clear(name);
-                            }
-                        };
-                        return;
-                    }
                     delete views[name];
                     raiseUpdated(name);
                 }
-            };
+                return $view;
+            }
+            ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -144,7 +163,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setOrUpdate
+            * @name dotjem.routing.$view#update
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -161,8 +180,7 @@ function $ViewProvider() {
             * <br/>
             * Views can also be refreshed by calling the `refresh` method.
             */
-            $view.setOrUpdate = function (name, templateOrArgs, controller, locals, sticky) {
-                var _this = this;
+            function update(name, templateOrArgs, controller, locals, sticky) {
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -171,14 +189,8 @@ function $ViewProvider() {
                     sticky = templateOrArgs.sticky;
                 }
                 ensureName(name);
-                if(transaction) {
-                    transaction.records[name] = {
-                        act: 'setOrUpdate',
-                        fn: function () {
-                            _this.setOrUpdate(name, template, controller, locals, sticky);
-                        }
-                    };
-                    return;
+                if(!trx.completed) {
+                    return trx.update(name, template, controller, locals, sticky);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -186,22 +198,27 @@ function $ViewProvider() {
                     };
                 }
                 //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
+                //      largely care of this, it could be an optimization to not do this?
                 views[name].template = $template.get(template);
                 views[name].controller = controller;
                 views[name].locals = locals;
                 if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
                     raiseRefresh(name, {
-                        sticky: true
+                        $locals: locals,
+                        sticky: sticky
                     });
                 } else {
                     views[name].version++;
                     views[name].sticky = sticky;
                     raiseUpdated(name);
                 }
-            };
+                return $view;
+            }
+            ;
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to set as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -218,7 +235,7 @@ function $ViewProvider() {
             */
             /**
             * @ngdoc method
-            * @name dotjem.routing.$view#setIfAbsent
+            * @name dotjem.routing.$view#create
             * @methodOf dotjem.routing.$view
             *
             * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
@@ -229,8 +246,7 @@ function $ViewProvider() {
             * @description
             * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
             */
-            $view.setIfAbsent = function (name, templateOrArgs, controller, locals) {
-                var _this = this;
+            function create(name, templateOrArgs, controller, locals) {
                 var template = templateOrArgs;
                 if(isArgs(templateOrArgs)) {
                     template = templateOrArgs.template;
@@ -238,16 +254,8 @@ function $ViewProvider() {
                     locals = templateOrArgs.locals;
                 }
                 ensureName(name);
-                if(transaction) {
-                    if(!containsView(transaction.records, name) || transaction.records[name].act === 'clear') {
-                        transaction.records[name] = {
-                            act: 'setIfAbsent',
-                            fn: function () {
-                                _this.setIfAbsent(name, template, controller, locals);
-                            }
-                        };
-                    }
-                    return;
+                if(!trx.completed) {
+                    return trx.create(name, template, controller, locals);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -259,7 +267,8 @@ function $ViewProvider() {
                     };
                     raiseUpdated(name);
                 }
-            };
+                return $view;
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#get
@@ -298,7 +307,7 @@ function $ViewProvider() {
             * - `locals`: `{Object=}` value An optional map of dependencies which should be injected into the controller.
             * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             */
-            $view.get = function (name) {
+            function get(name) {
                 //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
                     return views;
@@ -306,7 +315,8 @@ function $ViewProvider() {
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return views[name];
-            };
+            }
+            ;
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#refresh
@@ -326,24 +336,21 @@ function $ViewProvider() {
             * @description
             * Refreshes a named view.
             */
-            $view.refresh = function (name, data) {
-                var _this = this;
+            function refresh(name, data) {
+                if(!trx.completed) {
+                    return trx.refresh(name, data);
+                }
                 if(isUndefined(name)) {
                     forEach(views, function (val, key) {
-                        $view.refesh(key, data);
+                        $view.refresh(key, data);
                     });
-                } else if(transaction) {
-                    transaction.records[name] = {
-                        act: 'refresh',
-                        fn: function () {
-                            _this.refresh(name, data);
-                        }
-                    };
-                    return;
                 } else {
+                    //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
+                    data.$locals = views[name] && views[name].locals;
                     raiseRefresh(name, data);
                 }
-            };
+                return $view;
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#beginUpdate
@@ -380,26 +387,105 @@ function $ViewProvider() {
             * @description
             * Cancels the view transaction, discarding any changes that may have been recorded.
             */
-            $view.beginUpdate = function () {
-                if(transaction) {
+            function beginUpdate() {
+                if(!trx.completed) {
                     throw new Error("Can't start multiple transactions");
                 }
-                var trx = transaction = {
-                    records: {
-                    }
-                };
-                return {
-                    commit: function () {
-                        transaction = null;
-                        forEach(trx.records, function (rec) {
-                            rec.fn();
-                        });
-                    },
-                    cancel: function () {
-                        transaction = null;
-                    }
-                };
-            };
+                return trx = createTransaction();
+                function createTransaction() {
+                    var records = {
+                    }, trx;
+                    return trx = {
+                        completed: false,
+                        commit: function () {
+                            if(trx.completed) {
+                                return;
+                            }
+                            trx.completed = true;
+                            forEach(records, function (rec) {
+                                rec.fn();
+                            });
+                        },
+                        cancel: function () {
+                            raisePrepare(name, {
+                                type: 'cancel'
+                            });
+                            trx.completed = true;
+                        },
+                        clear: function (name) {
+                            if(isUndefined(name)) {
+                                forEach(views, function (val, key) {
+                                    trx.clear(key);
+                                });
+                                return trx;
+                            }
+                            records[name] = {
+                                act: 'clear',
+                                fn: function () {
+                                    clear(name);
+                                }
+                            };
+                            return trx;
+                        },
+                        prepUpdate: function (name, template, controller, sticky) {
+                            raisePrepare(name, {
+                                type: 'update'
+                            });
+                            return function (locals) {
+                                trx.update(name, template, controller, locals, sticky);
+                                return trx;
+                            };
+                        },
+                        prepCreate: function (name, template, controller) {
+                            raisePrepare(name, {
+                                type: 'create'
+                            });
+                            return function (locals) {
+                                trx.create(name, template, controller, locals);
+                                return trx;
+                            };
+                        },
+                        update: function (name, template, controller, locals, sticky) {
+                            ensureName(name);
+                            records[name] = {
+                                act: 'update',
+                                fn: function () {
+                                    update(name, template, controller, locals, sticky);
+                                }
+                            };
+                            return trx;
+                        },
+                        create: function (name, template, controller, locals) {
+                            ensureName(name);
+                            if(!containsView(records, name) || records[name].act === 'clear') {
+                                records[name] = {
+                                    act: 'create',
+                                    fn: function () {
+                                        create(name, template, controller, locals);
+                                    }
+                                };
+                            }
+                            return trx;
+                        },
+                        refresh: function (name, data) {
+                            if(isUndefined(name)) {
+                                forEach(views, function (val, key) {
+                                    trx.refresh(key, data);
+                                });
+                                return trx;
+                            }
+                            records[name] = {
+                                act: 'refresh',
+                                fn: function () {
+                                    refresh(name, data);
+                                }
+                            };
+                            return trx;
+                        },
+                        get: get
+                    };
+                }
+            }
             return $view;
         }    ];
 }

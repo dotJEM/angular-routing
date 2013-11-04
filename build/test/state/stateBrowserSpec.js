@@ -228,11 +228,6 @@ describe('state.stateBrowser', function () {
             });
         });
         describe('at root', function () {
-            it('lookup top1', function () {
-                inject(function () {
-                    expect(browser.resolve(root.children.state1, 'top1').fullname).toBe('root.state1.top1');
-                });
-            });
             it('lookup state1.top2', function () {
                 inject(function () {
                     expect(browser.resolve(root.children.state1, 'state1.top2').fullname).toBe('root.state1.top2');
