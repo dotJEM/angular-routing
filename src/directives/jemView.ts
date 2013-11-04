@@ -82,7 +82,7 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                         if (isFunction(viewScope.refresh)) {
                             viewScope.refresh(refreshData);
                         } else {
-                            viewScope.$broadcast('$refresh', refreshName, refreshData)
+                            viewScope.$broadcast('$refresh', refreshName, refreshData);
                         }
                     }
                 });
@@ -122,10 +122,11 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                     }
 
                     if (viewElement) {
-                        if (doAnimate)
+                        if (doAnimate) {
                             $animate.leave(viewElement);
-                        else
+                        } else {
                             viewElement.remove();
+                        }
                         viewElement = null;
                     }
                 }
@@ -147,10 +148,11 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                                 cleanupView(doAnimate);
 
                                 clone.html(html);
-                                if (doAnimate)
+                                if (doAnimate) {
                                     $animate.enter(clone, null, element);
-                                else
+                                } else {
                                     element.after(clone);
+                                }
 
                                 var link = $compile(clone.contents()),
                                     locals;
@@ -178,7 +180,7 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                         cleanupView(doAnimate);
                     }
                 }
-            }
+            };
         }
     };
 }];
