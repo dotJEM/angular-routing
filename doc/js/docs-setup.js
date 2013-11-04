@@ -82,10 +82,17 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "dotjem.routing.directive:id",
+      "shortName": "id",
+      "type": "directive",
+      "keywords": "$scroll ac an anchor any api directive dotjem for identifier jemanchor of point provides routing service the to use"
+    },
+    {
+      "section": "api",
       "id": "dotjem.routing.directive:jemAnchor",
       "shortName": "jemAnchor",
       "type": "directive",
-      "keywords": "$scroll an anchor any api directive dotjem eca for identifier jemanchor of point provides routing service the to use"
+      "keywords": "$scroll ac an anchor any api directive dotjem for identifier jemanchor of point provides routing service the to use"
     },
     {
       "section": "api",
@@ -93,6 +100,13 @@ NG_DOCS={
       "shortName": "jemView",
       "type": "directive",
       "keywords": "$state according and animate animation animations api away bring browser by changes complements concurrently configuration content current directive display dotjem eca enter every existing file html included including index into is it jemview layout leave loader main name new occur of overview prepared rendered route routing service state template that the time to url used view while with"
+    },
+    {
+      "section": "api",
+      "id": "dotjem.routing.directive:sref",
+      "shortName": "sref",
+      "type": "directive",
+      "keywords": "ac active activeclass add any api class directive dotjem for is link parameters params provides routing state targeted the to when"
     },
     {
       "section": "api",

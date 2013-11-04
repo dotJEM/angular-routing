@@ -206,8 +206,7 @@ var $RouteProvider = [
                             };
                         }
                     } else {
-                        fn = function () {
-                        };
+                        fn = noop;
                     }
                 }
                 return fn($location, next);
@@ -324,8 +323,7 @@ var $RouteProvider = [
         }
         function createMatcher(path, expression) {
             if(path == null) {
-                return function (location) {
-                };
+                return noop;
             }
             return function (location) {
                 var match = location.match(expression.exp), dst = {
@@ -538,6 +536,12 @@ var $RouteProvider = [
                 */
                                 var forceReload = false, baseElement, $route = {
                     routes: routes,
+                    html5Mode: function () {
+                        return $locationProvider.html5Mode();
+                    },
+                    hashPrefix: function () {
+                        return $locationProvider.hashPrefix();
+                    },
                     reload: function () {
                         forceReload = true;
                         $rootScope.$evalAsync(update);

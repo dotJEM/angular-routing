@@ -51,7 +51,7 @@ class StateBrowser {
 
         if (selected)
             if (wrap)
-                return copy(selected.self)
+                return copy(selected.self);
             return selected;
         return undefined;
     }
@@ -68,7 +68,7 @@ class StateBrowser {
         });
 
         while (index < 0)
-            index += children.length
+            index += children.length;
 
         index = (currentIndex + index) % children.length;
         return children[index];
@@ -106,7 +106,7 @@ class StateBrowser {
             });
 
             if (Math.abs(index) >= children.length) {
-                throw Error(errors.expressionOutOfBounds)
+                throw Error(errors.expressionOutOfBounds);
             }
 
             return index < 0 ? children[children.length + index] : children[index];

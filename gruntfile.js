@@ -62,6 +62,7 @@ module.exports = function (grunt) {
                         'build/src/state/transition/context.js',
                         'build/src/directives/jemView.js',
                         'build/src/directives/jemAnchor.js',
+                        'build/src/directives/jemLink.js',
                         'src/suffix'],
                 dest: 'build/<%= pkg.name %>.js'
             },
@@ -148,6 +149,15 @@ module.exports = function (grunt) {
                 html5Mode: false,
             },
             all: ['build/src/**/*.js']
+        },
+        
+        tslint: {
+            options: {
+                configuration: grunt.file.readJSON("tslint.json")
+            },
+            files: {
+                src: ['src/**/*.ts']
+            }
         }
     });
 
@@ -162,6 +172,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-ngdocs');
+    grunt.loadNpmTasks('grunt-tslint');
 
     // Default task.
     grunt.registerTask('build', ['typescript', 'concat', 'uglify']);

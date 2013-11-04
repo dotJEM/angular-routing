@@ -10,7 +10,7 @@
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root';
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root', noop = angular.noop;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -52,10 +52,7 @@ function buildParamsFromObject(params) {
     par.$search = copy(params && params.search || {
     });
     return par;
-    // params.path || {};
-    // $state.params.$all = params.all;
-    // $state.params.$search = params.search;
-    }
+}
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
 function toKeyValue(obj, prepend) {

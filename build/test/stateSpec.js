@@ -87,6 +87,18 @@ describe('$stateProvider', function () {
                 expect(stringifyState($state.root)).toBe("(blog())");
             });
         });
+        it('can define onEnter', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('blog', {
+                    name: 'blog',
+                    onEnter: function () {
+                    }
+                });
+            });
+            inject(function ($state) {
+                expect(stringifyState($state.root)).toBe("(blog())");
+            });
+        });
         it('can define state hierarchy using . notation', function () {
             mod(function ($stateProvider) {
                 $stateProvider.state('blog', {

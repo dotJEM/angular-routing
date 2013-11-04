@@ -19,7 +19,7 @@ class StateComparer {
             current = state;
         do {
             states.push({ state: current, params: extractParams() });
-        } while (current = current.parent)
+        } while (current = current.parent);
         return states;
     }
 

@@ -36,7 +36,7 @@ var $ScrollProvider = [<any>
                 } else if ((fn = injectFn(arg)) !== null) {
                     scrollTo(fn($injector));
                 }
-            }
+            };
 
             scroll.$current = 'top';
             

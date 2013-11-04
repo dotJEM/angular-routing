@@ -427,7 +427,7 @@ function $ViewProvider() {
                         trx.completed = true;
                         forEach(records, (rec) => {
                             rec.fn();
-                        })
+                        });
                     },
                     cancel: function () {
                         raisePrepare(name, { type: 'cancel' });
@@ -454,14 +454,14 @@ function $ViewProvider() {
                         return function (locals?: any) {
                             trx.update(name, template, controller, locals, sticky);
                             return trx;
-                        }
+                        };
                     },
                     prepCreate: function (name: string, template?: any, controller?: any) {
                         raisePrepare(name, { type: 'create' });
                         return function (locals?: any) {
                             trx.create(name, template, controller, locals);
                             return trx;
-                        }
+                        };
                     },
                     update: function (name: string, template?: any, controller?: any, locals?: any, sticky?: any) {
                         ensureName(name);
@@ -504,7 +504,7 @@ function $ViewProvider() {
                         return trx;
                     },
                     get: get
-                }
+                };
             }
         }
 

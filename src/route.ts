@@ -237,7 +237,7 @@ var $RouteProvider = [<any>'$locationProvider',
                             };
                         }
                     } else {
-                        fn = function () { };
+                        fn = noop;
                     }
                 }
                 return fn($location, next);
@@ -262,7 +262,7 @@ var $RouteProvider = [<any>'$locationProvider',
             return {
                 name: name,
                 converter: function () { return converters[converter](cargs); }
-            }
+            };
         }
 
         function interpolate(url, params) {
@@ -279,7 +279,7 @@ var $RouteProvider = [<any>'$locationProvider',
                         + param.name
                         + "' when building url for route '"
                         + url
-                        + "', ensure that all required parameters are provided.")
+                        + "', ensure that all required parameters are provided.");
 
                 if (!isFunction(converter) && isDefined(converter.format))
                     formatter = converter.format;
@@ -377,7 +377,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         function createMatcher(path: string, expression: IExpression) {
             if (path == null)
-                return (location: string) => { }
+                return noop;
 
             return (location: string) => {
                 var match = location.match(expression.exp),
@@ -411,7 +411,7 @@ var $RouteProvider = [<any>'$locationProvider',
                     if (!invalidParam)
                         return dst;
                 }
-            }
+            };
         }
 
         //Registration of Default Converters
@@ -597,6 +597,12 @@ var $RouteProvider = [<any>'$locationProvider',
                 baseElement,
                 $route: any = {
                     routes: routes,
+                    html5Mode: function () {
+                        return $locationProvider.html5Mode();
+                    },
+                    hashPrefix: function () {
+                        return $locationProvider.hashPrefix();
+                    },
                     reload: function () {
                         forceReload = true;
                         $rootScope.$evalAsync(update);

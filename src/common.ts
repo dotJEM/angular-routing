@@ -25,26 +25,27 @@ var isDefined = angular.isDefined,
     copy = angular.copy,
     equals = angular.equals,
     element = angular.element,
-    rootName = '$root';
+    rootName = '$root',
+    noop = angular.noop;
 
 function inherit(parent, extra?) {
     return extend(new (extend(function () { }, { prototype: parent }))(), extra);
 }
 
-function toName(named: any) : string {
+function toName(named: any): string {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 
 function injectFn(arg: any): IInjector {
     if (isFunction(arg)) {
-        return function(injector: ng.auto.IInjectorService, locals?) {
+        return function (injector: ng.auto.IInjectorService, locals?) {
             return injector.invoke(arg, arg, locals);
-        }
+        };
     } else if (isArray(arg)) {
         var fn = arg[arg.length - 1];
         return function (injector: ng.auto.IInjectorService, locals?) {
             return injector.invoke(arg, fn, locals);
-        }
+        };
     }
     return null;
 }
@@ -63,11 +64,11 @@ interface IParam {
 }
 
 function buildParams(all?, path?, search?) {
-  var par = copy(all || {});
-  par.$all = copy(all || {});
-  par.$path = copy(path || {});
-  par.$search = copy(search || {});
-  return par;
+    var par = copy(all || {});
+    par.$all = copy(all || {});
+    par.$path = copy(path || {});
+    par.$search = copy(search || {});
+    return par;
 }
 
 function buildParamsFromObject(params?) {
@@ -75,10 +76,6 @@ function buildParamsFromObject(params?) {
     par.$path = copy(params && params.path || {});
     par.$search = copy(params && params.search || {});
     return par;
-
-    // params.path || {};
-    // $state.params.$all = params.all;
-    // $state.params.$search = params.search;
 }
 
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
@@ -147,7 +144,7 @@ var errors = {
     invalidBrowserPathExpression: "Invalid path expression.",
     expressionOutOfBounds: "Expression out of bounds.",
     couldNotFindStateForPath: "Could find state for path."
-}
+};
 
 var EVENTS = {
     LOCATION_CHANGE: '$locationChangeSuccess',
@@ -165,5 +162,4 @@ var EVENTS = {
     VIEW_UPDATE: '$viewUpdate',
     VIEW_REFRESH: '$viewRefresh',
     VIEW_PREP: '$viewPrep'
-}
-
+};

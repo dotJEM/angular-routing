@@ -19,7 +19,7 @@ var dotjem;
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root';
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root', noop = angular.noop;
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -61,10 +61,7 @@ function buildParamsFromObject(params) {
     par.$search = copy(params && params.search || {
     });
     return par;
-    // params.path || {};
-    // $state.params.$all = params.all;
-    // $state.params.$search = params.search;
-    }
+}
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
 function toKeyValue(obj, prepend) {
@@ -342,8 +339,7 @@ var $RouteProvider = [
                             };
                         }
                     } else {
-                        fn = function () {
-                        };
+                        fn = noop;
                     }
                 }
                 return fn($location, next);
@@ -460,8 +456,7 @@ var $RouteProvider = [
         }
         function createMatcher(path, expression) {
             if(path == null) {
-                return function (location) {
-                };
+                return noop;
             }
             return function (location) {
                 var match = location.match(expression.exp), dst = {
@@ -674,6 +669,12 @@ var $RouteProvider = [
                 */
                                 var forceReload = false, baseElement, $route = {
                     routes: routes,
+                    html5Mode: function () {
+                        return $locationProvider.html5Mode();
+                    },
+                    hashPrefix: function () {
+                        return $locationProvider.hashPrefix();
+                    },
                     reload: function () {
                         forceReload = true;
                         $rootScope.$evalAsync(update);
@@ -772,9 +773,7 @@ var $RouteProvider = [
 angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
 });
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 /**
 * @ngdoc object
 * @name dotjem.routing.$stateTransitionProvider
@@ -960,7 +959,7 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
-    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+    }, _this = this;
     function alignHandler(obj) {
         var result = {
             handler: {
@@ -1100,7 +1099,7 @@ function $StateTransitionProvider() {
         return this;
     };
     function validate(from, to) {
-        var fromValid = validateTarget(from), toValid = validateTarget(to);
+        var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
         if(fromValid && toValid) {
             // && from !== to
             return;
@@ -1114,12 +1113,6 @@ function $StateTransitionProvider() {
         //if (from === to && from.indexOf('*') === -1)
         //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
-    }
-    function validateTarget(target) {
-        if(target === '*' || validation.test(target)) {
-            return true;
-        }
-        return false;
     }
     function lookup(name) {
         var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
@@ -1980,9 +1973,8 @@ function $TemplateProvider() {
                     if(isString(template)) {
                         if(urlmatcher.test(template)) {
                             return getFromUrl(template);
-                        } else {
-                            return $q.when(template);
                         }
+                        return $q.when(template);
                     }
                     if(isFunction(template) || isArray(template)) {
                         return getFromFunction(template);
@@ -2901,10 +2893,17 @@ var StateFactory = (function () {
 var StateRules = (function () {
     function StateRules() { }
     StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
     StateRules.validateName = function validateName(name) {
         if(!StateRules.nameValidation.test(name) || name === rootName) {
             throw new Error("Invalid name: '" + name + "'.");
         }
+    };
+    StateRules.validateTarget = function validateTarget(target) {
+        if(target === '*' || StateRules.targetValidation.test(target)) {
+            return true;
+        }
+        return false;
     };
     return StateRules;
 })();
@@ -3318,7 +3317,18 @@ angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 /**
 * @ngdoc directive
 * @name dotjem.routing.directive:jemAnchor
-* @restrict ECA
+* @restrict AC
+*
+* @description
+* Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
+*
+* @element ANY
+* @param {string} jemAnchor|id Identifier of the anchor
+*/
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:id
+* @restrict AC
 *
 * @description
 * Provides an anchor point for the {@link dotjem.routing.$scroll $scroll} service to use.
@@ -3331,10 +3341,10 @@ var jemAnchorDirective = [
     '$timeout', 
     function ($scroll, $timeout) {
         return {
-            restrict: 'ECA',
+            restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr['jemAnchor'] || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
+                var name = attr.jemAnchor || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
                 //      although the angular team says it should wait untill any digest is done.
                 //      Using 1 seems to work.
                 isDefined(attr.delay) ? Number(attr.delay) : 1;
@@ -3359,6 +3369,68 @@ var jemAnchorDirective = [
     }];
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);
+
+/// <reference path="../../lib/angular/angular-1.0.d.ts" />
+/// <reference path="../interfaces.d.ts" />
+/// <reference path="../common.ts" />
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:sref
+* @restrict AC
+*
+* @description
+* Provides a link to a state.
+*
+* @element ANY
+* @param {string} params Parameters for the state link.
+* @param {string} activeClass Class to add when the state targeted is active.
+*/
+var jemLinkDirective = [
+    '$state', 
+    '$route', 
+    function ($state, $route) {
+        'use strict';
+        return {
+            restrict: 'AC',
+            link: function (scope, element, attrs) {
+                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = {
+                    a: 'href',
+                    form: 'action'
+                }, activeFn = noop;
+                if(isDefined(attrs.activeClass)) {
+                    activeFn = active;
+                }
+                function apply() {
+                    var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params), link = $state.url(sref, params);
+                    //NOTE: Is this correct for forms?
+                    if(!html5) {
+                        link = '#' + prefix + link;
+                    }
+                    element.attr(attr[tag], link);
+                }
+                function active() {
+                    var sref = scope.$eval(attrs.sref);
+                    if($state.isActive(sref)) {
+                        element.addClass(attrs.activeClass);
+                    } else {
+                        element.removeClass(attrs.activeClass);
+                    }
+                }
+                scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                if(tag in attr) {
+                    attrs.$observe('params', apply);
+                    attrs.$observe('sref', apply);
+                } else {
+                    element.click(function () {
+                        scope.$apply(function () {
+                            $state.goto(scope.sref, scope.params);
+                        });
+                    });
+                }
+            }
+        };
+    }];
+angular.module('dotjem.routing').directive('sref', jemLinkDirective);
 
 
 //NOTE: Expose for testing
