@@ -77,7 +77,7 @@ var cmd = {
     },
     before: function () {
         return function (context) {
-            context.emit.before(context.transition);
+            context.emit.before(context.transition, context.transaction);
             if(context.transition.canceled) {
                 context.abort();
             }
@@ -85,7 +85,7 @@ var cmd = {
     },
     between: function ($rootScope) {
         return function (context) {
-            context.emit.between(context.transition);
+            context.emit.between(context.transition, context.transaction);
             if(context.transition.canceled) {
                 $rootScope.$broadcast('$stateChangeAborted', context.toState, context.$state.current);
                 context.abort();
@@ -98,7 +98,7 @@ var cmd = {
                 context.transition.cancel = function () {
                     throw Error("Can't cancel transition in after handler");
                 };
-                context.emit.after(context.transition);
+                context.emit.after(context.transition, context.transaction);
                 $scroll(scrollTo);
             }
         };

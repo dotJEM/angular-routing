@@ -381,23 +381,24 @@ function $StateTransitionProvider() {
                 handlers = extractHandlers(transitions, toName(to)),
                 emitters: any[];
 
-            function emit(select, tc) {
+            function emit(select, tc, trx) {
                 var handler;
                 forEach(handlers, (handlerObj) => {
                     if (isDefined(handler = select(handlerObj))) {
                         injectFn(handler)($injector, {
                             $to: to,
                             $from: from,
-                            $transition: tc
+                            $transition: tc,
+                            $view: trx
                         });
                     }
                 });
             }
 
             return {
-                before: function (tc) { emit(h => h.before, tc); },
-                between: function (tc) { emit(h => h.between, tc); },
-                after: function (tc) { emit(h => h.after, tc); },
+                before: function (tc, trx) { emit(h => h.before, tc, trx); },
+                between: function (tc, trx) { emit(h => h.between, tc, trx); },
+                after: function (tc, trx) { emit(h => h.after, tc, trx); },
             };
         }
 

@@ -99,7 +99,7 @@ var cmd = {
 
     before: function (): ICommand {
         return function (context: Context) {
-            context.emit.before(context.transition);
+            context.emit.before(context.transition, context.transaction);
             if (context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -111,7 +111,7 @@ var cmd = {
 
     between: function ($rootScope): ICommand {
         return function (context: Context) {
-            context.emit.between(context.transition);
+            context.emit.between(context.transition, context.transaction);
             if (context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -127,7 +127,7 @@ var cmd = {
                 context.transition.cancel = function () {
                     throw Error("Can't cancel transition in after handler");
                 };
-                context.emit.after(context.transition);
+                context.emit.after(context.transition, context.transaction);
 
                 $scroll(scrollTo);
             }

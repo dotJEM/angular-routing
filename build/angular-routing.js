@@ -1148,33 +1148,34 @@ function $StateTransitionProvider() {
             return $transition;
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
-                function emit(select, tc) {
+                function emit(select, tc, trx) {
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
                             injectFn(handler)($injector, {
                                 $to: to,
                                 $from: from,
-                                $transition: tc
+                                $transition: tc,
+                                $view: trx
                             });
                         }
                     });
                 }
                 return {
-                    before: function (tc) {
+                    before: function (tc, trx) {
                         emit(function (h) {
                             return h.before;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    between: function (tc) {
+                    between: function (tc, trx) {
                         emit(function (h) {
                             return h.between;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    after: function (tc) {
+                    after: function (tc, trx) {
                         emit(function (h) {
                             return h.after;
-                        }, tc);
+                        }, tc, trx);
                     }
                 };
             }
@@ -3055,7 +3056,7 @@ var cmd = {
     },
     before: function () {
         return function (context) {
-            context.emit.before(context.transition);
+            context.emit.before(context.transition, context.transaction);
             if(context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -3066,7 +3067,7 @@ var cmd = {
     },
     between: function ($rootScope) {
         return function (context) {
-            context.emit.between(context.transition);
+            context.emit.between(context.transition, context.transaction);
             if(context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -3081,7 +3082,7 @@ var cmd = {
                 context.transition.cancel = function () {
                     throw Error("Can't cancel transition in after handler");
                 };
-                context.emit.after(context.transition);
+                context.emit.after(context.transition, context.transaction);
                 $scroll(scrollTo);
             }
         };

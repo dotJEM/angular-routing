@@ -373,33 +373,34 @@ function $StateTransitionProvider() {
             return $transition;
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
-                function emit(select, tc) {
+                function emit(select, tc, trx) {
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
                             injectFn(handler)($injector, {
                                 $to: to,
                                 $from: from,
-                                $transition: tc
+                                $transition: tc,
+                                $view: trx
                             });
                         }
                     });
                 }
                 return {
-                    before: function (tc) {
+                    before: function (tc, trx) {
                         emit(function (h) {
                             return h.before;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    between: function (tc) {
+                    between: function (tc, trx) {
                         emit(function (h) {
                             return h.between;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    after: function (tc) {
+                    after: function (tc, trx) {
                         emit(function (h) {
                             return h.after;
-                        }, tc);
+                        }, tc, trx);
                     }
                 };
             }
