@@ -525,5 +525,100 @@ describe('$view', function () {
                 expect(spy.calls[0].args[1]).toBe('root');
             });
         });
+        it('pending returns changes about to happen.', function () {
+            mock.inject(function ($view) {
+                var trx = $view.beginUpdate();
+                $view.create("view1", {
+                    html: "fubar"
+                });
+                $view.update("view2", {
+                    html: "snafu"
+                });
+                $view.refresh("view3", {
+                    html: "tarfu"
+                });
+                var pend = trx.pending();
+                expect(pend.view1).toMatch({
+                    action: "create",
+                    exists: false
+                });
+                expect(pend.view2).toMatch({
+                    action: "update",
+                    exists: false
+                });
+                expect(pend.view3).toMatch({
+                    action: "refresh",
+                    exists: false
+                });
+                trx.cancel();
+            });
+        });
+        it('update takes is prioritized over create in transactions.', function () {
+            mock.inject(function ($view) {
+                var trx = $view.beginUpdate();
+                $view.update("view1", {
+                    html: "fubar"
+                });
+                $view.create("view1", {
+                    html: "fubar"
+                });
+                $view.create("view2", {
+                    html: "snafu"
+                });
+                $view.update("view2", {
+                    html: "snafu"
+                });
+                var pend = trx.pending();
+                expect(pend.view1).toMatch({
+                    action: "update",
+                    exists: false
+                });
+                expect(pend.view2).toMatch({
+                    action: "update",
+                    exists: false
+                });
+                trx.cancel();
+            });
+        });
+        it('pending returns changes about to happen.', function () {
+            mock.inject(function ($view) {
+                var trx = $view.beginUpdate();
+                $view.create("view1", {
+                    html: "fubar"
+                });
+                $view.create("view2", {
+                    html: "snafu"
+                });
+                $view.create("view3", {
+                    html: "tarfu"
+                });
+                trx.commit();
+                trx = $view.beginUpdate();
+                $view.create("view1", {
+                    html: "fubar"
+                });
+                $view.update("view2", {
+                    html: "snafu"
+                });
+                $view.refresh("view3", {
+                    html: "tarfu"
+                });
+                trx.commit();
+                var pend = trx.pending();
+                expect(pend.view1).toMatch({
+                    action: "create",
+                    exists: true
+                });
+                expect(pend.view2).toMatch({
+                    action: "update",
+                    exists: true
+                });
+                expect(pend.view3).toMatch({
+                    action: "refresh",
+                    exists: true
+                });
+                trx.cancel();
+            });
+        });
     });
 });

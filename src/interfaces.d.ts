@@ -19,6 +19,7 @@ module dotjem.routing {
 
         prepUpdate(name: string, template?: any, controller?: any, sticky?: string): (locals?: any) => IViewServiceBase;
         prepCreate(name: string, template?: any, controller?: any): (locals?: any) => IViewServiceBase;
+        pending(name?: string): any;
     }
 
     interface IViewServiceBase {

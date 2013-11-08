@@ -1258,6 +1258,35 @@ describe('$stateProvider', function () {
             });
         });
     });
+    describe("scrollTo", function () {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
+            $stateProvider.state('about', {
+                scrollTo: null
+            }).state('about.cv', {
+                scrollTo: 'scollid'
+            }).state('about.cv.child', {
+            }).state('about.other', {
+            }).state('other', {
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target, params) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+        it('true on matched states', function () {
+            inject(function ($location, $route, $state) {
+                expect($state.root.children.about.scrollTo).toBeNull();
+                expect($state.root.children.about.children.cv.scrollTo).toBe('scollid');
+                expect($state.root.children.about.children.cv.children.child.scrollTo).toBe('scollid');
+                expect($state.root.children.about.children.other.scrollTo).toBeNull();
+                expect($state.root.children.other.scrollTo).toBe('top');
+            });
+        });
+    });
     describe("isActive", function () {
         beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
             $stateProvider.state('home', {

@@ -2389,6 +2389,23 @@ function $ViewProvider() {
                     }, trx;
                     return trx = {
                         completed: false,
+                        pending: function (name) {
+                            if(isDefined(name)) {
+                                return {
+                                    action: records[name].act,
+                                    exists: isDefined(get(name))
+                                };
+                            }
+                            var result = {
+                            };
+                            forEach(records, function (val, key) {
+                                result[key] = {
+                                    action: records[key].act,
+                                    exists: isDefined(get(key))
+                                };
+                            });
+                            return result;
+                        },
                         commit: function () {
                             if(trx.completed) {
                                 return;
@@ -2397,12 +2414,14 @@ function $ViewProvider() {
                             forEach(records, function (rec) {
                                 rec.fn();
                             });
+                            return trx;
                         },
                         cancel: function () {
                             raisePrepare(name, {
                                 type: 'cancel'
                             });
                             trx.completed = true;
+                            return trx;
                         },
                         clear: function (name) {
                             if(isUndefined(name)) {
@@ -2575,7 +2594,13 @@ var State = (function () {
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
-        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo || 'top';
+        this._scrollTo = 'top';
+        if(_parent && isDefined(_parent.scrollTo)) {
+            this._scrollTo = _parent.scrollTo;
+        }
+        if(isDefined(this._self.scrollTo)) {
+            this._scrollTo = this._self.scrollTo;
+        }
     }
     Object.defineProperty(State.prototype, "children", {
         get: function () {

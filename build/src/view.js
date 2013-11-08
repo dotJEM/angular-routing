@@ -397,6 +397,23 @@ function $ViewProvider() {
                     }, trx;
                     return trx = {
                         completed: false,
+                        pending: function (name) {
+                            if(isDefined(name)) {
+                                return {
+                                    action: records[name].act,
+                                    exists: isDefined(get(name))
+                                };
+                            }
+                            var result = {
+                            };
+                            forEach(records, function (val, key) {
+                                result[key] = {
+                                    action: records[key].act,
+                                    exists: isDefined(get(key))
+                                };
+                            });
+                            return result;
+                        },
                         commit: function () {
                             if(trx.completed) {
                                 return;
@@ -405,12 +422,14 @@ function $ViewProvider() {
                             forEach(records, function (rec) {
                                 rec.fn();
                             });
+                            return trx;
                         },
                         cancel: function () {
                             raisePrepare(name, {
                                 type: 'cancel'
                             });
                             trx.completed = true;
+                            return trx;
                         },
                         clear: function (name) {
                             if(isUndefined(name)) {
