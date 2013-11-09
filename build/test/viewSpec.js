@@ -538,17 +538,14 @@ describe('$view', function () {
                     html: "tarfu"
                 });
                 var pend = trx.pending();
-                expect(pend.view1).toMatch({
-                    action: "create",
-                    exists: false
+                expect(pend.view1).toEqual({
+                    action: "create"
                 });
-                expect(pend.view2).toMatch({
-                    action: "update",
-                    exists: false
+                expect(pend.view2).toEqual({
+                    action: "update"
                 });
-                expect(pend.view3).toMatch({
-                    action: "refresh",
-                    exists: false
+                expect(pend.view3).toEqual({
+                    action: "refresh"
                 });
                 trx.cancel();
             });
@@ -569,15 +566,13 @@ describe('$view', function () {
                     html: "snafu"
                 });
                 var pend = trx.pending();
-                expect(pend.view1).toMatch({
-                    action: "update",
-                    exists: false
-                });
-                expect(pend.view2).toMatch({
-                    action: "update",
-                    exists: false
-                });
                 trx.cancel();
+                expect(pend.view1).toEqual({
+                    action: "update"
+                });
+                expect(pend.view2).toEqual({
+                    action: "update"
+                });
             });
         });
         it('pending returns changes about to happen.', function () {
@@ -603,21 +598,44 @@ describe('$view', function () {
                 $view.refresh("view3", {
                     html: "tarfu"
                 });
-                trx.commit();
                 var pend = trx.pending();
-                expect(pend.view1).toMatch({
-                    action: "create",
-                    exists: true
-                });
-                expect(pend.view2).toMatch({
-                    action: "update",
-                    exists: true
-                });
-                expect(pend.view3).toMatch({
-                    action: "refresh",
-                    exists: true
-                });
                 trx.cancel();
+                expect(pend.view1).toEqual({
+                    action: "keep"
+                });
+                expect(pend.view2).toEqual({
+                    action: "update"
+                });
+                expect(pend.view3).toEqual({
+                    action: "refresh"
+                });
+            });
+        });
+        it('pending returns changes about to happen.', function () {
+            mock.inject(function ($view) {
+                var trx = $view.beginUpdate();
+                $view.update("view1", {
+                    html: "fubar"
+                }, null, null, "sticky");
+                $view.update("view2", {
+                    html: "snafu"
+                }, null, null, "sticky");
+                trx.commit();
+                trx = $view.beginUpdate();
+                $view.update("view1", {
+                    html: "fubar"
+                }, null, null, "sticky");
+                $view.update("view2", {
+                    html: "snafu"
+                }, null, null, "stack");
+                var pend = trx.pending();
+                trx.cancel();
+                expect(pend.view1).toEqual({
+                    action: "refresh"
+                });
+                expect(pend.view2).toEqual({
+                    action: "update"
+                });
             });
         });
     });

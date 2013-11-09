@@ -214,7 +214,7 @@ function $ViewProvider() {
             views[name].controller = controller;
             views[name].locals = locals;
             
-            if (isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
+            if (checkSticky(name, sticky)) {
                 raiseRefresh(name, {
                     $locals: locals,
                     sticky: sticky
@@ -227,6 +227,10 @@ function $ViewProvider() {
             }
             return $view;
         };
+
+        function checkSticky(name: string, sticky?: string) {
+            return isDefined(sticky) && isString(sticky) && name in views && views[name].sticky === sticky;
+        }
 
         /**
          * @ngdoc method
@@ -400,6 +404,19 @@ function $ViewProvider() {
          * for the final state the view will take will be issues, if it causes the view to change state.
          */
 
+        function calculatePending(name: string, record: any) {
+            var exists = name in views,
+                sticky = checkSticky(name, record.sticky);
+
+            switch (record.act) {
+                case 'clear': return 'unload';
+                case 'update': return sticky ? 'refresh' : 'update';
+                case 'create': return exists ? 'keep' : 'create';
+                case 'refresh': return 'refresh';
+            }
+            return 'invalid';
+        }
+
         /**
          * @ngdoc method
          * @name dotjem.routing.type:transaction#cancel
@@ -422,12 +439,12 @@ function $ViewProvider() {
                     completed: false,
                     pending: function (name?: string) {
                         if (isDefined(name)) {
-                            return { action: records[name].act, exists: isDefined(get(name)) };
+                            return { action: calculatePending(name, records[name]) };
                         }
 
                         var result = {};
                         forEach(records, function (val, key) {
-                            result[key] = { action: records[key].act, exists: isDefined(get(key)) };
+                            result[key] = { action: calculatePending(key, val) };
                         });
                         return result;
                     },
@@ -439,6 +456,7 @@ function $ViewProvider() {
                         forEach(records, (rec) => {
                             rec.fn();
                         });
+                        records = {};
                         return trx;
                     },
                     cancel: function () {
@@ -481,6 +499,7 @@ function $ViewProvider() {
 
                         records[name] = {
                             act: 'update',
+                            sticky: sticky,
                             fn: () => {
                                 update(name, template, controller, locals, sticky);
                             }
