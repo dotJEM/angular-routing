@@ -330,11 +330,11 @@ function $ViewProvider() {
         function get (name?: string) {
             //TODO: return copies instead of actuals...
             if (isUndefined(name))
-                return views;
+                return copy(views);
 
             // Ensure checks if the view was defined at any point, not if it is still defined.
             // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
-            return views[name];
+            return copy(views[name]);
         };
 
         /**
@@ -411,7 +411,7 @@ function $ViewProvider() {
             switch (record.act) {
                 case 'clear': return 'unload';
                 case 'update': return sticky ? 'refresh' : 'update';
-                case 'create': return exists ? 'keep' : 'create';
+                case 'create': return exists ? 'keep' : 'load';
                 case 'refresh': return 'refresh';
             }
             return 'invalid';

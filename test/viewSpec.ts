@@ -459,7 +459,7 @@ describe('$view', function () {
 
                 var pend = trx.pending();
 
-                expect(pend.view1).toEqual({ action: "create" });
+                expect(pend.view1).toEqual({ action: "load" });
                 expect(pend.view2).toEqual({ action: "update" });
                 expect(pend.view3).toEqual({ action: "refresh" });
 
