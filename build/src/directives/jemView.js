@@ -47,102 +47,112 @@
 */
 var jemViewDirective = [
     '$state', 
-    '$scroll', 
     '$compile', 
     '$controller', 
     '$view', 
-    '$animator', 
+    '$animate', 
     '$template', 
-    function ($state, $scroll, $compile, $controller, $view, $animator, $template) {
+    function ($state, $compile, $controller, $view, $animate, $template) {
         'use strict';
         return {
             restrict: 'ECA',
             terminal: true,
-            link: function (scope, element, attr) {
-                var viewScope, controller, name = attr.jemView || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = attr.loader && scope.$eval(attr.loader) || null, activeLoader;
-                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                    if(updatedName === name) {
-                        update(doAnimate);
-                    }
-                });
-                scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
-                    if(refreshName === name) {
-                        if(isFunction(viewScope.refresh)) {
-                            viewScope.refresh(refreshData);
-                        } else {
-                            viewScope.$broadcast('$refresh', refreshName, refreshData);
+            priority: 1000,
+            transclude: 'element',
+            compile: function (element, attr, linker) {
+                return function (scope, element, attr) {
+                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
+                    scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
+                        if(updatedName === name) {
+                            update(true);
                         }
-                    }
-                });
-                scope.$on('$viewPrep', function (event, prepName, data) {
-                    if(prepName === name && data.type === 'update') {
-                        displayLoader();
-                    } else if(data.type === 'cancel') {
-                        removeLoader();
-                    }
-                });
-                update(false);
-                function removeLoader() {
-                    if(isDefined(activeLoader)) {
-                        activeLoader.remove();
-                        activeLoader = undefined;
-                        element.contents().show();
-                    }
-                }
-                function displayLoader() {
-                    if(loader !== null) {
-                        $template.get(loader).then(function (html) {
-                            element.contents().hide();
-                            element.append(activeLoader = angular.element(html));
-                        });
-                    }
-                }
-                function destroyScope() {
-                    if(viewScope) {
-                        viewScope.$destroy();
-                        viewScope = null;
-                    }
-                }
-                function clearContent(doAnimate) {
-                    if(doAnimate) {
-                        animate.leave(element.contents(), element);
-                    } else {
-                        element.html('');
-                    }
-                    destroyScope();
-                }
-                function update(doAnimate) {
-                    var view = $view.get(name), controller;
-                    if(view && view.template) {
-                        if(view.version === version) {
-                            return;
-                        }
-                        version = view.version;
-                        controller = view.controller;
-                        view.template.then(function (html) {
-                            clearContent(doAnimate);
-                            if(doAnimate) {
-                                animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                    });
+                    scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
+                        if(refreshName === name) {
+                            if(isFunction(viewScope.refresh)) {
+                                viewScope.refresh(refreshData);
                             } else {
-                                element.html(html);
+                                viewScope.$broadcast('$refresh', refreshName, refreshData);
                             }
-                            var link = $compile(element.contents()), locals;
-                            viewScope = scope.$new();
-                            if(controller) {
-                                locals = copy(view.locals);
-                                locals.$scope = viewScope;
-                                controller = $controller(controller, locals);
-                                element.contents().data('$ngControllerController', controller);
-                            }
-                            link(viewScope);
-                            viewScope.$emit('$viewContentLoaded');
-                            viewScope.$eval(onloadExp);
-                        });
-                    } else {
-                        version = -1;
-                        clearContent(doAnimate);
+                        }
+                    });
+                    scope.$on('$viewPrep', function (event, prepName, data) {
+                        if(prepName === name && data.type === 'update') {
+                            displayLoader();
+                        } else if(data.type === 'cancel') {
+                            removeLoader();
+                        }
+                    });
+                    update(false);
+                    function removeLoader() {
+                        if(isDefined(activeLoader)) {
+                            activeLoader.remove();
+                            activeLoader = undefined;
+                            element.contents().show();
+                        }
                     }
-                }
+                    function displayLoader() {
+                        if(loader !== null) {
+                            loader.then(function (html) {
+                                element.contents().hide();
+                                element.append(activeLoader = angular.element(html));
+                            });
+                        }
+                    }
+                    function cleanupView(doAnimate) {
+                        if(viewScope) {
+                            viewScope.$destroy();
+                            viewScope = null;
+                        }
+                        if(viewElement) {
+                            if(doAnimate) {
+                                $animate.leave(viewElement);
+                            } else {
+                                viewElement.remove();
+                            }
+                            viewElement = null;
+                        }
+                    }
+                    function update(doAnimate) {
+                        var view = $view.get(name), controller;
+                        if(view && view.template) {
+                            if(view.version === version) {
+                                return;
+                            }
+                            version = view.version;
+                            controller = view.controller;
+                            view.template.then(function (html) {
+                                var newScope = scope.$new();
+                                linker(newScope, function (clone) {
+                                    cleanupView(doAnimate);
+                                    clone.html(html);
+                                    if(doAnimate) {
+                                        $animate.enter(clone, null, element);
+                                    } else {
+                                        element.after(clone);
+                                    }
+                                    var link = $compile(clone.contents()), locals;
+                                    viewScope = newScope;
+                                    viewElement = clone;
+                                    if(controller) {
+                                        locals = extend({
+                                        }, view.locals);
+                                        locals.$scope = viewScope;
+                                        controller = $controller(controller, locals);
+                                        clone.data('$ngControllerController', controller);
+                                        clone.children().data('$ngControllerController', controller);
+                                    }
+                                    link(viewScope);
+                                    viewScope.$emit('$viewContentLoaded');
+                                    viewScope.$eval(onloadExp);
+                                });
+                            });
+                        } else {
+                            version = -1;
+                            cleanupView(doAnimate);
+                        }
+                    }
+                };
             }
         };
     }];

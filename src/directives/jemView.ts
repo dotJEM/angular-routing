@@ -55,122 +55,132 @@ interface IViewScope extends ng.IScope {
  * @param {string} name The name of the view where the broadcast originated.
  * @param {Object} name Any data that may have been provided for a refresh.
  */
-var jemViewDirective = [<any>'$state', '$scroll', '$compile', '$controller', '$view', '$animator', '$template',
-function ($state, $scroll, $compile, $controller, $view: dotjem.routing.IViewService, $animator, $template) {
+var jemViewDirective = [<any>'$state', '$compile', '$controller', '$view', '$animate', '$template',
+function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $animate, $template) {
     'use strict';
     return {
         restrict: 'ECA',
         terminal: true,
-        link: function (scope: ng.IScope, element: JQuery, attr) {
-            var viewScope: IViewScope,
-                controller,
-                name = attr.jemView || attr.name,
-                doAnimate = isDefined(attr.ngAnimate),
-                onloadExp = attr.onload || '',
-                animate = $animator(scope, attr),
-                version = -1,
-                loader = attr.loader && scope.$eval(attr.loader) || null,
-                activeLoader: JQuery;
+        priority: 1000,
+        transclude: 'element',
+        compile: function (element: JQuery, attr, linker) {
+            return function (scope, element: JQuery, attr) {
+                var viewScope: IViewScope,
+                    viewElement: JQuery,
+                    name = attr['jemView'] || attr.name,
+                    onloadExp = attr.onload || '',
+                    version = -1,
+                    loader = (attr.loader && $template.get(attr.loader)) || null,
+                    activeLoader: JQuery;
 
-            scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                if (updatedName === name) update(doAnimate);
-            });
-            scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
-                if (refreshName === name) {
-                    if (isFunction(viewScope.refresh)) {
-                        viewScope.refresh(refreshData);
-                    } else {
-                        viewScope.$broadcast('$refresh', refreshName, refreshData);
+                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
+                    if (updatedName === name) update(true);
+                });
+
+                scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
+                    if (refreshName === name) {
+                        if (isFunction(viewScope.refresh)) {
+                            viewScope.refresh(refreshData);
+                        } else {
+                            viewScope.$broadcast('$refresh', refreshName, refreshData);
+                        }
+                    }
+                });
+
+                scope.$on('$viewPrep', function (event, prepName, data) {
+                    if (prepName === name && data.type === 'update') {
+                        displayLoader();
+                    } else if (data.type === 'cancel') {
+                        removeLoader();
+                    }
+                });
+
+                update(false);
+
+                function removeLoader() {
+                    if (isDefined(activeLoader)) {
+                        activeLoader.remove();
+                        activeLoader = undefined;
+
+                        element.contents().show();
                     }
                 }
-            });
-            scope.$on('$viewPrep', function (event, prepName, data) {
-                if (prepName === name && data.type === 'update') {
-                    displayLoader();
-                } else if (data.type === 'cancel') {
-                    removeLoader();
-                }
-            });
 
-            update(false);
-
-            function removeLoader() {
-                if (isDefined(activeLoader)) {
-                    activeLoader.remove();
-                    activeLoader = undefined;
-
-                    element.contents().show();
-                }
-            }
-
-            function displayLoader() {
-                if (loader !== null) {
-                    $template
-                        .get(loader)
-                        .then((html) => {
+                function displayLoader() {
+                    if (loader !== null) {
+                        loader.then((html) => {
                             element.contents().hide();
                             element.append(activeLoader = angular.element(html));
                         });
-                }
-            }
-
-            function destroyScope() {
-                if (viewScope) {
-                    viewScope.$destroy();
-                    viewScope = null;
-                }
-            }
-
-            function clearContent(doAnimate) {
-                if (doAnimate) {
-                    animate.leave(element.contents(), element);
-                } else {
-                    element.html('');
+                    }
                 }
 
-                destroyScope();
-            }
+                function cleanupView(doAnimate) {
+                    if (viewScope) {
+                        viewScope.$destroy();
+                        viewScope = null;
+                    }
 
-            function update(doAnimate) {
-                var view = $view.get(name),
-                    controller;
-
-                if (view && view.template) {
-                    if (view.version === version)
-                        return;
-
-                    version = view.version;
-                    controller = view.controller;
-
-                    view.template.then((html) => {
-                        clearContent(doAnimate);
+                    if (viewElement) {
                         if (doAnimate) {
-                            animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                            $animate.leave(viewElement);
                         } else {
-                            element.html(html);
+                            viewElement.remove();
                         }
-                        var link = $compile(element.contents()),
-                            locals;
-
-                        viewScope = scope.$new();
-                        if (controller) {
-                            locals = copy(view.locals);
-                            locals.$scope = viewScope;
-                           
-                            controller = $controller(controller, locals);
-                            element.contents().data('$ngControllerController', controller);
-                        }
-
-                        link(viewScope);
-
-                        viewScope.$emit('$viewContentLoaded');
-                        viewScope.$eval(onloadExp);
-                    });
-                } else {
-                    version = -1;
-                    clearContent(doAnimate);
+                        viewElement = null;
+                    }
                 }
-            }
+
+                function update(doAnimate) {
+                    var view = $view.get(name),
+                        controller;
+
+                    if (view && view.template) {
+                        if (view.version === version)
+                            return;
+
+                        version = view.version;
+                        controller = view.controller;
+
+                        view.template.then((html) => {
+                            var newScope = scope.$new();
+                            linker(newScope, function (clone) {
+                                cleanupView(doAnimate);
+
+                                clone.html(html);
+                                if (doAnimate) {
+                                    $animate.enter(clone, null, element);
+                                } else {
+                                    element.after(clone);
+                                }
+
+                                var link = $compile(clone.contents()),
+                                    locals;
+
+                                viewScope = newScope;
+                                viewElement = clone;
+
+                                if (controller) {
+                                    locals = extend({}, view.locals);
+                                    locals.$scope = viewScope;
+
+                                    controller = $controller(controller, locals);
+                                    clone.data('$ngControllerController', controller);
+                                    clone.children().data('$ngControllerController', controller);
+                                }
+
+                                link(viewScope);
+
+                                viewScope.$emit('$viewContentLoaded');
+                                viewScope.$eval(onloadExp);
+                            });
+                        });
+                    } else {
+                        version = -1;
+                        cleanupView(doAnimate);
+                    }
+                }
+            };
         }
     };
 }];
