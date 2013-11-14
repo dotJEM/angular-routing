@@ -50,6 +50,7 @@ function ($state, $route) {
             }
 
             scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+            activeFn();
 
             if (tag in attr) {
                 attrs.$observe('params', apply);
