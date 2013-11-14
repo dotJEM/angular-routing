@@ -57,7 +57,8 @@ function ($state, $route) {
             } else {
                 element.click(function () {
                     scope.$apply(function () {
-                        $state.goto(scope.sref, scope.params);
+                        var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+                        $state.goto(sref, params);
                     });
                 });
             }
