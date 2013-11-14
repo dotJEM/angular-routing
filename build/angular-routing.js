@@ -3461,13 +3461,15 @@ var jemLinkDirective = [
                     }
                 }
                 scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                activeFn();
                 if(tag in attr) {
                     attrs.$observe('params', apply);
                     attrs.$observe('sref', apply);
                 } else {
                     element.click(function () {
                         scope.$apply(function () {
-                            $state.goto(scope.sref, scope.params);
+                            var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+                            $state.goto(sref, params);
                         });
                     });
                 }
