@@ -494,13 +494,17 @@ var $StateProvider = [
                 }, root).complete();
                 var running = context;
                 function goto(args) {
+                    var ctx, scrollTo, useUpdate = false, alllocals = {
+                    };
                     if(!running.ended) {
                         running.abort();
                     }
-                    var ctx = running = context.next(function (ctx) {
+                    ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
-                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
+                        context.promise = $q.when('');
+                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
@@ -510,11 +514,8 @@ var $StateProvider = [
                     if(ctx.ended) {
                         return;
                     }
-                    var scrollTo, useUpdate = false, alllocals = {
-                    };
-                    var promise = $q.when('');
                     forEach(ctx.changed.array, function (change) {
-                        promise = promise.then(function () {
+                        ctx.promise = ctx.promise.then(function () {
                             if(useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
@@ -528,7 +529,7 @@ var $StateProvider = [
                             scrollTo = change.state.scrollTo;
                         });
                     });
-                    promise.then(function () {
+                    ctx.promise.then(function () {
                         ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;

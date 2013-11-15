@@ -499,11 +499,19 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         var running = context;
 
         function goto(args: { state; params; updateroute?; }) {
+            var ctx,
+                scrollTo,
+                useUpdate = false,
+                alllocals = {};
+
             if (!running.ended)
                 running.abort();
 
-            var ctx = running = context.next(function (ctx: Context) { context = ctx; });
+            ctx = running = context.next(function (ctx: Context) { context = ctx; });
             ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
+                .execute(function (context) {
+                    context.promise = $q.when('');
+                })
                 .execute(cmd.createEmitter($transition))
                 .execute(cmd.buildChanges(forceReload))
                 .execute(cmd.createTransition(goto))
@@ -523,14 +531,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 return;
             }
 
-            var scrollTo,
-                useUpdate = false,
-                alllocals = {};
-
-            var promise = $q.when('');
             forEach(ctx.changed.array, function (change) {
 
-                promise = promise.then(function () {
+                ctx.promise = ctx.promise.then(function () {
                     if (useUpdate = useUpdate || change.isChanged)
                         $resolve.clear(change.state.resolve);
 
@@ -543,7 +546,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             });
 
-            promise.then(function () {
+            ctx.promise.then(function () {
                 ctx
                     .execute(cmd.between($rootScope))
                     .execute(function (context: Context) {
