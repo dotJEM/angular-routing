@@ -93,4 +93,4 @@ http://plnkr.co/ or http://jsfiddle.net/.
 Otherwise, try to capture as much detail as possible, the more that is known about the issue and context
 the easier it is to help.
 
-Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:bOnvMydEvu3FcNNjEo9c
+Here is a template Plunker that can be used: http://plnkr.co/edit/tpl:6krMfVrECygnJFeFeLMG
