@@ -129,7 +129,7 @@ var $StateProvider = [
         }), browser = new StateBrowser(root), comparer = new StateComparer();
         /**
         * @ngdoc method
-        * @name dotjem.$stateProvider#state
+        * @name dotjem.routing.$stateProvider#state
         * @methodOf dotjem.routing.$stateProvider
         *
         * @param {string} fullname Full name of the state, use '.' to seperate parent and child states.

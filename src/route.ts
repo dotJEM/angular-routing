@@ -40,7 +40,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         /**
          * @ngdoc method
-         * @name dotjem.$routeProvider#convert
+         * @name dotjem.routing.$routeProvider#convert
          * @methodOf dotjem.routing.$routeProvider
          *
          * @param {string} name Cerverter name, used in the path when registering routes through the 
@@ -68,7 +68,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         /**
          * @ngdoc method
-         * @name dotjem.$routeProvider#when
+         * @name dotjem.routing.$routeProvider#when
          * @methodOf dotjem.routing.$routeProvider
          *
          * @param {string} path Route path (matched against `$location.path`). If `$location.path`
@@ -149,7 +149,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         /**
          * @ngdoc method
-         * @name dotjem.$routeProvider#otherwise
+         * @name dotjem.routing.$routeProvider#otherwise
          * @methodOf dotjem.routing.$routeProvider
          *
          * @param {Object} params Mapping information to be assigned to `$route.current`.
@@ -167,7 +167,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         /**
          * @ngdoc method
-         * @name dotjem.$routeProvider#decorate
+         * @name dotjem.routing.$routeProvider#decorate
          * @methodOf dotjem.routing.$routeProvider
          *
          * @param {string} name A name for the decorator.
@@ -186,7 +186,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         /**
          * @ngdoc method
-         * @name dotjem.$routeProvider#ignoreCase
+         * @name dotjem.routing.$routeProvider#ignoreCase
          * @methodOf dotjem.routing.$routeProvider
          *
          * @return {Object} self
@@ -201,7 +201,7 @@ var $RouteProvider = [<any>'$locationProvider',
 
         /**
          * @ngdoc method
-         * @name dotjem.$routeProvider#matchCase
+         * @name dotjem.routing.$routeProvider#matchCase
          * @methodOf dotjem.routing.$routeProvider
          *
          * @return {Object} self
