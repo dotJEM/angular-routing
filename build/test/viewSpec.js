@@ -12,11 +12,13 @@ describe('$view', function () {
             });
         };
     }));
-    describe("setOrUpdate", function () {
+    describe("update", function () {
         it('saves initial view state', function () {
             mock.inject(function ($view) {
                 $view.update("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 var view = $view.get('name');
                 expect(view.template).toBe("template");
@@ -26,10 +28,14 @@ describe('$view', function () {
         it('updates view state and increments version', function () {
             mock.inject(function ($view) {
                 $view.update("name", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.update("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 var view = $view.get('name');
                 expect(view.template).toBe("template");
@@ -39,11 +45,15 @@ describe('$view', function () {
         it('cleared view gets reinitialized', function () {
             mock.inject(function ($view) {
                 $view.update("name", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.clear("name");
                 $view.update("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 var view = $view.get('name');
                 expect(view.template).toBe("template");
@@ -54,7 +64,9 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.update("name", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
@@ -62,7 +74,9 @@ describe('$view', function () {
                     "name"
                 ]);
                 $view.update("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
@@ -75,7 +89,9 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.update("root", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
@@ -83,7 +99,9 @@ describe('$view', function () {
                     "root"
                 ]);
                 $view.update("sub", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
@@ -96,22 +114,27 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.update("root", {
-                    html: "fubar"
-                }, null, null, "sticky");
+                    template: {
+                        html: "fubar"
+                    },
+                    sticky: "sticky"
+                });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
                     "root"
                 ]);
                 $view.update("root", {
-                    html: "template"
-                }, null, null, "sticky");
+                    template: {
+                        html: "template"
+                    },
+                    sticky: "sticky"
+                });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewRefresh', 
                     "root", 
                     {
-                        $locals: null,
                         sticky: "sticky"
                     }
                 ]);
@@ -121,16 +144,22 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.update("root", {
-                    html: "fubar"
-                }, null, null, "sticky");
+                    template: {
+                        html: "fubar"
+                    },
+                    sticky: "sticky"
+                });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
                     "root"
                 ]);
                 $view.update("root", {
-                    html: "template"
-                }, null, null, "sticky2");
+                    template: {
+                        html: "template"
+                    },
+                    sticky: "sticky2"
+                });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -142,16 +171,20 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.update("root", {
-                    html: "fubar"
-                }, null, null, undefined);
+                    template: {
+                        html: "fubar"
+                    }
+                });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
                     "root"
                 ]);
                 $view.update("root", {
-                    html: "template"
-                }, null, null, undefined);
+                    template: {
+                        html: "template"
+                    }
+                });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual([
                     '$viewUpdate', 
@@ -164,7 +197,9 @@ describe('$view', function () {
         it('raises $viewRefresh with provided data', function () {
             mock.inject(function ($view) {
                 $view.update('root', {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 var spy = spyOn(scope, '$broadcast');
                 $view.refresh("root", {
@@ -183,9 +218,13 @@ describe('$view', function () {
         it('raises $viewRefresh and preserves locals', function () {
             mock.inject(function ($view) {
                 $view.update('root', {
-                    html: "fubar"
-                }, '', {
-                    local: "hello"
+                    template: {
+                        html: "fubar"
+                    },
+                    controller: '',
+                    locals: {
+                        local: "hello"
+                    }
                 });
                 var spy = spyOn(scope, '$broadcast');
                 $view.refresh("root", {
@@ -208,7 +247,9 @@ describe('$view', function () {
         it('saves initial view state', function () {
             mock.inject(function ($view) {
                 $view.create("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 var view = $view.get('name');
                 expect(view.template).toBe("template");
@@ -218,10 +259,14 @@ describe('$view', function () {
         it('does not update view state if it already exists', function () {
             mock.inject(function ($view) {
                 $view.create("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 $view.create("name", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 var view = $view.get('name');
                 expect(view.template).toBe("template");
@@ -231,11 +276,15 @@ describe('$view', function () {
         it('updates view state if it was cleared', function () {
             mock.inject(function ($view) {
                 $view.create("name", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.clear("name");
                 $view.create("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 var view = $view.get('name');
                 expect(view.template).toBe("template");
@@ -246,12 +295,16 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.create("name", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("name");
                 $view.create("name", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
             });
@@ -260,12 +313,16 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.create("root", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 $view.create("sub", {
-                    html: "template"
+                    template: {
+                        html: "template"
+                    }
                 });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args[1]).toBe("sub");
@@ -276,13 +333,19 @@ describe('$view', function () {
         it('no parameters clears state', function () {
             mock.inject(function ($view) {
                 $view.create("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 $view.create("sub1", {
-                    html: "sub1 template"
+                    template: {
+                        html: "sub1 template"
+                    }
                 });
                 $view.create("sub2", {
-                    html: "sub2 template"
+                    template: {
+                        html: "sub2 template"
+                    }
                 });
                 $view.clear();
                 expect($view.get("root")).toBeUndefined();
@@ -293,13 +356,19 @@ describe('$view', function () {
         it('with parameters will set view to undefined (delete it)', function () {
             mock.inject(function ($view) {
                 $view.create("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 $view.create("sub1", {
-                    html: "sub1 template"
+                    template: {
+                        html: "sub1 template"
+                    }
                 });
                 $view.create("sub2", {
-                    html: "sub2 template"
+                    template: {
+                        html: "sub2 template"
+                    }
                 });
                 $view.clear("sub2");
                 expect($view.get("root")).toBeDefined();
@@ -310,13 +379,19 @@ describe('$view', function () {
         it('clear raises $viewUpdated with viewName for cleared view', function () {
             mock.inject(function ($view) {
                 $view.create("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 $view.create("sub1", {
-                    html: "sub1 template"
+                    template: {
+                        html: "sub1 template"
+                    }
                 });
                 $view.create("sub2", {
-                    html: "sub2 template"
+                    template: {
+                        html: "sub2 template"
+                    }
                 });
                 var spy = spyOn(scope, '$broadcast');
                 $view.clear("sub1");
@@ -333,19 +408,25 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.update("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
                 $view.update("root", {
-                    html: "sub1 template"
+                    template: {
+                        html: "sub1 template"
+                    }
                 });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
                 $view.update("root", {
-                    html: "sub2 template"
+                    template: {
+                        html: "sub2 template"
+                    }
                 });
                 expect(spy.callCount).toBe(3);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
@@ -356,17 +437,23 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var spy = spyOn(scope, '$broadcast');
                 $view.create("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
                 $view.create("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
                 $view.create("root", {
-                    html: "root template"
+                    template: {
+                        html: "root template"
+                    }
                 });
                 expect(spy.callCount).toBe(1);
             });
@@ -374,13 +461,19 @@ describe('$view', function () {
         it('raised on clear with name', function () {
             mock.inject(function ($view) {
                 $view.update("view1", {
-                    html: "view1 template"
+                    template: {
+                        html: "view1 template"
+                    }
                 });
                 $view.update("view2", {
-                    html: "view2 template"
+                    template: {
+                        html: "view2 template"
+                    }
                 });
                 $view.update("view3", {
-                    html: "view3 template"
+                    template: {
+                        html: "view3 template"
+                    }
                 });
                 var spy = spyOn(scope, '$broadcast');
                 $view.clear("view1");
@@ -403,10 +496,14 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
                 $view.create("root", {
-                    html: "root"
+                    template: {
+                        html: "root"
+                    }
                 });
                 $view.create("root", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 trx.commit();
                 expect($view.get("root").template).toBe("root");
@@ -416,10 +513,14 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
                 $view.create("root", {
-                    html: "root"
+                    template: {
+                        html: "root"
+                    }
                 });
                 $view.create("root", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 expect($view.get("root")).toBeUndefined();
                 trx.commit();
@@ -431,13 +532,19 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
                 $view.update("view1", {
-                    html: "view1 template"
+                    template: {
+                        html: "view1 template"
+                    }
                 });
                 $view.update("view2", {
-                    html: "view2 template"
+                    template: {
+                        html: "view2 template"
+                    }
                 });
                 $view.update("view3", {
-                    html: "view3 template"
+                    template: {
+                        html: "view3 template"
+                    }
                 });
                 expect(spy.callCount).toBe(0);
                 trx.commit();
@@ -452,22 +559,34 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
                 $view.update("view1", {
-                    html: "view1 template"
+                    template: {
+                        html: "view1 template"
+                    }
                 });
                 $view.update("view2", {
-                    html: "view2 template"
+                    template: {
+                        html: "view2 template"
+                    }
                 });
                 $view.update("view3", {
-                    html: "view3 template"
+                    template: {
+                        html: "view3 template"
+                    }
                 });
                 $view.update("view1", {
-                    html: "view1 template"
+                    template: {
+                        html: "view1 template"
+                    }
                 });
                 $view.update("view2", {
-                    html: "view2 template"
+                    template: {
+                        html: "view2 template"
+                    }
                 });
                 $view.update("view3", {
-                    html: "view3 template"
+                    template: {
+                        html: "view3 template"
+                    }
                 });
                 expect(spy.callCount).toBe(0);
                 trx.commit();
@@ -482,13 +601,19 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
                 $view.update("view1", {
-                    html: "view1 template"
+                    template: {
+                        html: "view1 template"
+                    }
                 });
                 $view.update("view2", {
-                    html: "view2 template"
+                    template: {
+                        html: "view2 template"
+                    }
                 });
                 $view.update("view3", {
-                    html: "view3 template"
+                    template: {
+                        html: "view3 template"
+                    }
                 });
                 expect(spy.callCount).toBe(0);
                 trx.cancel();
@@ -499,7 +624,9 @@ describe('$view', function () {
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view) {
                 $view.update("root", {
-                    html: "root"
+                    template: {
+                        html: "root"
+                    }
                 });
                 var trx = $view.beginUpdate();
                 $view.clear("root");
@@ -511,12 +638,16 @@ describe('$view', function () {
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view) {
                 $view.update("root", {
-                    html: "root"
+                    template: {
+                        html: "root"
+                    }
                 });
                 var spy = spyOn(scope, '$broadcast');
                 var trx = $view.beginUpdate();
                 $view.refresh("root", {
-                    html: "custom data"
+                    template: {
+                        html: "custom data"
+                    }
                 });
                 expect(spy.callCount).toBe(0);
                 trx.commit();
@@ -529,13 +660,19 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
                 $view.create("view1", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.update("view2", {
-                    html: "snafu"
+                    template: {
+                        html: "snafu"
+                    }
                 });
                 $view.refresh("view3", {
-                    html: "tarfu"
+                    template: {
+                        html: "tarfu"
+                    }
                 });
                 var pend = trx.pending();
                 expect(pend.view1).toEqual({
@@ -554,16 +691,24 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
                 $view.update("view1", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.create("view1", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.create("view2", {
-                    html: "snafu"
+                    template: {
+                        html: "snafu"
+                    }
                 });
                 $view.update("view2", {
-                    html: "snafu"
+                    template: {
+                        html: "snafu"
+                    }
                 });
                 var pend = trx.pending();
                 trx.cancel();
@@ -579,13 +724,19 @@ describe('$view', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
                 $view.create("view1", {
-                    html: "fubar"
+                    template: {
+                        html: "fubar"
+                    }
                 });
                 $view.create("view2", {
-                    html: "snafu"
+                    template: {
+                        html: "snafu"
+                    }
                 });
                 $view.create("view3", {
-                    html: "tarfu"
+                    template: {
+                        html: "tarfu"
+                    }
                 });
                 trx.commit();
                 trx = $view.beginUpdate();
@@ -611,23 +762,35 @@ describe('$view', function () {
                 });
             });
         });
-        it('pending returns changes about to happen.', function () {
+        it('pending returns changes about to happen 2.', function () {
             mock.inject(function ($view) {
                 var trx = $view.beginUpdate();
                 $view.update("view1", {
-                    html: "fubar"
-                }, null, null, "sticky");
+                    template: {
+                        html: "fubar"
+                    },
+                    sticky: "sticky"
+                });
                 $view.update("view2", {
-                    html: "snafu"
-                }, null, null, "sticky");
+                    template: {
+                        html: "snafu"
+                    },
+                    sticky: "sticky"
+                });
                 trx.commit();
                 trx = $view.beginUpdate();
                 $view.update("view1", {
-                    html: "fubar"
-                }, null, null, "sticky");
+                    template: {
+                        html: "fubar"
+                    },
+                    sticky: "sticky"
+                });
                 $view.update("view2", {
-                    html: "snafu"
-                }, null, null, "stack");
+                    template: {
+                        html: "snafu"
+                    },
+                    sticky: "stack"
+                });
                 var pend = trx.pending();
                 trx.cancel();
                 expect(pend.view1).toEqual({

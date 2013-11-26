@@ -558,51 +558,56 @@ describe('$stateProvider', function () {
                 expect($state.current.name).toBe('top');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'top', 
-                    'top tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.top')
+                        template: "top tpl",
+                        sticky: test.nameWithRoot('root.top'),
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'top', 
-                    'top tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.top')
+                        template: "top tpl",
+                        sticky: test.nameWithRoot('root.top'),
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'foo', 
-                    'foo tpl', 
-                    undefined, 
                     {
-                    }, 
-                    'imSticky'
+                        template: 'foo tpl',
+                        sticky: 'imSticky',
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/ban');
                 expect($state.current.name).toBe('ban');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'ban', 
-                    'ban tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.ban')
+                        template: 'ban tpl',
+                        sticky: test.nameWithRoot('root.ban'),
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'ban', 
-                    'ban tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.ban.tar')
+                        template: 'ban tpl',
+                        sticky: test.nameWithRoot('root.ban.tar'),
+                        locals: {
+                        }
+                    }
                 ]);
             });
         });
@@ -1652,11 +1657,11 @@ describe('$stateProvider', function () {
             return function ($rootScope, $state, $view) {
                 loc = [];
                 var trx = $view.beginUpdate();
-                spyOn(trx, 'update').andCallFake(function (name, template, controller, locals, sticky) {
-                    loc.push(locals);
+                spyOn(trx, 'update').andCallFake(function (name, args) {
+                    loc.push(args.locals);
                 });
-                spyOn(trx, 'create').andCallFake(function (name, template, controller, locals) {
-                    loc.push(locals);
+                spyOn(trx, 'create').andCallFake(function (name, args) {
+                    loc.push(args.locals);
                 });
                 spyOn($view, 'beginUpdate').andReturn(trx);
                 scope = $rootScope;

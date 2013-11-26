@@ -15,10 +15,10 @@ describe('$view', function () {
         };
     }));
 
-    describe("setOrUpdate", () => {
+    describe("update", () => {
         it('saves initial view state', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update("name", { html: "template" });
+                $view.update("name", { template: { html: "template" } });
 
                 var view = $view.get('name');
 
@@ -29,8 +29,8 @@ describe('$view', function () {
 
         it('updates view state and increments version', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update("name", { html: "fubar" });
-                $view.update("name", { html: "template" });
+                $view.update("name", { template: { html: "fubar" } });
+                $view.update("name", { template: { html: "template" } });
 
                 var view = $view.get('name');
 
@@ -41,9 +41,9 @@ describe('$view', function () {
 
         it('cleared view gets reinitialized', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update("name", { html: "fubar" });
+                $view.update("name", { template: { html: "fubar" } });
                 $view.clear("name");
-                $view.update("name", { html: "template" });
+                $view.update("name", { template: { html: "template" } });
 
                 var view = $view.get('name');
 
@@ -56,11 +56,11 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.update("name", { html: "fubar" });
+                $view.update("name", { template: { html: "fubar" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "name"]);
 
-                $view.update("name", { html: "template" });
+                $view.update("name", { template: { html: "template" } });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "name"]);
             });
@@ -70,11 +70,11 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.update("root", { html: "fubar" });
+                $view.update("root", { template: { html: "fubar" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.update("sub", { html: "template" });
+                $view.update("sub", { template: { html: "template" } });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "sub"]);
             });
@@ -84,13 +84,13 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.update("root", { html: "fubar" }, null, null, "sticky");
+                $view.update("root", { template: { html: "fubar" }, sticky: "sticky" });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.update("root", { html: "template" }, null, null, "sticky");
+                $view.update("root", { template: { html: "template" }, sticky: "sticky" });
                 expect(spy.callCount).toBe(2);
-                expect(spy.mostRecentCall.args).toEqual([<any>'$viewRefresh', "root", { $locals: null, sticky: "sticky" }]);
+                expect(spy.mostRecentCall.args).toEqual([<any>'$viewRefresh', "root", { sticky: "sticky" }]);
             });
         });
 
@@ -98,11 +98,11 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.update("root", { html: "fubar" }, null, null, "sticky");
+                $view.update("root", { template: { html: "fubar" }, sticky: "sticky" });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.update("root", { html: "template" }, null, null, "sticky2");
+                $view.update("root", { template: { html: "template" }, sticky: "sticky2" });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
             });
@@ -112,11 +112,11 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.update("root", { html: "fubar" }, null, null, undefined);
+                $view.update("root", { template: { html: "fubar" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
 
-                $view.update("root", { html: "template" }, null, null, undefined);
+                $view.update("root", { template: { html: "template" } });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args).toEqual(['$viewUpdate', "root"]);
             });
@@ -128,7 +128,7 @@ describe('$view', function () {
 
         it('raises $viewRefresh with provided data', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update('root', { html: "fubar" });
+                $view.update('root', { template: { html: "fubar" } });
 
                 var spy = spyOn(scope, '$broadcast');
 
@@ -139,7 +139,7 @@ describe('$view', function () {
 
         it('raises $viewRefresh and preserves locals', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update('root', { html: "fubar" }, '', { local: "hello" });
+                $view.update('root', { template: { html: "fubar" }, controller: '', locals: { local: "hello" } });
 
                 var spy = spyOn(scope, '$broadcast');
 
@@ -152,7 +152,7 @@ describe('$view', function () {
     describe("setIfAbsent", () => {
         it('saves initial view state', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.create("name", { html: "template" });
+                $view.create("name", { template: { html: "template" } });
 
                 var view = $view.get('name');
 
@@ -163,8 +163,8 @@ describe('$view', function () {
 
         it('does not update view state if it already exists', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.create("name", { html: "template" });
-                $view.create("name", { html: "fubar" });
+                $view.create("name", { template: { html: "template" } });
+                $view.create("name", { template: { html: "fubar" } });
 
                 var view = $view.get('name');
 
@@ -175,9 +175,9 @@ describe('$view', function () {
 
         it('updates view state if it was cleared', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.create("name", { html: "fubar" });
+                $view.create("name", { template: { html: "fubar" } });
                 $view.clear("name");
-                $view.create("name", { html: "template" });
+                $view.create("name", { template: { html: "template" } });
 
                 var view = $view.get('name');
 
@@ -190,11 +190,11 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.create("name", { html: "fubar" });
+                $view.create("name", { template: { html: "fubar" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("name");
 
-                $view.create("name", { html: "template" });
+                $view.create("name", { template: { html: "template" } });
                 expect(spy.callCount).toBe(1);
             });
         });
@@ -203,11 +203,11 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.create("root", { html: "fubar" });
+                $view.create("root", { template: { html: "fubar" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
 
-                $view.create("sub", { html: "template" });
+                $view.create("sub", { template: { html: "template" } });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args[1]).toBe("sub");
             });
@@ -217,9 +217,9 @@ describe('$view', function () {
     describe("clear", () => {
         it('no parameters clears state', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.create("root", { html: "root template" });
-                $view.create("sub1", { html: "sub1 template" });
-                $view.create("sub2", { html: "sub2 template" });
+                $view.create("root", { template: { html: "root template" } });
+                $view.create("sub1", { template: { html: "sub1 template" } });
+                $view.create("sub2", { template: { html: "sub2 template" } });
                 $view.clear();
 
                 expect($view.get("root")).toBeUndefined();
@@ -230,9 +230,9 @@ describe('$view', function () {
 
         it('with parameters will set view to undefined (delete it)', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.create("root", { html: "root template" });
-                $view.create("sub1", { html: "sub1 template" });
-                $view.create("sub2", { html: "sub2 template" });
+                $view.create("root", { template: { html: "root template" } });
+                $view.create("sub1", { template: { html: "sub1 template" } });
+                $view.create("sub2", { template: { html: "sub2 template" } });
                 $view.clear("sub2");
 
                 expect($view.get("root")).toBeDefined();
@@ -243,9 +243,9 @@ describe('$view', function () {
 
         it('clear raises $viewUpdated with viewName for cleared view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.create("root", { html: "root template" });
-                $view.create("sub1", { html: "sub1 template" });
-                $view.create("sub2", { html: "sub2 template" });
+                $view.create("root", { template: { html: "root template" } });
+                $view.create("sub1", { template: { html: "sub1 template" } });
+                $view.create("sub2", { template: { html: "sub2 template" } });
 
                 var spy = spyOn(scope, '$broadcast');
 
@@ -265,17 +265,17 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.update("root", { html: "root template" });
+                $view.update("root", { template: { html: "root template" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
 
-                $view.update("root", { html: "sub1 template" });
+                $view.update("root", { template: { html: "sub1 template" } });
                 expect(spy.callCount).toBe(2);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
 
-                $view.update("root", { html: "sub2 template" });
+                $view.update("root", { template: { html: "sub2 template" } });
                 expect(spy.callCount).toBe(3);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
@@ -286,24 +286,24 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var spy = spyOn(scope, '$broadcast');
 
-                $view.create("root", { html: "root template" });
+                $view.create("root", { template: { html: "root template" } });
                 expect(spy.callCount).toBe(1);
                 expect(spy.mostRecentCall.args[1]).toBe("root");
                 expect(spy.mostRecentCall.args[0]).toBe("$viewUpdate");
 
-                $view.create("root", { html: "root template" });
+                $view.create("root", { template: { html: "root template" } });
                 expect(spy.callCount).toBe(1);
 
-                $view.create("root", { html: "root template" });
+                $view.create("root", { template: { html: "root template" } });
                 expect(spy.callCount).toBe(1);
             });
         });
 
         it('raised on clear with name', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update("view1", { html: "view1 template" });
-                $view.update("view2", { html: "view2 template" });
-                $view.update("view3", { html: "view3 template" });
+                $view.update("view1", { template: { html: "view1 template" } });
+                $view.update("view2", { template: { html: "view2 template" } });
+                $view.update("view3", { template: { html: "view3 template" } });
 
                 var spy = spyOn(scope, '$broadcast');
 
@@ -330,8 +330,8 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
 
-                $view.create("root", { html: "root" });
-                $view.create("root", { html: "fubar" });
+                $view.create("root", { template: { html: "root" } });
+                $view.create("root", { template: { html: "fubar" } });
 
                 trx.commit();
 
@@ -343,8 +343,8 @@ describe('$view', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
 
-                $view.create("root", { html: "root" });
-                $view.create("root", { html: "fubar" });
+                $view.create("root", { template: { html: "root" } });
+                $view.create("root", { template: { html: "fubar" } });
 
                 expect($view.get("root")).toBeUndefined();
 
@@ -359,9 +359,9 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();
-                $view.update("view1", { html: "view1 template" });
-                $view.update("view2", { html: "view2 template" });
-                $view.update("view3", { html: "view3 template" });
+                $view.update("view1", { template: { html: "view1 template" } });
+                $view.update("view2", { template: { html: "view2 template" } });
+                $view.update("view3", { template: { html: "view3 template" } });
 
                 expect(spy.callCount).toBe(0);
 
@@ -379,12 +379,12 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();
-                $view.update("view1", { html: "view1 template" });
-                $view.update("view2", { html: "view2 template" });
-                $view.update("view3", { html: "view3 template" });
-                $view.update("view1", { html: "view1 template" });
-                $view.update("view2", { html: "view2 template" });
-                $view.update("view3", { html: "view3 template" });
+                $view.update("view1", { template: { html: "view1 template" } });
+                $view.update("view2", { template: { html: "view2 template" } });
+                $view.update("view3", { template: { html: "view3 template" } });
+                $view.update("view1", { template: { html: "view1 template" } });
+                $view.update("view2", { template: { html: "view2 template" } });
+                $view.update("view3", { template: { html: "view3 template" } });
 
                 expect(spy.callCount).toBe(0);
 
@@ -402,9 +402,9 @@ describe('$view', function () {
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();
-                $view.update("view1", { html: "view1 template" });
-                $view.update("view2", { html: "view2 template" });
-                $view.update("view3", { html: "view3 template" });
+                $view.update("view1", { template: { html: "view1 template" } });
+                $view.update("view2", { template: { html: "view2 template" } });
+                $view.update("view3", { template: { html: "view3 template" } });
 
                 expect(spy.callCount).toBe(0);
 
@@ -417,7 +417,7 @@ describe('$view', function () {
 
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update("root", { html: "root" });
+                $view.update("root", { template: { html: "root" } });
                 
                 var trx = $view.beginUpdate();
 
@@ -433,12 +433,12 @@ describe('$view', function () {
 
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
-                $view.update("root", { html: "root" });
+                $view.update("root", { template: { html: "root" } });
 
                 var spy = spyOn(scope, '$broadcast');
 
                 var trx = $view.beginUpdate();
-                $view.refresh("root", { html: "custom data" });
+                $view.refresh("root", { template: { html: "custom data" } });
 
                 expect(spy.callCount).toBe(0);
 
@@ -453,9 +453,9 @@ describe('$view', function () {
         it('pending returns changes about to happen.', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
-                $view.create("view1", { html: "fubar" });
-                $view.update("view2", { html: "snafu" });
-                $view.refresh("view3", { html: "tarfu" });
+                $view.create("view1", { template: { html: "fubar" } });
+                $view.update("view2", { template: { html: "snafu" } });
+                $view.refresh("view3", { template: { html: "tarfu" } });
 
                 var pend = trx.pending();
 
@@ -470,11 +470,11 @@ describe('$view', function () {
         it('update takes is prioritized over create in transactions.', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
-                $view.update("view1", { html: "fubar" });
-                $view.create("view1", { html: "fubar" });
+                $view.update("view1", { template: { html: "fubar" } });
+                $view.create("view1", { template: { html: "fubar" } });
 
-                $view.create("view2", { html: "snafu" });
-                $view.update("view2", { html: "snafu" });
+                $view.create("view2", { template: { html: "snafu" } });
+                $view.update("view2", { template: { html: "snafu" } });
                 var pend = trx.pending();
                 trx.cancel();
 
@@ -487,9 +487,9 @@ describe('$view', function () {
         it('pending returns changes about to happen.', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
-                $view.create("view1", { html: "fubar" });
-                $view.create("view2", { html: "snafu" });
-                $view.create("view3", { html: "tarfu" });
+                $view.create("view1", { template: { html: "fubar" } });
+                $view.create("view2", { template: { html: "snafu" } });
+                $view.create("view3", { template: { html: "tarfu" } });
                 trx.commit();
 
                 trx = $view.beginUpdate();
@@ -505,16 +505,16 @@ describe('$view', function () {
             });
         });
 
-        it('pending returns changes about to happen.', function () {
+        it('pending returns changes about to happen 2.', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 var trx = $view.beginUpdate();
-                $view.update("view1", { html: "fubar" }, null, null, "sticky");
-                $view.update("view2", { html: "snafu" }, null, null, "sticky");
+                $view.update("view1", { template: { html: "fubar" }, sticky: "sticky" });
+                $view.update("view2", { template: { html: "snafu" }, sticky: "sticky" });
                 trx.commit();
 
                 trx = $view.beginUpdate();
-                $view.update("view1", { html: "fubar" }, null, null, "sticky")
-                $view.update("view2", { html: "snafu" }, null, null, "stack")
+                $view.update("view1", { template: { html: "fubar" }, sticky: "sticky" });
+                $view.update("view2", { template: { html: "snafu" }, sticky: "stack" });
                 var pend = trx.pending();
                 trx.cancel();
 

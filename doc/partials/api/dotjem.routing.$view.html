@@ -43,19 +43,6 @@ Any outside services are also able to create transactional updates by calling th
 </ul>
 </div>
 </li>
-<li><h3 id="create">create(name, template, controller, locals)</h3>
-<div class="create"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
-<p>The name of the view to update as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p></li>
-<li><code ng:non-bindable="">template – {string|object} – </code>
-<p>The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</p></li>
-<li><code ng:non-bindable="">controller<i>(optional)</i> – {function=} – </code>
-<p>The view confroller either as a function or a named controller defined on the module or a referenced module.</p></li>
-<li><code ng:non-bindable="">locals<i>(optional)</i> – {object=} – </code>
-<p>An optional map of dependencies which should be injected into the controller.</p></li>
-</ul>
-</div>
-</li>
 <li><h3 id="create">create(name, args)</h3>
 <div class="create"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
@@ -69,6 +56,7 @@ Any outside services are also able to create transactional updates by calling th
 <li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
 <li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
 <li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
+<li><code>sticky</code>: <code>{string=}</code> value A flag indicating that the view is sticky.</li>
 </ul></li>
 </ul>
 </div>
@@ -141,26 +129,6 @@ Views can also be refreshed by calling the <code>refresh</code> method.</p><h4 i
 <li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
 <li><code>sticky</code>: <code>{string=}</code> value A flag indicating that the view is sticky.</li>
 </ul></li>
-</ul>
-</div>
-</li>
-<li><h3 id="update">update(name, template, controller, locals, sticky)</h3>
-<div class="update"><p>Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
-<br/>
-If the view is marked sticky it will only force an update if the sticky flag is different than the previous one. In cases where it
-is the same the <code>$viewRefresh</code> event will be raised instead.
-<br/>
-Views can also be refreshed by calling the <code>refresh</code> method.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">name – {string} – </code>
-<p>The name of the view to update as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p></li>
-<li><code ng:non-bindable="">template – {string|object} – </code>
-<p>The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</p></li>
-<li><code ng:non-bindable="">controller<i>(optional)</i> – {function=} – </code>
-<p>The view confroller either as a function or a named controller defined on the module or a referenced module.</p></li>
-<li><code ng:non-bindable="">locals<i>(optional)</i> – {object=} – </code>
-<p>An optional map of dependencies which should be injected into the controller.</p></li>
-<li><code ng:non-bindable="">sticky<i>(optional)</i> – {string=} – </code>
-<p>A flag indicating that the view is sticky.</p></li>
 </ul>
 </div>
 </li>

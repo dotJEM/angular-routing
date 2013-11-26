@@ -60,15 +60,15 @@ var Context = (function () {
         return this;
     };
     Context.prototype.prepUpdate = // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
-    function (state, name, template, controller, sticky) {
+    function (state, name, args) {
         var prep = (this._prep[state] = this._prep[state] || {
         });
-        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
+        prep[name] = this.transaction.prepUpdate(name, args);
     };
-    Context.prototype.prepCreate = function (state, name, template, controller) {
+    Context.prototype.prepCreate = function (state, name, args) {
         var prep = (this._prep[state] = this._prep[state] || {
         });
-        prep[name] = this.transaction.prepCreate(name, template, controller);
+        prep[name] = this.transaction.prepCreate(name, args);
     };
     Context.prototype.completePrep = function (state, locals) {
         forEach(this._prep[state], function (value, key) {

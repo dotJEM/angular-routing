@@ -127,21 +127,21 @@ var cmd = {
             forEach(context.changed.array, function (change) {
                 updating = updating || change.isChanged;
                 forEach(change.state.views, function (view, name) {
-                    var sticky, fn;
-                    if(sticky = view.sticky) {
-                        if(fn = injectFn(sticky)) {
-                            sticky = fn($injector, {
+                    var fn;
+                    if(isDefined(view.sticky)) {
+                        if(fn = injectFn(view.sticky)) {
+                            view.sticky = fn($injector, {
                                 $to: context.toState,
                                 $from: context.$state.current
                             });
-                        } else if(!isString(sticky)) {
-                            sticky = change.state.fullname;
+                        } else if(!isString(view.sticky)) {
+                            view.sticky = change.state.fullname;
                         }
                     }
-                    if(updating || view.force || isDefined(sticky)) {
-                        context.prepUpdate(change.state.fullname, name, view.template, view.controller, sticky);
+                    if(updating || view.force || isDefined(view.sticky)) {
+                        context.prepUpdate(change.state.fullname, name, view);
                     } else {
-                        context.prepCreate(change.state.fullname, name, view.template, view.controller);
+                        context.prepCreate(change.state.fullname, name, view);
                     }
                 });
             });

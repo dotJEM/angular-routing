@@ -505,23 +505,47 @@ describe('$stateProvider', function () {
 
                 go('/top');
                 expect($state.current.name).toBe('top');
-                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, test.nameWithRoot('root.top')]);
+                expect(setOrUpdate.calls[0].args)
+                    .toEqual([<any>'top', {
+                        template: "top tpl",
+                        sticky: test.nameWithRoot('root.top'),
+                        locals: {}
+                    }]);
 
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
-                expect(setOrUpdate.calls[0].args).toEqual(['top', 'top tpl', undefined, {}, test.nameWithRoot('root.top')]);
-
+                expect(setOrUpdate.calls[0].args)
+                    .toEqual([<any>'top', {
+                        template: "top tpl",
+                        sticky: test.nameWithRoot('root.top'),
+                        locals: {}
+                    }]);
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
-                expect(setOrUpdate.calls[0].args).toEqual(['foo', 'foo tpl', undefined, {}, 'imSticky']);
+                expect(setOrUpdate.calls[0].args)
+                    .toEqual([<any>'foo', {
+                        template: 'foo tpl',
+                        sticky: 'imSticky',
+                        locals: {}
+                    }]);
 
                 go('/ban');
                 expect($state.current.name).toBe('ban');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, test.nameWithRoot('root.ban')]);
+                expect(setOrUpdate.calls[0].args)
+                    .toEqual([<any>'ban', {
+                        template: 'ban tpl',
+                        sticky: test.nameWithRoot('root.ban'),
+                        locals: {}
+                    }]);
 
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
-                expect(setOrUpdate.calls[0].args).toEqual(['ban', 'ban tpl', undefined, {}, test.nameWithRoot('root.ban.tar')]);
+                expect(setOrUpdate.calls[0].args)
+                    .toEqual([<any>'ban', {
+                        template: 'ban tpl',
+                        sticky: test.nameWithRoot('root.ban.tar'),
+                        locals: {}
+                    }]);
             });
         });
 
@@ -1543,11 +1567,11 @@ describe('$stateProvider', function () {
                 loc = []
 
                 var trx = $view.beginUpdate();
-                spyOn(trx, 'update').andCallFake(function (name: string, template?: any, controller?: any, locals?: any, sticky?: string) {
-                    loc.push(locals);
+                spyOn(trx, 'update').andCallFake(function (name: string, args: dotjem.routing.IView) {
+                    loc.push(args.locals);
                 });
-                spyOn(trx, 'create').andCallFake(function (name: string, template?: any, controller?: any, locals?: any) {
-                    loc.push(locals);
+                spyOn(trx, 'create').andCallFake(function (name: string, args: dotjem.routing.IView) {
+                    loc.push(args.locals);
                 });
                 spyOn($view, 'beginUpdate').andReturn(trx);
 

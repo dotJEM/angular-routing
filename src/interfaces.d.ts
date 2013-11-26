@@ -1,15 +1,21 @@
 /// <reference path="../lib/angular/angular-1.0.d.ts" />
 
 module dotjem.routing {
+
     interface IView {
-        template?: ng.IPromise;
+        template?: any;
         controller?: any;
-        version: number;
         locals?: any;
+        sticky?: string;
+    }
+    
+    interface IStoredView extends IView {
+        template?: ng.IPromise;
+        version: number;
     }
 
     interface IViewMap {
-        [name: string]: IView;
+        [name: string]: IStoredView;
     }
 
     interface IViewTransaction extends IViewServiceBase {
@@ -17,21 +23,18 @@ module dotjem.routing {
         cancel();
         completed: bool;
 
-        prepUpdate(name: string, template?: any, controller?: any, sticky?: string): (locals?: any) => IViewServiceBase;
-        prepCreate(name: string, template?: any, controller?: any): (locals?: any) => IViewServiceBase;
+        prepUpdate(name: string, args: IView): (locals?: any) => IViewServiceBase;
+        prepCreate(name: string, args: IView): (locals?: any) => IViewServiceBase;
         pending(name?: string): any;
     }
 
     interface IViewServiceBase {
         clear(name?: string): IViewServiceBase;
 
-        update(name: string, template?: any, controller?: any, locals?: any, sticky?: string): IViewServiceBase;
-        update(name: string, args: { template?: any; controller?: any; locals?: any; sticky?: string; }): IViewServiceBase;
+        update(name: string, args: IView): IViewServiceBase;
+        create(name: string, args: IView): IViewServiceBase;
 
-        create(name: string, template?: any, controller?: any, locals?: any): IViewServiceBase;
-        create(name: string, args: { template?: any; controller?: any; locals?: any; }): IViewServiceBase;
-
-        get (name: string): IView;
+        get (name: string): IStoredView;
         get (): IViewMap;
 
         refresh(name?: string, data?: any): IViewServiceBase;

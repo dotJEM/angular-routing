@@ -71,14 +71,14 @@ class Context {
     private _prep: any = {};
 
     // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
-    public prepUpdate(state: string, name, template, controller, sticky) {
+    public prepUpdate(state: string, name, args: dotjem.routing.IView) {
         var prep = (this._prep[state] = this._prep[state] || {});
-        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
+        prep[name] = this.transaction.prepUpdate(name, args);
     }
 
-    public prepCreate(state: string, name, template, controller) {
+    public prepCreate(state: string, name, args: dotjem.routing.IView) {
         var prep = (this._prep[state] = this._prep[state] || {});
-        prep[name] = this.transaction.prepCreate(name, template, controller);
+        prep[name] = this.transaction.prepCreate(name, args);
     }
 
     public completePrep(state: string, locals?: any) {

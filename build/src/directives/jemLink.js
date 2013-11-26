@@ -44,19 +44,25 @@ var jemLinkDirective = [
                         element.removeClass(attrs.activeClass);
                     }
                 }
-                scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                function onClick() {
+                    scope.$apply(function () {
+                        var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+                        $state.goto(sref, params);
+                    });
+                }
+                ;
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
                 activeFn();
                 if(tag in attr) {
                     attrs.$observe('params', apply);
                     attrs.$observe('sref', apply);
                 } else {
-                    element.click(function () {
-                        scope.$apply(function () {
-                            var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
-                            $state.goto(sref, params);
-                        });
-                    });
+                    element.bind('click', onClick);
                 }
+                scope.$on('$destroy', function () {
+                    element.unbind('click', onClick);
+                    deregistration();
+                });
             }
         };
     }];
