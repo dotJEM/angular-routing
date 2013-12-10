@@ -397,6 +397,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
          *
          * @param {State|string=} state A state to generate an URL for
          * @param {Object=} params A set of parameters to use when generating the url
+         * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
          *
          * @description
          * To build a url for a particular state, use `url`...
@@ -410,7 +411,21 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
          * @methodOf dotjem.routing.$state
          *
          * @param {State|string=} state A State or name to check against the current state.
+         * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
+         * 
+         * @description
+         * Checks if the current state matches the provided state.
+         * 
+         * @returns {boolean} true if the stats mathces, otherwise false.
+         */
+
+        /**
+         * @ngdoc method
+         * @name dotjem.routing.$state#is
+         * @methodOf dotjem.routing.$state
          *
+         * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
+         * 
          * @description
          * Checks if the current state matches the provided state.
          * 
@@ -437,14 +452,28 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     return browser.resolve(current, path, true);
                 },
                 reload: reload,
-                url: function (state?, params?) {
-                    if (isDefined(state)) {
-                        //state = browser.lookup(toName(state));
-                        state = browser.resolve(current, toName(state), false);
-                    } else {
-                        state = current;
+                url: function (arg1?, arg2?, arg3?) {
+                    var state = current;
+                    if (arguments.length === 0) {
+                        return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                     }
-                    return urlbuilder.buildUrl($state.current, state, params);
+
+                    if (arguments.length === 1) {
+                        if (isBool(arg1)) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, arg1);
+                        } else {
+                            state = browser.resolve(current, toName(arg1), false);
+                            return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                        }
+                    }
+                    if (isDefined(arg1)) {
+                        state = browser.resolve(current, toName(arg1), false);
+                    }
+                    if (isBool(arg2)) {
+                        return urlbuilder.buildUrl($state.current, state, undefined, arg2);
+                    } else {
+                        return urlbuilder.buildUrl($state.current, state, arg2, arg3);
+                    }
                 },
                 is: (state) => current.is(toName(state)),
                 isActive: (state) => current.isActive(toName(state))

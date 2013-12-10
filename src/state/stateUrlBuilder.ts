@@ -11,7 +11,7 @@ class StateUrlBuilder {
     constructor(private route: dotjem.routing.IRouteService) {
     }
 
-    public buildUrl(current, target, params?): string {
+    public buildUrl(current, target, params?, base?): string {
         var c = current;
 
         if (!target.route)
@@ -28,7 +28,7 @@ class StateUrlBuilder {
                 paramsObj[name] = allFrom[name];
         });
 
-        return this.route.format(target.route.route, extend(paramsObj, params || {}));
+        return this.route.format(target.route.route, extend(paramsObj, params || {}), base);
     }
 
 }

@@ -79,7 +79,7 @@ module dotjem.routing {
     interface IRouteService {
         reload: () => void;
         change: (args: { route: string; params?: any; replace?: bool; }) => void;
-        format: (route: string, params?: any) => string;
+        format: (route: string, params?: any, base?: bool) => string;
         current?: any;
     }
 
@@ -123,8 +123,13 @@ module dotjem.routing {
         lookup(path: string): any;
         goto(state: string, params?: any);
         goto(state: any, params?: any);
-        url(state?: string, params?: any);
-        url(state?: any, params?: any);
+
+        url(base?: bool);
+        url(state?: string, base?: bool);
+        url(state?: string, params?: any, base?: bool);
+        url(state?: any, base?: bool);
+        url(state?: any, params?: any, base?: bool);
+
         is(state?: string);
         is(state?: any);
         isActive(state?: string);

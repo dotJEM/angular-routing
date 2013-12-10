@@ -1187,6 +1187,90 @@ describe('$stateProvider', function () {
                 expect($state.url()).toBe('/gallery/4224/details/1');
             });
         });
+        it('builds route with parameters and basepath by default', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url()).toBe('/base/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                })).toBe('/base/gallery/51');
+                expect($state.url('gallery')).toBe('/base/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                })).toBe('/base/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url()).toBe('/base/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url()).toBe('/base/gallery/4224/details/1');
+            });
+        });
+        it('builds route with parameters and basepath', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url(true)).toBe('/base/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                }, true)).toBe('/base/gallery/51');
+                expect($state.url('gallery', true)).toBe('/base/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                }, true)).toBe('/base/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url(true)).toBe('/base/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url(true)).toBe('/base/gallery/4224/details/1');
+            });
+        });
+        it('builds route with parameters and without basepath', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url(false)).toBe('/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                }, false)).toBe('/gallery/51');
+                expect($state.url('gallery', false)).toBe('/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                }, false)).toBe('/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url(false)).toBe('/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url(false)).toBe('/gallery/4224/details/1');
+            });
+        });
         it('builds route with search parameters', function () {
             inject(function ($location, $route, $state) {
                 goto('gallery', {
@@ -1216,6 +1300,48 @@ describe('$stateProvider', function () {
                     search: 'search',
                     other: 'other'
                 })).toBe('/gallery/4224/details/1?search=search&other=other');
+            });
+        });
+        it('builds route without base path', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('blog');
+                expect($state.url(false)).toBe('/blog');
+                expect($state.url('blog', false)).toBe('/blog');
+                goto('about.other');
+                expect($state.url(false)).toBe('/about/other');
+                expect($state.url('about.other', false)).toBe('/about/other');
+            });
+        });
+        it('builds route with base path', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('blog');
+                expect($state.url(true)).toBe('/base/blog');
+                expect($state.url('blog', true)).toBe('/base/blog');
+                goto('about.other');
+                expect($state.url(true)).toBe('/base/about/other');
+                expect($state.url('about.other', true)).toBe('/base/about/other');
+            });
+        });
+        it('builds route with basepath by default', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('blog');
+                expect($state.url()).toBe('/base/blog');
+                expect($state.url('blog')).toBe('/base/blog');
+                goto('about.other');
+                expect($state.url()).toBe('/base/about/other');
+                expect($state.url('about.other')).toBe('/base/about/other');
             });
         });
     });

@@ -20,13 +20,14 @@ var isDefined = angular.isDefined,
     isString = angular.isString,
     isObject = angular.isObject,
     isArray = angular.isArray,
+    isBool = function (arg) { return typeof arg === 'boolean'; },
     forEach = angular.forEach,
     extend = angular.extend,
     copy = angular.copy,
     equals = angular.equals,
     element = angular.element,
-    rootName = '$root',
-    noop = angular.noop;
+    noop = angular.noop,
+    rootName = '$root';
 
 function inherit(parent, extra?) {
     return extend(new (extend(function () { }, { prototype: parent }))(), extra);

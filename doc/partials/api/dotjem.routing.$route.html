@@ -30,12 +30,14 @@ The route definition contains:</p>
 </ul>
 </div>
 </li>
-<li><h3 id="format">format(route, params)</h3>
+<li><h3 id="format">format(route, params, base)</h3>
 <div class="format"><p>Formats the given provided route into an url.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">route – {string} – </code>
 <p>Route to format.</p></li>
 <li><code ng:non-bindable="">params<i>(optional)</i> – {Object=} – </code>
 <p>Parameters to fill into the route.</p></li>
+<li><code ng:non-bindable="">base<i>(optional)</i> – {Boolean=} – </code>
+<p>If false ignore the base path (default is true)</p></li>
 </ul>
 <h4 id="Returns">Returns</h4>
 <div class="returns"><code ng:non-bindable="">{string}</code>

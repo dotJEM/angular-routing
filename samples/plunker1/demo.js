@@ -1,24 +1,18 @@
 var app = angular.module('demo', [
-  'demo.home', 'demo.about', 'demo.contact',
+  'demo.home','demo.about','demo.contact',
   'dotjem.routing']);
 
-app.controller('siteController', ['$scope', '$state', '$browser',
-  function ($scope, $state, $browser) {
-      var cache = {};
-      
-      $scope.fn = {};
-      $scope.fn.isActive = function (state) {
-          if (state in cache)
-              return cache[state];
-          return cache[state] = $state.isActive(state);
-      };
-      $scope.fn.url = function (state) {
-          return $state.url(state);
-      };
+app.config(['$locationProvider', function (lp) {
+    lp.html5Mode(true);
+}]);
 
-      $scope.$on('$stateChangeSuccess', function (event, state) {
-          cache = {};
-      });
-      
-      $scope.host = $browser.baseHref();
+
+app.controller('siteController', ['$scope', '$state',
+  function($scope, $state) {
+      $scope.fn = {
+          isActive: $state.isActive,
+          goto: function(state) {
+              $state.goto(state);
+          }
+      };
   }]);

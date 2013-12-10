@@ -587,6 +587,7 @@ var $RouteProvider = [<any>'$locationProvider',
              *
              * @param {string} route Route to format.
              * @param {Object=} params Parameters to fill into the route.
+             * @param {Boolean=} base If false ignore the base path (default is true)
              *
              * @return {string} An url generated from the provided parameters.
              *
@@ -617,10 +618,12 @@ var $RouteProvider = [<any>'$locationProvider',
                         if (args.replace)
                             loc.replace();
                     },
-                    format: function (route: string, params?: any) {
-                        var params = params || {},
-                            interpolated = interpolate(route, params) + toKeyValue(params, '?');
-                        if ($locationProvider.html5Mode()) {
+                    format: function (route: string, arg2?: any, arg3?: bool) {
+                        var arg2 = arg2 || {},
+                            arg3 = isDefined(arg3) ? arg3 : true,
+                            interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+
+                        if ($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g,'/');
                         }
                         return interpolated;

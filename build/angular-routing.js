@@ -19,7 +19,9 @@ var dotjem;
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root', noop = angular.noop;
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, isBool = function (arg) {
+    return typeof arg === 'boolean';
+}, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, noop = angular.noop, rootName = '$root';
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -661,6 +663,7 @@ var $RouteProvider = [
                 *
                 * @param {string} route Route to format.
                 * @param {Object=} params Parameters to fill into the route.
+                * @param {Boolean=} base If false ignore the base path (default is true)
                 *
                 * @return {string} An url generated from the provided parameters.
                 *
@@ -687,10 +690,10 @@ var $RouteProvider = [
                             loc.replace();
                         }
                     },
-                    format: function (route, params) {
-                        var params = params || {
-                        }, interpolated = interpolate(route, params) + toKeyValue(params, '?');
-                        if($locationProvider.html5Mode()) {
+                    format: function (route, arg2, arg3) {
+                        var arg2 = arg2 || {
+                        }, arg3 = isDefined(arg3) ? arg3 : true, interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+                        if($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;
@@ -1629,6 +1632,7 @@ var $StateProvider = [
                 *
                 * @param {State|string=} state A state to generate an URL for
                 * @param {Object=} params A set of parameters to use when generating the url
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
                 *
                 * @description
                 * To build a url for a particular state, use `url`...
@@ -1641,6 +1645,19 @@ var $StateProvider = [
                 * @methodOf dotjem.routing.$state
                 *
                 * @param {State|string=} state A State or name to check against the current state.
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
+                *
+                * @description
+                * Checks if the current state matches the provided state.
+                *
+                * @returns {boolean} true if the stats mathces, otherwise false.
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#is
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
                 *
                 * @description
                 * Checks if the current state matches the provided state.
@@ -1666,14 +1683,27 @@ var $StateProvider = [
                         return browser.resolve(current, path, true);
                     },
                     reload: reload,
-                    url: function (state, params) {
-                        if(isDefined(state)) {
-                            //state = browser.lookup(toName(state));
-                            state = browser.resolve(current, toName(state), false);
-                        } else {
-                            state = current;
+                    url: function (arg1, arg2, arg3) {
+                        var state = current;
+                        if(arguments.length === 0) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                         }
-                        return urlbuilder.buildUrl($state.current, state, params);
+                        if(arguments.length === 1) {
+                            if(isBool(arg1)) {
+                                return urlbuilder.buildUrl($state.current, state, undefined, arg1);
+                            } else {
+                                state = browser.resolve(current, toName(arg1), false);
+                                return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                            }
+                        }
+                        if(isDefined(arg1)) {
+                            state = browser.resolve(current, toName(arg1), false);
+                        }
+                        if(isBool(arg2)) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, arg2);
+                        } else {
+                            return urlbuilder.buildUrl($state.current, state, arg2, arg3);
+                        }
                     },
                     is: function (state) {
                         return current.is(toName(state));
@@ -2936,7 +2966,7 @@ var StateUrlBuilder = (function () {
     function StateUrlBuilder(route) {
         this.route = route;
     }
-    StateUrlBuilder.prototype.buildUrl = function (current, target, params) {
+    StateUrlBuilder.prototype.buildUrl = function (current, target, params, base) {
         var c = current;
         if(!target.route) {
             throw new Error("Can't build url for a state that doesn't have a url defined.");
@@ -2953,7 +2983,7 @@ var StateUrlBuilder = (function () {
             }
         });
         return this.route.format(target.route.route, extend(paramsObj, params || {
-        }));
+        }), base);
     };
     return StateUrlBuilder;
 })();

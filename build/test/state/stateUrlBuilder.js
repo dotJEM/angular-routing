@@ -8,7 +8,7 @@ var StateUrlBuilder = (function () {
     function StateUrlBuilder(route) {
         this.route = route;
     }
-    StateUrlBuilder.prototype.buildUrl = function (current, target, params) {
+    StateUrlBuilder.prototype.buildUrl = function (current, target, params, base) {
         var c = current;
         if(!target.route) {
             throw new Error("Can't build url for a state that doesn't have a url defined.");
@@ -25,7 +25,7 @@ var StateUrlBuilder = (function () {
             }
         });
         return this.route.format(target.route.route, extend(paramsObj, params || {
-        }));
+        }), base);
     };
     return StateUrlBuilder;
 })();
