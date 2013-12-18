@@ -54,7 +54,11 @@ var jemLinkDirective = [
                 var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
                 activeFn();
                 if(tag in attr) {
-                    attrs.$observe('params', apply);
+                    if(isDefined(attrs.params)) {
+                        scope.$watch(attrs.params, apply, true);
+                    }
+                    //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
+                    //attrs.$observe('params', apply);
                     attrs.$observe('sref', apply);
                 } else {
                     element.bind('click', onClick);
