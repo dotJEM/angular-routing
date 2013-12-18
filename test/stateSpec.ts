@@ -1130,9 +1130,9 @@ describe('$stateProvider', function () {
         });
 
         it('builds route with base path', function () {
-            mod(function ($locationProvider: ng.ILocationProvider) {
+            mod(function($locationProvider: ng.ILocationProvider) {
                 $locationProvider.html5Mode(true);
-            })
+            });
 
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
@@ -1152,9 +1152,9 @@ describe('$stateProvider', function () {
         });
 
         it('builds route with basepath by default', function () {
-            mod(function ($locationProvider: ng.ILocationProvider) {
+            mod(function($locationProvider: ng.ILocationProvider) {
                 $locationProvider.html5Mode(true);
-            })
+            });
 
             inject(function ($location: ng.ILocationService,
                 $route: ng.IRouteService,
@@ -1923,10 +1923,10 @@ describe('$stateProvider', function () {
         function find(event) {
             var events = [];
 
-            angular.forEach(spy.calls, function (call: { args: any[]; }) {
+            angular.forEach(spy.calls, function(call: { args: any[]; }) {
                 if (call.args[0] === event)
                     events.push(call);
-            })
+            });
 
             if (events.length > 1)
                 return events;
@@ -2011,8 +2011,4 @@ describe('$stateProvider', function () {
             });
         });
     });
-
-    describe("reloadOnSearch", () => {
-
-    })
 });

@@ -2883,7 +2883,7 @@ var StateComparer = (function () {
         }
         //TODO: if ReloadOnOptional is false, but parameters are changed.
         //      we should raise the update event instead.
-        stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
+        toArray[0].isChanged = stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
         return {
             array: toArray.reverse(),
             stateChanges: stateChanges,
