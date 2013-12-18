@@ -59,7 +59,7 @@ var $ResolveProvider = [function () {
          * Clears a list of values in the resolver.
          */
         $service.clear = function (arg?: any) {
-            if (isUndefined(arg)) {
+            if (isBool(arg) && arg) {
                 cache = {};
             }
 

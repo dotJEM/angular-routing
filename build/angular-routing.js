@@ -1876,7 +1876,7 @@ var $ResolveProvider = [
                 * Clears a list of values in the resolver.
                 */
                 $service.clear = function (arg) {
-                    if(isUndefined(arg)) {
+                    if(isBool(arg) && arg) {
                         cache = {
                         };
                     }

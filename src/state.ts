@@ -563,12 +563,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             }
 
             forEach(ctx.changed.array, function (change) {
-
                 ctx.promise = ctx.promise.then(function () {
                     if (useUpdate = useUpdate || change.isChanged) {
                         $resolve.clear(change.state.resolve);
                     }
-
                     return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
                 }).then(function (locals) {
 
