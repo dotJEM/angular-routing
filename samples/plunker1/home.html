@@ -5,11 +5,70 @@
         <br/>All you get is this text and a mostly barebones HTML document.</p>
 </div>
 
-     <ul class="nav nav-pills">
-       <li><a href="#{{ fn.url('about.one') }}">42 Devide by 2</a></li>
-       <li><a href="#{{ fn.url('about.two') }}">42 Times 100</a></li>
-     </ul>
+<div>
+  Number of constructor calls across tabs: {{model.inst}}
+</div>
+
+<div class="bs-example">
+  <ul class="nav nav-tabs nav-justified">
+    <li ng-class="{ active: tabs1.current == 'default' }">
+      <a sref="'home'" params="{ activeTab: 'default' }">Home</a>
+    </li>
+    <li ng-class="{ active: tabs1.current == 'profile' }">
+      <a  sref="'home'" params="{ activeTab: 'profile' }">Profile</a>
+    </li>
+    <li ng-class="{ active: tabs1.current == 'messages' }">
+      <a sref="'home'" params="{ activeTab: 'messages' }">Messages</a>
+    </li>
+  </ul>
+</div>
 
 
-{{host}}
+<script type="text/ng-template" id="tab.default.html">
+  <div ng-controller="defaultTabCtrl">
+    <br/>
+    ... some template stuff for tab.default.html
+    
 
+  </div>
+</script>
+
+<script type="text/ng-template" id="tab.profile.html">
+  <div ng-controller="profileTabCtrl">
+    <br/>
+    ... some template stuff for tab.profile.html
+    
+
+  </div>
+</script>
+
+<script type="text/ng-template" id="tab.messages.html">
+  <div ng-controller="messagesTabCtrl">
+    <br/>
+    ... some template stuff for tab.messages.html
+    
+
+  </div>
+</script>
+
+<div ng-show="tabs1.current == 'default'" ng-include="tabs1.templates.default" />
+<div ng-show="tabs1.current == 'profile'" ng-include="tabs1.templates.profile" />
+<div ng-show="tabs1.current == 'messages'" ng-include="tabs1.templates.messages" />
+
+<div class="bs-example">
+  <ul class="nav nav-tabs nav-justified">
+    <li ng-class="{ active: tabs2.current == 'default' }">
+      <a sref="'home'" params="{ activeTab2: 'default', activeTab: tabs1.current }">Home</a>
+    </li>
+    <li ng-class="{ active: tabs2.current == 'profile' }">
+      <a  sref="'home'" params="{ activeTab2: 'profile', activeTab: tabs1.current }">Profile</a>
+    </li>
+    <li ng-class="{ active: tabs2.current == 'messages' }">
+      <a sref="'home'" params="{ activeTab2: 'messages', activeTab: tabs1.current }">Messages</a>
+    </li>
+  </ul>
+</div>
+
+<div ng-show="tabs2.current == 'default'" ng-include="tabs2.templates.default" />
+<div ng-show="tabs2.current == 'profile'" ng-include="tabs2.templates.profile" />
+<div ng-show="tabs2.current == 'messages'" ng-include="tabs2.templates.messages" />

@@ -44,17 +44,29 @@ var jemLinkDirective = [
                         element.removeClass(attrs.activeClass);
                     }
                 }
-                scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
-                if(tag in attr) {
-                    attrs.$observe('params', apply);
-                    attrs.$observe('sref', apply);
-                } else {
-                    element.click(function () {
-                        scope.$apply(function () {
-                            $state.goto(scope.sref, scope.params);
-                        });
+                function onClick() {
+                    scope.$apply(function () {
+                        var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+                        $state.goto(sref, params);
                     });
                 }
+                ;
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                activeFn();
+                if(tag in attr) {
+                    if(isDefined(attrs.params)) {
+                        scope.$watch(attrs.params, apply, true);
+                    }
+                    //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
+                    //attrs.$observe('params', apply);
+                    attrs.$observe('sref', apply);
+                } else {
+                    element.bind('click', onClick);
+                }
+                scope.$on('$destroy', function () {
+                    element.unbind('click', onClick);
+                    deregistration();
+                });
             }
         };
     }];

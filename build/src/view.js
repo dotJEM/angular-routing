@@ -161,36 +161,11 @@ function $ViewProvider() {
             * <br/>
             * Views can also be refreshed by calling the `refresh` method.
             */
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.$view#update
-            * @methodOf dotjem.routing.$view
-            *
-            * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
-            * @param {string|object} template The template to be applied to the view. See {@link dotjem.routing.$template $template} on ways to define templates.
-            * @param {function=} controller The view confroller either as a function or a named controller defined on the module or a referenced module.
-            * @param {object=} locals An optional map of dependencies which should be injected into the controller.
-            * @param {string=} sticky A flag indicating that the view is sticky.
-            *
-            * @description
-            * Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
-            * <br/>
-            * If the view is marked sticky it will only force an update if the sticky flag is different than the previous one. In cases where it
-            * is the same the `$viewRefresh` event will be raised instead.
-            * <br/>
-            * Views can also be refreshed by calling the `refresh` method.
-            */
-            function update(name, templateOrArgs, controller, locals, sticky) {
-                var template = templateOrArgs;
-                if(isArgs(templateOrArgs)) {
-                    template = templateOrArgs.template;
-                    controller = templateOrArgs.controller;
-                    locals = templateOrArgs.locals;
-                    sticky = templateOrArgs.sticky;
-                }
+            function update(name, args) {
+                var template = args.template, controller = args.controller, locals = args.locals, sticky = args.sticky;
                 ensureName(name);
                 if(!trx.completed) {
-                    return trx.update(name, template, controller, locals, sticky);
+                    return trx.update(name, args);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -203,7 +178,7 @@ function $ViewProvider() {
                 views[name].template = $template.get(template);
                 views[name].controller = controller;
                 views[name].locals = locals;
-                if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
+                if(checkSticky(name, sticky)) {
                     raiseRefresh(name, {
                         $locals: locals,
                         sticky: sticky
@@ -216,6 +191,9 @@ function $ViewProvider() {
                 return $view;
             }
             ;
+            function checkSticky(name, sticky) {
+                return isDefined(sticky) && isString(sticky) && name in views && views[name].sticky === sticky;
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#create
@@ -229,33 +207,16 @@ function $ViewProvider() {
             * - `template`: `{string|Object|function}` The template to be applied to the view. See {@link dotjem.routing.$template $template} on ways to define templates.
             * - `controller`: `{string|function=}` The view confroller either as a function or a named controller defined on the module or a referenced module.
             * - `locals`: `{Object=}` value An optional map of dependencies which should be injected into the controller.
+            * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             *
             * @description
             * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
             */
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.$view#create
-            * @methodOf dotjem.routing.$view
-            *
-            * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
-            * @param {string|object} template The template to be applied to the view. See {@link dotjem.routing.$template $template} on ways to define templates.
-            * @param {function=} controller The view confroller either as a function or a named controller defined on the module or a referenced module.
-            * @param {object=} locals An optional map of dependencies which should be injected into the controller.
-            *
-            * @description
-            * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
-            */
-            function create(name, templateOrArgs, controller, locals) {
-                var template = templateOrArgs;
-                if(isArgs(templateOrArgs)) {
-                    template = templateOrArgs.template;
-                    controller = templateOrArgs.controller;
-                    locals = templateOrArgs.locals;
-                }
+            function create(name, args) {
+                var template = args.template, controller = args.controller, locals = args.locals, sticky = args.sticky;
                 ensureName(name);
                 if(!trx.completed) {
-                    return trx.create(name, template, controller, locals);
+                    return trx.create(name, args);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -263,6 +224,7 @@ function $ViewProvider() {
                         $template.get(template),
                         controller: controller,
                         locals: locals,
+                        sticky: sticky,
                         version: 0
                     };
                     raiseUpdated(name);
@@ -310,11 +272,11 @@ function $ViewProvider() {
             function get(name) {
                 //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
-                    return views;
+                    return copy(views);
                 }
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
-                return views[name];
+                return copy(views[name]);
             }
             ;
             /**
@@ -379,6 +341,20 @@ function $ViewProvider() {
             * Only the final state will be applied, meaning that if the same view had recieved a series of updates, only an update
             * for the final state the view will take will be issues, if it causes the view to change state.
             */
+            function calculatePending(name, record) {
+                var exists = name in views, sticky = checkSticky(name, record.args.sticky);
+                switch(record.act) {
+                    case 'clear':
+                        return 'unload';
+                    case 'update':
+                        return sticky ? 'refresh' : 'update';
+                    case 'create':
+                        return exists ? 'keep' : 'load';
+                    case 'refresh':
+                        return 'refresh';
+                }
+                return 'invalid';
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.type:transaction#cancel
@@ -397,6 +373,23 @@ function $ViewProvider() {
                     }, trx;
                     return trx = {
                         completed: false,
+                        pending: function (name) {
+                            if(isDefined(name)) {
+                                var rec = records[name];
+                                return {
+                                    action: calculatePending(name, rec),
+                                    args: rec.args
+                                };
+                            }
+                            var result = {
+                            };
+                            forEach(records, function (val, key) {
+                                result[key] = {
+                                    action: calculatePending(key, val)
+                                };
+                            });
+                            return result;
+                        },
                         commit: function () {
                             if(trx.completed) {
                                 return;
@@ -405,12 +398,16 @@ function $ViewProvider() {
                             forEach(records, function (rec) {
                                 rec.fn();
                             });
+                            records = {
+                            };
+                            return trx;
                         },
                         cancel: function () {
                             raisePrepare(name, {
                                 type: 'cancel'
                             });
                             trx.completed = true;
+                            return trx;
                         },
                         clear: function (name) {
                             if(isUndefined(name)) {
@@ -421,47 +418,56 @@ function $ViewProvider() {
                             }
                             records[name] = {
                                 act: 'clear',
+                                args: {
+                                    name: name
+                                },
                                 fn: function () {
                                     clear(name);
                                 }
                             };
                             return trx;
                         },
-                        prepUpdate: function (name, template, controller, sticky) {
+                        prepUpdate: function (name, args) {
                             raisePrepare(name, {
                                 type: 'update'
                             });
                             return function (locals) {
-                                trx.update(name, template, controller, locals, sticky);
+                                args.locals = extend({
+                                }, args.locals, locals);
+                                trx.update(name, args);
                                 return trx;
                             };
                         },
-                        prepCreate: function (name, template, controller) {
+                        prepCreate: function (name, args) {
                             raisePrepare(name, {
                                 type: 'create'
                             });
                             return function (locals) {
-                                trx.create(name, template, controller, locals);
+                                args.locals = extend({
+                                }, args.locals, locals);
+                                trx.create(name, args);
                                 return trx;
                             };
                         },
-                        update: function (name, template, controller, locals, sticky) {
+                        update: function (name, args) {
                             ensureName(name);
                             records[name] = {
                                 act: 'update',
+                                args: args,
                                 fn: function () {
-                                    update(name, template, controller, locals, sticky);
+                                    update(name, args);
                                 }
                             };
                             return trx;
                         },
-                        create: function (name, template, controller, locals) {
+                        create: function (name, args) {
                             ensureName(name);
                             if(!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
                                     act: 'create',
+                                    args: args,
                                     fn: function () {
-                                        create(name, template, controller, locals);
+                                        create(name, args);
                                     }
                                 };
                             }
@@ -476,6 +482,10 @@ function $ViewProvider() {
                             }
                             records[name] = {
                                 act: 'refresh',
+                                args: {
+                                    name: name,
+                                    data: data
+                                },
                                 fn: function () {
                                     refresh(name, data);
                                 }

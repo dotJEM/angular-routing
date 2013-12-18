@@ -20,7 +20,7 @@ var $RouteProvider = [
         //Public Methods
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#convert
+        * @name dotjem.routing.$routeProvider#convert
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {string} name Cerverter name, used in the path when registering routes through the
@@ -47,7 +47,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#when
+        * @name dotjem.routing.$routeProvider#when
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {string} path Route path (matched against `$location.path`). If `$location.path`
@@ -128,7 +128,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#otherwise
+        * @name dotjem.routing.$routeProvider#otherwise
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {Object} params Mapping information to be assigned to `$route.current`.
@@ -145,7 +145,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#decorate
+        * @name dotjem.routing.$routeProvider#decorate
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {string} name A name for the decorator.
@@ -163,7 +163,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#ignoreCase
+        * @name dotjem.routing.$routeProvider#ignoreCase
         * @methodOf dotjem.routing.$routeProvider
         *
         * @return {Object} self
@@ -177,7 +177,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#matchCase
+        * @name dotjem.routing.$routeProvider#matchCase
         * @methodOf dotjem.routing.$routeProvider
         *
         * @return {Object} self
@@ -528,6 +528,7 @@ var $RouteProvider = [
                 *
                 * @param {string} route Route to format.
                 * @param {Object=} params Parameters to fill into the route.
+                * @param {Boolean=} base If false ignore the base path (default is true)
                 *
                 * @return {string} An url generated from the provided parameters.
                 *
@@ -554,10 +555,10 @@ var $RouteProvider = [
                             loc.replace();
                         }
                     },
-                    format: function (route, params) {
-                        var params = params || {
-                        }, interpolated = interpolate(route, params) + toKeyValue(params, '?');
-                        if($locationProvider.html5Mode()) {
+                    format: function (route, arg2, arg3) {
+                        var arg2 = arg2 || {
+                        }, arg3 = isDefined(arg3) ? arg3 : true, interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+                        if($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;

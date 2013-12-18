@@ -1,6 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 /**
 * @ngdoc object
 * @name dotjem.routing.$stateTransitionProvider
@@ -186,7 +184,7 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
-    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+    }, _this = this;
     function alignHandler(obj) {
         var result = {
             handler: {
@@ -326,7 +324,7 @@ function $StateTransitionProvider() {
         return this;
     };
     function validate(from, to) {
-        var fromValid = validateTarget(from), toValid = validateTarget(to);
+        var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
         if(fromValid && toValid) {
             // && from !== to
             return;
@@ -340,12 +338,6 @@ function $StateTransitionProvider() {
         //if (from === to && from.indexOf('*') === -1)
         //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
-    }
-    function validateTarget(target) {
-        if(target === '*' || validation.test(target)) {
-            return true;
-        }
-        return false;
     }
     function lookup(name) {
         var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
@@ -381,33 +373,34 @@ function $StateTransitionProvider() {
             return $transition;
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
-                function emit(select, tc) {
+                function emit(select, tc, trx) {
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
                             injectFn(handler)($injector, {
                                 $to: to,
                                 $from: from,
-                                $transition: tc
+                                $transition: tc,
+                                $view: trx
                             });
                         }
                     });
                 }
                 return {
-                    before: function (tc) {
+                    before: function (tc, trx) {
                         emit(function (h) {
                             return h.before;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    between: function (tc) {
+                    between: function (tc, trx) {
                         emit(function (h) {
                             return h.between;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    after: function (tc) {
+                    after: function (tc, trx) {
                         emit(function (h) {
                             return h.after;
-                        }, tc);
+                        }, tc, trx);
                     }
                 };
             }

@@ -19,7 +19,9 @@ var dotjem;
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
-var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, rootName = '$root', noop = angular.noop;
+var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, isBool = function (arg) {
+    return typeof arg === 'boolean';
+}, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, noop = angular.noop, rootName = '$root';
 function inherit(parent, extra) {
     return extend(new (extend(function () {
     }, {
@@ -153,7 +155,7 @@ var $RouteProvider = [
         //Public Methods
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#convert
+        * @name dotjem.routing.$routeProvider#convert
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {string} name Cerverter name, used in the path when registering routes through the
@@ -180,7 +182,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#when
+        * @name dotjem.routing.$routeProvider#when
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {string} path Route path (matched against `$location.path`). If `$location.path`
@@ -261,7 +263,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#otherwise
+        * @name dotjem.routing.$routeProvider#otherwise
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {Object} params Mapping information to be assigned to `$route.current`.
@@ -278,7 +280,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#decorate
+        * @name dotjem.routing.$routeProvider#decorate
         * @methodOf dotjem.routing.$routeProvider
         *
         * @param {string} name A name for the decorator.
@@ -296,7 +298,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#ignoreCase
+        * @name dotjem.routing.$routeProvider#ignoreCase
         * @methodOf dotjem.routing.$routeProvider
         *
         * @return {Object} self
@@ -310,7 +312,7 @@ var $RouteProvider = [
         };
         /**
         * @ngdoc method
-        * @name dotjem.$routeProvider#matchCase
+        * @name dotjem.routing.$routeProvider#matchCase
         * @methodOf dotjem.routing.$routeProvider
         *
         * @return {Object} self
@@ -661,6 +663,7 @@ var $RouteProvider = [
                 *
                 * @param {string} route Route to format.
                 * @param {Object=} params Parameters to fill into the route.
+                * @param {Boolean=} base If false ignore the base path (default is true)
                 *
                 * @return {string} An url generated from the provided parameters.
                 *
@@ -687,10 +690,10 @@ var $RouteProvider = [
                             loc.replace();
                         }
                     },
-                    format: function (route, params) {
-                        var params = params || {
-                        }, interpolated = interpolate(route, params) + toKeyValue(params, '?');
-                        if($locationProvider.html5Mode()) {
+                    format: function (route, arg2, arg3) {
+                        var arg2 = arg2 || {
+                        }, arg3 = isDefined(arg3) ? arg3 : true, interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+                        if($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;
@@ -773,9 +776,7 @@ var $RouteProvider = [
 angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
 });
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 /**
 * @ngdoc object
 * @name dotjem.routing.$stateTransitionProvider
@@ -961,7 +962,7 @@ function $StateTransitionProvider() {
         },
         targets: {
         }
-    }, validation = /^\w+(\.\w+)*(\.[*])?$/, _this = this;
+    }, _this = this;
     function alignHandler(obj) {
         var result = {
             handler: {
@@ -1101,7 +1102,7 @@ function $StateTransitionProvider() {
         return this;
     };
     function validate(from, to) {
-        var fromValid = validateTarget(from), toValid = validateTarget(to);
+        var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
         if(fromValid && toValid) {
             // && from !== to
             return;
@@ -1115,12 +1116,6 @@ function $StateTransitionProvider() {
         //if (from === to && from.indexOf('*') === -1)
         //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
-    }
-    function validateTarget(target) {
-        if(target === '*' || validation.test(target)) {
-            return true;
-        }
-        return false;
     }
     function lookup(name) {
         var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
@@ -1156,33 +1151,34 @@ function $StateTransitionProvider() {
             return $transition;
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
-                function emit(select, tc) {
+                function emit(select, tc, trx) {
                     var handler;
                     forEach(handlers, function (handlerObj) {
                         if(isDefined(handler = select(handlerObj))) {
                             injectFn(handler)($injector, {
                                 $to: to,
                                 $from: from,
-                                $transition: tc
+                                $transition: tc,
+                                $view: trx
                             });
                         }
                     });
                 }
                 return {
-                    before: function (tc) {
+                    before: function (tc, trx) {
                         emit(function (h) {
                             return h.before;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    between: function (tc) {
+                    between: function (tc, trx) {
                         emit(function (h) {
                             return h.between;
-                        }, tc);
+                        }, tc, trx);
                     },
-                    after: function (tc) {
+                    after: function (tc, trx) {
                         emit(function (h) {
                             return h.after;
-                        }, tc);
+                        }, tc, trx);
                     }
                 };
             }
@@ -1372,7 +1368,7 @@ var $StateProvider = [
         }), browser = new StateBrowser(root), comparer = new StateComparer();
         /**
         * @ngdoc method
-        * @name dotjem.$stateProvider#state
+        * @name dotjem.routing.$stateProvider#state
         * @methodOf dotjem.routing.$stateProvider
         *
         * @param {string} fullname Full name of the state, use '.' to seperate parent and child states.
@@ -1636,6 +1632,7 @@ var $StateProvider = [
                 *
                 * @param {State|string=} state A state to generate an URL for
                 * @param {Object=} params A set of parameters to use when generating the url
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
                 *
                 * @description
                 * To build a url for a particular state, use `url`...
@@ -1648,6 +1645,19 @@ var $StateProvider = [
                 * @methodOf dotjem.routing.$state
                 *
                 * @param {State|string=} state A State or name to check against the current state.
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
+                *
+                * @description
+                * Checks if the current state matches the provided state.
+                *
+                * @returns {boolean} true if the stats mathces, otherwise false.
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#is
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
                 *
                 * @description
                 * Checks if the current state matches the provided state.
@@ -1673,14 +1683,27 @@ var $StateProvider = [
                         return browser.resolve(current, path, true);
                     },
                     reload: reload,
-                    url: function (state, params) {
-                        if(isDefined(state)) {
-                            //state = browser.lookup(toName(state));
-                            state = browser.resolve(current, toName(state), false);
-                        } else {
-                            state = current;
+                    url: function (arg1, arg2, arg3) {
+                        var state = current;
+                        if(arguments.length === 0) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                         }
-                        return urlbuilder.buildUrl($state.current, state, params);
+                        if(arguments.length === 1) {
+                            if(isBool(arg1)) {
+                                return urlbuilder.buildUrl($state.current, state, undefined, arg1);
+                            } else {
+                                state = browser.resolve(current, toName(arg1), false);
+                                return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                            }
+                        }
+                        if(isDefined(arg1)) {
+                            state = browser.resolve(current, toName(arg1), false);
+                        }
+                        if(isBool(arg2)) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, arg2);
+                        } else {
+                            return urlbuilder.buildUrl($state.current, state, arg2, arg3);
+                        }
                     },
                     is: function (state) {
                         return current.is(toName(state));
@@ -1737,13 +1760,17 @@ var $StateProvider = [
                 }, root).complete();
                 var running = context;
                 function goto(args) {
+                    var ctx, scrollTo, useUpdate = false, alllocals = {
+                    };
                     if(!running.ended) {
                         running.abort();
                     }
-                    var ctx = running = context.next(function (ctx) {
+                    ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
-                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
+                        context.promise = $q.when('');
+                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
@@ -1753,11 +1780,8 @@ var $StateProvider = [
                     if(ctx.ended) {
                         return;
                     }
-                    var scrollTo, useUpdate = false, alllocals = {
-                    };
-                    var promise = $q.when('');
                     forEach(ctx.changed.array, function (change) {
-                        promise = promise.then(function () {
+                        ctx.promise = ctx.promise.then(function () {
                             if(useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
@@ -1771,7 +1795,7 @@ var $StateProvider = [
                             scrollTo = change.state.scrollTo;
                         });
                     });
-                    promise.then(function () {
+                    ctx.promise.then(function () {
                         ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;
@@ -2161,36 +2185,11 @@ function $ViewProvider() {
             * <br/>
             * Views can also be refreshed by calling the `refresh` method.
             */
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.$view#update
-            * @methodOf dotjem.routing.$view
-            *
-            * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
-            * @param {string|object} template The template to be applied to the view. See {@link dotjem.routing.$template $template} on ways to define templates.
-            * @param {function=} controller The view confroller either as a function or a named controller defined on the module or a referenced module.
-            * @param {object=} locals An optional map of dependencies which should be injected into the controller.
-            * @param {string=} sticky A flag indicating that the view is sticky.
-            *
-            * @description
-            * Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
-            * <br/>
-            * If the view is marked sticky it will only force an update if the sticky flag is different than the previous one. In cases where it
-            * is the same the `$viewRefresh` event will be raised instead.
-            * <br/>
-            * Views can also be refreshed by calling the `refresh` method.
-            */
-            function update(name, templateOrArgs, controller, locals, sticky) {
-                var template = templateOrArgs;
-                if(isArgs(templateOrArgs)) {
-                    template = templateOrArgs.template;
-                    controller = templateOrArgs.controller;
-                    locals = templateOrArgs.locals;
-                    sticky = templateOrArgs.sticky;
-                }
+            function update(name, args) {
+                var template = args.template, controller = args.controller, locals = args.locals, sticky = args.sticky;
                 ensureName(name);
                 if(!trx.completed) {
-                    return trx.update(name, template, controller, locals, sticky);
+                    return trx.update(name, args);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -2203,7 +2202,7 @@ function $ViewProvider() {
                 views[name].template = $template.get(template);
                 views[name].controller = controller;
                 views[name].locals = locals;
-                if(isDefined(sticky) && isString(sticky) && views[name].sticky === sticky) {
+                if(checkSticky(name, sticky)) {
                     raiseRefresh(name, {
                         $locals: locals,
                         sticky: sticky
@@ -2216,6 +2215,9 @@ function $ViewProvider() {
                 return $view;
             }
             ;
+            function checkSticky(name, sticky) {
+                return isDefined(sticky) && isString(sticky) && name in views && views[name].sticky === sticky;
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#create
@@ -2229,33 +2231,16 @@ function $ViewProvider() {
             * - `template`: `{string|Object|function}` The template to be applied to the view. See {@link dotjem.routing.$template $template} on ways to define templates.
             * - `controller`: `{string|function=}` The view confroller either as a function or a named controller defined on the module or a referenced module.
             * - `locals`: `{Object=}` value An optional map of dependencies which should be injected into the controller.
+            * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             *
             * @description
             * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
             */
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.$view#create
-            * @methodOf dotjem.routing.$view
-            *
-            * @param {string} name The name of the view to update as defined with the {@link dotjem.routing.directive:jemView jemView} directive.
-            * @param {string|object} template The template to be applied to the view. See {@link dotjem.routing.$template $template} on ways to define templates.
-            * @param {function=} controller The view confroller either as a function or a named controller defined on the module or a referenced module.
-            * @param {object=} locals An optional map of dependencies which should be injected into the controller.
-            *
-            * @description
-            * Sets a named view if it is not yet known by the `$view` service of if it was cleared. If the view is already updated by another call this call will be ignored.
-            */
-            function create(name, templateOrArgs, controller, locals) {
-                var template = templateOrArgs;
-                if(isArgs(templateOrArgs)) {
-                    template = templateOrArgs.template;
-                    controller = templateOrArgs.controller;
-                    locals = templateOrArgs.locals;
-                }
+            function create(name, args) {
+                var template = args.template, controller = args.controller, locals = args.locals, sticky = args.sticky;
                 ensureName(name);
                 if(!trx.completed) {
-                    return trx.create(name, template, controller, locals);
+                    return trx.create(name, args);
                 }
                 if(!containsView(views, name)) {
                     views[name] = {
@@ -2263,6 +2248,7 @@ function $ViewProvider() {
                         $template.get(template),
                         controller: controller,
                         locals: locals,
+                        sticky: sticky,
                         version: 0
                     };
                     raiseUpdated(name);
@@ -2310,11 +2296,11 @@ function $ViewProvider() {
             function get(name) {
                 //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
-                    return views;
+                    return copy(views);
                 }
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
-                return views[name];
+                return copy(views[name]);
             }
             ;
             /**
@@ -2379,6 +2365,20 @@ function $ViewProvider() {
             * Only the final state will be applied, meaning that if the same view had recieved a series of updates, only an update
             * for the final state the view will take will be issues, if it causes the view to change state.
             */
+            function calculatePending(name, record) {
+                var exists = name in views, sticky = checkSticky(name, record.args.sticky);
+                switch(record.act) {
+                    case 'clear':
+                        return 'unload';
+                    case 'update':
+                        return sticky ? 'refresh' : 'update';
+                    case 'create':
+                        return exists ? 'keep' : 'load';
+                    case 'refresh':
+                        return 'refresh';
+                }
+                return 'invalid';
+            }
             /**
             * @ngdoc method
             * @name dotjem.routing.type:transaction#cancel
@@ -2397,6 +2397,23 @@ function $ViewProvider() {
                     }, trx;
                     return trx = {
                         completed: false,
+                        pending: function (name) {
+                            if(isDefined(name)) {
+                                var rec = records[name];
+                                return {
+                                    action: calculatePending(name, rec),
+                                    args: rec.args
+                                };
+                            }
+                            var result = {
+                            };
+                            forEach(records, function (val, key) {
+                                result[key] = {
+                                    action: calculatePending(key, val)
+                                };
+                            });
+                            return result;
+                        },
                         commit: function () {
                             if(trx.completed) {
                                 return;
@@ -2405,12 +2422,16 @@ function $ViewProvider() {
                             forEach(records, function (rec) {
                                 rec.fn();
                             });
+                            records = {
+                            };
+                            return trx;
                         },
                         cancel: function () {
                             raisePrepare(name, {
                                 type: 'cancel'
                             });
                             trx.completed = true;
+                            return trx;
                         },
                         clear: function (name) {
                             if(isUndefined(name)) {
@@ -2421,47 +2442,56 @@ function $ViewProvider() {
                             }
                             records[name] = {
                                 act: 'clear',
+                                args: {
+                                    name: name
+                                },
                                 fn: function () {
                                     clear(name);
                                 }
                             };
                             return trx;
                         },
-                        prepUpdate: function (name, template, controller, sticky) {
+                        prepUpdate: function (name, args) {
                             raisePrepare(name, {
                                 type: 'update'
                             });
                             return function (locals) {
-                                trx.update(name, template, controller, locals, sticky);
+                                args.locals = extend({
+                                }, args.locals, locals);
+                                trx.update(name, args);
                                 return trx;
                             };
                         },
-                        prepCreate: function (name, template, controller) {
+                        prepCreate: function (name, args) {
                             raisePrepare(name, {
                                 type: 'create'
                             });
                             return function (locals) {
-                                trx.create(name, template, controller, locals);
+                                args.locals = extend({
+                                }, args.locals, locals);
+                                trx.create(name, args);
                                 return trx;
                             };
                         },
-                        update: function (name, template, controller, locals, sticky) {
+                        update: function (name, args) {
                             ensureName(name);
                             records[name] = {
                                 act: 'update',
+                                args: args,
                                 fn: function () {
-                                    update(name, template, controller, locals, sticky);
+                                    update(name, args);
                                 }
                             };
                             return trx;
                         },
-                        create: function (name, template, controller, locals) {
+                        create: function (name, args) {
                             ensureName(name);
                             if(!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
                                     act: 'create',
+                                    args: args,
                                     fn: function () {
-                                        create(name, template, controller, locals);
+                                        create(name, args);
                                     }
                                 };
                             }
@@ -2476,6 +2506,10 @@ function $ViewProvider() {
                             }
                             records[name] = {
                                 act: 'refresh',
+                                args: {
+                                    name: name,
+                                    data: data
+                                },
                                 fn: function () {
                                     refresh(name, data);
                                 }
@@ -2583,7 +2617,13 @@ var State = (function () {
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
-        this._scrollTo = this._self.scrollTo || _parent && _parent.scrollTo || 'top';
+        this._scrollTo = 'top';
+        if(_parent && isDefined(_parent.scrollTo)) {
+            this._scrollTo = _parent.scrollTo;
+        }
+        if(isDefined(this._self.scrollTo)) {
+            this._scrollTo = this._self.scrollTo;
+        }
     }
     Object.defineProperty(State.prototype, "children", {
         get: function () {
@@ -2901,10 +2941,17 @@ var StateFactory = (function () {
 var StateRules = (function () {
     function StateRules() { }
     StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
     StateRules.validateName = function validateName(name) {
         if(!StateRules.nameValidation.test(name) || name === rootName) {
             throw new Error("Invalid name: '" + name + "'.");
         }
+    };
+    StateRules.validateTarget = function validateTarget(target) {
+        if(target === '*' || StateRules.targetValidation.test(target)) {
+            return true;
+        }
+        return false;
     };
     return StateRules;
 })();
@@ -2919,7 +2966,7 @@ var StateUrlBuilder = (function () {
     function StateUrlBuilder(route) {
         this.route = route;
     }
-    StateUrlBuilder.prototype.buildUrl = function (current, target, params) {
+    StateUrlBuilder.prototype.buildUrl = function (current, target, params, base) {
         var c = current;
         if(!target.route) {
             throw new Error("Can't build url for a state that doesn't have a url defined.");
@@ -2936,7 +2983,7 @@ var StateUrlBuilder = (function () {
             }
         });
         return this.route.format(target.route.route, extend(paramsObj, params || {
-        }));
+        }), base);
     };
     return StateUrlBuilder;
 })();
@@ -3031,7 +3078,7 @@ var cmd = {
     },
     before: function () {
         return function (context) {
-            context.emit.before(context.transition);
+            context.emit.before(context.transition, context.transaction);
             if(context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -3042,7 +3089,7 @@ var cmd = {
     },
     between: function ($rootScope) {
         return function (context) {
-            context.emit.between(context.transition);
+            context.emit.between(context.transition, context.transaction);
             if(context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -3057,7 +3104,7 @@ var cmd = {
                 context.transition.cancel = function () {
                     throw Error("Can't cancel transition in after handler");
                 };
-                context.emit.after(context.transition);
+                context.emit.after(context.transition, context.transaction);
                 $scroll(scrollTo);
             }
         };
@@ -3070,21 +3117,21 @@ var cmd = {
             forEach(context.changed.array, function (change) {
                 updating = updating || change.isChanged;
                 forEach(change.state.views, function (view, name) {
-                    var sticky, fn;
-                    if(sticky = view.sticky) {
-                        if(fn = injectFn(sticky)) {
-                            sticky = fn($injector, {
+                    var fn;
+                    if(isDefined(view.sticky)) {
+                        if(fn = injectFn(view.sticky)) {
+                            view.sticky = fn($injector, {
                                 $to: context.toState,
                                 $from: context.$state.current
                             });
-                        } else if(!isString(sticky)) {
-                            sticky = change.state.fullname;
+                        } else if(!isString(view.sticky)) {
+                            view.sticky = change.state.fullname;
                         }
                     }
-                    if(updating || view.force || isDefined(sticky)) {
-                        context.prepUpdate(change.state.fullname, name, view.template, view.controller, sticky);
+                    if(updating || view.force || isDefined(view.sticky)) {
+                        context.prepUpdate(change.state.fullname, name, view);
                     } else {
-                        context.prepCreate(change.state.fullname, name, view.template, view.controller);
+                        context.prepCreate(change.state.fullname, name, view);
                     }
                 });
             });
@@ -3154,15 +3201,15 @@ var Context = (function () {
         return this;
     };
     Context.prototype.prepUpdate = // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
-    function (state, name, template, controller, sticky) {
+    function (state, name, args) {
         var prep = (this._prep[state] = this._prep[state] || {
         });
-        prep[name] = this.transaction.prepUpdate(name, template, controller, sticky);
+        prep[name] = this.transaction.prepUpdate(name, args);
     };
-    Context.prototype.prepCreate = function (state, name, template, controller) {
+    Context.prototype.prepCreate = function (state, name, args) {
         var prep = (this._prep[state] = this._prep[state] || {
         });
-        prep[name] = this.transaction.prepCreate(name, template, controller);
+        prep[name] = this.transaction.prepCreate(name, args);
     };
     Context.prototype.completePrep = function (state, locals) {
         forEach(this._prep[state], function (value, key) {
@@ -3200,102 +3247,112 @@ var Context = (function () {
 */
 var jemViewDirective = [
     '$state', 
-    '$scroll', 
     '$compile', 
     '$controller', 
     '$view', 
-    '$animator', 
+    '$animate', 
     '$template', 
-    function ($state, $scroll, $compile, $controller, $view, $animator, $template) {
+    function ($state, $compile, $controller, $view, $animate, $template) {
         'use strict';
         return {
             restrict: 'ECA',
             terminal: true,
-            link: function (scope, element, attr) {
-                var viewScope, controller, name = attr.jemView || attr.name, doAnimate = isDefined(attr.ngAnimate), onloadExp = attr.onload || '', animate = $animator(scope, attr), version = -1, loader = attr.loader && scope.$eval(attr.loader) || null, activeLoader;
-                scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                    if(updatedName === name) {
-                        update(doAnimate);
-                    }
-                });
-                scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
-                    if(refreshName === name) {
-                        if(isFunction(viewScope.refresh)) {
-                            viewScope.refresh(refreshData);
-                        } else {
-                            viewScope.$broadcast('$refresh', refreshName, refreshData);
+            priority: 1000,
+            transclude: 'element',
+            compile: function (element, attr, linker) {
+                return function (scope, element, attr) {
+                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
+                    scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
+                        if(updatedName === name) {
+                            update(true);
                         }
-                    }
-                });
-                scope.$on('$viewPrep', function (event, prepName, data) {
-                    if(prepName === name && data.type === 'update') {
-                        displayLoader();
-                    } else if(data.type === 'cancel') {
-                        removeLoader();
-                    }
-                });
-                update(false);
-                function removeLoader() {
-                    if(isDefined(activeLoader)) {
-                        activeLoader.remove();
-                        activeLoader = undefined;
-                        element.contents().show();
-                    }
-                }
-                function displayLoader() {
-                    if(loader !== null) {
-                        $template.get(loader).then(function (html) {
-                            element.contents().hide();
-                            element.append(activeLoader = angular.element(html));
-                        });
-                    }
-                }
-                function destroyScope() {
-                    if(viewScope) {
-                        viewScope.$destroy();
-                        viewScope = null;
-                    }
-                }
-                function clearContent(doAnimate) {
-                    if(doAnimate) {
-                        animate.leave(element.contents(), element);
-                    } else {
-                        element.html('');
-                    }
-                    destroyScope();
-                }
-                function update(doAnimate) {
-                    var view = $view.get(name), controller;
-                    if(view && view.template) {
-                        if(view.version === version) {
-                            return;
-                        }
-                        version = view.version;
-                        controller = view.controller;
-                        view.template.then(function (html) {
-                            clearContent(doAnimate);
-                            if(doAnimate) {
-                                animate.enter(angular.element('<div></div>').html(html).contents(), element);
+                    });
+                    scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
+                        if(refreshName === name) {
+                            if(isFunction(viewScope.refresh)) {
+                                viewScope.refresh(refreshData);
                             } else {
-                                element.html(html);
+                                viewScope.$broadcast('$refresh', refreshName, refreshData);
                             }
-                            var link = $compile(element.contents()), locals;
-                            viewScope = scope.$new();
-                            if(controller) {
-                                locals = copy(view.locals);
-                                locals.$scope = viewScope;
-                                controller = $controller(controller, locals);
-                                element.contents().data('$ngControllerController', controller);
-                            }
-                            link(viewScope);
-                            viewScope.$emit('$viewContentLoaded');
-                            viewScope.$eval(onloadExp);
-                        });
-                    } else {
-                        version = -1;
-                        clearContent(doAnimate);
+                        }
+                    });
+                    scope.$on('$viewPrep', function (event, prepName, data) {
+                        if(prepName === name && data.type === 'update') {
+                            displayLoader();
+                        } else if(data.type === 'cancel') {
+                            removeLoader();
+                        }
+                    });
+                    update(false);
+                    function removeLoader() {
+                        if(isDefined(activeLoader)) {
+                            activeLoader.remove();
+                            activeLoader = undefined;
+                            element.contents().show();
+                        }
                     }
-                }
+                    function displayLoader() {
+                        if(loader !== null) {
+                            loader.then(function (html) {
+                                element.contents().hide();
+                                element.append(activeLoader = angular.element(html));
+                            });
+                        }
+                    }
+                    function cleanupView(doAnimate) {
+                        if(viewScope) {
+                            viewScope.$destroy();
+                            viewScope = null;
+                        }
+                        if(viewElement) {
+                            if(doAnimate) {
+                                $animate.leave(viewElement);
+                            } else {
+                                viewElement.remove();
+                            }
+                            viewElement = null;
+                        }
+                    }
+                    function update(doAnimate) {
+                        var view = $view.get(name), controller;
+                        if(view && view.template) {
+                            if(view.version === version) {
+                                return;
+                            }
+                            version = view.version;
+                            controller = view.controller;
+                            view.template.then(function (html) {
+                                var newScope = scope.$new();
+                                linker(newScope, function (clone) {
+                                    cleanupView(doAnimate);
+                                    clone.html(html);
+                                    if(doAnimate) {
+                                        $animate.enter(clone, null, element);
+                                    } else {
+                                        element.after(clone);
+                                    }
+                                    var link = $compile(clone.contents()), locals;
+                                    viewScope = newScope;
+                                    viewElement = clone;
+                                    if(controller) {
+                                        locals = extend({
+                                        }, view.locals);
+                                        locals.$scope = viewScope;
+                                        controller = $controller(controller, locals);
+                                        clone.data('$ngControllerController', controller);
+                                        clone.children().data('$ngControllerController', controller);
+                                    }
+                                    link(viewScope);
+                                    viewScope.$emit('$viewContentLoaded');
+                                    viewScope.$eval(onloadExp);
+                                });
+                            });
+                        } else {
+                            version = -1;
+                            cleanupView(doAnimate);
+                        }
+                    }
+                };
             }
         };
     }];
@@ -3407,17 +3464,29 @@ var jemLinkDirective = [
                         element.removeClass(attrs.activeClass);
                     }
                 }
-                scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
-                if(tag in attr) {
-                    attrs.$observe('params', apply);
-                    attrs.$observe('sref', apply);
-                } else {
-                    element.click(function () {
-                        scope.$apply(function () {
-                            $state.goto(scope.sref, scope.params);
-                        });
+                function onClick() {
+                    scope.$apply(function () {
+                        var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+                        $state.goto(sref, params);
                     });
                 }
+                ;
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                activeFn();
+                if(tag in attr) {
+                    if(isDefined(attrs.params)) {
+                        scope.$watch(attrs.params, apply, true);
+                    }
+                    //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
+                    //attrs.$observe('params', apply);
+                    attrs.$observe('sref', apply);
+                } else {
+                    element.bind('click', onClick);
+                }
+                scope.$on('$destroy', function () {
+                    element.unbind('click', onClick);
+                    deregistration();
+                });
             }
         };
     }];

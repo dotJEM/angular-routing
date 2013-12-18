@@ -129,7 +129,7 @@ var $StateProvider = [
         }), browser = new StateBrowser(root), comparer = new StateComparer();
         /**
         * @ngdoc method
-        * @name dotjem.$stateProvider#state
+        * @name dotjem.routing.$stateProvider#state
         * @methodOf dotjem.routing.$stateProvider
         *
         * @param {string} fullname Full name of the state, use '.' to seperate parent and child states.
@@ -393,6 +393,7 @@ var $StateProvider = [
                 *
                 * @param {State|string=} state A state to generate an URL for
                 * @param {Object=} params A set of parameters to use when generating the url
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
                 *
                 * @description
                 * To build a url for a particular state, use `url`...
@@ -405,6 +406,19 @@ var $StateProvider = [
                 * @methodOf dotjem.routing.$state
                 *
                 * @param {State|string=} state A State or name to check against the current state.
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
+                *
+                * @description
+                * Checks if the current state matches the provided state.
+                *
+                * @returns {boolean} true if the stats mathces, otherwise false.
+                */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#is
+                * @methodOf dotjem.routing.$state
+                *
+                * @param {Boolean=} basePath If true (default) the basePath is used when generating the url, otherwas not.
                 *
                 * @description
                 * Checks if the current state matches the provided state.
@@ -430,14 +444,27 @@ var $StateProvider = [
                         return browser.resolve(current, path, true);
                     },
                     reload: reload,
-                    url: function (state, params) {
-                        if(isDefined(state)) {
-                            //state = browser.lookup(toName(state));
-                            state = browser.resolve(current, toName(state), false);
-                        } else {
-                            state = current;
+                    url: function (arg1, arg2, arg3) {
+                        var state = current;
+                        if(arguments.length === 0) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                         }
-                        return urlbuilder.buildUrl($state.current, state, params);
+                        if(arguments.length === 1) {
+                            if(isBool(arg1)) {
+                                return urlbuilder.buildUrl($state.current, state, undefined, arg1);
+                            } else {
+                                state = browser.resolve(current, toName(arg1), false);
+                                return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                            }
+                        }
+                        if(isDefined(arg1)) {
+                            state = browser.resolve(current, toName(arg1), false);
+                        }
+                        if(isBool(arg2)) {
+                            return urlbuilder.buildUrl($state.current, state, undefined, arg2);
+                        } else {
+                            return urlbuilder.buildUrl($state.current, state, arg2, arg3);
+                        }
                     },
                     is: function (state) {
                         return current.is(toName(state));
@@ -494,13 +521,17 @@ var $StateProvider = [
                 }, root).complete();
                 var running = context;
                 function goto(args) {
+                    var ctx, scrollTo, useUpdate = false, alllocals = {
+                    };
                     if(!running.ended) {
                         running.abort();
                     }
-                    var ctx = running = context.next(function (ctx) {
+                    ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
-                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
+                        context.promise = $q.when('');
+                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
@@ -510,11 +541,8 @@ var $StateProvider = [
                     if(ctx.ended) {
                         return;
                     }
-                    var scrollTo, useUpdate = false, alllocals = {
-                    };
-                    var promise = $q.when('');
                     forEach(ctx.changed.array, function (change) {
-                        promise = promise.then(function () {
+                        ctx.promise = ctx.promise.then(function () {
                             if(useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
@@ -528,7 +556,7 @@ var $StateProvider = [
                             scrollTo = change.state.scrollTo;
                         });
                     });
-                    promise.then(function () {
+                    ctx.promise.then(function () {
                         ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;

@@ -88,10 +88,22 @@ $state.goto('home.child', { homeParam: 4 } );
 </ul>
 </div>
 </li>
-<li><h3 id="is">is(state)</h3>
+<li><h3 id="is">is(state, basePath)</h3>
 <div class="is"><p>Checks if the current state matches the provided state.</p><h4 id="Parameters">Parameters</h4>
 <ul class="parameters"><li><code ng:non-bindable="">state<i>(optional)</i> – {State|string=} – </code>
 <p>A State or name to check against the current state.</p></li>
+<li><code ng:non-bindable="">basePath<i>(optional)</i> – {Boolean=} – </code>
+<p>If true (default) the basePath is used when generating the url, otherwas not.</p></li>
+</ul>
+<h4 id="Returns">Returns</h4>
+<div class="returns"><code ng:non-bindable="">{boolean}</code>
+– <p>true if the stats mathces, otherwise false.</p></div>
+</div>
+</li>
+<li><h3 id="is">is(basePath)</h3>
+<div class="is"><p>Checks if the current state matches the provided state.</p><h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">basePath<i>(optional)</i> – {Boolean=} – </code>
+<p>If true (default) the basePath is used when generating the url, otherwas not.</p></li>
 </ul>
 <h4 id="Returns">Returns</h4>
 <div class="returns"><code ng:non-bindable="">{boolean}</code>
@@ -165,7 +177,7 @@ Finally if  <code>.reload('state.full.name')</code> is called, views etc. will b
 </ul>
 </div>
 </li>
-<li><h3 id="url">url(state, params)</h3>
+<li><h3 id="url">url(state, params, basePath)</h3>
 <div class="url"><p>To build a url for a particular state, use <code>url</code>...
 <br/><br/>
 If the state defined either by state, or current state does not have an route associated with it, it will throw an error.</p><h4 id="Parameters">Parameters</h4>
@@ -173,6 +185,8 @@ If the state defined either by state, or current state does not have an route as
 <p>A state to generate an URL for</p></li>
 <li><code ng:non-bindable="">params<i>(optional)</i> – {Object=} – </code>
 <p>A set of parameters to use when generating the url</p></li>
+<li><code ng:non-bindable="">basePath<i>(optional)</i> – {Boolean=} – </code>
+<p>If true (default) the basePath is used when generating the url, otherwas not.</p></li>
 </ul>
 </div>
 </li>

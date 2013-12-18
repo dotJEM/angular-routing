@@ -87,6 +87,18 @@ describe('$stateProvider', function () {
                 expect(stringifyState($state.root)).toBe("(blog())");
             });
         });
+        it('can define onEnter', function () {
+            mod(function ($stateProvider) {
+                $stateProvider.state('blog', {
+                    name: 'blog',
+                    onEnter: function () {
+                    }
+                });
+            });
+            inject(function ($state) {
+                expect(stringifyState($state.root)).toBe("(blog())");
+            });
+        });
         it('can define state hierarchy using . notation', function () {
             mod(function ($stateProvider) {
                 $stateProvider.state('blog', {
@@ -546,51 +558,56 @@ describe('$stateProvider', function () {
                 expect($state.current.name).toBe('top');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'top', 
-                    'top tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.top')
+                        template: "top tpl",
+                        sticky: test.nameWithRoot('root.top'),
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/top/sub');
                 expect($state.current.name).toBe('sub');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'top', 
-                    'top tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.top')
+                        template: "top tpl",
+                        sticky: test.nameWithRoot('root.top'),
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'foo', 
-                    'foo tpl', 
-                    undefined, 
                     {
-                    }, 
-                    'imSticky'
+                        template: 'foo tpl',
+                        sticky: 'imSticky',
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/ban');
                 expect($state.current.name).toBe('ban');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'ban', 
-                    'ban tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.ban')
+                        template: 'ban tpl',
+                        sticky: test.nameWithRoot('root.ban'),
+                        locals: {
+                        }
+                    }
                 ]);
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'ban', 
-                    'ban tpl', 
-                    undefined, 
                     {
-                    }, 
-                    test.nameWithRoot('root.ban.tar')
+                        template: 'ban tpl',
+                        sticky: test.nameWithRoot('root.ban.tar'),
+                        locals: {
+                        }
+                    }
                 ]);
             });
         });
@@ -1170,6 +1187,90 @@ describe('$stateProvider', function () {
                 expect($state.url()).toBe('/gallery/4224/details/1');
             });
         });
+        it('builds route with parameters and basepath by default', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url()).toBe('/base/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                })).toBe('/base/gallery/51');
+                expect($state.url('gallery')).toBe('/base/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                })).toBe('/base/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url()).toBe('/base/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url()).toBe('/base/gallery/4224/details/1');
+            });
+        });
+        it('builds route with parameters and basepath', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url(true)).toBe('/base/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                }, true)).toBe('/base/gallery/51');
+                expect($state.url('gallery', true)).toBe('/base/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                }, true)).toBe('/base/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url(true)).toBe('/base/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url(true)).toBe('/base/gallery/4224/details/1');
+            });
+        });
+        it('builds route with parameters and without basepath', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('gallery', {
+                    id: 42
+                });
+                expect($state.url(false)).toBe('/gallery/42');
+                expect($state.url(undefined, {
+                    id: 51
+                }, false)).toBe('/gallery/51');
+                expect($state.url('gallery', false)).toBe('/gallery/42');
+                expect($state.url('gallery', {
+                    id: 51
+                }, false)).toBe('/gallery/51');
+                goto('gallery', {
+                    id: 4224
+                });
+                expect($state.url(false)).toBe('/gallery/4224');
+                goto('gallery.details', {
+                    id: 4224,
+                    page: 1
+                });
+                expect($state.url(false)).toBe('/gallery/4224/details/1');
+            });
+        });
         it('builds route with search parameters', function () {
             inject(function ($location, $route, $state) {
                 goto('gallery', {
@@ -1199,6 +1300,48 @@ describe('$stateProvider', function () {
                     search: 'search',
                     other: 'other'
                 })).toBe('/gallery/4224/details/1?search=search&other=other');
+            });
+        });
+        it('builds route without base path', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('blog');
+                expect($state.url(false)).toBe('/blog');
+                expect($state.url('blog', false)).toBe('/blog');
+                goto('about.other');
+                expect($state.url(false)).toBe('/about/other');
+                expect($state.url('about.other', false)).toBe('/about/other');
+            });
+        });
+        it('builds route with base path', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('blog');
+                expect($state.url(true)).toBe('/base/blog');
+                expect($state.url('blog', true)).toBe('/base/blog');
+                goto('about.other');
+                expect($state.url(true)).toBe('/base/about/other');
+                expect($state.url('about.other', true)).toBe('/base/about/other');
+            });
+        });
+        it('builds route with basepath by default', function () {
+            mod(function ($locationProvider) {
+                $locationProvider.html5Mode(true);
+            });
+            inject(function ($location, $route, $state, $browser) {
+                spyOn($browser, 'baseHref').andReturn('/base');
+                goto('blog');
+                expect($state.url()).toBe('/base/blog');
+                expect($state.url('blog')).toBe('/base/blog');
+                goto('about.other');
+                expect($state.url()).toBe('/base/about/other');
+                expect($state.url('about.other')).toBe('/base/about/other');
             });
         });
     });
@@ -1243,6 +1386,35 @@ describe('$stateProvider', function () {
                 expect($state.is('fubar')).toBe(false);
                 goto('about.other');
                 expect($state.is('about.fubar')).toBe(false);
+            });
+        });
+    });
+    describe("scrollTo", function () {
+        beforeEach(mod('dotjem.routing', function ($stateProvider, $stateTransitionProvider) {
+            $stateProvider.state('about', {
+                scrollTo: null
+            }).state('about.cv', {
+                scrollTo: 'scollid'
+            }).state('about.cv.child', {
+            }).state('about.other', {
+            }).state('other', {
+            });
+            return function ($rootScope, $state) {
+                scope = $rootScope;
+                state = $state;
+            };
+        }));
+        function goto(target, params) {
+            state.goto(target, params);
+            scope.$digest();
+        }
+        it('true on matched states', function () {
+            inject(function ($location, $route, $state) {
+                expect($state.root.children.about.scrollTo).toBeNull();
+                expect($state.root.children.about.children.cv.scrollTo).toBe('scollid');
+                expect($state.root.children.about.children.cv.children.child.scrollTo).toBe('scollid');
+                expect($state.root.children.about.children.other.scrollTo).toBeNull();
+                expect($state.root.children.other.scrollTo).toBe('top');
             });
         });
     });
@@ -1611,11 +1783,11 @@ describe('$stateProvider', function () {
             return function ($rootScope, $state, $view) {
                 loc = [];
                 var trx = $view.beginUpdate();
-                spyOn(trx, 'update').andCallFake(function (name, template, controller, locals, sticky) {
-                    loc.push(locals);
+                spyOn(trx, 'update').andCallFake(function (name, args) {
+                    loc.push(args.locals);
                 });
-                spyOn(trx, 'create').andCallFake(function (name, template, controller, locals) {
-                    loc.push(locals);
+                spyOn(trx, 'create').andCallFake(function (name, args) {
+                    loc.push(args.locals);
                 });
                 spyOn($view, 'beginUpdate').andReturn(trx);
                 scope = $rootScope;

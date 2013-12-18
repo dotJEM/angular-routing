@@ -88,7 +88,7 @@ var cmd = {
     },
     before: function () {
         return function (context) {
-            context.emit.before(context.transition);
+            context.emit.before(context.transition, context.transaction);
             if(context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -99,7 +99,7 @@ var cmd = {
     },
     between: function ($rootScope) {
         return function (context) {
-            context.emit.between(context.transition);
+            context.emit.between(context.transition, context.transaction);
             if(context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
@@ -114,7 +114,7 @@ var cmd = {
                 context.transition.cancel = function () {
                     throw Error("Can't cancel transition in after handler");
                 };
-                context.emit.after(context.transition);
+                context.emit.after(context.transition, context.transaction);
                 $scroll(scrollTo);
             }
         };
@@ -127,21 +127,21 @@ var cmd = {
             forEach(context.changed.array, function (change) {
                 updating = updating || change.isChanged;
                 forEach(change.state.views, function (view, name) {
-                    var sticky, fn;
-                    if(sticky = view.sticky) {
-                        if(fn = injectFn(sticky)) {
-                            sticky = fn($injector, {
+                    var fn;
+                    if(isDefined(view.sticky)) {
+                        if(fn = injectFn(view.sticky)) {
+                            view.sticky = fn($injector, {
                                 $to: context.toState,
                                 $from: context.$state.current
                             });
-                        } else if(!isString(sticky)) {
-                            sticky = change.state.fullname;
+                        } else if(!isString(view.sticky)) {
+                            view.sticky = change.state.fullname;
                         }
                     }
-                    if(updating || view.force || isDefined(sticky)) {
-                        context.prepUpdate(change.state.fullname, name, view.template, view.controller, sticky);
+                    if(updating || view.force || isDefined(view.sticky)) {
+                        context.prepUpdate(change.state.fullname, name, view);
                     } else {
-                        context.prepCreate(change.state.fullname, name, view.template, view.controller);
+                        context.prepCreate(change.state.fullname, name, view);
                     }
                 });
             });
