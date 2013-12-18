@@ -13,8 +13,8 @@
  * angular.module('demo', ['dotjem.routing']).
  *   config(['$stateProvider', function($stateProvider) {
  *   $stateProvider
- *       .state('phones', { /*.. Parameters for the state ..*\/ })
- *       .state('tablets', { /*.. Parameters for the state ..*\/ });
+ *       .state('phones', { ...Parameters for the state... })
+ *       .state('tablets', { ...Parameters for the state... });
  * }]);
  * </pre>
  * 
@@ -68,8 +68,8 @@
  *          }
  *        })
  *    }])
- *    .controller('PhonesCtrl', ['$scope', function ($scope) { /*...*\/ }])
- *    .controller('TabletsCtrl', ['$scope', function ($scope) { /*...*\/ }]);
+ *    .controller('PhonesCtrl', ['$scope', function ($scope) { ... }])
+ *    .controller('TabletsCtrl', ['$scope', function ($scope) { ... }]);
  * </pre>
  * <br/>
  * ### Nested States
@@ -109,9 +109,9 @@
  *         }
  *     })
  * }])
- *  .controller('PhonesCtrl', ['$scope', function ($scope) { /*...*\/ }])
- *  .controller('PhonesListCtrl', ['$scope', function ($scope) { /*...*\/ }])
- *  .controller('PhonesDetailsCtrl', ['$scope', function ($scope) { /*...*\/ }]);
+ *  .controller('PhonesCtrl', ['$scope', function ($scope) { ... }])
+ *  .controller('PhonesListCtrl', ['$scope', function ($scope) { ... }])
+ *  .controller('PhonesDetailsCtrl', ['$scope', function ($scope) { ... }]);
  * </pre>
  *
  * The above may indicate that views also has a child to parent relation in the naming, but this is merely a good naming convention, there is no constraint on how views are named.
