@@ -83,8 +83,9 @@ var cmd = {
                     allFrom = context.$state.params.$all;
 
                 forEach(route.params, function (param, name) {
-                    if (name in allFrom)
+                    if (name in allFrom) {
                         paramsObj[name] = allFrom[name];
+                    }
                 });
 
                 var mergedParams = extend(paramsObj, context.params.$all);
@@ -128,7 +129,6 @@ var cmd = {
                     throw Error("Can't cancel transition in after handler");
                 };
                 context.emit.after(context.transition, context.transaction);
-
                 $scroll(scrollTo);
             }
         };

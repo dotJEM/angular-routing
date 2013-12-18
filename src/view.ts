@@ -133,8 +133,9 @@ function $ViewProvider() {
          * Clears the named view.
          */
         function clear(name?: string) {
-            if (!trx.completed)
+            if (!trx.completed) {
                 return trx.clear(name);
+            }
 
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
@@ -177,8 +178,9 @@ function $ViewProvider() {
                 sticky = args.sticky;
 
             ensureName(name);
-            if (!trx.completed)
+            if (!trx.completed) {
                 return trx.update(name, args);
+            }
 
             if (!containsView(views, name)) {
                 views[name] = { version: -1 };
@@ -234,8 +236,9 @@ function $ViewProvider() {
                 sticky = args.sticky;
 
             ensureName(name);
-            if (!trx.completed)
+            if (!trx.completed) {
                 return trx.create(name, args);
+            }
 
             if (!containsView(views, name)) {
                 views[name] = {
@@ -291,9 +294,9 @@ function $ViewProvider() {
          * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
          */
         function get (name?: string) {
-            //TODO: return copies instead of actuals...
-            if (isUndefined(name))
+            if (isUndefined(name)) {
                 return copy(views);
+            }
 
             // Ensure checks if the view was defined at any point, not if it is still defined.
             // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
@@ -321,8 +324,9 @@ function $ViewProvider() {
          * Refreshes a named view.
          */
         function refresh(name?: string, data?: any) {
-            if (!trx.completed)
+            if (!trx.completed) {
                 return trx.refresh(name, data);
+            }
 
             if (isUndefined(name)) {
                 forEach(views, (val, key) => {
@@ -397,8 +401,9 @@ function $ViewProvider() {
             return 'invalid';
         }
         function beginUpdate(): dotjem.routing.IViewTransaction {
-            if (!trx.completed)
+            if (!trx.completed) {
                 throw new Error("Can't start multiple transactions");
+            }
 
             return trx = createTransaction();
 
@@ -421,8 +426,9 @@ function $ViewProvider() {
                         return result;
                     },
                     commit: function () {
-                        if (trx.completed)
-                            return;
+                        if (trx.completed) {
+                            return trx;
+                        }
 
                         trx.completed = true;
                         forEach(records, (rec) => {

@@ -15,8 +15,9 @@ class StateBrowser {
 
 
         for (; i < names.length - stop; i++) {
-            if (!(names[i] in current.children))
+            if (!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
+            }
 
             current = current.children[names[i]];
         }
@@ -46,13 +47,16 @@ class StateBrowser {
             });
         }
 
-        if (selected === this.root)
+        if (selected === this.root) {
             throw Error(errors.expressionOutOfBounds);
+        }
 
-        if (selected)
-            if (wrap)
+        if (selected) {
+            if (wrap) {
                 return copy(selected.self);
+            }
             return selected;
+        }
         return undefined;
     }
 
@@ -63,12 +67,14 @@ class StateBrowser {
         forEach(selected.parent.children, (child) => {
             children.push(child);
 
-            if (selected.fullname === child.fullname)
+            if (selected.fullname === child.fullname) {
                 currentIndex = children.length - 1;
+            }
         });
 
-        while (index < 0)
+        while (index < 0) {
             index += children.length;
+        }
 
         index = (currentIndex + index) % children.length;
         return children[index];
@@ -76,22 +82,25 @@ class StateBrowser {
 
     private select(origin, exp: string, selected: State): State {
         if (exp === '.') {
-            if (origin !== selected)
+            if (origin !== selected) {
                 throw Error(errors.invalidBrowserPathExpression);
+            }
 
             return selected;
         }
 
         if (exp === '..') {
-            if (isUndefined(selected.parent))
+            if (isUndefined(selected.parent)) {
                 throw Error(errors.expressionOutOfBounds);
+            }
 
             return selected.parent;
         }
 
         if (exp === '') {
-            if (origin !== selected)
+            if (origin !== selected) {
                 throw Error(errors.invalidBrowserPathExpression);
+            }
 
             return this.root;
         }

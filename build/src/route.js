@@ -549,15 +549,17 @@ var $RouteProvider = [
                     },
                     change: function (args) {
                         var params = args.params || {
-                        }, route = interpolate(args.route, params), loc = $location.path(route).search(params || {
-                        });
+                        }, route = interpolate(args.route, params), loc = $location.path(route).search(params);
                         if(args.replace) {
                             loc.replace();
                         }
                     },
                     format: function (route, arg2, arg3) {
-                        var arg2 = arg2 || {
-                        }, arg3 = isDefined(arg3) ? arg3 : true, interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+                        var interpolated;
+                        arg2 = arg2 || {
+                        };
+                        arg3 = isDefined(arg3) ? arg3 : true;
+                        interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
                         if($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }

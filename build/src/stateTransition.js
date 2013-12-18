@@ -326,7 +326,6 @@ function $StateTransitionProvider() {
     function validate(from, to) {
         var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
         if(fromValid && toValid) {
-            // && from !== to
             return;
         }
         if(fromValid) {
@@ -335,8 +334,6 @@ function $StateTransitionProvider() {
         if(toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
         }
-        //if (from === to && from.indexOf('*') === -1)
-        //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
     function lookup(name) {
@@ -411,7 +408,7 @@ function $StateTransitionProvider() {
                 return path;
             }
             function compare(one, to) {
-                var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r, i = 0;
+                var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r;
                 while(true) {
                     l = left.pop();
                     r = right.pop();
@@ -425,7 +422,6 @@ function $StateTransitionProvider() {
                         return true;
                     }
                 }
-                return true;
             }
             function extractHandlers(transitions, to) {
                 var handlers = [];

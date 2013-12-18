@@ -33,14 +33,17 @@ function $TemplateProvider() {
         }
 
         function getFromObject(obj): ng.IPromise {
-            if (isDefined(obj.url))
+            if (isDefined(obj.url)) {
                 return getFromUrl(obj.url);
+            }
 
-            if (isDefined(obj.fn))
+            if (isDefined(obj.fn)) {
                 return getFromFunction(obj.fn);
+            }
 
-            if (isDefined(obj.html))
+            if (isDefined(obj.html)) {
                 return $q.when(obj.html);
+            }
 
             throw new Error("Object must define url, fn or html.");
         }
@@ -71,16 +74,19 @@ function $TemplateProvider() {
         var $template = {
             'get': function (template): ng.IPromise {
                 if (isString(template)) {
-                    if (urlmatcher.test(template))
+                    if (urlmatcher.test(template)) {
                         return getFromUrl(template);
+                    }
                     return $q.when(template);
                 }
 
-                if (isFunction(template) || isArray(template))
+                if (isFunction(template) || isArray(template)) {
                     return getFromFunction(template);
+                }
 
-                if (isObject(template))
+                if (isObject(template)) {
                     return getFromObject(template);
+                }
 
                 throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
             }

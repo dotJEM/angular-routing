@@ -42,8 +42,8 @@ var StateBrowser = (function () {
             if(wrap) {
                 return copy(selected.self);
             }
+            return selected;
         }
-        return selected;
         return undefined;
     };
     StateBrowser.prototype.selectSibling = function (index, selected) {

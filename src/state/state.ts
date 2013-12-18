@@ -20,14 +20,16 @@ class State {
     get parent(): State { return this._parent; }
     get route(): any { return this._route; }
     get root(): State {
-        if (this.parent === null)
+        if (this.parent === null) {
             return this;
+        }
         return this._parent.root;
     }
 
     set route(value: any) {
-        if (isUndefined(value))
+        if (isUndefined(value)) {
             throw Error(errors.routeCannotBeUndefined);
+        }
         this._route = value;
     }
 
@@ -54,11 +56,13 @@ class State {
 
         this._scrollTo = 'top';
 
-        if (_parent && isDefined(_parent.scrollTo))
+        if (_parent && isDefined(_parent.scrollTo)) {
             this._scrollTo = _parent.scrollTo;
+        }
 
-        if (isDefined(this._self.scrollTo))
+        if (isDefined(this._self.scrollTo)) {
             this._scrollTo = this._self.scrollTo;
+        }
     }
 
     public add(child: State): State {
@@ -77,8 +81,9 @@ class State {
     }
 
     public isActive(state: string) {
-        if (this.is(state))
+        if (this.is(state)) {
             return true;
+        }
 
         return this.parent && this.parent.isActive(state) || false;
     }

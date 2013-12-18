@@ -26,16 +26,18 @@ function ($state, $route) {
                 attr = { a: 'href', form: 'action' },
                 activeFn = noop;
 
-            if (isDefined(attrs.activeClass))
-                activeFn = active;
+            if (isDefined(attrs.activeClass)) {
+                  activeFn = active;
+            }
 
             function apply() {
                 var sref = scope.$eval(attrs.sref),
                     params = scope.$eval(attrs.params),
                     link = $state.url(sref, params);
                 //NOTE: Is this correct for forms?
-                if (!html5)
+                if (!html5) {
                     link = '#' + prefix + link;
+                }
 
                 element.attr(attr[tag], link);
             }

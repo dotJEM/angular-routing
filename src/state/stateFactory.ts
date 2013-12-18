@@ -18,8 +18,9 @@ class StateFactory {
             route = route.substr(0, route.length - 1);
         }
 
-        if (stateRoute[0] !== '/' && stateRoute !== '')
+        if (stateRoute[0] !== '/' && stateRoute !== '') {
             route += '/';
+        }
         route += stateRoute;
 
         return this.routes.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
@@ -27,8 +28,9 @@ class StateFactory {
 
     public createState(fullname: string, state: dotjem.routing.IState, parent?: State): State {
         var name = fullname.split('.').pop();
-        if (isDefined(parent))
+        if (isDefined(parent)) {
             fullname = parent.fullname + "." + name;
+        }
 
         var stateObj = new State(name, fullname, state, parent);
 

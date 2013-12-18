@@ -684,15 +684,17 @@ var $RouteProvider = [
                     },
                     change: function (args) {
                         var params = args.params || {
-                        }, route = interpolate(args.route, params), loc = $location.path(route).search(params || {
-                        });
+                        }, route = interpolate(args.route, params), loc = $location.path(route).search(params);
                         if(args.replace) {
                             loc.replace();
                         }
                     },
                     format: function (route, arg2, arg3) {
-                        var arg2 = arg2 || {
-                        }, arg3 = isDefined(arg3) ? arg3 : true, interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+                        var interpolated;
+                        arg2 = arg2 || {
+                        };
+                        arg3 = isDefined(arg3) ? arg3 : true;
+                        interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
                         if($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
@@ -1104,7 +1106,6 @@ function $StateTransitionProvider() {
     function validate(from, to) {
         var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
         if(fromValid && toValid) {
-            // && from !== to
             return;
         }
         if(fromValid) {
@@ -1113,8 +1114,6 @@ function $StateTransitionProvider() {
         if(toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
         }
-        //if (from === to && from.indexOf('*') === -1)
-        //    throw new Error("Invalid transition - from and to can't be the same.");
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
     function lookup(name) {
@@ -1189,7 +1188,7 @@ function $StateTransitionProvider() {
                 return path;
             }
             function compare(one, to) {
-                var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r, i = 0;
+                var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r;
                 while(true) {
                     l = left.pop();
                     r = right.pop();
@@ -1203,7 +1202,6 @@ function $StateTransitionProvider() {
                         return true;
                     }
                 }
-                return true;
             }
             function extractHandlers(transitions, to) {
                 var handlers = [];
@@ -2295,7 +2293,6 @@ function $ViewProvider() {
             * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             */
             function get(name) {
-                //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
                     return copy(views);
                 }
@@ -2425,7 +2422,7 @@ function $ViewProvider() {
                         },
                         commit: function () {
                             if(trx.completed) {
-                                return;
+                                return trx;
                             }
                             trx.completed = true;
                             forEach(records, function (rec) {
@@ -2786,8 +2783,8 @@ var StateBrowser = (function () {
             if(wrap) {
                 return copy(selected.self);
             }
+            return selected;
         }
-        return selected;
         return undefined;
     };
     StateBrowser.prototype.selectSibling = function (index, selected) {

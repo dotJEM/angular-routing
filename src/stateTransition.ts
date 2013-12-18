@@ -186,23 +186,29 @@ function $StateTransitionProvider() {
     function alignHandler(obj) {
         var result: any = { handler: {} };
 
-        if (isDefined(obj.to))
+        if (isDefined(obj.to)) {
             result.to = obj.to;
+        }
 
-        if (isDefined(obj.from))
+        if (isDefined(obj.from)) {
             result.from = obj.from;
+        }
 
-        if (isDefined(obj.handler)) 
+        if (isDefined(obj.handler)) {
             result.handler = obj.handler;
+        }
         
-        if (isDefined(obj.before) && isUndefined(result.handler.before)) 
+        if (isDefined(obj.before) && isUndefined(result.handler.before)) {
             result.handler.before = obj.before;
+        }
         
-        if (isDefined(obj.between) && isUndefined(result.handler.between)) 
+        if (isDefined(obj.between) && isUndefined(result.handler.between)) {
             result.handler.between = obj.between;
+        }
         
-        if (isDefined(obj.after) && isUndefined(result.handler.after)) 
+        if (isDefined(obj.after) && isUndefined(result.handler.after)) {
             result.handler.after = obj.after;
+        }
         
         return result;
     }
@@ -305,8 +311,9 @@ function $StateTransitionProvider() {
             // We ignore the situation where to and from are the same explicit state.
             // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
             // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
-            if (to === from && to.indexOf('*') === -1)
+            if (to === from && to.indexOf('*') === -1) {
                 return this;
+            }
 
             validate(from, to);
 
@@ -328,17 +335,17 @@ function $StateTransitionProvider() {
         var fromValid = StateRules.validateTarget(from), 
             toValid = StateRules.validateTarget(to);
 
-        if (fromValid && toValid) // && from !== to
+        if (fromValid && toValid) {
             return;
+        }
 
-        if (fromValid)
+        if (fromValid) {
             throw new Error("Invalid transition - to: '" + to + "'.");
+        }
 
-        if (toValid)
+        if (toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
-
-        //if (from === to && from.indexOf('*') === -1)
-        //    throw new Error("Invalid transition - from and to can't be the same.");
+        }
 
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
@@ -352,8 +359,9 @@ function $StateTransitionProvider() {
             i = names[0] === rootName ? 1:0;
 
         for (; i < names.length; i++) {
-            if (!(names[i] in current.children))
+            if (!(names[i] in current.children)) {
                 current.children[names[i]] = { children: {}, targets: {} };
+            }
             current = current.children[names[i]];
         }
         return current;
@@ -403,30 +411,34 @@ function $StateTransitionProvider() {
         }
 
         function trimRoot(path: string[]) {
-            if (path[0] === rootName)
+            if (path[0] === rootName) {
                 path.splice(0,1);
+            }
             return path;
         }
 
         function compare(one: string, to: string) {
             var left = trimRoot(one.split('.')).reverse(),
                 right = trimRoot(to.split('.')).reverse(),
-                l, r, i = 0;
+                l,
+                r;
 
             while (true) {
                 l = left.pop();
                 r = right.pop();
 
-                if (r === '*' || l === '*')
+                if (r === '*' || l === '*') {
                     return true;
+                }
 
-                if (l !== r)
+                if (l !== r) {
                     return false;
+                }
 
-                if (!isDefined(l) || !isDefined(r))
+                if (!isDefined(l) || !isDefined(r)) {
                     return true;
+                }
             }
-            return true;
         }
 
         function extractHandlers(transitions, to) {
@@ -440,7 +452,6 @@ function $StateTransitionProvider() {
                     }
                 });
             });
-
             return handlers;
         }
 
@@ -451,7 +462,6 @@ function $StateTransitionProvider() {
                 index = names[0] === rootName ? 1: 0;
 
             do {
-
                 if ('*' in current.children) {
                     transitions.push(current.children['*']);
                 }

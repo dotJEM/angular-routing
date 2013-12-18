@@ -533,8 +533,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 useUpdate = false,
                 alllocals = {};
 
-            if (!running.ended)
+            if (!running.ended) {
                 running.abort();
+            }
 
             ctx = running = context.next(function (ctx: Context) { context = ctx; });
             ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
@@ -552,8 +553,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 .execute(cmd.beginTransaction($view, $injector))
                 .execute(cmd.before())
                 .execute(function (context: Context) {
-                    if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented)
+                    if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
                         context.abort();
+                    }
                 });
 
             if (ctx.ended) {
@@ -563,8 +565,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             forEach(ctx.changed.array, function (change) {
 
                 ctx.promise = ctx.promise.then(function () {
-                    if (useUpdate = useUpdate || change.isChanged)
+                    if (useUpdate = useUpdate || change.isChanged) {
                         $resolve.clear(change.state.resolve);
+                    }
 
                     return $resolve.all(change.state.resolve, alllocals, { $to: ctx.toState, $from: $state.current });
                 }).then(function (locals) {

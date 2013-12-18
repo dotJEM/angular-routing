@@ -74,7 +74,9 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                     activeLoader: JQuery;
 
                 scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                    if (updatedName === name) update(true);
+                    if (updatedName === name) {
+                        update(true);
+                    }
                 });
 
                 scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
@@ -136,8 +138,9 @@ function ($state, $compile, $controller, $view: dotjem.routing.IViewService, $an
                         controller;
 
                     if (view && view.template) {
-                        if (view.version === version)
+                        if (view.version === version) {
                             return;
+                        }
 
                         version = view.version;
                         controller = view.controller;

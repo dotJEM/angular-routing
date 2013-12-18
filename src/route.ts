@@ -274,34 +274,34 @@ var $RouteProvider = [<any>'$locationProvider',
                     converter = createParameter(param.name, param.converter, param.args).converter(),
                     paramValue = params[param.name];
 
-                if (isUndefined(paramValue))
+                if (isUndefined(paramValue)) {
                     throw Error("Could not find parameter '"
                         + param.name
                         + "' when building url for route '"
                         + url
                         + "', ensure that all required parameters are provided.");
+                }
 
-                if (!isFunction(converter) && isDefined(converter.format))
+                if (!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
+                }
 
                 name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
             });
             name += url.substr(index);
-
-
-
             return name;
         }
-        
+
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path: string): IParam[] {
             var match: RegExpExecArray,
                 params = [];
 
-            if (path === null)
+            if (path === null) {
                 return params;
+            }
 
             while ((match = paramsRegex.exec(path)) !== null) {
                 params.push({
@@ -325,14 +325,17 @@ var $RouteProvider = [<any>'$locationProvider',
                 flags = '',
                 params = {};
 
-            if (path === null) return { name: null, params: params };
-            if (path === '/')
+            if (path === null) {
+                return { name: null, params: params };
+            }
+            if (path === '/') {
                 return {
                     exp: new RegExp('^[\x2F]?$', flags),
                     segments: [],
                     name: name,
                     params: params
                 };
+            }
 
             forEach(parseParams(path), (param: IParam, idx) => {
                 var cname = '';
@@ -343,8 +346,9 @@ var $RouteProvider = [<any>'$locationProvider',
                 } else {
                     regex += '/([^\\/]*)';
                 }
-                if (param.converter !== '')
+                if (param.converter !== '') {
                     cname = ":" + param.converter;
+                }
 
                 name += path.slice(index, param.index) + '/$' + idx + cname;
 
@@ -364,8 +368,9 @@ var $RouteProvider = [<any>'$locationProvider',
                 flags += 'i';
             }
 
-            if (regex[regex.length - 1] === '\x2F')
+            if (regex[regex.length - 1] === '\x2F') {
                 regex = regex.substr(0, regex.length - 1);
+            }
 
             return {
                 exp: new RegExp(regex + '\x2F?$', flags),
@@ -376,8 +381,9 @@ var $RouteProvider = [<any>'$locationProvider',
         }
 
         function createMatcher(path: string, expression: IExpression) {
-            if (path == null)
+            if (path == null) {
                 return noop;
+            }
 
             return (location: string) => {
                 var match = location.match(expression.exp),
@@ -393,23 +399,27 @@ var $RouteProvider = [<any>'$locationProvider',
                         if (!invalidParam) {
                             param = match[index + 1];
                             converter = segment.converter();
-                            if (!isFunction(converter) && isDefined(converter.parse))
+                            if (!isFunction(converter) && isDefined(converter.parse)) {
                                 converter = converter.parse;
+                            }
                             value = converter(param);
                             if (isDefined(value.accept)) {
-                                if (!value.accept)
+                                if (!value.accept) {
                                     invalidParam = true;
+                                }
                                 dst[segment.name] = value.value;
                             } else {
-                                if (!value)
+                                if (!value) {
                                     invalidParam = true;
+                                }
                                 dst[segment.name] = param;
                             }
                         }
                     });
 
-                    if (!invalidParam)
+                    if (!invalidParam) {
                         return dst;
+                    }
                 }
             };
         }
@@ -425,8 +435,9 @@ var $RouteProvider = [<any>'$locationProvider',
                     };
                 },
                 format: (value) => {
-                    if (isNaN(value))
+                    if (isNaN(value)) {
                         throw new Error(errors.invalidNumericValue);
+                    }
                     return value.toString();
                 }
             };
@@ -439,8 +450,9 @@ var $RouteProvider = [<any>'$locationProvider',
 
             if (isObject(arg) && isDefined(arg.exp)) {
                 exp = arg.exp;
-                if (isDefined(arg.flags))
+                if (isDefined(arg.flags)) {
                     flags = arg.flags;
+                }
 
             } else if (isString(arg) && arg.length > 0) {
                 exp = arg;
@@ -460,8 +472,9 @@ var $RouteProvider = [<any>'$locationProvider',
                 format: (value) => {
                     var str = value.toString();
                     var test = regex.test(str);
-                    if (!test)
+                    if (!test) {
                         throw Error(errors.valueCouldNotBeMatchedByRegex);
+                    }
                     return str;
                 }
             };
@@ -613,18 +626,20 @@ var $RouteProvider = [<any>'$locationProvider',
                             route = interpolate(args.route, params),
                             loc = $location
                                 .path(route)
-                                .search(params || {});
+                                .search(params);
 
-                        if (args.replace)
+                        if (args.replace) {
                             loc.replace();
+                        }
                     },
                     format: function (route: string, arg2?: any, arg3?: bool) {
-                        var arg2 = arg2 || {},
-                            arg3 = isDefined(arg3) ? arg3 : true,
-                            interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
+                        var interpolated;
+                        arg2 = arg2 || {};
+                        arg3 = isDefined(arg3) ? arg3 : true;
+                        interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
 
                         if ($locationProvider.html5Mode() && arg3) {
-                            interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g,'/');
+                            interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;
                     }
@@ -683,7 +698,9 @@ var $RouteProvider = [<any>'$locationProvider',
                     if (!event.defaultPrevented) {
                         $route.current = nextRoute;
 
-                        if (next) next.redirect($location, nextRoute);
+                        if (next) {
+                            next.redirect($location, nextRoute);
+                        }
 
                         var dp: ng.IPromise = $q.when(nextRoute);
                         if (nextRoute) {
@@ -697,7 +714,9 @@ var $RouteProvider = [<any>'$locationProvider',
                         }
                         dp.then(() => {
                             if (nextRoute === $route.current) {
-                                if (next) angular.copy(nextRoute.params, $routeParams);
+                                if (next) {
+                                    angular.copy(nextRoute.params, $routeParams);
+                                }
                                 $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_SUCCESS, nextRoute, lastRoute);
                             }
                         }, (error) => {

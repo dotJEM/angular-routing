@@ -62,8 +62,9 @@ class Context {
     public abort() {
         if (!this.ended) {
             this.aborted = true;
-            if (this.transaction && !this.transaction.completed)
+            if (this.transaction && !this.transaction.completed) {
                 this.transaction.cancel();
+            }
         }
         return this;
     }

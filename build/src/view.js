@@ -270,7 +270,6 @@ function $ViewProvider() {
             * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             */
             function get(name) {
-                //TODO: return copies instead of actuals...
                 if(isUndefined(name)) {
                     return copy(views);
                 }
@@ -400,7 +399,7 @@ function $ViewProvider() {
                         },
                         commit: function () {
                             if(trx.completed) {
-                                return;
+                                return trx;
                             }
                             trx.completed = true;
                             forEach(records, function (rec) {
