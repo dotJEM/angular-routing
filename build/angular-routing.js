@@ -1910,7 +1910,7 @@ var $ResolveProvider = [
                             }
                             values.push(cache[key]);
                         } catch (e) {
-                            def.reject("Could not resolve " + key);
+                            def.reject("Could not resolve " + key + ", error was: " + e);
                         }
                     });
                     $q.all(values).then(function (values) {

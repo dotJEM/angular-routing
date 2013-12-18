@@ -93,7 +93,7 @@ var $ResolveProvider = [function () {
                     }
                     values.push(cache[key]);
                 } catch (e) {
-                    def.reject("Could not resolve " + key);
+                    def.reject("Could not resolve " + key +  ", error was: " + e);
                 }
             });
 
