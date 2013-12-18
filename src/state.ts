@@ -126,8 +126,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
     //      they are right now.
     var factory = new StateFactory($routeProvider, $transitionProvider),
         root = factory.createState(rootName, {}),
-        browser = new StateBrowser(root),
-        comparer = new StateComparer();
+        browser = new StateBrowser(root);
 
     /**
      * @ngdoc method
@@ -158,11 +157,12 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
      *    
      * - `views`: `{Object=}` A list og views to be updated when the state is activated.
      * - `route`: `{string=}` A route to associate the state with, 
-     *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+     *    this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+     * - `resolve`: `{Object=}` A list of values to resolve before the state transition completes.
      * - `onEnter`: `{string|function|Object=}` value 
      * - `onExit`: `{string|function|Object=}` value 
      * - `reloadOnSearch`: `{boolean=}` If associated with a route, should that route reload on search. 
-     * - `scrollTo`: {string=} � A element to scroll to when the state has been loaded.
+     * - `scrollTo`: {string=} An element defined by it's id to scroll to when the state has been loaded.
      *
      * @returns {Object} self
      *
@@ -524,7 +524,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             });
         }
 
-        var context = new Context($state, (ctx: Context) => { }, root).complete();
+        var context = new Context($state, () => { }, root).complete();
         var running = context;
 
         function goto(args: { state; params; updateroute?; }) {
@@ -544,7 +544,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 .execute(cmd.createEmitter($transition))
                 .execute(cmd.buildChanges(forceReload))
                 .execute(cmd.createTransition(goto))
-                .execute(function (context: Context) {
+                .execute(function () {
                     forceReload = null;
                 })
                 .execute(cmd.raiseUpdate($rootScope))

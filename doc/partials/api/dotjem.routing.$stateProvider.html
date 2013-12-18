@@ -154,10 +154,11 @@ It then becomes possible to register "home.recents" as a child named "recents" u
 <li><code>views</code>: <code>{Object=}</code> A list og views to be updated when the state is activated.</li>
 <li><code>route</code>: <code>{string=}</code> A route to associate the state with,
 this will be registered with the <a href="#/api/dotjem.routing.$routeProvider">$routeProvider</a></li>
+<li><code>resolve</code>: <code>{Object=}</code> A list of values to resolve before the state transition completes.</li>
 <li><code>onEnter</code>: <code>{string|function|Object=}</code> value</li>
 <li><code>onExit</code>: <code>{string|function|Object=}</code> value</li>
 <li><code>reloadOnSearch</code>: <code>{boolean=}</code> If associated with a route, should that route reload on search.</li>
-<li><code>scrollTo</code>: {string=} � A element to scroll to when the state has been loaded.</li>
+<li><code>scrollTo</code>: {string=} An element defined by it's id to scroll to when the state has been loaded.</li>
 </ul></li>
 </ul>
 <h4 id="Returns">Returns</h4>

@@ -1365,7 +1365,7 @@ var $StateProvider = [
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
                 var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {
-        }), browser = new StateBrowser(root), comparer = new StateComparer();
+        }), browser = new StateBrowser(root);
         /**
         * @ngdoc method
         * @name dotjem.routing.$stateProvider#state
@@ -1395,11 +1395,12 @@ var $StateProvider = [
         *
         * - `views`: `{Object=}` A list og views to be updated when the state is activated.
         * - `route`: `{string=}` A route to associate the state with,
-        *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+        *    this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+        * - `resolve`: `{Object=}` A list of values to resolve before the state transition completes.
         * - `onEnter`: `{string|function|Object=}` value
         * - `onExit`: `{string|function|Object=}` value
         * - `reloadOnSearch`: `{boolean=}` If associated with a route, should that route reload on search.
-        * - `scrollTo`: {string=} � A element to scroll to when the state has been loaded.
+        * - `scrollTo`: {string=} An element defined by it's id to scroll to when the state has been loaded.
         *
         * @returns {Object} self
         *
@@ -1756,7 +1757,7 @@ var $StateProvider = [
                         });
                     });
                 }
-                var context = new Context($state, function (ctx) {
+                var context = new Context($state, function () {
                 }, root).complete();
                 var running = context;
                 function goto(args) {
@@ -1770,7 +1771,7 @@ var $StateProvider = [
                     });
                     ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
                         context.promise = $q.when('');
-                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
@@ -2365,6 +2366,22 @@ function $ViewProvider() {
             * Only the final state will be applied, meaning that if the same view had recieved a series of updates, only an update
             * for the final state the view will take will be issues, if it causes the view to change state.
             */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.type:transaction#cancel
+            * @methodOf dotjem.routing.type:transaction
+            *
+            * @description
+            * Cancels the view transaction, discarding any changes that may have been recorded.
+            */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.type:transaction#pending
+            * @methodOf dotjem.routing.type:transaction
+            *
+            * @description
+            * Returns all pending changes.
+            */
             function calculatePending(name, record) {
                 var exists = name in views, sticky = checkSticky(name, record.args.sticky);
                 switch(record.act) {
@@ -2379,14 +2396,6 @@ function $ViewProvider() {
                 }
                 return 'invalid';
             }
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.type:transaction#cancel
-            * @methodOf dotjem.routing.type:transaction
-            *
-            * @description
-            * Cancels the view transaction, discarding any changes that may have been recorded.
-            */
             function beginUpdate() {
                 if(!trx.completed) {
                     throw new Error("Can't start multiple transactions");

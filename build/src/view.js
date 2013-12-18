@@ -341,6 +341,22 @@ function $ViewProvider() {
             * Only the final state will be applied, meaning that if the same view had recieved a series of updates, only an update
             * for the final state the view will take will be issues, if it causes the view to change state.
             */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.type:transaction#cancel
+            * @methodOf dotjem.routing.type:transaction
+            *
+            * @description
+            * Cancels the view transaction, discarding any changes that may have been recorded.
+            */
+            /**
+            * @ngdoc method
+            * @name dotjem.routing.type:transaction#pending
+            * @methodOf dotjem.routing.type:transaction
+            *
+            * @description
+            * Returns all pending changes.
+            */
             function calculatePending(name, record) {
                 var exists = name in views, sticky = checkSticky(name, record.args.sticky);
                 switch(record.act) {
@@ -355,14 +371,6 @@ function $ViewProvider() {
                 }
                 return 'invalid';
             }
-            /**
-            * @ngdoc method
-            * @name dotjem.routing.type:transaction#cancel
-            * @methodOf dotjem.routing.type:transaction
-            *
-            * @description
-            * Cancels the view transaction, discarding any changes that may have been recorded.
-            */
             function beginUpdate() {
                 if(!trx.completed) {
                     throw new Error("Can't start multiple transactions");

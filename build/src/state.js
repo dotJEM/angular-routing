@@ -126,7 +126,7 @@ var $StateProvider = [
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
                 var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {
-        }), browser = new StateBrowser(root), comparer = new StateComparer();
+        }), browser = new StateBrowser(root);
         /**
         * @ngdoc method
         * @name dotjem.routing.$stateProvider#state
@@ -156,11 +156,12 @@ var $StateProvider = [
         *
         * - `views`: `{Object=}` A list og views to be updated when the state is activated.
         * - `route`: `{string=}` A route to associate the state with,
-        *   this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+        *    this will be registered with the {@link dotjem.routing.$routeProvider $routeProvider}
+        * - `resolve`: `{Object=}` A list of values to resolve before the state transition completes.
         * - `onEnter`: `{string|function|Object=}` value
         * - `onExit`: `{string|function|Object=}` value
         * - `reloadOnSearch`: `{boolean=}` If associated with a route, should that route reload on search.
-        * - `scrollTo`: {string=} � A element to scroll to when the state has been loaded.
+        * - `scrollTo`: {string=} An element defined by it's id to scroll to when the state has been loaded.
         *
         * @returns {Object} self
         *
@@ -517,7 +518,7 @@ var $StateProvider = [
                         });
                     });
                 }
-                var context = new Context($state, function (ctx) {
+                var context = new Context($state, function () {
                 }, root).complete();
                 var running = context;
                 function goto(args) {
@@ -531,7 +532,7 @@ var $StateProvider = [
                     });
                     ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
                         context.promise = $q.when('');
-                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function (context) {
+                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
                         if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
