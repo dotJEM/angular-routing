@@ -30,6 +30,7 @@ var cmd = {
     createTransition: function (gotofn) {
         return function (context) {
             var trx = {
+                locals: context.locals,
                 canceled: false,
                 cancel: function () {
                     trx.canceled = true;

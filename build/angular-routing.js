@@ -1759,8 +1759,7 @@ var $StateProvider = [
                 }, root).complete();
                 var running = context;
                 function goto(args) {
-                    var ctx, scrollTo, useUpdate = false, alllocals = {
-                    };
+                    var ctx, scrollTo, useUpdate = false;
                     if(!running.ended) {
                         running.abort();
                     }
@@ -1769,6 +1768,8 @@ var $StateProvider = [
                     });
                     ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
                         context.promise = $q.when('');
+                        context.locals = {
+                        };
                     }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
                         forceReload = null;
                     }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
@@ -1784,13 +1785,13 @@ var $StateProvider = [
                             if(useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
-                            return $resolve.all(change.state.resolve, alllocals, {
+                            return $resolve.all(change.state.resolve, context.locals, {
                                 $to: ctx.toState,
                                 $from: $state.current
                             });
                         }).then(function (locals) {
-                            ctx.completePrep(change.state.fullname, alllocals = extend({
-                            }, alllocals, locals));
+                            ctx.completePrep(change.state.fullname, context.locals = extend({
+                            }, context.locals, locals));
                             scrollTo = change.state.scrollTo;
                         });
                     });
@@ -3026,6 +3027,7 @@ var cmd = {
     createTransition: function (gotofn) {
         return function (context) {
             var trx = {
+                locals: context.locals,
                 canceled: false,
                 cancel: function () {
                     trx.canceled = true;

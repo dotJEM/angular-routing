@@ -13,6 +13,7 @@ class Context {
     public params: any;
     public emit: any;
     public changed: any;
+    public locals: any;
     public toState: any;
     public transition: any;
     public transaction: dotjem.routing.IViewTransaction;

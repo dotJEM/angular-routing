@@ -43,6 +43,7 @@ var cmd = {
     createTransition: function (gotofn): ICommand {
         return function (context: Context) {
             var trx = {
+                locals: context.locals,
                 canceled: false,
                 cancel: function () {
                     trx.canceled = true;

@@ -530,8 +530,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         function goto(args: { state; params; updateroute?; }) {
             var ctx,
                 scrollTo,
-                useUpdate = false,
-                alllocals = {};
+                useUpdate = false;
 
             if (!running.ended) {
                 running.abort();
@@ -541,6 +540,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
                 .execute(function (context) {
                     context.promise = $q.when('');
+                    context.locals = {};
                 })
                 .execute(cmd.createEmitter($transition))
                 .execute(cmd.buildChanges(forceReload))
@@ -569,10 +569,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         $resolve.clear(change.state.resolve);
                     }
 
-                    return $resolve.all(change.state.resolve, alllocals, { $to: ctx.toState, $from: $state.current });
+                    return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
                 }).then(function (locals) {
 
-                    ctx.completePrep(change.state.fullname, alllocals = extend({}, alllocals, locals));
+                    ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
                     scrollTo = change.state.scrollTo;
                 });
 
