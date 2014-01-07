@@ -7,6 +7,7 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - npm install -g karma
   - npm install karma-jasmine
+  - npm install karma-phantomjs-launcher
   - npm install -g typescript
   - npm install -g grunt-cli
   - ./nodeserver.sh > /dev/null &
