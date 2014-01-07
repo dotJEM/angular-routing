@@ -22,7 +22,9 @@
     }
   ],
   "dependencies": {},
-  "devDependencies": {
+  "devDependencies": {,
+    "karma-jasmine": "~0.1.5",
+    
     "grunt": "~0.4.1",
     "grunt-typescript": "~0.1.2",
     "grunt-contrib-jshint": "~0.3.0",
@@ -35,8 +37,7 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-ngdocs": "~0.1.5",
     "grunt-karma": "~0.7.1",
-    "grunt-tslint": "~0.3.2",
-    "karma-jasmine": "~0.1.5"
+    "grunt-tslint": "~0.3.2"
   },
   "keywords": []
 }
