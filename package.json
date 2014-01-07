@@ -23,6 +23,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "karma": "~0.10.9",
     "karma-jasmine": "~0.1.5",
     
     "grunt": "~0.4.1",
