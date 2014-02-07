@@ -13,23 +13,23 @@ module.exports = function (grunt) {
         typescript: {
             src: {
                 src: ['src/**/*.ts'],
-                dest: 'build/src',
+                dest: 'build',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    base_path: 'src',
+                    base_path: '',
                     sourcemap: false,
-                    declaration: false,
+                    declaration: true,
                     comments: true
                 }
             },
             test: {
                 src: ['test/**/*.ts'],
-                dest: 'build/test',
+                dest: 'build',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    base_path: 'test',
+                    base_path: '',
                     sourcemap: false,
                     declaration: false,
                     comments: true
@@ -52,6 +52,7 @@ module.exports = function (grunt) {
                         'build/src/template.js',
                         'build/src/view.js',
                         'build/src/scroll.js',
+                        'build/src/inject.js',
                         'build/src/state/state.js',
                         'build/src/state/stateBrowser.js',
                         'build/src/state/stateComparer.js',
@@ -67,9 +68,9 @@ module.exports = function (grunt) {
                 dest: 'build/<%= pkg.name %>.js'
             },
             legacy: {
-                src: ['build/src/legacy/prefix',
-                        'build/src/legacy/templateDecorator.js',
-                        'build/src/legacy/suffix'
+                src: ['src/legacy/prefix',
+                      'build/src/legacy/templateDecorator.js',
+                      'src/legacy/suffix'
                 ],
                 dest: 'build/<%= pkg.name %>.legacy.js'
             }
@@ -165,7 +166,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-copy');

@@ -7,7 +7,7 @@
  */
 var dotjem;
 (function(window, document, dotjem, undefined) {
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="refs.d.ts" />
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
@@ -19,51 +19,59 @@ var dotjem;
 * Module that provides state based routing, deeplinking services and directives for angular apps.
 */
 angular.module('dotjem.routing', []);
+
 var isDefined = angular.isDefined, isUndefined = angular.isUndefined, isFunction = angular.isFunction, isString = angular.isString, isObject = angular.isObject, isArray = angular.isArray, isBool = function (arg) {
     return typeof arg === 'boolean';
 }, forEach = angular.forEach, extend = angular.extend, copy = angular.copy, equals = angular.equals, element = angular.element, noop = angular.noop, rootName = '$root';
+
 function inherit(parent, extra) {
     return extend(new (extend(function () {
-    }, {
-        prototype: parent
-    }))(), extra);
+    }, { prototype: parent }))(), extra);
 }
+
 function toName(named) {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
-function injectFn(arg) {
-    if(isFunction(arg)) {
-        return function (injector, locals) {
-            return injector.invoke(arg, arg, locals);
-        };
-    } else if(isArray(arg)) {
-        var fn = arg[arg.length - 1];
-        return function (injector, locals) {
-            return injector.invoke(arg, fn, locals);
-        };
+
+function isArrayAnnotatedFunction(array) {
+    if (!isArray(array)) {
+        return false;
     }
-    return null;
+
+    var error = Error('Incorrect injection annotation! Expected an array of strings with the last element as a function');
+    for (var i = 0, l = array.length; i < l; i++) {
+        if (i < l - 1) {
+            if (!isString(array[i])) {
+                throw error;
+            }
+        } else if (!isFunction(array[i])) {
+            if (!isString(array[i])) {
+                throw error;
+            }
+        }
+    }
+    return true;
 }
+
+function isInjectable(fn) {
+    return isArrayAnnotatedFunction(fn) || isFunction(fn);
+}
+
 function buildParams(all, path, search) {
-    var par = copy(all || {
-    });
-    par.$all = copy(all || {
-    });
-    par.$path = copy(path || {
-    });
-    par.$search = copy(search || {
-    });
+    var par = copy(all || {});
+    par.$all = copy(all || {});
+    par.$path = copy(path || {});
+    par.$search = copy(search || {});
     return par;
 }
+
 function buildParamsFromObject(params) {
-    var par = copy(params && params.all || {
-    });
-    par.$path = copy(params && params.path || {
-    });
-    par.$search = copy(params && params.search || {
-    });
+    var par = copy(params && params.all || {});
+    par.$path = copy(params && params.path || {});
+    par.$search = copy(params && params.search || {});
     return par;
 }
+
 //TODO: Taken fom Angular core, copied as it wasn't registered in their API, and couln't figure out if it was
 //      a function of thie angular object.
 function toKeyValue(obj, prepend) {
@@ -73,6 +81,7 @@ function toKeyValue(obj, prepend) {
     });
     return parts.length ? prepend + parts.join('&') : '';
 }
+
 /**
 * We need our custom method because encodeURIComponent is too aggressive and doesn't follow
 * http://www.ietf.org/rfc/rfc3986.txt with regards to the character set (pchar) allowed in path
@@ -89,6 +98,7 @@ function toKeyValue(obj, prepend) {
 function encodeUriSegment(val) {
     return encodeUriQuery(val, true).replace(/%26/gi, '&').replace(/%3D/gi, '=').replace(/%2B/gi, '+');
 }
+
 /**
 * This method is intended for encoding *key* or *value* parts of query component. We need a custom
 * method because encodeURIComponent is too aggressive and encodes stuff that doesn't have to be
@@ -105,10 +115,12 @@ function encodeUriSegment(val) {
 function encodeUriQuery(val, pctEncodeSpaces) {
     return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
+
 var esc = /[-\/\\^$*+?.()|[\]{}]/g;
 function escapeRegex(exp) {
     return exp.replace(esc, "\\$&");
 }
+
 var errors = {
     routeCannotBeUndefined: 'Can not set route to undefined.',
     valueCouldNotBeMatchedByRegex: "Value could not be matched by the regular expression parameter.",
@@ -118,6 +130,7 @@ var errors = {
     expressionOutOfBounds: "Expression out of bounds.",
     couldNotFindStateForPath: "Could find state for path."
 };
+
 var EVENTS = {
     LOCATION_CHANGE: '$locationChangeSuccess',
     ROUTE_UPDATE: '$routeUpdate',
@@ -133,9 +146,7 @@ var EVENTS = {
     VIEW_PREP: '$viewPrep'
 };
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 'use strict';
 /**
 * @ngdoc object
@@ -145,13 +156,11 @@ var EVENTS = {
 * Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 */
 var $RouteProvider = [
-    '$locationProvider', 
+    '$locationProvider',
     function ($locationProvider) {
         var _this = this;
-        var routes = {
-        }, converters = {
-        }, decorators = {
-        }, caseSensitive = true;
+        var routes = {}, converters = {}, decorators = {}, caseSensitive = true;
+
         //Public Methods
         /**
         * @ngdoc method
@@ -180,6 +189,7 @@ var $RouteProvider = [
             converters[name] = converter;
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#when
@@ -239,14 +249,13 @@ var $RouteProvider = [
         this.when = function (path, route) {
             var expression = parseExpression(path);
             routes[expression.name] = {
-                self: extend({
-                    reloadOnSearch: true
-                }, route),
+                self: extend({ reloadOnSearch: true }, route),
                 redirect: createRedirector(route.redirectTo),
                 match: createMatcher(path, expression),
                 params: expression.params,
                 path: path
             };
+
             return {
                 convert: _this.convert,
                 when: _this.when,
@@ -261,6 +270,7 @@ var $RouteProvider = [
                 }
             };
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#otherwise
@@ -278,6 +288,7 @@ var $RouteProvider = [
             _this.when(null, route);
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#decorate
@@ -296,6 +307,7 @@ var $RouteProvider = [
             decorators[name] = decorator;
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#ignoreCase
@@ -310,6 +322,7 @@ var $RouteProvider = [
             caseSensitive = false;
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#matchCase
@@ -324,13 +337,14 @@ var $RouteProvider = [
             caseSensitive = true;
             return _this;
         };
+
         //Scoped Methods
         function createRedirector(redirectTo) {
             var fn = null;
             return function ($location, next) {
-                if(fn === null) {
-                    if(redirectTo) {
-                        if(isString(redirectTo)) {
+                if (fn === null) {
+                    if (redirectTo) {
+                        if (isString(redirectTo)) {
                             fn = function ($location, next) {
                                 var interpolated = interpolate(redirectTo, next.params);
                                 $location.path(interpolated).search(next.params).replace();
@@ -347,18 +361,21 @@ var $RouteProvider = [
                 return fn($location, next);
             };
         }
+
         function createParameter(name, converter, cargs) {
             var trimmed;
-            if(cargs) {
+
+            if (cargs) {
                 trimmed = cargs.trim();
-                if((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') || (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
+                if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') || (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
                     try  {
                         cargs = angular.fromJson(trimmed);
                     } catch (e) {
                         //Note: Errors are ok here, we let it remain as a string.
-                                            }
+                    }
                 }
             }
+
             return {
                 name: name,
                 converter: function () {
@@ -366,19 +383,23 @@ var $RouteProvider = [
                 }
             };
         }
+
         function interpolate(url, params) {
             //TODO: Are we missing calls to some "Encode URI component"?
-                        var name = "", index = 0;
+            var name = "", index = 0;
             forEach(parseParams(url), function (param) {
                 var formatter = function (val) {
                     return val.toString();
                 }, converter = createParameter(param.name, param.converter, param.args).converter(), paramValue = params[param.name];
-                if(isUndefined(paramValue)) {
+
+                if (isUndefined(paramValue)) {
                     throw Error("Could not find parameter '" + param.name + "' when building url for route '" + url + "', ensure that all required parameters are provided.");
                 }
-                if(!isFunction(converter) && isDefined(converter.format)) {
+
+                if (!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
                 }
+
                 name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
@@ -386,13 +407,16 @@ var $RouteProvider = [
             name += url.substr(index);
             return name;
         }
+
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path) {
             var match, params = [];
-            if(path === null) {
+
+            if (path === null) {
                 return params;
             }
-            while((match = paramsRegex.exec(path)) !== null) {
+
+            while ((match = paramsRegex.exec(path)) !== null) {
                 params.push({
                     name: match[4] || match[11],
                     catchAll: (match[3] || match[10]) === '*',
@@ -402,18 +426,17 @@ var $RouteProvider = [
                     lastIndex: paramsRegex.lastIndex
                 });
             }
+
             return params;
         }
+
         function parseExpression(path) {
-            var regex = "^", name = "", segments = [], index = 0, flags = '', params = {
-            };
-            if(path === null) {
-                return {
-                    name: null,
-                    params: params
-                };
+            var regex = "^", name = "", segments = [], index = 0, flags = '', params = {};
+
+            if (path === null) {
+                return { name: null, params: params };
             }
-            if(path === '/') {
+            if (path === '/') {
                 return {
                     exp: new RegExp('^[\x2F]?$', flags),
                     segments: [],
@@ -421,34 +444,42 @@ var $RouteProvider = [
                     params: params
                 };
             }
+
             forEach(parseParams(path), function (param, idx) {
                 var cname = '';
+
                 regex += escapeRegex(path.slice(index, param.index));
-                if(param.catchAll) {
+                if (param.catchAll) {
                     regex += '/(.*)';
                 } else {
                     regex += '/([^\\/]*)';
                 }
-                if(param.converter !== '') {
+                if (param.converter !== '') {
                     cname = ":" + param.converter;
                 }
+
                 name += path.slice(index, param.index) + '/$' + idx + cname;
+
                 params[param.name] = {
                     id: idx,
                     converter: param.converter
                 };
+
                 segments.push(createParameter(param.name, param.converter, param.args));
                 index = param.lastIndex;
             });
+
             regex += escapeRegex(path.substr(index));
             name += path.substr(index);
-            if(!caseSensitive) {
+            if (!caseSensitive) {
                 name = name.toLowerCase();
                 flags += 'i';
             }
-            if(regex[regex.length - 1] === '\x2F') {
+
+            if (regex[regex.length - 1] === '\x2F') {
                 regex = regex.substr(0, regex.length - 1);
             }
+
             return {
                 exp: new RegExp(regex + '\x2F?$', flags),
                 segments: segments,
@@ -456,43 +487,47 @@ var $RouteProvider = [
                 params: params
             };
         }
+
         function createMatcher(path, expression) {
-            if(path == null) {
+            if (path == null) {
                 return noop;
             }
+
             return function (location) {
-                var match = location.match(expression.exp), dst = {
-                }, invalidParam;
-                if(match) {
+                var match = location.match(expression.exp), dst = {}, invalidParam;
+
+                if (match) {
                     invalidParam = false;
                     forEach(expression.segments, function (segment, index) {
                         var param, value, converter;
-                        if(!invalidParam) {
+                        if (!invalidParam) {
                             param = match[index + 1];
                             converter = segment.converter();
-                            if(!isFunction(converter) && isDefined(converter.parse)) {
+                            if (!isFunction(converter) && isDefined(converter.parse)) {
                                 converter = converter.parse;
                             }
                             value = converter(param);
-                            if(isDefined(value.accept)) {
-                                if(!value.accept) {
+                            if (isDefined(value.accept)) {
+                                if (!value.accept) {
                                     invalidParam = true;
                                 }
                                 dst[segment.name] = value.value;
                             } else {
-                                if(!value) {
+                                if (!value) {
                                     invalidParam = true;
                                 }
                                 dst[segment.name] = param;
                             }
                         }
                     });
-                    if(!invalidParam) {
+
+                    if (!invalidParam) {
                         return dst;
                     }
                 }
             };
         }
+
         //Registration of Default Converters
         this.convert('num', function () {
             return {
@@ -504,25 +539,28 @@ var $RouteProvider = [
                     };
                 },
                 format: function (value) {
-                    if(isNaN(value)) {
+                    if (isNaN(value)) {
                         throw new Error(errors.invalidNumericValue);
                     }
                     return value.toString();
                 }
             };
         });
+
         this.convert('regex', function (arg) {
             var exp, flags = '', regex;
-            if(isObject(arg) && isDefined(arg.exp)) {
+
+            if (isObject(arg) && isDefined(arg.exp)) {
                 exp = arg.exp;
-                if(isDefined(arg.flags)) {
+                if (isDefined(arg.flags)) {
                     flags = arg.flags;
                 }
-            } else if(isString(arg) && arg.length > 0) {
+            } else if (isString(arg) && arg.length > 0) {
                 exp = arg;
             } else {
                 throw Error(errors.regexConverterNotValid);
             }
+
             regex = new RegExp(exp, flags);
             return {
                 parse: function (param) {
@@ -535,26 +573,23 @@ var $RouteProvider = [
                 format: function (value) {
                     var str = value.toString();
                     var test = regex.test(str);
-                    if(!test) {
+                    if (!test) {
                         throw Error(errors.valueCouldNotBeMatchedByRegex);
                     }
                     return str;
                 }
             };
         });
+
         this.convert('', function () {
             return function () {
                 return true;
             };
         });
+
         //Service Factory
         this.$get = [
-            '$rootScope', 
-            '$location', 
-            '$q', 
-            '$injector', 
-            '$routeParams', 
-            '$browser', 
+            '$rootScope', '$location', '$q', '$injector', '$routeParams', '$browser',
             function ($rootScope, $location, $q, $injector, $routeParams, $browser) {
                 /**
                 * @ngdoc object
@@ -670,7 +705,7 @@ var $RouteProvider = [
                 * @description
                 * Formats the given provided route into an url.
                 */
-                                var forceReload = false, baseElement, $route = {
+                var forceReload = false, baseElement, $route = {
                     routes: routes,
                     html5Mode: function () {
                         return $locationProvider.html5Mode();
@@ -683,86 +718,92 @@ var $RouteProvider = [
                         $rootScope.$evalAsync(update);
                     },
                     change: function (args) {
-                        var params = args.params || {
-                        }, route = interpolate(args.route, params), loc = $location.path(route).search(params);
-                        if(args.replace) {
+                        var params = args.params || {}, route = interpolate(args.route, params), loc = $location.path(route).search(params);
+
+                        if (args.replace) {
                             loc.replace();
                         }
                     },
                     format: function (route, arg2, arg3) {
                         var interpolated;
-                        arg2 = arg2 || {
-                        };
+                        arg2 = arg2 || {};
                         arg3 = isDefined(arg3) ? arg3 : true;
                         interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
-                        if($locationProvider.html5Mode() && arg3) {
+
+                        if ($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;
                     }
                 };
+
                 $rootScope.$on(EVENTS.LOCATION_CHANGE, update);
                 return $route;
+
                 function buildmatch(route, params, search) {
                     var match = inherit(route, {
                         self: inherit(route.self, {
-                            params: extend({
-                            }, search, params),
+                            params: extend({}, search, params),
                             searchParams: search,
                             pathParams: params
                         })
                     });
                     return match;
                 }
+
                 function findroute(currentPath) {
                     var params, match;
+
                     forEach(routes, function (route) {
-                        if(!match && (params = route.match(currentPath))) {
+                        if (!match && (params = route.match(currentPath))) {
                             match = buildmatch(route, params, $location.search());
                         }
                     });
-                    return match || routes[null] && buildmatch(routes[null], {
-                    }, {
-                    });
+
+                    return match || routes[null] && buildmatch(routes[null], {}, {});
                 }
+
                 function update() {
                     var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
-                    if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
+
+                    if (!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                         lastRoute.params = nextRoute.params;
                         lastRoute.searchParams = nextRoute.searchParams;
                         lastRoute.pathParams = nextRoute.pathParams;
+
                         copy(nextRoute.params, $routeParams);
+
                         $rootScope.$broadcast(EVENTS.ROUTE_UPDATE, lastRoute);
-                    } else if(next || lastRoute) {
+                    } else if (next || lastRoute) {
                         //TODO: We should always have a next to go to, it may be a null route though.
                         forceReload = false;
                         var event = $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_START, nextRoute, lastRoute);
-                        if(!event.defaultPrevented) {
+                        if (!event.defaultPrevented) {
                             $route.current = nextRoute;
-                            if(next) {
+
+                            if (next) {
                                 next.redirect($location, nextRoute);
                             }
+
                             var dp = $q.when(nextRoute);
-                            if(nextRoute) {
+                            if (nextRoute) {
                                 forEach(decorators, function (decorator) {
                                     dp = dp.then(function () {
                                         //Note: must keep nextRoute as "this" context here.
-                                        var decorated = $injector.invoke(decorator, nextRoute, {
-                                            $next: nextRoute
-                                        });
+                                        var decorated = $injector.invoke(decorator, nextRoute, { $next: nextRoute });
                                         return $q.when(decorated);
                                     });
                                 });
                             }
                             dp.then(function () {
-                                if(nextRoute === $route.current) {
-                                    if(next) {
+                                if (nextRoute === $route.current) {
+                                    if (next) {
                                         angular.copy(nextRoute.params, $routeParams);
                                     }
                                     $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_SUCCESS, nextRoute, lastRoute);
                                 }
                             }, function (error) {
-                                if(nextRoute === $route.current) {
+                                if (nextRoute === $route.current) {
                                     $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_ERROR, nextRoute, lastRoute, error);
                                 }
                             });
@@ -770,13 +811,12 @@ var $RouteProvider = [
                             //TODO: Do we need to do anything if the user cancels?
                             //       - if the user wants to return to the old url, he should cancel on
                             //         location change instead?
-                                                    }
+                        }
                     }
                 }
-            }        ];
+            }];
     }];
-angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
-});
+angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {});
 
 /// <reference path="refs.d.ts" />
 /**
@@ -959,37 +999,38 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 */
 function $StateTransitionProvider() {
     'use strict';
-    var root = {
-        children: {
-        },
-        targets: {
-        }
-    }, _this = this;
+    var root = { children: {}, targets: {} }, _this = this;
+
     function alignHandler(obj) {
-        var result = {
-            handler: {
-            }
-        };
-        if(isDefined(obj.to)) {
+        var result = { handler: {} };
+
+        if (isDefined(obj.to)) {
             result.to = obj.to;
         }
-        if(isDefined(obj.from)) {
+
+        if (isDefined(obj.from)) {
             result.from = obj.from;
         }
-        if(isDefined(obj.handler)) {
+
+        if (isDefined(obj.handler)) {
             result.handler = obj.handler;
         }
-        if(isDefined(obj.before) && isUndefined(result.handler.before)) {
+
+        if (isDefined(obj.before) && isUndefined(result.handler.before)) {
             result.handler.before = obj.before;
         }
-        if(isDefined(obj.between) && isUndefined(result.handler.between)) {
+
+        if (isDefined(obj.between) && isUndefined(result.handler.between)) {
             result.handler.between = obj.between;
         }
-        if(isDefined(obj.after) && isUndefined(result.handler.after)) {
+
+        if (isDefined(obj.after) && isUndefined(result.handler.after)) {
             result.handler.after = obj.after;
         }
+
         return result;
     }
+
     /**
     * @ngdoc method
     * @name dotjem.routing.$stateTransitionProvider#onEnter
@@ -1011,14 +1052,14 @@ function $StateTransitionProvider() {
     * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
     */
     this.onEnter = function (state, handler) {
-        //TODO: Validation
-        if(isObject(handler)) {
+        if (isInjectable(handler)) {
+            this.transition('*', state, handler);
+        } else if (isObject(handler)) {
             var aligned = alignHandler(handler);
             this.transition(aligned.from || '*', state, aligned.handler);
-        } else if(isFunction(handler) || isArray(handler)) {
-            this.transition('*', state, handler);
         }
     };
+
     /**
     * @ngdoc method
     * @name dotjem.routing.$stateTransitionProvider#onExit
@@ -1040,13 +1081,14 @@ function $StateTransitionProvider() {
     * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
     */
     this.onExit = function (state, handler) {
-        if(isObject(handler)) {
+        if (isInjectable(handler)) {
+            this.transition(state, '*', handler);
+        } else if (isObject(handler)) {
             var aligned = alignHandler(handler);
             this.transition(state, aligned.to || '*', aligned.handler);
-        } else if(isFunction(handler) || isArray(handler)) {
-            this.transition(state, '*', handler);
         }
     };
+
     /**
     * @ngdoc method
     * @name dotjem.routing.$stateTransitionProvider#transition
@@ -1070,32 +1112,34 @@ function $StateTransitionProvider() {
     this.transition = function (from, to, handler) {
         var _this = this;
         var transition, regHandler;
-        if(isArray(from)) {
+
+        if (isArray(from)) {
             forEach(from, function (value) {
                 _this.transition(value, to, handler);
             });
-        } else if(isArray(to)) {
+        } else if (isArray(to)) {
             forEach(to, function (value) {
                 _this.transition(from, value, handler);
             });
         } else {
             from = toName(from);
             to = toName(to);
+
             // We ignore the situation where to and from are the same explicit state.
             // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
             // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
-            if(to === from && to.indexOf('*') === -1) {
+            if (to === from && to.indexOf('*') === -1) {
                 return this;
             }
+
             validate(from, to);
-            if(injectFn(handler)) {
-                // angular.isFunction(handler) || angular.isArray(handler)) {
-                handler = {
-                    between: handler
-                };
+
+            if (isInjectable(handler)) {
+                handler = { between: handler };
             }
+
             transition = lookup(from);
-            if(!(to in transition.targets)) {
+            if (!(to in transition.targets)) {
                 transition.targets[to] = [];
             }
             handler.name = from + ' -> ' + to;
@@ -1103,35 +1147,37 @@ function $StateTransitionProvider() {
         }
         return this;
     };
+
     function validate(from, to) {
         var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
-        if(fromValid && toValid) {
+
+        if (fromValid && toValid) {
             return;
         }
-        if(fromValid) {
+
+        if (fromValid) {
             throw new Error("Invalid transition - to: '" + to + "'.");
         }
-        if(toValid) {
+
+        if (toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
         }
+
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
+
     function lookup(name) {
-        var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
-        names[0] === rootName ? 1 : 0;
-        for(; i < names.length; i++) {
-            if(!(names[i] in current.children)) {
-                current.children[names[i]] = {
-                    children: {
-                    },
-                    targets: {
-                    }
-                };
+        var current = root, names = name.split('.'), i = names[0] === rootName ? 1 : 0;
+
+        for (; i < names.length; i++) {
+            if (!(names[i] in current.children)) {
+                current.children[names[i]] = { children: {}, targets: {} };
             }
             current = current.children[names[i]];
         }
         return current;
     }
+
     /**
     * @ngdoc object
     * @name dotjem.routing.$stateTransition
@@ -1140,21 +1186,24 @@ function $StateTransitionProvider() {
     * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
     */
     this.$get = [
-        '$q', 
-        '$injector', 
-        function ($q, $injector) {
+        '$q', '$inject',
+        function ($q, $inject) {
             var $transition = {
                 root: root,
                 find: find
             };
+
             return $transition;
+
             function find(from, to) {
-                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
+                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
+
                 function emit(select, tc, trx) {
                     var handler;
                     forEach(handlers, function (handlerObj) {
-                        if(isDefined(handler = select(handlerObj))) {
-                            injectFn(handler)($injector, {
+                        if (isDefined(handler = select(handlerObj))) {
+                            //TODO: Cache handler.
+                            $inject.create(handler)({
                                 $to: to,
                                 $from: from,
                                 $transition: tc,
@@ -1163,6 +1212,7 @@ function $StateTransitionProvider() {
                         }
                     });
                 }
+
                 return {
                     before: function (tc, trx) {
                         emit(function (h) {
@@ -1181,33 +1231,40 @@ function $StateTransitionProvider() {
                     }
                 };
             }
+
             function trimRoot(path) {
-                if(path[0] === rootName) {
+                if (path[0] === rootName) {
                     path.splice(0, 1);
                 }
                 return path;
             }
+
             function compare(one, to) {
                 var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r;
-                while(true) {
+
+                while (true) {
                     l = left.pop();
                     r = right.pop();
-                    if(r === '*' || l === '*') {
+
+                    if (r === '*' || l === '*') {
                         return true;
                     }
-                    if(l !== r) {
+
+                    if (l !== r) {
                         return false;
                     }
-                    if(!isDefined(l) || !isDefined(r)) {
+
+                    if (!isDefined(l) || !isDefined(r)) {
                         return true;
                     }
                 }
             }
+
             function extractHandlers(transitions, to) {
                 var handlers = [];
                 forEach(transitions, function (t) {
                     forEach(t.targets, function (target, targetName) {
-                        if(compare(targetName, to)) {
+                        if (compare(targetName, to)) {
                             forEach(target, function (value) {
                                 handlers.push(value);
                             });
@@ -1216,22 +1273,25 @@ function $StateTransitionProvider() {
                 });
                 return handlers;
             }
+
             function findTransitions(from) {
                 var current = root, names = from.split('.'), transitions = [], index = names[0] === rootName ? 1 : 0;
+
                 do {
-                    if('*' in current.children) {
+                    if ('*' in current.children) {
                         transitions.push(current.children['*']);
                     }
-                    if(names[index] in current.children) {
+
+                    if (names[index] in current.children) {
                         current = current.children[names[index]];
                         transitions.push(current);
                     } else {
                         break;
                     }
-                }while(index++ < names.length);
+                } while(index++ < names.length);
                 return transitions;
             }
-        }    ];
+        }];
 }
 angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);
 
@@ -1355,15 +1415,14 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 * It is recommended that they are unique however, unless you diliberately wish to load the same content into multiple areas of a page, if multiple views use the same name within a page, they will load the same content, but they will render independendly.
 */
 var $StateProvider = [
-    '$routeProvider', 
-    '$stateTransitionProvider', 
-    function ($routeProvider, $transitionProvider) {
+    '$routeProvider', '$stateTransitionProvider', function ($routeProvider, $transitionProvider) {
         'use strict';
+
         //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
-                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {
-        }), browser = new StateBrowser(root);
+        var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {}), browser = new StateBrowser(root);
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$stateProvider#state
@@ -1407,21 +1466,15 @@ var $StateProvider = [
         */
         this.state = function (fullname, state) {
             StateRules.validateName(fullname);
+
             var parent = browser.lookup(fullname, 1);
             parent.add(factory.createState(fullname, state, parent));
             return this;
         };
+
         this.$get = [
-            '$rootScope', 
-            '$q', 
-            '$injector', 
-            '$route', 
-            '$view', 
-            '$stateTransition', 
-            '$location', 
-            '$scroll', 
-            '$resolve', 
-            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll, $resolve) {
+            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve',
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve) {
                 /**
                 * @ngdoc object
                 * @name dotjem.routing.$state
@@ -1664,12 +1717,11 @@ var $StateProvider = [
                 * @returns {boolean} true if the stats mathces, otherwise false.
                 */
                 var urlbuilder = new StateUrlBuilder($route);
+
                 var forceReload = null, current = root, $state = {
-                    root: // NOTE: root should not be used in general, it is exposed for testing purposes.
-                    root,
-                    current: extend(root.self, {
-                        $params: buildParams()
-                    }),
+                    // NOTE: root should not be used in general, it is exposed for testing purposes.
+                    root: root,
+                    current: extend(root.self, { $params: buildParams() }),
                     params: buildParams(),
                     goto: function (state, params) {
                         goto({
@@ -1684,21 +1736,22 @@ var $StateProvider = [
                     reload: reload,
                     url: function (arg1, arg2, arg3) {
                         var state = current;
-                        if(arguments.length === 0) {
+                        if (arguments.length === 0) {
                             return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                         }
-                        if(arguments.length === 1) {
-                            if(isBool(arg1)) {
+
+                        if (arguments.length === 1) {
+                            if (isBool(arg1)) {
                                 return urlbuilder.buildUrl($state.current, state, undefined, arg1);
                             } else {
                                 state = browser.resolve(current, toName(arg1), false);
                                 return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                             }
                         }
-                        if(isDefined(arg1)) {
+                        if (isDefined(arg1)) {
                             state = browser.resolve(current, toName(arg1), false);
                         }
-                        if(isBool(arg2)) {
+                        if (isBool(arg2)) {
                             return urlbuilder.buildUrl($state.current, state, undefined, arg2);
                         } else {
                             return urlbuilder.buildUrl($state.current, state, arg2, arg3);
@@ -1711,96 +1764,99 @@ var $StateProvider = [
                         return current.isActive(toName(state));
                     }
                 };
+
                 $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                     var route = $route.current;
-                    if(route) {
-                        if(route.state) {
+
+                    if (route) {
+                        if (route.state) {
                             goto({
                                 state: route.state,
                                 params: buildParams(route.params, route.pathParams, route.searchParams)
                             });
                         }
                     } else {
-                        goto({
-                            state: root,
-                            params: buildParams()
-                        });
+                        goto({ state: root, params: buildParams() });
                     }
                 });
                 $rootScope.$on(EVENTS.ROUTE_UPDATE, function () {
                     var route = $route.current, params = buildParams(route.params, route.pathParams, route.searchParams);
+
                     $state.params = params;
                     $state.current.$params = params;
                     $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
                 });
+
                 function reload(state) {
-                    if(isDefined(state)) {
-                        if(isString(state) || isObject(state)) {
+                    if (isDefined(state)) {
+                        if (isString(state) || isObject(state)) {
                             forceReload = toName(state);
+
                             //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                            if(forceReload.indexOf(rootName) !== 0) {
+                            if (forceReload.indexOf(rootName) !== 0) {
                                 forceReload = rootName + '.' + forceReload;
                             }
-                        } else if(state) {
+                        } else if (state) {
                             forceReload = root.fullname;
                         }
                     } else {
                         forceReload = current.fullname;
                     }
+
                     $rootScope.$evalAsync(function () {
-                        goto({
-                            state: current,
-                            params: $state.params,
-                            fource: forceReload
-                        });
+                        goto({ state: current, params: $state.params, fource: forceReload });
                     });
                 }
+
                 var context = new Context($state, function () {
                 }, root).complete();
                 var running = context;
+
                 function goto(args) {
                     var ctx, scrollTo, useUpdate = false;
-                    if(!running.ended) {
+
+                    //$transition.create(args.state, args.params, up)
+                    if (!running.ended) {
                         running.abort();
                     }
+
                     ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
                     ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
                         context.promise = $q.when('');
-                        context.locals = {
-                        };
+                        context.locals = {};
                     }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
                         forceReload = null;
-                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
-                        if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
+                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $inject)).execute(cmd.before()).execute(function (context) {
+                        if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
                             context.abort();
                         }
                     });
-                    if(ctx.ended) {
+
+                    if (ctx.ended) {
                         return;
                     }
+
                     forEach(ctx.changed.array, function (change) {
                         ctx.promise = ctx.promise.then(function () {
-                            if(useUpdate = useUpdate || change.isChanged) {
+                            if (useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
-                            return $resolve.all(change.state.resolve, context.locals, {
-                                $to: ctx.toState,
-                                $from: $state.current
-                            });
+                            return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
                         }).then(function (locals) {
-                            ctx.completePrep(change.state.fullname, context.locals = extend({
-                            }, context.locals, locals));
+                            ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
                             scrollTo = change.state.scrollTo;
                         });
                     });
+
                     ctx.promise.then(function () {
                         ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;
                             $state.params = context.params;
                             $state.current = context.toState;
+
                             context.transaction.commit();
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
                         }).execute(cmd.after($scroll, scrollTo)).complete();
@@ -1812,14 +1868,14 @@ var $StateProvider = [
                     });
                 }
                 return $state;
-            }        ];
+            }];
     }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);
 
 /// <reference path="refs.d.ts" />
-var $ResolveProvider = [
-    function () {
+var $ResolveProvider = [function () {
         'use strict';
+
         /**
         * @ngdoc object
         * @name dotjem.routing.$resolve
@@ -1834,13 +1890,12 @@ var $ResolveProvider = [
         *
         */
         this.$get = [
-            '$q', 
-            '$injector', 
-            function ($q, $injector) {
-                var $service = {
-                };
-                var cache = {
-                };
+            '$q', '$inject',
+            function ($q, $inject) {
+                var $service = {};
+
+                var cache = {};
+
                 /**
                 * @ngdoc method
                 * @name dotjem.routing.$resolve#push
@@ -1855,6 +1910,7 @@ var $ResolveProvider = [
                 $service.push = function (key, value) {
                     cache[key] = value;
                 };
+
                 /**
                 * @ngdoc method
                 * @name dotjem.routing.$resolve#clear
@@ -1876,35 +1932,36 @@ var $ResolveProvider = [
                 * Clears a list of values in the resolver.
                 */
                 $service.clear = function (arg) {
-                    if(isBool(arg) && arg) {
-                        cache = {
-                        };
+                    if (isBool(arg) && arg) {
+                        cache = {};
                     }
-                    if(isString(arg)) {
+
+                    if (isString(arg)) {
                         delete cache[arg];
-                    } else if(isObject(arg)) {
+                    } else if (isObject(arg)) {
                         //TODO: This part should not be the responsibility of the resolver?
                         angular.forEach(arg, function (value, key) {
                             $service.clear(key);
                         });
-                    } else if(isArray(arg)) {
+                    } else if (isArray(arg)) {
                         angular.forEach(arg, function (key) {
                             $service.clear(key);
                         });
                     }
                 };
+
                 $service.all = function (args, locals, scoped) {
                     var values = [], keys = [], def = $q.defer();
+
                     angular.forEach(args, function (value, key) {
                         var ifn;
                         keys.push(key);
                         try  {
-                            if(!(key in cache)) {
-                                if(isString(value)) {
+                            if (!(key in cache)) {
+                                if (isString(value)) {
                                     cache[key] = angular.isString(value);
-                                } else if((ifn = injectFn(value)) != null) {
-                                    cache[key] = ifn($injector, extend({
-                                    }, locals, scoped));
+                                } else if (ifn = $inject.create(value)) {
+                                    cache[key] = ifn(extend({}, locals, scoped));
                                 }
                             }
                             values.push(cache[key]);
@@ -1912,9 +1969,9 @@ var $ResolveProvider = [
                             def.reject("Could not resolve " + key + ", error was: " + e);
                         }
                     });
+
                     $q.all(values).then(function (values) {
-                        var locals = {
-                        };
+                        var locals = {};
                         angular.forEach(values, function (value, index) {
                             locals[keys[index]] = value;
                         });
@@ -1922,19 +1979,21 @@ var $ResolveProvider = [
                     }, function (error) {
                         def.reject(error);
                     });
+
                     return def.promise;
                 };
+
                 return $service;
-            }        ];
+            }];
     }];
+
 angular.module('dotjem.routing').provider('$resolve', $ResolveProvider);
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 function $TemplateProvider() {
     'use strict';
-    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))', 'i');
+    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))$', 'i');
+
     /**
     * @ngdoc object
     * @name dotjem.routing.$template
@@ -1950,33 +2009,34 @@ function $TemplateProvider() {
     * **Note:** all templates are returned as promises.
     */
     this.$get = [
-        '$http', 
-        '$q', 
-        '$injector', 
-        '$templateCache', 
+        '$http', '$q', '$injector', '$templateCache',
         function ($http, $q, $injector, $templateCache) {
             function getFromUrl(url) {
-                return $http.get(url, {
-                    cache: $templateCache
-                }).then(function (response) {
+                return $http.get(url, { cache: $templateCache }).then(function (response) {
                     return response.data;
                 });
             }
+
             function getFromFunction(fn) {
                 return $q.when($injector.invoke(fn));
             }
+
             function getFromObject(obj) {
-                if(isDefined(obj.url)) {
+                if (isDefined(obj.url)) {
                     return getFromUrl(obj.url);
                 }
-                if(isDefined(obj.fn)) {
+
+                if (isDefined(obj.fn)) {
                     return getFromFunction(obj.fn);
                 }
-                if(isDefined(obj.html)) {
+
+                if (isDefined(obj.html)) {
                     return $q.when(obj.html);
                 }
+
                 throw new Error("Object must define url, fn or html.");
             }
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$template#get
@@ -2000,33 +2060,40 @@ function $TemplateProvider() {
             * @description
             * Retrieves a template and returns that as a promise. A Template is a piece of html.
             */
-            var $template = {
-                'get': function (template) {
-                    if(isString(template)) {
-                        if(urlmatcher.test(template)) {
-                            return getFromUrl(template);
-                        }
-                        return $q.when(template);
+            var getter = function (template) {
+                if (isString(template)) {
+                    if (urlmatcher.test(template)) {
+                        return getFromUrl(template);
                     }
-                    if(isFunction(template) || isArray(template)) {
-                        return getFromFunction(template);
-                    }
-                    if(isObject(template)) {
-                        return getFromObject(template);
-                    }
-                    throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
+                    return $q.when(template);
                 }
+
+                if (isFunction(template) || isArray(template)) {
+                    return getFromFunction(template);
+                }
+
+                if (isObject(template)) {
+                    return getFromObject(template);
+                }
+
+                throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
             };
+
+            //Note: We return $template as a function.
+            //      However, to ease mocking we
+            var $template = function (template) {
+                return $template.fn(template);
+            };
+            $template.fn = getter;
             return $template;
-        }    ];
+        }];
 }
 angular.module('dotjem.routing').provider('$template', $TemplateProvider);
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 function $ViewProvider() {
     'use strict';
+
     /**
     * @ngdoc object
     * @name dotjem.routing.$view
@@ -2052,14 +2119,9 @@ function $ViewProvider() {
     *
     */
     this.$get = [
-        '$rootScope', 
-        '$q', 
-        '$template', 
+        '$rootScope', '$q', '$template',
         function ($rootScope, $q, $template) {
-            var views = {
-            }, trx = {
-                completed: true
-            }, $view = {
+            var views = {}, trx = { completed: true }, $view = {
                 get: get,
                 clear: clear,
                 refresh: refresh,
@@ -2067,15 +2129,18 @@ function $ViewProvider() {
                 create: create,
                 beginUpdate: beginUpdate
             };
+
             function isArgs(args) {
                 return isObject(args) && (isDefined(args.template) || isDefined(args.controller) || isDefined(args.locals) || isDefined(args.sticky));
             }
+
             function ensureName(name) {
-                if(isUndefined(name)) {
+                if (isUndefined(name)) {
                     throw new Error('Must define a view name.');
                 }
             }
             ;
+
             /**
             * @ngdoc event
             * @name dotjem.routing.$view#$viewUpdate
@@ -2092,6 +2157,7 @@ function $ViewProvider() {
             function raiseUpdated(name) {
                 $rootScope.$broadcast(EVENTS.VIEW_UPDATE, name);
             }
+
             /**
             * @ngdoc event
             * @name dotjem.routing.$view#$viewRefresh
@@ -2108,6 +2174,7 @@ function $ViewProvider() {
             function raiseRefresh(name, data) {
                 $rootScope.$broadcast(EVENTS.VIEW_REFRESH, name, data);
             }
+
             /**
             * @ngdoc event
             * @name dotjem.routing.$view#$viewPrep
@@ -2124,9 +2191,11 @@ function $ViewProvider() {
             function raisePrepare(name, data) {
                 $rootScope.$broadcast(EVENTS.VIEW_PREP, name, data);
             }
+
             function containsView(map, name) {
                 return (name in map) && map[name] !== null;
             }
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#clear
@@ -2148,10 +2217,11 @@ function $ViewProvider() {
             * Clears the named view.
             */
             function clear(name) {
-                if(!trx.completed) {
+                if (!trx.completed) {
                     return trx.clear(name);
                 }
-                if(isUndefined(name)) {
+
+                if (isUndefined(name)) {
                     forEach(views, function (val, key) {
                         $view.clear(key);
                     });
@@ -2162,6 +2232,7 @@ function $ViewProvider() {
                 return $view;
             }
             ;
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#update
@@ -2187,22 +2258,24 @@ function $ViewProvider() {
             */
             function update(name, args) {
                 var template = args.template, controller = args.controller, locals = args.locals, sticky = args.sticky;
+
                 ensureName(name);
-                if(!trx.completed) {
+                if (!trx.completed) {
                     return trx.update(name, args);
                 }
-                if(!containsView(views, name)) {
-                    views[name] = {
-                        version: -1
-                    };
+
+                if (!containsView(views, name)) {
+                    views[name] = { version: -1 };
                 }
+
                 //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                 //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
                 //      largely care of this, it could be an optimization to not do this?
-                views[name].template = $template.get(template);
+                views[name].template = $template(template);
                 views[name].controller = controller;
                 views[name].locals = locals;
-                if(checkSticky(name, sticky)) {
+
+                if (checkSticky(name, sticky)) {
                     raiseRefresh(name, {
                         $locals: locals,
                         sticky: sticky
@@ -2210,14 +2283,17 @@ function $ViewProvider() {
                 } else {
                     views[name].version++;
                     views[name].sticky = sticky;
+
                     raiseUpdated(name);
                 }
                 return $view;
             }
             ;
+
             function checkSticky(name, sticky) {
                 return isDefined(sticky) && isString(sticky) && name in views && views[name].sticky === sticky;
             }
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#create
@@ -2238,14 +2314,16 @@ function $ViewProvider() {
             */
             function create(name, args) {
                 var template = args.template, controller = args.controller, locals = args.locals, sticky = args.sticky;
+
                 ensureName(name);
-                if(!trx.completed) {
+                if (!trx.completed) {
                     return trx.create(name, args);
                 }
-                if(!containsView(views, name)) {
+
+                if (!containsView(views, name)) {
                     views[name] = {
-                        template: //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                        $template.get(template),
+                        //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
+                        template: $template(template),
                         controller: controller,
                         locals: locals,
                         sticky: sticky,
@@ -2255,6 +2333,7 @@ function $ViewProvider() {
                 }
                 return $view;
             }
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#get
@@ -2294,14 +2373,16 @@ function $ViewProvider() {
             * - `sticky`: `{string=}` value A flag indicating that the view is sticky.
             */
             function get(name) {
-                if(isUndefined(name)) {
+                if (isUndefined(name)) {
                     return copy(views);
                 }
+
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
                 return copy(views[name]);
             }
             ;
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#refresh
@@ -2322,10 +2403,11 @@ function $ViewProvider() {
             * Refreshes a named view.
             */
             function refresh(name, data) {
-                if(!trx.completed) {
+                if (!trx.completed) {
                     return trx.refresh(name, data);
                 }
-                if(isUndefined(name)) {
+
+                if (isUndefined(name)) {
                     forEach(views, function (val, key) {
                         $view.refresh(key, data);
                     });
@@ -2336,6 +2418,7 @@ function $ViewProvider() {
                 }
                 return $view;
             }
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$view#beginUpdate
@@ -2382,7 +2465,8 @@ function $ViewProvider() {
             */
             function calculatePending(name, record) {
                 var exists = name in views, sticky = checkSticky(name, record.args.sticky);
-                switch(record.act) {
+
+                switch (record.act) {
                     case 'clear':
                         return 'unload';
                     case 'update':
@@ -2395,63 +2479,57 @@ function $ViewProvider() {
                 return 'invalid';
             }
             function beginUpdate() {
-                if(!trx.completed) {
+                if (!trx.completed) {
                     throw new Error("Can't start multiple transactions");
                 }
+
                 return trx = createTransaction();
+
                 function createTransaction() {
-                    var records = {
-                    }, trx;
+                    var records = {}, trx;
+
                     return trx = {
                         completed: false,
                         pending: function (name) {
-                            if(isDefined(name)) {
+                            if (isDefined(name)) {
                                 var rec = records[name];
-                                return {
-                                    action: calculatePending(name, rec),
-                                    args: rec.args
-                                };
+                                return { action: calculatePending(name, rec), args: rec.args };
                             }
-                            var result = {
-                            };
+
+                            var result = {};
                             forEach(records, function (val, key) {
-                                result[key] = {
-                                    action: calculatePending(key, val)
-                                };
+                                result[key] = { action: calculatePending(key, val) };
                             });
                             return result;
                         },
                         commit: function () {
-                            if(trx.completed) {
+                            if (trx.completed) {
                                 return trx;
                             }
+
                             trx.completed = true;
                             forEach(records, function (rec) {
                                 rec.fn();
                             });
-                            records = {
-                            };
+                            records = {};
                             return trx;
                         },
                         cancel: function () {
-                            raisePrepare(name, {
-                                type: 'cancel'
-                            });
+                            raisePrepare(name, { type: 'cancel' });
                             trx.completed = true;
                             return trx;
                         },
                         clear: function (name) {
-                            if(isUndefined(name)) {
+                            if (isUndefined(name)) {
                                 forEach(views, function (val, key) {
                                     trx.clear(key);
                                 });
                                 return trx;
                             }
+
                             records[name] = {
                                 act: 'clear',
-                                args: {
-                                    name: name
-                                },
+                                args: { name: name },
                                 fn: function () {
                                     clear(name);
                                 }
@@ -2459,29 +2537,24 @@ function $ViewProvider() {
                             return trx;
                         },
                         prepUpdate: function (name, args) {
-                            raisePrepare(name, {
-                                type: 'update'
-                            });
+                            raisePrepare(name, { type: 'update' });
                             return function (locals) {
-                                args.locals = extend({
-                                }, args.locals, locals);
+                                args.locals = extend({}, args.locals, locals);
                                 trx.update(name, args);
                                 return trx;
                             };
                         },
                         prepCreate: function (name, args) {
-                            raisePrepare(name, {
-                                type: 'create'
-                            });
+                            raisePrepare(name, { type: 'create' });
                             return function (locals) {
-                                args.locals = extend({
-                                }, args.locals, locals);
+                                args.locals = extend({}, args.locals, locals);
                                 trx.create(name, args);
                                 return trx;
                             };
                         },
                         update: function (name, args) {
                             ensureName(name);
+
                             records[name] = {
                                 act: 'update',
                                 args: args,
@@ -2493,7 +2566,8 @@ function $ViewProvider() {
                         },
                         create: function (name, args) {
                             ensureName(name);
-                            if(!containsView(records, name) || records[name].act === 'clear') {
+
+                            if (!containsView(records, name) || records[name].act === 'clear') {
                                 records[name] = {
                                     act: 'create',
                                     args: args,
@@ -2505,18 +2579,16 @@ function $ViewProvider() {
                             return trx;
                         },
                         refresh: function (name, data) {
-                            if(isUndefined(name)) {
+                            if (isUndefined(name)) {
                                 forEach(views, function (val, key) {
                                     trx.refresh(key, data);
                                 });
                                 return trx;
                             }
+
                             records[name] = {
                                 act: 'refresh',
-                                args: {
-                                    name: name,
-                                    data: data
-                                },
+                                args: { name: name, data: data },
                                 fn: function () {
                                     refresh(name, data);
                                 }
@@ -2527,17 +2599,16 @@ function $ViewProvider() {
                     };
                 }
             }
+
             return $view;
-        }    ];
+        }];
 }
 angular.module('dotjem.routing').provider('$view', $ViewProvider);
 
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
-var $ScrollProvider = [
-    function () {
+/// <reference path="refs.d.ts" />
+var $ScrollProvider = [function () {
         'use strict';
+
         /**
         * @ngdoc function
         * @name dotjem.routing.$scroll
@@ -2558,60 +2629,138 @@ var $ScrollProvider = [
         * to allow elements that is being loaded as part of a transition to also work as targets after `$scroll` has been called.
         */
         this.$get = [
-            '$window', 
-            '$rootScope', 
-            '$anchorScroll', 
-            '$injector', 
-            function ($window, $rootScope, $anchorScroll, $injector) {
+            '$window', '$rootScope', '$anchorScroll', '$inject',
+            function ($window, $rootScope, $anchorScroll, $inject) {
                 var scroll = function (arg) {
-                    var fn;
-                    if(isUndefined(arg)) {
+                    var ifn;
+                    if (isUndefined(arg)) {
                         $anchorScroll();
-                    } else if(isString(arg)) {
+                    } else if (isString(arg)) {
                         scrollTo(arg);
-                    } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo(fn($injector));
+                    } else if (ifn = $inject.create(arg)) {
+                        scrollTo(ifn());
                     }
                 };
+
                 scroll.$current = 'top';
+
                 function scrollTo(elm) {
                     scroll.$current = elm;
-                    if(elm === 'top') {
+                    if (elm === 'top') {
                         $window.scrollTo(0, 0);
                         return;
                     }
                     $rootScope.$broadcast('$scrollPositionChanged', elm);
                 }
-                return scroll;
-            }        ];
-    }
-];
-angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
-//scroll.$register = register;
-//var elements = {};
-//function register(name: string, elm: HTMLElement) {
-//    if (name in elements) {
-//        var existing = elements[name];
-//    }
-//    elements[name] = elm;
-//}
-/****jQuery( "[attribute='value']"
-* scrollTo: top - scroll to top, explicitly stated.
-*           (This also enables one to override another scrollTo from a parent)
-* scrollTo: null - don't scroll, not even to top.
-* scrollTo: element-selector - scroll to an element id
-* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-*           - scroll to element with id or view if starts with @
-*/
-//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-//scrollTo: null - don't scroll, not even to top.
-//scrollTo: @viewname - scroll to a view.
-//    scrollTo: elementid - scroll to an element id
-//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+                //TODO: could we support mocking this way if it doesn't work out of the box?
+                //scroll.$fn = scroll;
+                return scroll;
+            }];
+    }];
+angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
+
+/// <reference path="refs.d.ts" />
+
+var $InjectProvider = [function () {
+        'use strict';
+
+        this.$get = [
+            '$injector',
+            function ($injector) {
+                function createInvoker(fn) {
+                    if (isInjectable(fn)) {
+                        var injector = new InjectFn(fn, $injector);
+                        return function (locals) {
+                            return injector.invoker(locals);
+                        };
+                    }
+                    return null;
+                }
+
+                return {
+                    //Note: Rerouting of injector functions in cases where those are move convinient.
+                    get: $injector.get,
+                    annotate: $injector.annotate,
+                    instantiate: $injector.instantiate,
+                    invoke: $injector.invoke,
+                    accepts: isInjectable,
+                    create: createInvoker
+                };
+            }];
+    }];
+angular.module('dotjem.routing').provider('$inject', $InjectProvider);
+
+//Note: All parts that has been commented out here is purpously left there as they are for a later optimization.
+//      of all internal inject handlers.
+var InjectFn = (function () {
+    //private invokerFn: dotjem.routing.IInvoker;
+    function InjectFn(fn, $inject) {
+        this.fn = fn;
+        this.$inject = $inject;
+        //var last;
+        if (isArray(fn)) {
+            //last = fn.length - 1;
+            //this.func = fn[last];
+            this.func = fn[fn.length - 1];
+            //this.dependencies = fn.slice(0, last);
+        } else if (isFunction(fn)) {
+            this.func = fn;
+            //if (fn.$inject) {
+            //    this.dependencies = fn.$inject;
+            //} else {
+            //    this.dependencies = this.extractDependencies(fn);
+            //}
+        }
+    }
+    //private extractDependencies(fn: any) {
+    //    var fnText,
+    //        argDecl,
+    //        deps = [];
+    //    if (fn.length) {
+    //        fnText = fn.toString().replace(InjectFn.STRIP_COMMENTS, '');
+    //        argDecl = fnText.match(InjectFn.FN_ARGS);
+    //        forEach(argDecl[1].split(InjectFn.FN_ARG_SPLIT), function (arg) {
+    //            arg.replace(InjectFn.FN_ARG, function (all, underscore, name) {
+    //                deps.push(name);
+    //            });
+    //        });
+    //    }
+    //    return deps;
+    //}
+    InjectFn.prototype.invoker = function (locals) {
+        return this.$inject.invoke(this.fn, this.func, locals);
+        //Note: This part does not work, nor is it optimized as it should.
+        //      generally when creating a handler through here locals are static meaning we can predict how the arg
+        //      array should be resolved, therefore we can cache all services we require from the injector and just
+        //      patch in locals on calls.
+        //
+        //if (this.invokerFn == null) {
+        //    this.invokerFn = (locals?: any) => {
+        //        var args = [];
+        //        var l = this.dependencies.length;
+        //        var i = 0, key;
+        //        for (; i < length; i++) {
+        //            key = this.dependencies[i];
+        //            args.push(
+        //              locals && locals.hasOwnProperty(key)
+        //              ? locals[key]
+        //              : this.$inject.get(key)
+        //            );
+        //        }
+        //        return this.func.apply(self, args);
+        //    };
+        //}
+        //return this.invokerFn(locals);
+    };
+    InjectFn.FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+    InjectFn.FN_ARG_SPLIT = /,/;
+    InjectFn.FN_ARG = /^\s*(_?)(\S+?)\1\s*$/;
+    InjectFn.STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+    return InjectFn;
+})();
+
+/// <reference path="../refs.d.ts" />
 /// <reference path="stateRules.ts" />
 /// <reference path="stateFactory.ts" />
 var State = (function () {
@@ -2619,16 +2768,18 @@ var State = (function () {
         this._name = _name;
         this._fullname = _fullname;
         this._parent = _parent;
-        this._children = {
-        };
+        this._children = {};
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+
         this._scrollTo = 'top';
-        if(_parent && isDefined(_parent.scrollTo)) {
+
+        if (_parent && isDefined(_parent.scrollTo)) {
             this._scrollTo = _parent.scrollTo;
         }
-        if(isDefined(this._self.scrollTo)) {
+
+        if (isDefined(this._self.scrollTo)) {
             this._scrollTo = this._self.scrollTo;
         }
     }
@@ -2682,7 +2833,7 @@ var State = (function () {
             return this._route;
         },
         set: function (value) {
-            if(isUndefined(value)) {
+            if (isUndefined(value)) {
                 throw Error(errors.routeCannotBeUndefined);
             }
             this._route = value;
@@ -2692,7 +2843,7 @@ var State = (function () {
     });
     Object.defineProperty(State.prototype, "root", {
         get: function () {
-            if(this.parent === null) {
+            if (this.parent === null) {
                 return this;
             }
             return this._parent.root;
@@ -2700,6 +2851,9 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
+
+
     Object.defineProperty(State.prototype, "scrollTo", {
         get: function () {
             return this._scrollTo;
@@ -2707,6 +2861,7 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
     Object.defineProperty(State.prototype, "views", {
         get: function () {
             return this.self.views;
@@ -2714,6 +2869,7 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
     Object.defineProperty(State.prototype, "resolve", {
         get: function () {
             return this.self.resolve;
@@ -2721,20 +2877,25 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
     State.prototype.add = function (child) {
         this._children[child.name] = child;
         return this;
     };
+
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
+
     State.prototype.is = function (state) {
         return this.fullname === state || this.fullname === rootName + '.' + state;
     };
+
     State.prototype.isActive = function (state) {
-        if(this.is(state)) {
+        if (this.is(state)) {
             return true;
         }
+
         return this.parent && this.parent.isActive(state) || false;
     };
     return State;
@@ -2750,20 +2911,24 @@ var StateBrowser = (function () {
     }
     StateBrowser.prototype.lookup = function (path, stop) {
         var current = this.root, names = path.split('.'), i = names[0] === rootName ? 1 : 0, stop = isDefined(stop) ? stop : 0;
-        for(; i < names.length - stop; i++) {
-            if(!(names[i] in current.children)) {
+
+        for (; i < names.length - stop; i++) {
+            if (!(names[i] in current.children)) {
                 throw Error("Could not locate '" + names[i] + "' under '" + current.fullname + "'.");
             }
+
             current = current.children[names[i]];
         }
         return current;
     };
+
     StateBrowser.prototype.resolve = function (origin, path, wrap) {
         var _this = this;
         var siblingSelector = this.siblingRegex.exec(path), selected = origin, sections;
-        if(siblingSelector) {
+
+        if (siblingSelector) {
             selected = this.selectSibling(Number(siblingSelector[1]), selected);
-        } else if(this.nameRegex.test(path)) {
+        } else if (this.nameRegex.test(path)) {
             //Note: This enables us to select a state using a full name rather than a select expression.
             //      but as a special case, the "nameRegex" will not match singular names as 'statename'
             //      because that is also a valid relative lookup.
@@ -2777,110 +2942,127 @@ var StateBrowser = (function () {
                 selected = _this.select(origin, sec, selected);
             });
         }
-        if(selected === this.root) {
+
+        if (selected === this.root) {
             throw Error(errors.expressionOutOfBounds);
         }
-        if(selected) {
-            if(wrap) {
+
+        if (selected) {
+            if (wrap) {
                 return copy(selected.self);
             }
             return selected;
         }
         return undefined;
     };
+
     StateBrowser.prototype.selectSibling = function (index, selected) {
         var children = [], currentIndex = 0;
+
         forEach(selected.parent.children, function (child) {
             children.push(child);
-            if(selected.fullname === child.fullname) {
+
+            if (selected.fullname === child.fullname) {
                 currentIndex = children.length - 1;
             }
         });
-        while(index < 0) {
+
+        while (index < 0) {
             index += children.length;
         }
+
         index = (currentIndex + index) % children.length;
         return children[index];
     };
+
     StateBrowser.prototype.select = function (origin, exp, selected) {
-        if(exp === '.') {
-            if(origin !== selected) {
+        if (exp === '.') {
+            if (origin !== selected) {
                 throw Error(errors.invalidBrowserPathExpression);
             }
+
             return selected;
         }
-        if(exp === '..') {
-            if(isUndefined(selected.parent)) {
+
+        if (exp === '..') {
+            if (isUndefined(selected.parent)) {
                 throw Error(errors.expressionOutOfBounds);
             }
+
             return selected.parent;
         }
-        if(exp === '') {
-            if(origin !== selected) {
+
+        if (exp === '') {
+            if (origin !== selected) {
                 throw Error(errors.invalidBrowserPathExpression);
             }
+
             return this.root;
         }
-        var match = this.indexRegex.exec(exp);// exp.match(this.indexRegex);
-        
-        if(match) {
+
+        var match = this.indexRegex.exec(exp);
+        if (match) {
             var index = Number(match[1]), children = [];
+
             forEach(selected.children, function (child) {
                 children.push(child);
             });
-            if(Math.abs(index) >= children.length) {
+
+            if (Math.abs(index) >= children.length) {
                 throw Error(errors.expressionOutOfBounds);
             }
+
             return index < 0 ? children[children.length + index] : children[index];
         }
-        if(exp in selected.children) {
+
+        if (exp in selected.children) {
             return selected.children[exp];
         }
+
         throw Error(errors.couldNotFindStateForPath + ": " + exp);
     };
     return StateBrowser;
 })();
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 /// <reference path="state.ts" />
 var StateComparer = (function () {
-    function StateComparer() { }
+    function StateComparer() {
+    }
     StateComparer.prototype.buildStateArray = function (state, params) {
         function extractParams() {
-            var paramsObj = {
-            };
-            if(current.route) {
+            var paramsObj = {};
+            if (current.route) {
                 forEach(current.route.params, function (param, name) {
                     paramsObj[name] = params[name];
                 });
             }
             return paramsObj;
         }
+
         var states = [], current = state;
         do {
-            states.push({
-                state: current,
-                params: extractParams()
-            });
-        }while(current = current.parent);
+            states.push({ state: current, params: extractParams() });
+        } while(current = current.parent);
         return states;
     };
+
     StateComparer.prototype.compare = function (from, to, fromParams, toParams, forceReload) {
-        var fromArray = this.buildStateArray(from, fromParams || {
-        }), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, stateChanges = false, paramChanges = !equals(fromParams, toParams);
-        for(var i = 0; i < count; i++) {
+        var fromArray = this.buildStateArray(from, fromParams || {}), toArray = this.buildStateArray(to, toParams), count = Math.max(fromArray.length, toArray.length), fromAtIndex, toAtIndex, stateChanges = false, paramChanges = !equals(fromParams, toParams);
+
+        for (var i = 0; i < count; i++) {
             fromAtIndex = fromArray[fromArray.length - i - 1];
             toAtIndex = toArray[toArray.length - i - 1];
-            if(isUndefined(toAtIndex)) {
+
+            if (isUndefined(toAtIndex)) {
                 toArray[0].isChanged = stateChanges = true;
-            } else if(isUndefined(fromAtIndex) || forceReload === toAtIndex.state.fullname || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
+            } else if (isUndefined(fromAtIndex) || forceReload === toAtIndex.state.fullname || toAtIndex.state.fullname !== fromAtIndex.state.fullname || !equals(toAtIndex.params, fromAtIndex.params)) {
                 toAtIndex.isChanged = stateChanges = true;
             } else {
                 toAtIndex.isChanged = false;
             }
         }
+
         //TODO: if ReloadOnOptional is false, but parameters are changed.
         //      we should raise the update event instead.
         toArray[0].isChanged = stateChanges = stateChanges || (toArray[0].state.reloadOnOptional && paramChanges);
@@ -2893,9 +3075,7 @@ var StateComparer = (function () {
     return StateComparer;
 })();
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 /// <reference path="stateRules.ts" />
 /// <reference path="state.ts" />
 var StateFactory = (function () {
@@ -2905,36 +3085,42 @@ var StateFactory = (function () {
     }
     StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
         var route = parentRoute || '';
-        if(route !== '' && route[route.length - 1] === '/') {
+
+        if (route !== '' && route[route.length - 1] === '/') {
             route = route.substr(0, route.length - 1);
         }
-        if(stateRoute[0] !== '/' && stateRoute !== '') {
+
+        if (stateRoute[0] !== '/' && stateRoute !== '') {
             route += '/';
         }
         route += stateRoute;
-        return this.routes.when(route, {
-            state: stateName,
-            reloadOnSearch: reloadOnSearch
-        });
+
+        return this.routes.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
     };
+
     StateFactory.prototype.createState = function (fullname, state, parent) {
         var _this = this;
         var name = fullname.split('.').pop();
-        if(isDefined(parent)) {
+        if (isDefined(parent)) {
             fullname = parent.fullname + "." + name;
         }
+
         var stateObj = new State(name, fullname, state, parent);
+
         stateObj.reloadOnOptional = !isDefined(state.reloadOnSearch) || state.reloadOnSearch;
-        if(isDefined(state.route)) {
+        if (isDefined(state.route)) {
             stateObj.route = this.createRoute(state.route, parent.resolveRoute(), stateObj.fullname, stateObj.reloadOnOptional).$route;
         }
-        if(isDefined(state.onEnter)) {
+
+        if (isDefined(state.onEnter)) {
             this.transitions.onEnter(stateObj.fullname, state.onEnter);
         }
-        if(isDefined(state.onExit)) {
+
+        if (isDefined(state.onExit)) {
             this.transitions.onExit(stateObj.fullname, state.onExit);
         }
-        if(isDefined(state.children)) {
+
+        if (isDefined(state.children)) {
             forEach(state.children, function (childState, childName) {
                 stateObj.add(_this.createState(stateObj.fullname + '.' + childName, childState, stateObj));
             });
@@ -2944,28 +3130,28 @@ var StateFactory = (function () {
     return StateFactory;
 })();
 
-/// <reference path="state.ts" />
+/// <reference path="../refs.d.ts" />
 var StateRules = (function () {
-    function StateRules() { }
-    StateRules.nameValidation = /^\w+(\.\w+)*?$/;
-    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
-    StateRules.validateName = function validateName(name) {
-        if(!StateRules.nameValidation.test(name) || name === rootName) {
+    function StateRules() {
+    }
+    StateRules.validateName = function (name) {
+        if (!StateRules.nameValidation.test(name) || name === rootName) {
             throw new Error("Invalid name: '" + name + "'.");
         }
     };
-    StateRules.validateTarget = function validateTarget(target) {
-        if(target === '*' || StateRules.targetValidation.test(target)) {
+
+    StateRules.validateTarget = function (target) {
+        if (target === '*' || StateRules.targetValidation.test(target)) {
             return true;
         }
         return false;
     };
+    StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
     return StateRules;
 })();
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 /// <reference path="stateRules.ts" />
 /// <reference path="stateBrowser.ts" />
 /// <reference path="state.ts" />
@@ -2975,25 +3161,28 @@ var StateUrlBuilder = (function () {
     }
     StateUrlBuilder.prototype.buildUrl = function (current, target, params, base) {
         var c = current;
-        if(!target.route) {
+
+        if (!target.route) {
             throw new Error("Can't build url for a state that doesn't have a url defined.");
         }
+
         //TODO: Find parent with route and return?
         //TODO: This is very similar to what we do in buildStateArray -> extractParams,
         //      maybe we can refactor those together
-                var paramsObj = {
-        }, allFrom = c && c.$params.$all || {
-        };
+        var paramsObj = {}, allFrom = c && c.$params.$all || {};
+
         forEach(target.route.params, function (param, name) {
-            if(name in allFrom) {
+            if (name in allFrom) {
                 paramsObj[name] = allFrom[name];
             }
         });
-        return this.route.format(target.route.route, extend(paramsObj, params || {
-        }), base);
+
+        return this.route.format(target.route.route, extend(paramsObj, params || {}), base);
     };
     return StateUrlBuilder;
 })();
+
+/// <reference path="../../refs.d.ts" />
 
 //TODO: Refactor into:
 //      so we can put into seperate files.
@@ -3005,13 +3194,11 @@ var cmd = {
         return function (context) {
             //context.to = browser.resolve(context.from, next, false);
             var to = browser.resolve(context.from, next, false);
+
             //var to = browser.lookup(next);
             context.to = to;
             context.params = params;
-            context.toState = extend({
-            }, to.self, {
-                $params: params
-            });
+            context.toState = extend({}, to.self, { $params: params });
         };
     },
     createEmitter: function ($transition) {
@@ -3034,13 +3221,7 @@ var cmd = {
                 },
                 goto: function (state, params) {
                     trx.canceled = true;
-                    gotofn({
-                        state: state,
-                        params: {
-                            all: params
-                        },
-                        updateroute: true
-                    });
+                    gotofn({ state: state, params: { $all: params }, updateroute: true });
                 }
             };
             context.transition = trx;
@@ -3050,8 +3231,9 @@ var cmd = {
         return function (context) {
             var changed = context.changed;
             var $state = context.$state;
-            if(!changed.stateChanges) {
-                if(changed.paramChanges) {
+
+            if (!changed.stateChanges) {
+                if (changed.paramChanges) {
                     $state.params = context.params;
                     $state.current.$params = context.params;
                     $rootScope.$broadcast('$stateUpdate', $state.current);
@@ -3063,23 +3245,24 @@ var cmd = {
     updateRoute: function ($route, update) {
         return function (context) {
             var route = context.to.route;
-            if(update && route) {
+
+            if (update && route) {
                 //TODO: This is very similar to what we do in buildStateArray -> extractParams,
                 //      maybe we can refactor those together
-                                var paramsObj = {
-                }, allFrom = context.$state.params.$all;
+                var paramsObj = {}, allFrom = context.$state.params.$all;
+
                 forEach(route.params, function (param, name) {
-                    if(name in allFrom) {
+                    if (name in allFrom) {
                         paramsObj[name] = allFrom[name];
                     }
                 });
+
                 var mergedParams = extend(paramsObj, context.params.$all);
+
                 //TODO: One problem here is that if you passed in "optional" parameters to goto, and the to-state has
                 //      a route, we actually end up loosing those
-                $route.change(extend({
-                }, route, {
-                    params: mergedParams
-                }));
+                $route.change(extend({}, route, { params: mergedParams }));
+
                 context.abort();
             }
         };
@@ -3087,7 +3270,7 @@ var cmd = {
     before: function () {
         return function (context) {
             context.emit.before(context.transition, context.transaction);
-            if(context.transition.canceled) {
+            if (context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
                 //$rootScope.$broadcast('$stateChangeAborted', toState, fromState);
@@ -3098,7 +3281,7 @@ var cmd = {
     between: function ($rootScope) {
         return function (context) {
             context.emit.between(context.transition, context.transaction);
-            if(context.transition.canceled) {
+            if (context.transition.canceled) {
                 //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
                 //      That is if this was even triggered by an URL change in the first place.
                 $rootScope.$broadcast('$stateChangeAborted', context.toState, context.$state.current);
@@ -3108,7 +3291,7 @@ var cmd = {
     },
     after: function ($scroll, scrollTo) {
         return function (context) {
-            if(!context.transition.canceled) {
+            if (!context.transition.canceled) {
                 context.transition.cancel = function () {
                     throw Error("Can't cancel transition in after handler");
                 };
@@ -3117,26 +3300,25 @@ var cmd = {
             }
         };
     },
-    beginTransaction: function ($view, $injector) {
+    beginTransaction: function ($view, $inject) {
         return function (context) {
             context.transaction = $view.beginUpdate();
             context.transaction.clear();
+
             var updating = false;
             forEach(context.changed.array, function (change) {
                 updating = updating || change.isChanged;
                 forEach(change.state.views, function (view, name) {
-                    var fn;
-                    if(isDefined(view.sticky)) {
-                        if(fn = injectFn(view.sticky)) {
-                            view.sticky = fn($injector, {
-                                $to: context.toState,
-                                $from: context.$state.current
-                            });
-                        } else if(!isString(view.sticky)) {
+                    var ifn;
+                    if (isDefined(view.sticky)) {
+                        if (ifn = $inject.create(view.sticky)) {
+                            view.sticky = ifn({ $to: context.toState, $from: context.$state.current });
+                        } else if (!isString(view.sticky)) {
                             view.sticky = change.state.fullname;
                         }
                     }
-                    if(updating || view.force || isDefined(view.sticky)) {
+
+                    if (updating || view.force || isDefined(view.sticky)) {
                         context.prepUpdate(change.state.fullname, name, view);
                     } else {
                         context.prepCreate(change.state.fullname, name, view);
@@ -3152,8 +3334,7 @@ var Context = (function () {
     function Context(_$state, onComplete, current) {
         this.aborted = false;
         this.completed = false;
-        this._prep = {
-        };
+        this._prep = {};
         this._$state = _$state;
         this.to = current;
         this.onComplete = onComplete;
@@ -3172,53 +3353,61 @@ var Context = (function () {
         enumerable: true,
         configurable: true
     });
+
     Context.prototype.next = function (onComplete) {
-        if(!this.ended) {
+        if (!this.ended) {
             this.abort();
         }
+
         var next = new Context(this.$state, onComplete);
         next.previous = this;
         next.from = this.to;
+
         //Note: to allow garbage collection.
         this.previous = null;
+
         return next;
     };
+
     Context.prototype.execute = function (visitor) {
-        if(!this.ended) {
+        if (!this.ended) {
             visitor(this);
-            if(this.aborted) {
+            if (this.aborted) {
                 return this.previous;
             }
         }
         return this;
     };
+
     Context.prototype.complete = function () {
-        if(!this.ended) {
+        if (!this.ended) {
             this.onComplete(this);
             this.completed = true;
         }
         return this;
     };
+
     Context.prototype.abort = function () {
-        if(!this.ended) {
+        if (!this.ended) {
             this.aborted = true;
-            if(this.transaction && !this.transaction.completed) {
+            if (this.transaction && !this.transaction.completed) {
                 this.transaction.cancel();
             }
         }
         return this;
     };
-    Context.prototype.prepUpdate = // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
-    function (state, name, args) {
-        var prep = (this._prep[state] = this._prep[state] || {
-        });
+
+    // change.state.fullname, name, view.template, view.controller, sticky, 'setOrUpdate'
+    Context.prototype.prepUpdate = function (state, name, args) {
+        var prep = (this._prep[state] = this._prep[state] || {});
         prep[name] = this.transaction.prepUpdate(name, args);
     };
+
     Context.prototype.prepCreate = function (state, name, args) {
-        var prep = (this._prep[state] = this._prep[state] || {
-        });
+        var prep = (this._prep[state] = this._prep[state] || {});
         prep[name] = this.transaction.prepCreate(name, args);
     };
+
     Context.prototype.completePrep = function (state, locals) {
         forEach(this._prep[state], function (value, key) {
             value(locals);
@@ -3227,6 +3416,29 @@ var Context = (function () {
     return Context;
 })();
 
+/// <reference path="../refs.d.ts" />
+
+/**
+* @ngdoc directive
+* @name dotjem.routing.directive:jemView
+* @restrict ECA
+*
+* @description
+* # Overview
+* `jemView` is a directive that complements the {@link dotjem.routing.$state $state} service by
+* including the rendered template of the current state into the main layout (`index.html`) file.
+* Every time the current route changes, the included view changes with it according to the
+* configuration of the `$state` service.
+*
+* # animations
+* - enter - animation is used to bring new content into the browser.
+* - leave - animation is used to animate existing content away.
+*
+* The enter and leave animation occur concurrently.
+*
+* @param {string} jemView|name Name of the view
+* @param {string} loader Url to a template to display while the view is prepared.
+*/
 /**
 * @ngdoc event
 * @name dotjem.routing.directive:jemView#$viewContentLoaded
@@ -3254,12 +3466,7 @@ var Context = (function () {
 * @param {Object} name Any data that may have been provided for a refresh.
 */
 var jemViewDirective = [
-    '$state', 
-    '$compile', 
-    '$controller', 
-    '$view', 
-    '$animate', 
-    '$template', 
+    '$state', '$compile', '$controller', '$view', '$animate', '$template',
     function ($state, $compile, $controller, $view, $animate, $template) {
         'use strict';
         return {
@@ -3269,51 +3476,60 @@ var jemViewDirective = [
             transclude: 'element',
             compile: function (element, attr, linker) {
                 return function (scope, element, attr) {
-                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
+                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template(attr.loader)) || null, activeLoader;
+
                     scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                        if(updatedName === name) {
+                        if (updatedName === name) {
                             update(true);
                         }
                     });
+
                     scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
-                        if(refreshName === name) {
-                            if(isFunction(viewScope.refresh)) {
+                        if (refreshName === name) {
+                            if (isFunction(viewScope.refresh)) {
                                 viewScope.refresh(refreshData);
                             } else {
                                 viewScope.$broadcast('$refresh', refreshName, refreshData);
                             }
                         }
                     });
+
                     scope.$on('$viewPrep', function (event, prepName, data) {
-                        if(prepName === name && data.type === 'update') {
+                        if (prepName === name && data.type === 'update') {
                             displayLoader();
-                        } else if(data.type === 'cancel') {
+                        } else if (data.type === 'cancel') {
                             removeLoader();
                         }
                     });
+
                     update(false);
+
                     function removeLoader() {
-                        if(isDefined(activeLoader)) {
+                        if (isDefined(activeLoader)) {
                             activeLoader.remove();
                             activeLoader = undefined;
+
                             element.contents().show();
                         }
                     }
+
                     function displayLoader() {
-                        if(loader !== null) {
+                        if (loader !== null) {
                             loader.then(function (html) {
                                 element.contents().hide();
                                 element.append(activeLoader = angular.element(html));
                             });
                         }
                     }
+
                     function cleanupView(doAnimate) {
-                        if(viewScope) {
+                        if (viewScope) {
                             viewScope.$destroy();
                             viewScope = null;
                         }
-                        if(viewElement) {
-                            if(doAnimate) {
+
+                        if (viewElement) {
+                            if (doAnimate) {
                                 $animate.leave(viewElement);
                             } else {
                                 viewElement.remove();
@@ -3321,36 +3537,46 @@ var jemViewDirective = [
                             viewElement = null;
                         }
                     }
+
                     function update(doAnimate) {
                         var view = $view.get(name), controller;
-                        if(view && view.template) {
-                            if(view.version === version) {
+
+                        if (view && view.template) {
+                            if (view.version === version) {
                                 return;
                             }
+
                             version = view.version;
                             controller = view.controller;
+
                             view.template.then(function (html) {
                                 var newScope = scope.$new();
                                 linker(newScope, function (clone) {
                                     cleanupView(doAnimate);
+
                                     clone.html(html);
-                                    if(doAnimate) {
+                                    if (doAnimate) {
                                         $animate.enter(clone, null, element);
                                     } else {
                                         element.after(clone);
                                     }
+
                                     var link = $compile(clone.contents()), locals;
+
                                     viewScope = newScope;
                                     viewElement = clone;
-                                    if(controller) {
-                                        locals = extend({
-                                        }, view.locals);
+
+                                    if (controller) {
+                                        locals = extend({}, view.locals);
                                         locals.$scope = viewScope;
+
                                         controller = $controller(controller, locals);
                                         clone.data('$ngControllerController', controller);
                                         clone.children().data('$ngControllerController', controller);
                                     }
+
                                     link(viewScope);
+
                                     viewScope.$emit('$viewContentLoaded');
                                     viewScope.$eval(onloadExp);
                                 });
@@ -3364,11 +3590,10 @@ var jemViewDirective = [
             }
         };
     }];
+
 angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../interfaces.d.ts" />
-/// <reference path="../common.ts" />
+/// <reference path="../refs.d.ts" />
 'use strict';
 /**
 * @ngdoc directive
@@ -3393,17 +3618,14 @@ angular.module('dotjem.routing').directive('jemView', jemViewDirective);
 * @param {string} jemAnchor|id Identifier of the anchor
 */
 var jemAnchorDirective = [
-    '$scroll', 
-    '$timeout', 
+    '$scroll', '$timeout',
     function ($scroll, $timeout) {
         return {
             restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr.jemAnchor || attr.id, delay = //Note: Default delay to 1 as it seems that the $timeout is instantly executed
-                //      although the angular team says it should wait untill any digest is done.
-                //      Using 1 seems to work.
-                isDefined(attr.delay) ? Number(attr.delay) : 1;
+                var name = attr.jemAnchor || attr.id, delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
+
                 //$scroll.$register(name, element);
                 //TODO: This is not aware if there are multiple elements named the same, we should instead
                 //      register the element with the $scroll service so that can throw an error if multiple
@@ -3412,8 +3634,9 @@ var jemAnchorDirective = [
                     scroll(target);
                 });
                 scroll($scroll.$current);
+
                 function scroll(target) {
-                    if(target === name) {
+                    if (target === name) {
                         //Note: Delay scroll untill any digest is done.
                         $timeout(function () {
                             element[0].scrollIntoView();
@@ -3426,9 +3649,7 @@ var jemAnchorDirective = [
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../interfaces.d.ts" />
-/// <reference path="../common.ts" />
+/// <reference path="../refs.d.ts" />
 /**
 * @ngdoc directive
 * @name dotjem.routing.directive:sref
@@ -3442,36 +3663,38 @@ angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 * @param {string} activeClass Class to add when the state targeted is active.
 */
 var jemLinkDirective = [
-    '$state', 
-    '$route', 
+    '$state', '$route',
     function ($state, $route) {
         'use strict';
         return {
             restrict: 'AC',
             link: function (scope, element, attrs) {
-                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = {
-                    a: 'href',
-                    form: 'action'
-                }, activeFn = noop;
-                if(isDefined(attrs.activeClass)) {
+                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = { a: 'href', form: 'action' }, activeFn = noop;
+
+                if (isDefined(attrs.activeClass)) {
                     activeFn = active;
                 }
+
                 function apply() {
                     var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params), link = $state.url(sref, params);
+
                     //NOTE: Is this correct for forms?
-                    if(!html5) {
+                    if (!html5) {
                         link = '#' + prefix + link;
                     }
+
                     element.attr(attr[tag], link);
                 }
+
                 function active() {
                     var sref = scope.$eval(attrs.sref);
-                    if($state.isActive(sref)) {
+                    if ($state.isActive(sref)) {
                         element.addClass(attrs.activeClass);
                     } else {
                         element.removeClass(attrs.activeClass);
                     }
                 }
+
                 function onClick() {
                     scope.$apply(function () {
                         var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
@@ -3479,18 +3702,22 @@ var jemLinkDirective = [
                     });
                 }
                 ;
+
                 var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
                 activeFn();
-                if(tag in attr) {
-                    if(isDefined(attrs.params)) {
+
+                if (tag in attr) {
+                    if (isDefined(attrs.params)) {
                         scope.$watch(attrs.params, apply, true);
                     }
+
                     //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
                     //attrs.$observe('params', apply);
                     attrs.$observe('sref', apply);
                 } else {
                     element.bind('click', onClick);
                 }
+
                 scope.$on('$destroy', function () {
                     element.unbind('click', onClick);
                     deregistration();
@@ -3498,6 +3725,7 @@ var jemLinkDirective = [
             }
         };
     }];
+
 angular.module('dotjem.routing').directive('sref', jemLinkDirective);
 
 

@@ -1,6 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 
 'use strict';
 
@@ -20,6 +18,12 @@ interface IRoute {
     self: dotjem.routing.IRoute;
     redirect: ($location, params) => any;
     match: (path: string) => any;
+}
+
+declare module ng {
+    export interface IBrowserService {
+        baseHref(): string;
+    }
 }
 
 /**
@@ -380,7 +384,7 @@ var $RouteProvider = [<any>'$locationProvider',
             };
         }
 
-        function createMatcher(path: string, expression: IExpression) {
+        function createMatcher(path: string, expression: IExpression) : any {
             if (path == null) {
                 return noop;
             }
@@ -621,7 +625,7 @@ var $RouteProvider = [<any>'$locationProvider',
                         forceReload = true;
                         $rootScope.$evalAsync(update);
                     },
-                    change: function (args: { route: string; params?: any; replace?: bool; }) {
+                    change: function (args: { route: string; params?: any; replace?: boolean; }) {
                         var params = args.params || {},
                             route = interpolate(args.route, params),
                             loc = $location
@@ -632,7 +636,7 @@ var $RouteProvider = [<any>'$locationProvider',
                             loc.replace();
                         }
                     },
-                    format: function (route: string, arg2?: any, arg3?: bool) {
+                    format: function (route: string, arg2?: any, arg3?: boolean) {
                         var interpolated;
                         arg2 = arg2 || {};
                         arg3 = isDefined(arg3) ? arg3 : true;
@@ -702,7 +706,7 @@ var $RouteProvider = [<any>'$locationProvider',
                             next.redirect($location, nextRoute);
                         }
 
-                        var dp: ng.IPromise = $q.when(nextRoute);
+                        var dp: ng.IPromise<any> = $q.when(nextRoute);
                         if (nextRoute) {
                             forEach(decorators, (decorator) => {
                                 dp = dp.then(() => {

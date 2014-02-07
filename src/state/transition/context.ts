@@ -17,8 +17,8 @@ class Context {
     public toState: any;
     public transition: any;
     public transaction: dotjem.routing.IViewTransaction;
-    public aborted: bool = false;
-    public completed: bool = false;
+    public aborted: boolean = false;
+    public completed: boolean = false;
     public onComplete: ICommand;
 
     constructor(_$state, onComplete: ICommand, current?) {

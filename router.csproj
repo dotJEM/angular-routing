@@ -76,6 +76,21 @@
     <TypeScriptCompile Include="src\state\stateFactory.ts" />
     <TypeScriptCompile Include="src\state\stateComparer.ts" />
     <TypeScriptCompile Include="src\directives\jemAnchor.ts" />
+    <Content Include="lib\angular\angular-cookies.d.ts" />
+    <Content Include="lib\angular\angular-mocks-tests.ts" />
+    <Content Include="lib\angular\angular-mocks.d.ts" />
+    <Content Include="lib\angular\angular-resource-tests.ts" />
+    <Content Include="lib\angular\angular-resource.d.ts" />
+    <Content Include="lib\angular\angular-route-tests.ts" />
+    <Content Include="lib\angular\angular-route.d.ts" />
+    <Content Include="lib\angular\angular-sanitize-tests.ts" />
+    <Content Include="lib\angular\angular-sanitize.d.ts" />
+    <Content Include="lib\angular\angular-scenario.d.ts" />
+    <Content Include="lib\angular\angular-tests.ts" />
+    <Content Include="lib\angular\angular.d.ts" />
+    <Content Include="lib\angular\impl\angular-animate.js" />
+    <Content Include="lib\angular\impl\angular-cookies.js" />
+    <Content Include="lib\angular\impl\angular-loader.js" />
     <Content Include="src\directives\jemAnchor.js">
       <DependentUpon>jemAnchor.ts</DependentUpon>
     </Content>
@@ -88,6 +103,10 @@
     </Content>
     <TypeScriptCompile Include="src\resolve.ts" />
     <TypeScriptCompile Include="src\refs.d.ts" />
+    <TypeScriptCompile Include="src\inject.ts" />
+    <Content Include="src\inject.js">
+      <DependentUpon>inject.ts</DependentUpon>
+    </Content>
     <Content Include="src\resolve.js">
       <DependentUpon>resolve.ts</DependentUpon>
     </Content>
@@ -120,6 +139,10 @@
       <DependentUpon>context.ts</DependentUpon>
     </Content>
     <Content Include="src\state\transition\context.ts" />
+    <TypeScriptCompile Include="src\state\transition\transition.ts" />
+    <Content Include="src\state\transition\transition.js">
+      <DependentUpon>transition.ts</DependentUpon>
+    </Content>
     <Content Include="test-grunt-jqlite-config.js" />
     <Content Include="test-dev-jqlite-config.js" />
     <Content Include="lib\ui-bootstrap\impl\ui-bootstrap-tpls-0.2.0.min.js" />
@@ -134,11 +157,6 @@
     </Content>
     <Content Include="test-grunt-jquery-config.js" />
     <Content Include="gruntfile.js" />
-    <Content Include="lib\angular\angular-1.0.d.ts" />
-    <Content Include="lib\angular\angular-cookies-1.0.d.ts" />
-    <Content Include="lib\angular\angular-mocks-1.0.d.ts" />
-    <Content Include="lib\angular\angular-resource-1.0.d.ts" />
-    <Content Include="lib\angular\angular-sanitize-1.0.d.ts" />
     <Content Include="lib\angular\impl\angular-bootstrap-prettify.js" />
     <Content Include="lib\angular\impl\angular-bootstrap.js" />
     <Content Include="lib\angular\impl\angular-mocks.js" />
@@ -149,9 +167,6 @@
     <Content Include="lib\jquery\impl\jquery-1.9.1.min.js" />
     <Content Include="lib\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="src\common.ts" />
-    <Content Include="src\common.js">
-      <DependentUpon>common.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="src\directives\jemView.ts" />
     <TypeScriptCompile Include="src\legacy\templateDecorator.ts" />
     <TypeScriptCompile Include="src\interfaces.d.ts" />

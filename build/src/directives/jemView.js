@@ -1,3 +1,5 @@
+/// <reference path="../refs.d.ts" />
+
 /**
 * @ngdoc directive
 * @name dotjem.routing.directive:jemView
@@ -46,12 +48,7 @@
 * @param {Object} name Any data that may have been provided for a refresh.
 */
 var jemViewDirective = [
-    '$state', 
-    '$compile', 
-    '$controller', 
-    '$view', 
-    '$animate', 
-    '$template', 
+    '$state', '$compile', '$controller', '$view', '$animate', '$template',
     function ($state, $compile, $controller, $view, $animate, $template) {
         'use strict';
         return {
@@ -61,51 +58,60 @@ var jemViewDirective = [
             transclude: 'element',
             compile: function (element, attr, linker) {
                 return function (scope, element, attr) {
-                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template.get(attr.loader)) || null, activeLoader;
+                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template(attr.loader)) || null, activeLoader;
+
                     scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
-                        if(updatedName === name) {
+                        if (updatedName === name) {
                             update(true);
                         }
                     });
+
                     scope.$on(EVENTS.VIEW_REFRESH, function (event, refreshName, refreshData) {
-                        if(refreshName === name) {
-                            if(isFunction(viewScope.refresh)) {
+                        if (refreshName === name) {
+                            if (isFunction(viewScope.refresh)) {
                                 viewScope.refresh(refreshData);
                             } else {
                                 viewScope.$broadcast('$refresh', refreshName, refreshData);
                             }
                         }
                     });
+
                     scope.$on('$viewPrep', function (event, prepName, data) {
-                        if(prepName === name && data.type === 'update') {
+                        if (prepName === name && data.type === 'update') {
                             displayLoader();
-                        } else if(data.type === 'cancel') {
+                        } else if (data.type === 'cancel') {
                             removeLoader();
                         }
                     });
+
                     update(false);
+
                     function removeLoader() {
-                        if(isDefined(activeLoader)) {
+                        if (isDefined(activeLoader)) {
                             activeLoader.remove();
                             activeLoader = undefined;
+
                             element.contents().show();
                         }
                     }
+
                     function displayLoader() {
-                        if(loader !== null) {
+                        if (loader !== null) {
                             loader.then(function (html) {
                                 element.contents().hide();
                                 element.append(activeLoader = angular.element(html));
                             });
                         }
                     }
+
                     function cleanupView(doAnimate) {
-                        if(viewScope) {
+                        if (viewScope) {
                             viewScope.$destroy();
                             viewScope = null;
                         }
-                        if(viewElement) {
-                            if(doAnimate) {
+
+                        if (viewElement) {
+                            if (doAnimate) {
                                 $animate.leave(viewElement);
                             } else {
                                 viewElement.remove();
@@ -113,36 +119,46 @@ var jemViewDirective = [
                             viewElement = null;
                         }
                     }
+
                     function update(doAnimate) {
                         var view = $view.get(name), controller;
-                        if(view && view.template) {
-                            if(view.version === version) {
+
+                        if (view && view.template) {
+                            if (view.version === version) {
                                 return;
                             }
+
                             version = view.version;
                             controller = view.controller;
+
                             view.template.then(function (html) {
                                 var newScope = scope.$new();
                                 linker(newScope, function (clone) {
                                     cleanupView(doAnimate);
+
                                     clone.html(html);
-                                    if(doAnimate) {
+                                    if (doAnimate) {
                                         $animate.enter(clone, null, element);
                                     } else {
                                         element.after(clone);
                                     }
+
                                     var link = $compile(clone.contents()), locals;
+
                                     viewScope = newScope;
                                     viewElement = clone;
-                                    if(controller) {
-                                        locals = extend({
-                                        }, view.locals);
+
+                                    if (controller) {
+                                        locals = extend({}, view.locals);
                                         locals.$scope = viewScope;
+
                                         controller = $controller(controller, locals);
                                         clone.data('$ngControllerController', controller);
                                         clone.children().data('$ngControllerController', controller);
                                     }
+
                                     link(viewScope);
+
                                     viewScope.$emit('$viewContentLoaded');
                                     viewScope.$eval(onloadExp);
                                 });
@@ -156,4 +172,5 @@ var jemViewDirective = [
             }
         };
     }];
+
 angular.module('dotjem.routing').directive('jemView', jemViewDirective);

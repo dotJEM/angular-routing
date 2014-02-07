@@ -1,4 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
+/// <reference path="refs.d.ts" />
 
 /*jshint globalstrict:true*/
 /*global angular:false*/
@@ -37,22 +37,28 @@ function toName(named: any): string {
     return isString(named) ? named : named.$fullname || named.fullname;
 }
 
-function injectFn(arg: any): IInjector {
-    if (isFunction(arg)) {
-        return function (injector: ng.auto.IInjectorService, locals?) {
-            return injector.invoke(arg, arg, locals);
-        };
-    } else if (isArray(arg)) {
-        var fn = arg[arg.length - 1];
-        return function (injector: ng.auto.IInjectorService, locals?) {
-            return injector.invoke(arg, fn, locals);
-        };
+function isArrayAnnotatedFunction(array: any[]) {
+    if (!isArray(array)) {
+        return false;
     }
-    return null;
+
+    var error = Error('Incorrect injection annotation! Expected an array of strings with the last element as a function');
+    for (var i = 0, l = array.length; i < l; i++) {
+        if (i < l - 1) {
+            if (!isString(array[i])) {
+                throw error;
+            }
+        } else if (!isFunction(array[i])) {
+            if (!isString(array[i])) {
+                throw error;
+            }
+        }
+    }
+    return true;
 }
 
-interface IInjector {
-    (injector: ng.auto.IInjectorService, locals?: any): any;
+function isInjectable(fn) {
+    return isArrayAnnotatedFunction(fn) || isFunction(fn);
 }
 
 interface IParam {
@@ -61,7 +67,7 @@ interface IParam {
     args: string;
     index: number;
     lastIndex: number;
-    catchAll: bool;
+    catchAll: boolean;
 }
 
 function buildParams(all?, path?, search?) {

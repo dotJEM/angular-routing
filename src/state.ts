@@ -177,8 +177,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
         return this;
     };
 
-    this.$get = [<any>'$rootScope', '$q', '$injector', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', 
-    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $route: dotjem.routing.IRouteService, $view: dotjem.routing.IViewService, $transition: dotjem.routing.ITransitionService, $location: ng.ILocationService, $scroll, $resolve) {
+    this.$get = [<any>'$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve',
+    function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $inject: dotjem.routing.IInjectService, $route: dotjem.routing.IRouteService, $view: dotjem.routing.IViewService, $transition: dotjem.routing.ITransitionService, $location: ng.ILocationService, $scroll, $resolve) {
 
         /**
          * @ngdoc object
@@ -532,6 +532,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 scrollTo,
                 useUpdate = false;
 
+            //$transition.create(args.state, args.params, up)
+
             if (!running.ended) {
                 running.abort();
             }
@@ -550,7 +552,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 })
                 .execute(cmd.raiseUpdate($rootScope))
                 .execute(cmd.updateRoute($route, args.updateroute))
-                .execute(cmd.beginTransaction($view, $injector))
+                .execute(cmd.beginTransaction($view, $inject))
                 .execute(cmd.before())
                 .execute(function (context: Context) {
                     if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {

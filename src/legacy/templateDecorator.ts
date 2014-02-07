@@ -1,9 +1,8 @@
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 
 'use strict';
 
-angular.module('dotjem.routing.legacy', ['dotjem.routing', 'ng'])
+angular.module('dotjem.routing.legacy', ['dotjem.routing'])
     .config([<any>'$routeProvider', ($routeProvider: dotjem.routing.IRouteProvider) => {
         $routeProvider.decorate('templateDecorator',
             [<any>'$q', '$injector', '$templateCache', '$http',

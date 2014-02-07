@@ -1,11 +1,13 @@
 module.exports = function (config) {
     config.set({
-        //browsers: ['PhantomJS'],
         frameworks: ['jasmine'],
         logLevel: config.LOG_INFO,
         loggers: [{ type: 'console' }],
         reporters: ['dots'],
+        //browsers: ['PhantomJS'],
+        browsers: ['Chrome'],
         autoWatch: false,
+        //singleRun: true,
         files: [
           'lib/angular/impl/angular.js',
           'lib/angular/impl/angular-mocks.js',
@@ -13,9 +15,7 @@ module.exports = function (config) {
           'build/angular-routing.js',
           'build/angular-routing.legacy.js',
 
-          'build/test/testcommon.js',
-
-          'build/test/**/*Spec.js'
+          'build/test/**/*.js'
         ],
     });
 };

@@ -17,7 +17,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
-                    .when('/Customer', { message: "customerRoute" })
+                    .when('/Customer', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -37,7 +37,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
-                    .when('/Customer', { message: "customerRoute" })
+                    .when('/Customer', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -56,14 +56,14 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
-                    .when('/Customer', { message: "customerRoute" })
+                    .when('/Customer', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
                 spyOn($location, 'path').andReturn('/Fubar');
 
                 var next;
-                scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
+                scope.$on('$routeChangeSuccess', (event, n) => { next = n; });
                 scope.$digest();
 
                 expect(next).toBeUndefined();
@@ -74,7 +74,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book', { message: "bookRoute" })
-                    .when('/Customer', { message: "customerRoute" })
+                    .when('/Customer', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -92,7 +92,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{id}', { message: "bookRoute" })
-                    .when('/Customer/{id}', { message: "customerRoute" })
+                    .when('/Customer/{id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -112,7 +112,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{id}', { message: "bookRoute" })
-                    .when('/Customer/{id}', { message: "customerRoute" })
+                    .when('/Customer/{id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -132,7 +132,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:id}', { message: "bookRoute" })
-                    .when('/Customer/{num:id}', { message: "customerRoute" })
+                    .when('/Customer/{num:id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -152,7 +152,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:id}', { message: "bookRoute" })
-                    .when('/Customer/{num:id}', { message: "customerRoute" })
+                    .when('/Customer/{num:id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -172,7 +172,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:id}', { message: "bookRoute" })
-                    .when('/Customer/{num:id}', { message: "customerRoute" })
+                    .when('/Customer/{num:id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -190,7 +190,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{regex(^\\w{2,5}$):id}', { message: "bookRoute" })
-                    .when('/Customer/{id}', { message: "customerRoute" })
+                    .when('/Customer/{id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -210,7 +210,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{regex(^\\w{2,5}$):id}', { message: "bookRoute" })
-                    .when('/Customer/{id}', { message: "customerRoute" })
+                    .when('/Customer/{id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -228,7 +228,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{regex( { "exp" : "^\\\\w{2,5}$", "flags": "i" } ):id}', { message: "bookRoute" })
-                    .when('/Customer/{id}', { message: "customerRoute" })
+                    .when('/Customer/{id}', { message: "customerRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -249,7 +249,7 @@ describe('$routeProvider', function () {
                 $routeProvider
                     .when('/Book', { message: "oldBookRoute" })
                     .when('/Customer', { message: "customerRoute" })
-                    .when('/Book', { message: "bookRoute" })
+                    .when('/Book', { message: "bookRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -268,12 +268,12 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:param}', { message: "numberBookRoute" })
-                    .when('/Book/{param}', { message: "bookRoute" })
+                    .when('/Book/{param}', { message: "bookRoute" });
             });
 
             mock.inject(function ($route, $location) {
                 var next;
-                $location.path('/Book/10')
+                $location.path('/Book/10');
                 scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
                 scope.$digest();
 
@@ -281,7 +281,7 @@ describe('$routeProvider', function () {
                 expect(next.message).toBe('numberBookRoute');
                 expect(next.params['param']).toBe(10);
 
-                $location.path('/Book/Hello')
+                $location.path('/Book/Hello');
                 scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
                 scope.$digest();
 
@@ -297,7 +297,7 @@ describe('$routeProvider', function () {
                 $routeProvider
                     .when('/Book/:param1/:param2', {})
                     .when('/Home/:param3/:param4', {})
-                    .when('/Rear/:param3/:param4', {})
+                    .when('/Rear/:param3/:param4', {});
             });
 
             mock.inject(function ($route, $location) {
@@ -319,7 +319,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/:param1/:param2', {})
-                    .when('/Book/:param3/:param4', {})
+                    .when('/Book/:param3/:param4', {});
             });
 
             mock.inject(function ($route, $location) {
@@ -334,7 +334,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{num:param1}/numbers', {})
-                    .when('/Book/{param1}/others', {})
+                    .when('/Book/{param1}/others', {});
             });
 
             mock.inject(function ($route, $location) {
@@ -347,7 +347,7 @@ describe('$routeProvider', function () {
         it('catch all parameters', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
-                    .when('/{*url}', { message: "catchAll" })
+                    .when('/{*url}', { message: "catchAll" });
             });
 
             mock.inject(function ($route, $location) {
@@ -367,20 +367,20 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/Book/{*url}', { message: "bookRoute" })
-                    .when('/{*url}', { message: "catchAll" })
+                    .when('/{*url}', { message: "catchAll" });
             });
 
             mock.inject(function ($route, $location) {
                 var next; scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
 
-                $location.url('/Book/with/catch/all')
+                $location.url('/Book/with/catch/all');
                 scope.$digest();
 
                 expect(next).toBeDefined();
                 expect(next.message).toBe('bookRoute');
                 expect(next.params.url).toBe('with/catch/all');
 
-                $location.url('/route/with/long/path')
+                $location.url('/route/with/long/path');
                 scope.$digest();
 
                 expect(next).toBeDefined();
@@ -424,8 +424,8 @@ describe('$routeProvider', function () {
                     .convert('custom', () => {
                         return (param: string) => {
                             return param[0] == 'a';
-                        }
-                    })
+                        };
+                });
             });
 
             mock.inject(function ($route, $location) {
@@ -450,8 +450,8 @@ describe('$routeProvider', function () {
                             if (param.charAt(0) === 'a')
                                 return true;
                             return false;
-                        }
-                    })
+                        };
+                });
             });
 
             mock.inject(function ($route, $location) {
@@ -475,8 +475,8 @@ describe('$routeProvider', function () {
                             if (param.search(substring) != -1)
                                 return true;
                             return false;
-                        }
-                    })
+                        };
+                });
             });
 
             mock.inject(function ($route, $location) {
@@ -501,8 +501,8 @@ describe('$routeProvider', function () {
                             if (param.search(substring) != -1)
                                 return true;
                             return false;
-                        }
-                    })
+                        };
+                });
             });
 
             mock.inject(function ($route, $location) {
@@ -525,8 +525,8 @@ describe('$routeProvider', function () {
                         converterArgs = args;
                         return (param: string) => {
                             return true;
-                        }
-                    })
+                        };
+                });
             });
 
             mock.inject(function ($route, $location) {
@@ -543,26 +543,26 @@ describe('$routeProvider', function () {
                 $routeProvider
                     .when('/Book/{contains(catch):*param}', { message: "bookRoute" })
                     .when('/Customer/{contains(catch):*param}', { message: "customerRoute" })
-                    .convert('contains', (substring) => {
+                    .convert('contains', function(substring) {
                         return (param: string) => {
                             if (param.search(substring) != -1)
                                 return true;
                             return false;
-                        }
-                    })
+                        };
+                });
             });
 
             mock.inject(function ($route, $location) {
                 var next; scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
 
-                $location.url('/Book/with/catch/all')
+                $location.url('/Book/with/catch/all');
                 scope.$digest();
 
                 expect(next).toBeDefined();
                 expect(next.message).toBe('bookRoute');
                 expect(next.params.param).toBe('with/catch/all');
 
-                $location.url('/Customer/with/catch/all')
+                $location.url('/Customer/with/catch/all');
                 scope.$digest();
 
                 expect(next).toBeDefined();
@@ -583,8 +583,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .ignoreCase()
-                    .when('/BOOK', { message: "bookRoute" })
-                    
+                    .when('/BOOK', { message: "bookRoute" });
             });
 
             mock.inject(function ($route, $location) {
@@ -649,7 +648,7 @@ describe('$routeProvider', function () {
                             }
                             throw Error("Invalid parameter value");
                         }
-                    }
+                    };
                 } );
             });
             //TODO: Built in regex should check for valid parameters.
@@ -682,7 +681,7 @@ describe('$routeProvider', function () {
             mock.module(function ($routeProvider: dotjem.routing.IRouteProvider) {
                 $routeProvider
                     .when('/book', { message: "bookRoute" })
-                    .when('/look', { message: "lookRoute" })
+                    .when('/look', { message: "lookRoute" });
             });
 
             mock.inject(function ($route: dotjem.routing.IRouteService, $location) {
@@ -704,7 +703,7 @@ describe('$routeProvider', function () {
                     .when('/book', { message: "bookRoute" })
                     .when('/book/:id', { message: "bookRouteWithId" })
                     .when('/look', { message: "lookRoute" })
-                    .when('/look/:id', { message: "lookRouteWithId" })
+                    .when('/look/:id', { message: "lookRouteWithId" });
             });
 
             mock.inject(function ($route: dotjem.routing.IRouteService, $location) {
@@ -726,7 +725,7 @@ describe('$routeProvider', function () {
                     .when('/book', { message: "bookRoute" })
                     .when('/book/{id}', { message: "bookRouteWithId" })
                     .when('/look', { message: "lookRoute" })
-                    .when('/look/{id}', { message: "lookRouteWithId" })
+                    .when('/look/{id}', { message: "lookRouteWithId" });
             });
 
             mock.inject(function ($route: dotjem.routing.IRouteService, $location) {

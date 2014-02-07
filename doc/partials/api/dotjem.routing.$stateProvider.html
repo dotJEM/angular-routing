@@ -1,12 +1,12 @@
 <h1><code ng:non-bindable="">$stateProvider</code>
-<span class="hint">(service in module <code ng:non-bindable="">dotjem.routing</code>
-)</span>
+<div><span class="hint">service in module <code ng:non-bindable="">dotjem.routing</code>
+</span>
+</div>
 </h1>
-<div><h2 id="Description">Description</h2>
-<div class="description"><p>Used for configuring states.
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="dotjem-routing-stateprovider-page"><p>Used for configuring states.
 <br/>
 Here is a very basic example of configuring states.</p>
-
 <pre class="prettyprint linenums">
 angular.module('demo', ['dotjem.routing']).
   config(['$stateProvider', function($stateProvider) {
@@ -15,18 +15,13 @@ angular.module('demo', ['dotjem.routing']).
       .state('tablets', { ...Parameters for the state... });
 }]);
 </pre>
-
 <p>In it self that is not really useful, but the state it self can have views added as well as onEnter / onExit handlers.
 <br/></p>
-
-<h3 id="views">Views</h5>
-
-<hr/>
-
-<p>At this basic level you can also configure multiple views, just add a number of <code>ui - view</code> directives with unique names, and simply target those from the configuration.
+<h5 id="description_views">Views</h5>
+<p><hr/>
+At this basic level you can also configure multiple views, just add a number of <code>ui - view</code> directives with unique names, and simply target those from the configuration.
 <br/>
 e.g.if we had a <code>main</code> view and a <code>hint</code> view we could do.</p>
-
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing']).
    config(['$stateProvider', function ($stateProvider) {
@@ -48,13 +43,9 @@ e.g.if we had a <code>main</code> view and a <code>hint</code> view we could do.
 <br/>
 <strong>Note:</strong> The template is suddenly an object with an <code>html</code> property, there is a number of ways to configure templates, see <a href="#/api/dotjem.routing.$template">$template</a> for more details on that.
 <br/></p>
-
-<h3 id="controllers">Controllers</h5>
-
-<hr/>
-
-<p>Standing alone like this, views are very static , but just like the original angular routing, we can add controllers to a view.</p>
-
+<h5 id="description_controllers">Controllers</h5>
+<p><hr/>
+Standing alone like this, views are very static , but just like the original angular routing, we can add controllers to a view.</p>
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing']).
    config(['$stateProvider', function ($stateProvider) {
@@ -76,17 +67,13 @@ e.g.if we had a <code>main</code> view and a <code>hint</code> view we could do.
    .controller('TabletsCtrl', ['$scope', function ($scope) { ... }]);
 </pre>
 <br/></p>
-
-<h3 id="nestedstates">Nested States</h5>
-
-<hr/>
-
-<p>Until now we have had a flat list of states, but this doesn't really provide many enhancements over the existing routing concept, even with multiple views, all views are always reloaded. Also it could get quite complex if views dependent on each other couldn't be arranged in a hierarchy.
+<h5 id="description_nested-states">Nested States</h5>
+<p><hr/>
+Until now we have had a flat list of states, but this doesn&#39;t really provide many enhancements over the existing routing concept, even with multiple views, all views are always reloaded. Also it could get quite complex if views dependent on each other couldn&#39;t be arranged in a hierarchy.
 <br/>
 The <code>$stateProvider</code> provides configuring states in a hierarchy in two ways.
 <br/>
-One way is using a name convention for states where <code>.</code> is used to separate state levels. So that the state <code>phones.list</code> becomes a child of <code>phones</code>, it is important however that <code>phones</code> is defined before it's children.</p>
-
+One way is using a name convention for states where <code>.</code> is used to separate state levels. So that the state <code>phones.list</code> becomes a child of <code>phones</code>, it is important however that <code>phones</code> is defined before it&#39;s children.</p>
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing']).
    config(['$stateProvider', function($stateProvider) {
@@ -120,21 +107,17 @@ One way is using a name convention for states where <code>.</code> is used to se
  .controller('PhonesListCtrl', ['$scope', function ($scope) { ... }])
  .controller('PhonesDetailsCtrl', ['$scope', function ($scope) { ... }]);
 </pre>
-
 <p>The above may indicate that views also has a child to parent relation in the naming, but this is merely a good naming convention, there is no constraint on how views are named.
 <br/>
-It is recommended that they are unique however, unless you diliberately wish to load the same content into multiple areas of a page, if multiple views use the same name within a page, they will load the same content, but they will render independendly.</p></div>
-<div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="state">state(fullname, state)</h3>
-<div class="state"><p>Adds a new route definition to the <code>$route</code> service.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">fullname – {string} – </code>
-<p>Full name of the state, use '.' to seperate parent and child states.</p>
-
-<p>E.g. if the full name "home" is given, the state is directly located under the root.
-It then becomes possible to register "home.recents" as a child named "recents" under the state "home".</p>
-
+It is recommended that they are unique however, unless you diliberately wish to load the same content into multiple areas of a page, if multiple views use the same name within a page, they will load the same content, but they will render independendly.</p>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_state">state(fullname, state)</h3>
+<div class="state"><div class="dotjem-routing-stateprovider-state-page"><p>Adds a new route definition to the <code>$route</code> service.</p>
+</div><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fullname</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>Full name of the state, use &#39;.&#39; to seperate parent and child states.</p>
+<p>E.g. if the full name &quot;home&quot; is given, the state is directly located under the root.
+It then becomes possible to register &quot;home.recents&quot; as a child named &quot;recents&quot; under the state &quot;home&quot;.</p>
 <p>The following registrations would result in the ilustated hierachy.</p>
-
 <pre class="prettyprint linenums">
  .state('home', {})
  .state('home.recents', {})
@@ -143,28 +126,21 @@ It then becomes possible to register "home.recents" as a child named "recents" u
  .state('staff.all', {})
  .state('staff.single', {})
 </pre>
-
-<p><img type="image/svg+xml" src="assets/state.provider.structure.png"/></p></li>
-<li><code ng:non-bindable="">state – {Object} – </code>
-<p>All information about the state.</p>
-
-<p>Object properties:</p>
-
+<p><img type="image/svg+xml" src="assets/state.provider.structure.png"/></p>
+</div></td></tr><tr><td>state</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>All information about the state.</p>
+<p>   Object properties:</p>
 <ul>
 <li><code>views</code>: <code>{Object=}</code> A list og views to be updated when the state is activated.</li>
 <li><code>route</code>: <code>{string=}</code> A route to associate the state with,
-this will be registered with the <a href="#/api/dotjem.routing.$routeProvider">$routeProvider</a></li>
+ this will be registered with the <a href="#/api/dotjem.routing.$routeProvider">$routeProvider</a></li>
 <li><code>resolve</code>: <code>{Object=}</code> A list of values to resolve before the state transition completes.</li>
 <li><code>onEnter</code>: <code>{string|function|Object=}</code> value</li>
 <li><code>onExit</code>: <code>{string|function|Object=}</code> value</li>
 <li><code>reloadOnSearch</code>: <code>{boolean=}</code> If associated with a route, should that route reload on search.</li>
-<li><code>scrollTo</code>: {string=} An element defined by it's id to scroll to when the state has been loaded.</li>
-</ul></li>
+<li><code>scrollTo</code>: {string=} An element defined by it&#39;s id to scroll to when the state has been loaded.</li>
 </ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Object}</code>
-– <p>self</p></div>
-</div>
+</div></td></tr></tbody></table><h5 id="methods_state_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>self</p>
+</div></td></tr></table></div>
 </li>
 </ul>
 </div>

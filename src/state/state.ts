@@ -1,6 +1,4 @@
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 
 /// <reference path="stateRules.ts" />
 /// <reference path="stateFactory.ts" />
@@ -8,14 +6,14 @@
 class State {
     private _children: { [name: string]: State; } = {};
     private _self: dotjem.routing.IRegisteredState;
-    private _reloadOnOptional: bool;
+    private _reloadOnOptional: boolean;
     private _route: any;
     private _scrollTo: any;
 
     get children(): any { return this._children; }
     get fullname(): string { return this._fullname; }
     get name(): string { return this._name; }
-    get reloadOnOptional(): bool { return this._reloadOnOptional; }
+    get reloadOnOptional(): boolean { return this._reloadOnOptional; }
     get self(): dotjem.routing.IRegisteredState { return copy(this._self); }
     get parent(): State { return this._parent; }
     get route(): any { return this._route; }
@@ -33,7 +31,7 @@ class State {
         this._route = value;
     }
 
-    set reloadOnOptional(value: any) {
+    set reloadOnOptional(value: boolean) {
         this._reloadOnOptional = value;
     }
 

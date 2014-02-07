@@ -1,6 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 'use strict';
 /**
 * @ngdoc object
@@ -10,13 +8,11 @@
 * Used for configuring routes. See {@link dotjem.routing.$route $route} for an example.
 */
 var $RouteProvider = [
-    '$locationProvider', 
+    '$locationProvider',
     function ($locationProvider) {
         var _this = this;
-        var routes = {
-        }, converters = {
-        }, decorators = {
-        }, caseSensitive = true;
+        var routes = {}, converters = {}, decorators = {}, caseSensitive = true;
+
         //Public Methods
         /**
         * @ngdoc method
@@ -45,6 +41,7 @@ var $RouteProvider = [
             converters[name] = converter;
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#when
@@ -104,14 +101,13 @@ var $RouteProvider = [
         this.when = function (path, route) {
             var expression = parseExpression(path);
             routes[expression.name] = {
-                self: extend({
-                    reloadOnSearch: true
-                }, route),
+                self: extend({ reloadOnSearch: true }, route),
                 redirect: createRedirector(route.redirectTo),
                 match: createMatcher(path, expression),
                 params: expression.params,
                 path: path
             };
+
             return {
                 convert: _this.convert,
                 when: _this.when,
@@ -126,6 +122,7 @@ var $RouteProvider = [
                 }
             };
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#otherwise
@@ -143,6 +140,7 @@ var $RouteProvider = [
             _this.when(null, route);
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#decorate
@@ -161,6 +159,7 @@ var $RouteProvider = [
             decorators[name] = decorator;
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#ignoreCase
@@ -175,6 +174,7 @@ var $RouteProvider = [
             caseSensitive = false;
             return _this;
         };
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$routeProvider#matchCase
@@ -189,13 +189,14 @@ var $RouteProvider = [
             caseSensitive = true;
             return _this;
         };
+
         //Scoped Methods
         function createRedirector(redirectTo) {
             var fn = null;
             return function ($location, next) {
-                if(fn === null) {
-                    if(redirectTo) {
-                        if(isString(redirectTo)) {
+                if (fn === null) {
+                    if (redirectTo) {
+                        if (isString(redirectTo)) {
                             fn = function ($location, next) {
                                 var interpolated = interpolate(redirectTo, next.params);
                                 $location.path(interpolated).search(next.params).replace();
@@ -212,18 +213,21 @@ var $RouteProvider = [
                 return fn($location, next);
             };
         }
+
         function createParameter(name, converter, cargs) {
             var trimmed;
-            if(cargs) {
+
+            if (cargs) {
                 trimmed = cargs.trim();
-                if((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') || (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
+                if ((trimmed[0] === '{' && trimmed[trimmed.length - 1] === '}') || (trimmed[0] === '[' && trimmed[trimmed.length - 1] === ']')) {
                     try  {
                         cargs = angular.fromJson(trimmed);
                     } catch (e) {
                         //Note: Errors are ok here, we let it remain as a string.
-                                            }
+                    }
                 }
             }
+
             return {
                 name: name,
                 converter: function () {
@@ -231,19 +235,23 @@ var $RouteProvider = [
                 }
             };
         }
+
         function interpolate(url, params) {
             //TODO: Are we missing calls to some "Encode URI component"?
-                        var name = "", index = 0;
+            var name = "", index = 0;
             forEach(parseParams(url), function (param) {
                 var formatter = function (val) {
                     return val.toString();
                 }, converter = createParameter(param.name, param.converter, param.args).converter(), paramValue = params[param.name];
-                if(isUndefined(paramValue)) {
+
+                if (isUndefined(paramValue)) {
                     throw Error("Could not find parameter '" + param.name + "' when building url for route '" + url + "', ensure that all required parameters are provided.");
                 }
-                if(!isFunction(converter) && isDefined(converter.format)) {
+
+                if (!isFunction(converter) && isDefined(converter.format)) {
                     formatter = converter.format;
                 }
+
                 name += url.slice(index, param.index) + '/' + formatter(paramValue);
                 index = param.lastIndex;
                 delete params[param.name];
@@ -251,13 +259,16 @@ var $RouteProvider = [
             name += url.substr(index);
             return name;
         }
+
         var paramsRegex = new RegExp('\x2F((:(\\*?)(\\w+))|(\\{((\\w+)(\\((.*?)\\))?:)?(\\*?)(\\w+)\\}))', 'g');
         function parseParams(path) {
             var match, params = [];
-            if(path === null) {
+
+            if (path === null) {
                 return params;
             }
-            while((match = paramsRegex.exec(path)) !== null) {
+
+            while ((match = paramsRegex.exec(path)) !== null) {
                 params.push({
                     name: match[4] || match[11],
                     catchAll: (match[3] || match[10]) === '*',
@@ -267,18 +278,17 @@ var $RouteProvider = [
                     lastIndex: paramsRegex.lastIndex
                 });
             }
+
             return params;
         }
+
         function parseExpression(path) {
-            var regex = "^", name = "", segments = [], index = 0, flags = '', params = {
-            };
-            if(path === null) {
-                return {
-                    name: null,
-                    params: params
-                };
+            var regex = "^", name = "", segments = [], index = 0, flags = '', params = {};
+
+            if (path === null) {
+                return { name: null, params: params };
             }
-            if(path === '/') {
+            if (path === '/') {
                 return {
                     exp: new RegExp('^[\x2F]?$', flags),
                     segments: [],
@@ -286,34 +296,42 @@ var $RouteProvider = [
                     params: params
                 };
             }
+
             forEach(parseParams(path), function (param, idx) {
                 var cname = '';
+
                 regex += escapeRegex(path.slice(index, param.index));
-                if(param.catchAll) {
+                if (param.catchAll) {
                     regex += '/(.*)';
                 } else {
                     regex += '/([^\\/]*)';
                 }
-                if(param.converter !== '') {
+                if (param.converter !== '') {
                     cname = ":" + param.converter;
                 }
+
                 name += path.slice(index, param.index) + '/$' + idx + cname;
+
                 params[param.name] = {
                     id: idx,
                     converter: param.converter
                 };
+
                 segments.push(createParameter(param.name, param.converter, param.args));
                 index = param.lastIndex;
             });
+
             regex += escapeRegex(path.substr(index));
             name += path.substr(index);
-            if(!caseSensitive) {
+            if (!caseSensitive) {
                 name = name.toLowerCase();
                 flags += 'i';
             }
-            if(regex[regex.length - 1] === '\x2F') {
+
+            if (regex[regex.length - 1] === '\x2F') {
                 regex = regex.substr(0, regex.length - 1);
             }
+
             return {
                 exp: new RegExp(regex + '\x2F?$', flags),
                 segments: segments,
@@ -321,43 +339,47 @@ var $RouteProvider = [
                 params: params
             };
         }
+
         function createMatcher(path, expression) {
-            if(path == null) {
+            if (path == null) {
                 return noop;
             }
+
             return function (location) {
-                var match = location.match(expression.exp), dst = {
-                }, invalidParam;
-                if(match) {
+                var match = location.match(expression.exp), dst = {}, invalidParam;
+
+                if (match) {
                     invalidParam = false;
                     forEach(expression.segments, function (segment, index) {
                         var param, value, converter;
-                        if(!invalidParam) {
+                        if (!invalidParam) {
                             param = match[index + 1];
                             converter = segment.converter();
-                            if(!isFunction(converter) && isDefined(converter.parse)) {
+                            if (!isFunction(converter) && isDefined(converter.parse)) {
                                 converter = converter.parse;
                             }
                             value = converter(param);
-                            if(isDefined(value.accept)) {
-                                if(!value.accept) {
+                            if (isDefined(value.accept)) {
+                                if (!value.accept) {
                                     invalidParam = true;
                                 }
                                 dst[segment.name] = value.value;
                             } else {
-                                if(!value) {
+                                if (!value) {
                                     invalidParam = true;
                                 }
                                 dst[segment.name] = param;
                             }
                         }
                     });
-                    if(!invalidParam) {
+
+                    if (!invalidParam) {
                         return dst;
                     }
                 }
             };
         }
+
         //Registration of Default Converters
         this.convert('num', function () {
             return {
@@ -369,25 +391,28 @@ var $RouteProvider = [
                     };
                 },
                 format: function (value) {
-                    if(isNaN(value)) {
+                    if (isNaN(value)) {
                         throw new Error(errors.invalidNumericValue);
                     }
                     return value.toString();
                 }
             };
         });
+
         this.convert('regex', function (arg) {
             var exp, flags = '', regex;
-            if(isObject(arg) && isDefined(arg.exp)) {
+
+            if (isObject(arg) && isDefined(arg.exp)) {
                 exp = arg.exp;
-                if(isDefined(arg.flags)) {
+                if (isDefined(arg.flags)) {
                     flags = arg.flags;
                 }
-            } else if(isString(arg) && arg.length > 0) {
+            } else if (isString(arg) && arg.length > 0) {
                 exp = arg;
             } else {
                 throw Error(errors.regexConverterNotValid);
             }
+
             regex = new RegExp(exp, flags);
             return {
                 parse: function (param) {
@@ -400,26 +425,23 @@ var $RouteProvider = [
                 format: function (value) {
                     var str = value.toString();
                     var test = regex.test(str);
-                    if(!test) {
+                    if (!test) {
                         throw Error(errors.valueCouldNotBeMatchedByRegex);
                     }
                     return str;
                 }
             };
         });
+
         this.convert('', function () {
             return function () {
                 return true;
             };
         });
+
         //Service Factory
         this.$get = [
-            '$rootScope', 
-            '$location', 
-            '$q', 
-            '$injector', 
-            '$routeParams', 
-            '$browser', 
+            '$rootScope', '$location', '$q', '$injector', '$routeParams', '$browser',
             function ($rootScope, $location, $q, $injector, $routeParams, $browser) {
                 /**
                 * @ngdoc object
@@ -535,7 +557,7 @@ var $RouteProvider = [
                 * @description
                 * Formats the given provided route into an url.
                 */
-                                var forceReload = false, baseElement, $route = {
+                var forceReload = false, baseElement, $route = {
                     routes: routes,
                     html5Mode: function () {
                         return $locationProvider.html5Mode();
@@ -548,86 +570,92 @@ var $RouteProvider = [
                         $rootScope.$evalAsync(update);
                     },
                     change: function (args) {
-                        var params = args.params || {
-                        }, route = interpolate(args.route, params), loc = $location.path(route).search(params);
-                        if(args.replace) {
+                        var params = args.params || {}, route = interpolate(args.route, params), loc = $location.path(route).search(params);
+
+                        if (args.replace) {
                             loc.replace();
                         }
                     },
                     format: function (route, arg2, arg3) {
                         var interpolated;
-                        arg2 = arg2 || {
-                        };
+                        arg2 = arg2 || {};
                         arg3 = isDefined(arg3) ? arg3 : true;
                         interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
-                        if($locationProvider.html5Mode() && arg3) {
+
+                        if ($locationProvider.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;
                     }
                 };
+
                 $rootScope.$on(EVENTS.LOCATION_CHANGE, update);
                 return $route;
+
                 function buildmatch(route, params, search) {
                     var match = inherit(route, {
                         self: inherit(route.self, {
-                            params: extend({
-                            }, search, params),
+                            params: extend({}, search, params),
                             searchParams: search,
                             pathParams: params
                         })
                     });
                     return match;
                 }
+
                 function findroute(currentPath) {
                     var params, match;
+
                     forEach(routes, function (route) {
-                        if(!match && (params = route.match(currentPath))) {
+                        if (!match && (params = route.match(currentPath))) {
                             match = buildmatch(route, params, $location.search());
                         }
                     });
-                    return match || routes[null] && buildmatch(routes[null], {
-                    }, {
-                    });
+
+                    return match || routes[null] && buildmatch(routes[null], {}, {});
                 }
+
                 function update() {
                     var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
-                    if(!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
+
+                    if (!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                         lastRoute.params = nextRoute.params;
                         lastRoute.searchParams = nextRoute.searchParams;
                         lastRoute.pathParams = nextRoute.pathParams;
+
                         copy(nextRoute.params, $routeParams);
+
                         $rootScope.$broadcast(EVENTS.ROUTE_UPDATE, lastRoute);
-                    } else if(next || lastRoute) {
+                    } else if (next || lastRoute) {
                         //TODO: We should always have a next to go to, it may be a null route though.
                         forceReload = false;
                         var event = $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_START, nextRoute, lastRoute);
-                        if(!event.defaultPrevented) {
+                        if (!event.defaultPrevented) {
                             $route.current = nextRoute;
-                            if(next) {
+
+                            if (next) {
                                 next.redirect($location, nextRoute);
                             }
+
                             var dp = $q.when(nextRoute);
-                            if(nextRoute) {
+                            if (nextRoute) {
                                 forEach(decorators, function (decorator) {
                                     dp = dp.then(function () {
                                         //Note: must keep nextRoute as "this" context here.
-                                        var decorated = $injector.invoke(decorator, nextRoute, {
-                                            $next: nextRoute
-                                        });
+                                        var decorated = $injector.invoke(decorator, nextRoute, { $next: nextRoute });
                                         return $q.when(decorated);
                                     });
                                 });
                             }
                             dp.then(function () {
-                                if(nextRoute === $route.current) {
-                                    if(next) {
+                                if (nextRoute === $route.current) {
+                                    if (next) {
                                         angular.copy(nextRoute.params, $routeParams);
                                     }
                                     $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_SUCCESS, nextRoute, lastRoute);
                                 }
                             }, function (error) {
-                                if(nextRoute === $route.current) {
+                                if (nextRoute === $route.current) {
                                     $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_ERROR, nextRoute, lastRoute, error);
                                 }
                             });
@@ -635,10 +663,9 @@ var $RouteProvider = [
                             //TODO: Do we need to do anything if the user cancels?
                             //       - if the user wants to return to the old url, he should cancel on
                             //         location change instead?
-                                                    }
+                        }
                     }
                 }
-            }        ];
+            }];
     }];
-angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {
-});
+angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {});

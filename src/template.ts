@@ -1,11 +1,8 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
-
+/// <reference path="refs.d.ts" />
 
 function $TemplateProvider() {
     'use strict';
-    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))', 'i');
+    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))$', 'i');
 
     /**
      * @ngdoc object
@@ -24,15 +21,15 @@ function $TemplateProvider() {
     this.$get = [<any>'$http', '$q', '$injector', '$templateCache',
     function ($http: ng.IHttpService, $q: ng.IQService, $injector: ng.auto.IInjectorService, $templateCache: ng.ITemplateCacheService) {
 
-        function getFromUrl(url): ng.IPromise {
+        function getFromUrl(url): ng.IPromise<any> {
             return $http.get(url, { cache: $templateCache }).then(response => { return response.data; });
         }
 
-        function getFromFunction(fn): ng.IPromise {
+        function getFromFunction(fn): ng.IPromise<any> {
             return $q.when($injector.invoke(fn));
         }
 
-        function getFromObject(obj): ng.IPromise {
+        function getFromObject(obj): ng.IPromise<any> {
             if (isDefined(obj.url)) {
                 return getFromUrl(obj.url);
             }
@@ -71,26 +68,29 @@ function $TemplateProvider() {
          * @description
          * Retrieves a template and returns that as a promise. A Template is a piece of html.
          */
-        var $template = {
-            'get': function (template): ng.IPromise {
-                if (isString(template)) {
-                    if (urlmatcher.test(template)) {
-                        return getFromUrl(template);
-                    }
-                    return $q.when(template);
+        var getter = function(template): ng.IPromise<any> {
+            if (isString(template)) {
+                if (urlmatcher.test(template)) {
+                    return getFromUrl(template);
                 }
-
-                if (isFunction(template) || isArray(template)) {
-                    return getFromFunction(template);
-                }
-
-                if (isObject(template)) {
-                    return getFromObject(template);
-                }
-
-                throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
+                return $q.when(template);
             }
+
+            if (isFunction(template) || isArray(template)) {
+                return getFromFunction(template);
+            }
+
+            if (isObject(template)) {
+                return getFromObject(template);
+            }
+
+            throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
         };
+
+        //Note: We return $template as a function.
+        //      However, to ease mocking we 
+        var $template: any = function(template): ng.IPromise<any> { return $template.fn(template); };
+        $template.fn = getter;
         return $template;
     }];
 }

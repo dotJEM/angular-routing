@@ -1,19 +1,18 @@
 <h1><code ng:non-bindable="">$stateTransitionProvider</code>
-<span class="hint">(service in module <code ng:non-bindable="">dotjem.routing</code>
-)</span>
+<div><span class="hint">service in module <code ng:non-bindable="">dotjem.routing</code>
+</span>
+</div>
 </h1>
-<div><h2 id="Description">Description</h2>
-<div class="description"><p>Use the <code>$stateTransitionProvider</code> to configure handlers for transitions between states.
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="dotjem-routing-statetransitionprovider-page"><p>Use the <code>$stateTransitionProvider</code> to configure handlers for transitions between states.
 <br/>
 The transition handlers allows for canceling a transition, e.g. if it is invalid or rerouting it to another state.
-They can also be used to perform steps that should only be performed as part of a specific transition from e.g. state 'A' to state 'B', but not 'C' to 'B'.
+They can also be used to perform steps that should only be performed as part of a specific transition from e.g. state &#39;A&#39; to state &#39;B&#39;, but not &#39;C&#39; to &#39;B&#39;.
 <br/>
 Besides the more general <a href="#/api/dotjem.routing.$stateTransitionProvider#transition">transition</a> method, specialized configuration methods exists for entering and leaving states.
 These specialized cases can also be configured on the states instead of using the <code>$stateTransitionProvider</code>. See <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a> for more information about that.
 <br/></p>
-
-<h3 id="transitionhandlers">Transition Handlers</h5>
-
+<h5 id="description_transition-handlers">Transition Handlers</h5>
 <p>Handlers for transitions can be specified in a number of ways, where the most simple handler is an injectable <code>function</code>.
 <br/>
 Here is a basic example:
@@ -43,13 +42,10 @@ Here is a basic example:
       }])
    }]);
 </pre>
-
-<h4 id="handlerstages">Handler Stages</h6>
-
+<h6 id="description_transition-handlers_handler-stages">Handler Stages</h6>
 <p>The example above describes how simple handlers can be registered, however handlers can also be specified to be called at specific transition stages.
 <br/>
 Basically this boils down to <code>before</code>, <code>between</code>, <code>after</code>. The flow of these will be:</p>
-
 <ol>
 <li>Handler: <code>before</code></li>
 <li>Event: <code>$stateChangeStart</code></li>
@@ -58,8 +54,7 @@ Basically this boils down to <code>before</code>, <code>between</code>, <code>af
 <li>Event: <code>$stateChangeSuccess</code> or <code>$stateChangeError</code></li>
 <li>Handler: <code>after</code></li>
 </ol>
-
-<p>When registering transitions like demonstrated in the example above, this will be maped to the "between" stage.
+<p>When registering transitions like demonstrated in the example above, this will be maped to the &quot;between&quot; stage.
 <br/>
 To target specific stages of a transition use a transition object instead as in the example below:
 <pre class="prettyprint linenums">
@@ -92,17 +87,12 @@ Here we defined a handler for all stages, each stage is optional however, so if 
    }]);
 </pre>
 <br/></p>
-
-<h3 id="targetingmultiplestates">Targeting Multiple States</h5>
-
+<h5 id="description_targeting-multiple-states">Targeting Multiple States</h5>
 <p>When defining states when configuring transitions, multiple states can be targeted either using the <code>*</code> wildcard or as arrays.</p>
-
-<h4 id="usingwildcards">Using Wildcards</h6>
-
+<h6 id="description_targeting-multiple-states_using-wildcards">Using Wildcards</h6>
 <p>By using <code>*</code> one can target all states the the Hierarchy below.
 <br/>
 So if we just use <code>*</code> we target all existing states under <code>root</code>, and we can define a global handler that gets called on all transitions by using <code>*</code> both as destination and source.</p>
-
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
@@ -112,9 +102,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
        }])
    }]);
 </pre>
-
 <p>We can also target all transitions to or from a specific state that way:</p>
-
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
@@ -129,9 +117,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
        }])
    }]);
 </pre>
-
-<p>This was global handlers, but we might also wan't to target any state below a specific state:</p>
-
+<p>This was global handlers, but we might also wan&#39;t to target any state below a specific state:</p>
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
@@ -146,11 +132,8 @@ So if we just use <code>*</code> we target all existing states under <code>root<
        }])
    }]);
 </pre>
-
-<h4 id="usingarrays">Using Arrays</h6>
-
+<h6 id="description_targeting-multiple-states_using-arrays">Using Arrays</h6>
 <p>In addition to using the <code>*</code> wildcart to target multiple states, it is also possible to use arrays for a more specific match.</p>
-
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
@@ -169,9 +152,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
        }])
    }]);
 </pre>
-
 <p>Each of the states, wildcards can also be used:</p>
-
 <pre class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
@@ -183,68 +164,56 @@ So if we just use <code>*</code> we target all existing states under <code>root<
                               + ' to many combinations to write out');
       }])
    }]);
-</pre></div>
-<div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="onEnter">onEnter(state, handler)</h3>
-<div class="onenter"><p>This is a shorthand method for <code>$stateTransitionProvider.transition('*', state, handler);</code>
+</pre>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_onenter">onEnter(state, handler)</h3>
+<div class="onenter"><div class="dotjem-routing-statetransitionprovider-onenter-page"><p>This is a shorthand method for <code>$stateTransitionProvider.transition(&#39;*&#39;, state, handler);</code>
 <br/>
-Instead of using this method, the transitions can also be configured when defining states through the <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">state – {string|State|Array} – </code>
-<p>The state name matchers(s) to match when entering.</p></li>
-<li><code ng:non-bindable="">handler – {funtion|Object} – </code>
-<p>The handler to invoke when entering the state.
+Instead of using this method, the transitions can also be configured when defining states through the <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>.</p>
+</div><h5 id="methods_onenter_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>state</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-state">State</a><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="dotjem-routing-statetransitionprovider-onenter-page"><p>The state name matchers(s) to match when entering.</p>
+</div></td></tr><tr><td>handler</td><td><a href="" class="label type-hint type-hint-funtion">funtion</a><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-statetransitionprovider-onenter-page"><p>The handler to invoke when entering the state.
 <br/>
 Either a injectable function or a handler object. If handler is an object, it must define one or more of the
 following properties:</p>
-
 <ul>
 <li><code>before</code> <code>{function}</code> : handler to be called before transition starts</li>
 <li><code>between</code> <code>{function}</code> : handler to be called right after views are resolved</li>
 <li><code>after</code> <code>{function}</code> : handler to be called when transition is complete</li>
-</ul></li>
 </ul>
-</div>
+</div></td></tr></tbody></table></div>
 </li>
-<li><h3 id="onExit">onExit(state, handler)</h3>
-<div class="onexit"><p>This is a shorthand method for <code>$stateTransitionProvider.transition(state, '*', handler);</code>
+<li><h3 id="methods_onexit">onExit(state, handler)</h3>
+<div class="onexit"><div class="dotjem-routing-statetransitionprovider-onexit-page"><p>This is a shorthand method for <code>$stateTransitionProvider.transition(state, &#39;*&#39;, handler);</code>
 <br/>
-Instead of using this method, the transitions can also be configured when defining states through the <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">state – {string|State|Array} – </code>
-<p>The state name matchers(s) to match when leaving.</p></li>
-<li><code ng:non-bindable="">handler – {funtion|Object} – </code>
-<p>The handler to invoke when entering the state.
+Instead of using this method, the transitions can also be configured when defining states through the <a href="#/api/dotjem.routing.$stateProvider">$stateProvider</a>.</p>
+</div><h5 id="methods_onexit_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>state</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-state">State</a><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="dotjem-routing-statetransitionprovider-onexit-page"><p>The state name matchers(s) to match when leaving.</p>
+</div></td></tr><tr><td>handler</td><td><a href="" class="label type-hint type-hint-funtion">funtion</a><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-statetransitionprovider-onexit-page"><p>The handler to invoke when entering the state.
 <br/>
 Either a injectable function or a handler object. If handler is an object, it must define one or more of the
 following properties:</p>
-
 <ul>
 <li><code>before</code> <code>{function}</code> : handler to be called before transition starts</li>
 <li><code>between</code> <code>{function}</code> : handler to be called right after views are resolved</li>
 <li><code>after</code> <code>{function}</code> : handler to be called when transition is complete</li>
-</ul></li>
 </ul>
-</div>
+</div></td></tr></tbody></table></div>
 </li>
-<li><h3 id="transition">transition(from, to, handler)</h3>
-<div class="transition"><p>Register a single handler to get called when leaving the state(s) passed as the from parameter
-to the state(s) passed as the to parameter.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">from – {string|State|Array} – </code>
-<p>The state name matchers(s) to match on leaving.</p></li>
-<li><code ng:non-bindable="">to – {string|State|Array} – </code>
-<p>The The state name matchers(s) to match on entering.</p></li>
-<li><code ng:non-bindable="">handler – {funtion|Object} – </code>
-<p>The handler to invoke when the transitioning occurs.
+<li><h3 id="methods_transition">transition(from, to, handler)</h3>
+<div class="transition"><div class="dotjem-routing-statetransitionprovider-transition-page"><p>Register a single handler to get called when leaving the state(s) passed as the from parameter
+to the state(s) passed as the to parameter.</p>
+</div><h5 id="methods_transition_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>from</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-state">State</a><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="dotjem-routing-statetransitionprovider-transition-page"><p>The state name matchers(s) to match on leaving.</p>
+</div></td></tr><tr><td>to</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-state">State</a><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="dotjem-routing-statetransitionprovider-transition-page"><p>The The state name matchers(s) to match on entering.</p>
+</div></td></tr><tr><td>handler</td><td><a href="" class="label type-hint type-hint-funtion">funtion</a><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-statetransitionprovider-transition-page"><p>The handler to invoke when the transitioning occurs.
 <br/>
 Either a injectable function or a handler object. If handler is an object, it must define one or more of the
 following properties:</p>
-
 <ul>
 <li><code>before</code> <code>{function}</code> : handler to be called before transition starts</li>
 <li><code>between</code> <code>{function}</code> : handler to be called right after views are resolved</li>
 <li><code>after</code> <code>{function}</code> : handler to be called when transition is complete</li>
-</ul></li>
 </ul>
-</div>
+</div></td></tr></tbody></table></div>
 </li>
 </ul>
 </div>

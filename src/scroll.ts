@@ -1,6 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 
 var $ScrollProvider = [<any>
     function () {
@@ -25,16 +23,16 @@ var $ScrollProvider = [<any>
      * Scrolling to named elements is dependant on the `jemAnchor` directive which will register elements to be targets for the `$scroll` service. This is
      * to allow elements that is being loaded as part of a transition to also work as targets after `$scroll` has been called.
      */
-    this.$get = [<any>'$window','$rootScope','$anchorScroll','$injector',
-        function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $anchorScroll: ng.IAnchorScrollService, $injector: ng.auto.IInjectorService) {
+    this.$get = [<any>'$window','$rootScope','$anchorScroll','$inject',
+        function ($window: ng.IWindowService, $rootScope: ng.IRootScopeService, $anchorScroll: ng.IAnchorScrollService, $inject: dotjem.routing.IInjectService) {
             var scroll: any = function(arg: any) {
-                var fn;
+                var ifn: dotjem.routing.IInvoker;
                 if (isUndefined(arg)) {
                     $anchorScroll();
                 } else if (isString(arg)) {
                     scrollTo(arg);
-                } else if ((fn = injectFn(arg)) !== null) {
-                    scrollTo(fn($injector));
+                } else if (ifn = $inject.create(arg)) {
+                    scrollTo(ifn());
                 }
             };
 
@@ -48,7 +46,8 @@ var $ScrollProvider = [<any>
                 }
                 $rootScope.$broadcast('$scrollPositionChanged', elm);
             }
-
+            //TODO: could we support mocking this way if it doesn't work out of the box?
+            //scroll.$fn = scroll;
             return scroll;
         }];
 }];
@@ -76,5 +75,5 @@ angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
 //scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
 //scrollTo: null - don't scroll, not even to top.
 //scrollTo: @viewname - scroll to a view.
-//    scrollTo: elementid - scroll to an element id
+//scrollTo: elementid - scroll to an element id
 //scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @

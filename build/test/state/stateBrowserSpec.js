@@ -1,6 +1,7 @@
 /// <reference path="../testcommon.ts" />
 describe('state.stateBrowser', function () {
     'use strict';
+
     //Note: This line below is to be able to run the test cases both on the build output as well
     //      as the raw source, this is because the solution is wrapped in a function on build.
     //      It is a bit of a mess though which I am not to fond of, but will have to do for now.
@@ -11,22 +12,21 @@ describe('state.stateBrowser', function () {
         return function () {
         };
     }));
+
     describe('lookup', function () {
         it('"first" succeeds.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
                     children: {
-                        'first': {
-                            msg: "find me"
-                        },
-                        'second': {
-                        }
+                        'first': { msg: "find me" },
+                        'second': {}
                     }
                 });
                 var result = browser.lookup('first');
                 expect(result.msg).toBe("find me");
             });
         });
+
         it('"first.second" succeeds.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
@@ -44,6 +44,7 @@ describe('state.stateBrowser', function () {
                 expect(result.msg).toBe("find me");
             });
         });
+
         it('"first.second.third" succeeds.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
@@ -59,24 +60,19 @@ describe('state.stateBrowser', function () {
                                 }
                             }
                         },
-                        second: {
-                        }
+                        second: {}
                     }
                 });
                 var result = browser.lookup('first.second.third');
                 expect(result.msg).toBe("find me");
             });
         });
+
         it('"second.second" succeeds.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
                     children: {
-                        'first': {
-                            children: {
-                                'second': {
-                                }
-                            }
-                        },
+                        'first': { children: { 'second': {} } },
                         second: {
                             children: {
                                 'second': {
@@ -90,28 +86,25 @@ describe('state.stateBrowser', function () {
                 expect(result.msg).toBe("find me");
             });
         });
+
         it('"nan" fails.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
                     fullname: 'root',
-                    children: {
-                    }
+                    children: {}
                 });
                 expect(function () {
                     browser.lookup('nan');
                 }).toThrow("Could not locate 'nan' under 'root'.");
             });
         });
+
         it('"first.nan" fails.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
                     fullname: 'root',
                     children: {
-                        'first': {
-                            fullname: 'root.first',
-                            children: {
-                            }
-                        }
+                        'first': { fullname: 'root.first', children: {} }
                     }
                 });
                 expect(function () {
@@ -119,16 +112,13 @@ describe('state.stateBrowser', function () {
                 }).toThrow("Could not locate 'nan' under 'root.first'.");
             });
         });
+
         it('"first.nan" fails.', function () {
             inject(function () {
                 var browser = new test.StateBrowser({
                     fullname: 'root',
                     children: {
-                        'first': {
-                            fullname: 'root.first',
-                            children: {
-                            }
-                        }
+                        'first': { fullname: 'root.first', children: {} }
                     }
                 });
                 expect(function () {
@@ -137,28 +127,30 @@ describe('state.stateBrowser', function () {
             });
         });
     });
+
     describe('resolve', function () {
         var root;
         var browser;
+
         function buildChildArray(p, prefix, count, forEach) {
-            var children = {
-            };
-            for(var i = 1; i <= count; i++) {
-                var child = {
-                };
+            var children = {};
+            for (var i = 1; i <= count; i++) {
+                var child = {};
                 child.name = prefix + i;
                 child.fullname = p.fullname + '.' + child.name;
-                child.self = {
-                };
+
+                child.self = {};
                 child.self.fullname = child.fullname;
+
                 forEach(child);
+
                 children[prefix + i] = child;
             }
             return children;
         }
+
         beforeEach(mod('dotjem.routing', function () {
-            root = {
-            };
+            root = {};
             root.fullname = 'root';
             root.children = buildChildArray(root, 'state', 3, function (child) {
                 child.children = buildChildArray(child, 'top', 3, function (child1) {
@@ -170,63 +162,75 @@ describe('state.stateBrowser', function () {
             });
             browser = new test.StateBrowser(root);
         }));
+
         describe('at root', function () {
             it('resolve state1', function () {
                 inject(function () {
                     expect(browser.resolve(root, 'state1').fullname).toBe('root.state1');
                 });
             });
+
             it('resolve state1.top2', function () {
                 inject(function () {
                     expect(browser.resolve(root, 'state1.top2').fullname).toBe('root.state1.top2');
                 });
             });
+
             it('resolve ./state1', function () {
                 inject(function () {
                     expect(browser.resolve(root, './state1').fullname).toBe('root.state1');
                 });
             });
+
             it('resolve /state1', function () {
                 inject(function () {
                     expect(browser.resolve(root, '/state1').fullname).toBe('root.state1');
                 });
             });
+
             it('resolve state1/top3', function () {
                 inject(function () {
                     expect(browser.resolve(root, 'state1/top3').fullname).toBe('root.state1.top3');
                 });
             });
+
             it('resolve state1/top3/mid2/bot1', function () {
                 inject(function () {
                     expect(browser.resolve(root, 'state1/top3/mid2/bot1').fullname).toBe('root.state1.top3.mid2.bot1');
                 });
             });
+
             it('resolve [0] returns root.state1', function () {
                 inject(function () {
                     expect(browser.resolve(root, '[0]').fullname).toBe('root.state1');
                 });
             });
+
             it('resolve [-1]', function () {
                 inject(function () {
                     expect(browser.resolve(root, '[-1]').fullname).toBe('root.state3');
                 });
             });
+
             it('resolve [-2]', function () {
                 inject(function () {
                     expect(browser.resolve(root, '[-2]').fullname).toBe('root.state2');
                 });
             });
+
             it('resolve [1]', function () {
                 inject(function () {
                     expect(browser.resolve(root, '[1]').fullname).toBe('root.state2');
                 });
             });
+
             it('resolve [1]', function () {
                 inject(function () {
                     expect(browser.resolve(root, 'state1/[1]').fullname).toBe('root.state1.top2');
                 });
             });
         });
+
         describe('at root', function () {
             it('lookup state1.top2', function () {
                 inject(function () {
@@ -366,6 +370,6 @@ describe('state.stateBrowser', function () {
             //            .toThrow();
             //    });
             //});
-                    });
+        });
     });
 });

@@ -20,6 +20,7 @@ module.exports = function (config) {
             'src/template.js',
             'src/view.js',
             'src/scroll.js',
+            'src/inject.js',
             
             'src/state/state.js',
             'src/state/stateBrowser.js',

@@ -1,12 +1,14 @@
 <h1><code ng:non-bindable="">$template</code>
-<span class="hint">(service in module <code ng:non-bindable="">dotjem.routing</code>
-)</span>
+<div><span class="hint">service in module <code ng:non-bindable="">dotjem.routing</code>
+</span>
+</div>
 </h1>
-<div><h2 id="Description">Description</h2>
-<div class="description"><p>The $template services is used to load templates, templates are cached using the '$templateCache'.
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="dotjem-routing-template-page"><p>The $template services is used to load templates, templates are cached using the &#39;$templateCache&#39;.
 <br/>
-<strong>Note:</strong> all templates are returned as promises.</p></div>
-<h2 id="Dependencies">Dependencies</h2>
+<strong>Note:</strong> all templates are returned as promises.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
 <ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$http">$http</a></code>
 </li>
 <li><code ng:non-bindable=""><a href="#/api/ng.$q">$q</a></code>
@@ -16,29 +18,22 @@
 <li><code ng:non-bindable=""><a href="#/api/ng.$templateCache">$templateCache</a></code>
 </li>
 </ul>
-<div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="get">get(template)</h3>
-<div class="get"><p>Retrieves a template and returns that as a promise. A Template is a piece of html.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">template – {string|Object|function} – </code>
-<p>Either a string reprecenting the actual template,
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_get">get(template)</h3>
+<div class="get"><div class="dotjem-routing-template-get-page"><p>Retrieves a template and returns that as a promise. A Template is a piece of html.</p>
+</div><h5 id="methods_get_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>template</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="dotjem-routing-template-get-page"><p>Either a string reprecenting the actual template,
 an url to it, a function returning it or an object specifying a location of the template.</p>
-
 <p>If a template object i used, one of the following properties must be used:</p>
-
 <ul>
 <li><code>url</code> <code>{string}</code>: An url location of the template.</li>
 <li><code>fn</code> <code>{function}</code>: A function that returns the template.</li>
 <li><code>html</code> <code>{string}</code>: The actual template as raw html.</li>
 </ul>
-
 <p><br/>
 <strong>Note:</strong> if a template object defines more than one of those, the first one the <code>$template</code> service encounters will be used
-based on the order above, and the rest ignored. E.g. if a template object defines <code>url</code> and <code>html</code>, <code>html</code> is ignored.</p></li>
-</ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Promise}</code>
-– <p>a promise that resolves to the template.</p></div>
-</div>
+based on the order above, and the rest ignored. E.g. if a template object defines <code>url</code> and <code>html</code>, <code>html</code> is ignored.</p>
+</div></td></tr></tbody></table><h5 id="methods_get_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">Promise</a></td><td><div class="dotjem-routing-template-get-page"><p>a promise that resolves to the template.</p>
+</div></td></tr></table></div>
 </li>
 </ul>
 </div>

@@ -118,15 +118,14 @@
 * It is recommended that they are unique however, unless you diliberately wish to load the same content into multiple areas of a page, if multiple views use the same name within a page, they will load the same content, but they will render independendly.
 */
 var $StateProvider = [
-    '$routeProvider', 
-    '$stateTransitionProvider', 
-    function ($routeProvider, $transitionProvider) {
+    '$routeProvider', '$stateTransitionProvider', function ($routeProvider, $transitionProvider) {
         'use strict';
+
         //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
         //      it would make testing of them individually easier, although it would make them more public than
         //      they are right now.
-                var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {
-        }), browser = new StateBrowser(root);
+        var factory = new StateFactory($routeProvider, $transitionProvider), root = factory.createState(rootName, {}), browser = new StateBrowser(root);
+
         /**
         * @ngdoc method
         * @name dotjem.routing.$stateProvider#state
@@ -170,21 +169,15 @@ var $StateProvider = [
         */
         this.state = function (fullname, state) {
             StateRules.validateName(fullname);
+
             var parent = browser.lookup(fullname, 1);
             parent.add(factory.createState(fullname, state, parent));
             return this;
         };
+
         this.$get = [
-            '$rootScope', 
-            '$q', 
-            '$injector', 
-            '$route', 
-            '$view', 
-            '$stateTransition', 
-            '$location', 
-            '$scroll', 
-            '$resolve', 
-            function ($rootScope, $q, $injector, $route, $view, $transition, $location, $scroll, $resolve) {
+            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve',
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve) {
                 /**
                 * @ngdoc object
                 * @name dotjem.routing.$state
@@ -427,12 +420,11 @@ var $StateProvider = [
                 * @returns {boolean} true if the stats mathces, otherwise false.
                 */
                 var urlbuilder = new StateUrlBuilder($route);
+
                 var forceReload = null, current = root, $state = {
-                    root: // NOTE: root should not be used in general, it is exposed for testing purposes.
-                    root,
-                    current: extend(root.self, {
-                        $params: buildParams()
-                    }),
+                    // NOTE: root should not be used in general, it is exposed for testing purposes.
+                    root: root,
+                    current: extend(root.self, { $params: buildParams() }),
                     params: buildParams(),
                     goto: function (state, params) {
                         goto({
@@ -447,21 +439,22 @@ var $StateProvider = [
                     reload: reload,
                     url: function (arg1, arg2, arg3) {
                         var state = current;
-                        if(arguments.length === 0) {
+                        if (arguments.length === 0) {
                             return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                         }
-                        if(arguments.length === 1) {
-                            if(isBool(arg1)) {
+
+                        if (arguments.length === 1) {
+                            if (isBool(arg1)) {
                                 return urlbuilder.buildUrl($state.current, state, undefined, arg1);
                             } else {
                                 state = browser.resolve(current, toName(arg1), false);
                                 return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                             }
                         }
-                        if(isDefined(arg1)) {
+                        if (isDefined(arg1)) {
                             state = browser.resolve(current, toName(arg1), false);
                         }
-                        if(isBool(arg2)) {
+                        if (isBool(arg2)) {
                             return urlbuilder.buildUrl($state.current, state, undefined, arg2);
                         } else {
                             return urlbuilder.buildUrl($state.current, state, arg2, arg3);
@@ -474,96 +467,99 @@ var $StateProvider = [
                         return current.isActive(toName(state));
                     }
                 };
+
                 $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                     var route = $route.current;
-                    if(route) {
-                        if(route.state) {
+
+                    if (route) {
+                        if (route.state) {
                             goto({
                                 state: route.state,
                                 params: buildParams(route.params, route.pathParams, route.searchParams)
                             });
                         }
                     } else {
-                        goto({
-                            state: root,
-                            params: buildParams()
-                        });
+                        goto({ state: root, params: buildParams() });
                     }
                 });
                 $rootScope.$on(EVENTS.ROUTE_UPDATE, function () {
                     var route = $route.current, params = buildParams(route.params, route.pathParams, route.searchParams);
+
                     $state.params = params;
                     $state.current.$params = params;
                     $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
                 });
+
                 function reload(state) {
-                    if(isDefined(state)) {
-                        if(isString(state) || isObject(state)) {
+                    if (isDefined(state)) {
+                        if (isString(state) || isObject(state)) {
                             forceReload = toName(state);
+
                             //TODO: We need some name normalization OR a set of "compare" etc methods that can ignore root.
-                            if(forceReload.indexOf(rootName) !== 0) {
+                            if (forceReload.indexOf(rootName) !== 0) {
                                 forceReload = rootName + '.' + forceReload;
                             }
-                        } else if(state) {
+                        } else if (state) {
                             forceReload = root.fullname;
                         }
                     } else {
                         forceReload = current.fullname;
                     }
+
                     $rootScope.$evalAsync(function () {
-                        goto({
-                            state: current,
-                            params: $state.params,
-                            fource: forceReload
-                        });
+                        goto({ state: current, params: $state.params, fource: forceReload });
                     });
                 }
+
                 var context = new Context($state, function () {
                 }, root).complete();
                 var running = context;
+
                 function goto(args) {
                     var ctx, scrollTo, useUpdate = false;
-                    if(!running.ended) {
+
+                    //$transition.create(args.state, args.params, up)
+                    if (!running.ended) {
                         running.abort();
                     }
+
                     ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
                     ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
                         context.promise = $q.when('');
-                        context.locals = {
-                        };
+                        context.locals = {};
                     }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
                         forceReload = null;
-                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $injector)).execute(cmd.before()).execute(function (context) {
-                        if($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
+                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $inject)).execute(cmd.before()).execute(function (context) {
+                        if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
                             context.abort();
                         }
                     });
-                    if(ctx.ended) {
+
+                    if (ctx.ended) {
                         return;
                     }
+
                     forEach(ctx.changed.array, function (change) {
                         ctx.promise = ctx.promise.then(function () {
-                            if(useUpdate = useUpdate || change.isChanged) {
+                            if (useUpdate = useUpdate || change.isChanged) {
                                 $resolve.clear(change.state.resolve);
                             }
-                            return $resolve.all(change.state.resolve, context.locals, {
-                                $to: ctx.toState,
-                                $from: $state.current
-                            });
+                            return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
                         }).then(function (locals) {
-                            ctx.completePrep(change.state.fullname, context.locals = extend({
-                            }, context.locals, locals));
+                            ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
                             scrollTo = change.state.scrollTo;
                         });
                     });
+
                     ctx.promise.then(function () {
                         ctx.execute(cmd.between($rootScope)).execute(function (context) {
                             current = context.to;
                             var fromState = $state.current;
                             $state.params = context.params;
                             $state.current = context.toState;
+
                             context.transaction.commit();
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
                         }).execute(cmd.after($scroll, scrollTo)).complete();
@@ -575,6 +571,6 @@ var $StateProvider = [
                     });
                 }
                 return $state;
-            }        ];
+            }];
     }];
 angular.module('dotjem.routing').provider('$state', $StateProvider);

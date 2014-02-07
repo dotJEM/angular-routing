@@ -4,7 +4,9 @@ module.exports = function (config) {
         logLevel: config.LOG_INFO,
         loggers: [{ type: 'console' }],
         reporters: ['dots'],
+        browsers: ['PhantomJS'],
         autoWatch: false,
+        singleRun: true,
         files: [
           'lib/jquery/impl/jquery-1.9.1.js',
           'lib/angular/impl/angular.js',
@@ -13,9 +15,7 @@ module.exports = function (config) {
           'build/angular-routing.js',
           'build/angular-routing.legacy.js',
 
-          'build/test/testcommon.js',
-
-          'build/test/**/*Spec.js'
+          'build/test/**/*.js'
         ],
     });
 };

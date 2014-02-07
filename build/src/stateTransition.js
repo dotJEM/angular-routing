@@ -179,37 +179,38 @@
 */
 function $StateTransitionProvider() {
     'use strict';
-    var root = {
-        children: {
-        },
-        targets: {
-        }
-    }, _this = this;
+    var root = { children: {}, targets: {} }, _this = this;
+
     function alignHandler(obj) {
-        var result = {
-            handler: {
-            }
-        };
-        if(isDefined(obj.to)) {
+        var result = { handler: {} };
+
+        if (isDefined(obj.to)) {
             result.to = obj.to;
         }
-        if(isDefined(obj.from)) {
+
+        if (isDefined(obj.from)) {
             result.from = obj.from;
         }
-        if(isDefined(obj.handler)) {
+
+        if (isDefined(obj.handler)) {
             result.handler = obj.handler;
         }
-        if(isDefined(obj.before) && isUndefined(result.handler.before)) {
+
+        if (isDefined(obj.before) && isUndefined(result.handler.before)) {
             result.handler.before = obj.before;
         }
-        if(isDefined(obj.between) && isUndefined(result.handler.between)) {
+
+        if (isDefined(obj.between) && isUndefined(result.handler.between)) {
             result.handler.between = obj.between;
         }
-        if(isDefined(obj.after) && isUndefined(result.handler.after)) {
+
+        if (isDefined(obj.after) && isUndefined(result.handler.after)) {
             result.handler.after = obj.after;
         }
+
         return result;
     }
+
     /**
     * @ngdoc method
     * @name dotjem.routing.$stateTransitionProvider#onEnter
@@ -231,14 +232,14 @@ function $StateTransitionProvider() {
     * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
     */
     this.onEnter = function (state, handler) {
-        //TODO: Validation
-        if(isObject(handler)) {
+        if (isInjectable(handler)) {
+            this.transition('*', state, handler);
+        } else if (isObject(handler)) {
             var aligned = alignHandler(handler);
             this.transition(aligned.from || '*', state, aligned.handler);
-        } else if(isFunction(handler) || isArray(handler)) {
-            this.transition('*', state, handler);
         }
     };
+
     /**
     * @ngdoc method
     * @name dotjem.routing.$stateTransitionProvider#onExit
@@ -260,13 +261,14 @@ function $StateTransitionProvider() {
     * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
     */
     this.onExit = function (state, handler) {
-        if(isObject(handler)) {
+        if (isInjectable(handler)) {
+            this.transition(state, '*', handler);
+        } else if (isObject(handler)) {
             var aligned = alignHandler(handler);
             this.transition(state, aligned.to || '*', aligned.handler);
-        } else if(isFunction(handler) || isArray(handler)) {
-            this.transition(state, '*', handler);
         }
     };
+
     /**
     * @ngdoc method
     * @name dotjem.routing.$stateTransitionProvider#transition
@@ -290,32 +292,34 @@ function $StateTransitionProvider() {
     this.transition = function (from, to, handler) {
         var _this = this;
         var transition, regHandler;
-        if(isArray(from)) {
+
+        if (isArray(from)) {
             forEach(from, function (value) {
                 _this.transition(value, to, handler);
             });
-        } else if(isArray(to)) {
+        } else if (isArray(to)) {
             forEach(to, function (value) {
                 _this.transition(from, value, handler);
             });
         } else {
             from = toName(from);
             to = toName(to);
+
             // We ignore the situation where to and from are the same explicit state.
             // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
             // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
-            if(to === from && to.indexOf('*') === -1) {
+            if (to === from && to.indexOf('*') === -1) {
                 return this;
             }
+
             validate(from, to);
-            if(injectFn(handler)) {
-                // angular.isFunction(handler) || angular.isArray(handler)) {
-                handler = {
-                    between: handler
-                };
+
+            if (isInjectable(handler)) {
+                handler = { between: handler };
             }
+
             transition = lookup(from);
-            if(!(to in transition.targets)) {
+            if (!(to in transition.targets)) {
                 transition.targets[to] = [];
             }
             handler.name = from + ' -> ' + to;
@@ -323,35 +327,37 @@ function $StateTransitionProvider() {
         }
         return this;
     };
+
     function validate(from, to) {
         var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
-        if(fromValid && toValid) {
+
+        if (fromValid && toValid) {
             return;
         }
-        if(fromValid) {
+
+        if (fromValid) {
             throw new Error("Invalid transition - to: '" + to + "'.");
         }
-        if(toValid) {
+
+        if (toValid) {
             throw new Error("Invalid transition - from: '" + from + "'.");
         }
+
         throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
     }
+
     function lookup(name) {
-        var current = root, names = name.split('.'), i = //If name contains root explicitly, skip that one
-        names[0] === rootName ? 1 : 0;
-        for(; i < names.length; i++) {
-            if(!(names[i] in current.children)) {
-                current.children[names[i]] = {
-                    children: {
-                    },
-                    targets: {
-                    }
-                };
+        var current = root, names = name.split('.'), i = names[0] === rootName ? 1 : 0;
+
+        for (; i < names.length; i++) {
+            if (!(names[i] in current.children)) {
+                current.children[names[i]] = { children: {}, targets: {} };
             }
             current = current.children[names[i]];
         }
         return current;
     }
+
     /**
     * @ngdoc object
     * @name dotjem.routing.$stateTransition
@@ -360,21 +366,24 @@ function $StateTransitionProvider() {
     * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
     */
     this.$get = [
-        '$q', 
-        '$injector', 
-        function ($q, $injector) {
+        '$q', '$inject',
+        function ($q, $inject) {
             var $transition = {
                 root: root,
                 find: find
             };
+
             return $transition;
+
             function find(from, to) {
-                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to)), emitters;
+                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
+
                 function emit(select, tc, trx) {
                     var handler;
                     forEach(handlers, function (handlerObj) {
-                        if(isDefined(handler = select(handlerObj))) {
-                            injectFn(handler)($injector, {
+                        if (isDefined(handler = select(handlerObj))) {
+                            //TODO: Cache handler.
+                            $inject.create(handler)({
                                 $to: to,
                                 $from: from,
                                 $transition: tc,
@@ -383,6 +392,7 @@ function $StateTransitionProvider() {
                         }
                     });
                 }
+
                 return {
                     before: function (tc, trx) {
                         emit(function (h) {
@@ -401,33 +411,40 @@ function $StateTransitionProvider() {
                     }
                 };
             }
+
             function trimRoot(path) {
-                if(path[0] === rootName) {
+                if (path[0] === rootName) {
                     path.splice(0, 1);
                 }
                 return path;
             }
+
             function compare(one, to) {
                 var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r;
-                while(true) {
+
+                while (true) {
                     l = left.pop();
                     r = right.pop();
-                    if(r === '*' || l === '*') {
+
+                    if (r === '*' || l === '*') {
                         return true;
                     }
-                    if(l !== r) {
+
+                    if (l !== r) {
                         return false;
                     }
-                    if(!isDefined(l) || !isDefined(r)) {
+
+                    if (!isDefined(l) || !isDefined(r)) {
                         return true;
                     }
                 }
             }
+
             function extractHandlers(transitions, to) {
                 var handlers = [];
                 forEach(transitions, function (t) {
                     forEach(t.targets, function (target, targetName) {
-                        if(compare(targetName, to)) {
+                        if (compare(targetName, to)) {
                             forEach(target, function (value) {
                                 handlers.push(value);
                             });
@@ -436,21 +453,24 @@ function $StateTransitionProvider() {
                 });
                 return handlers;
             }
+
             function findTransitions(from) {
                 var current = root, names = from.split('.'), transitions = [], index = names[0] === rootName ? 1 : 0;
+
                 do {
-                    if('*' in current.children) {
+                    if ('*' in current.children) {
                         transitions.push(current.children['*']);
                     }
-                    if(names[index] in current.children) {
+
+                    if (names[index] in current.children) {
                         current = current.children[names[index]];
                         transitions.push(current);
                     } else {
                         break;
                     }
-                }while(index++ < names.length);
+                } while(index++ < names.length);
                 return transitions;
             }
-        }    ];
+        }];
 }
 angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);

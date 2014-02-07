@@ -11,7 +11,7 @@ describe('$view', function () {
             template = $template;
             scope = $rootScope;
 
-            spyOn(template, 'get').andCallFake(value => value.html);
+            spyOn(template, 'fn').andCallFake(value => value.html);
         };
     }));
 

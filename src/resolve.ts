@@ -16,8 +16,8 @@ var $ResolveProvider = [function () {
      * 
      *
      */
-    this.$get = [<any> '$q', '$injector',
-    function ($q: ng.IQService, $injector: ng.auto.IInjectorService) {
+    this.$get = [<any> '$q', '$inject',
+    function ($q: ng.IQService, $inject: dotjem.routing.IInjectService) {
         var $service: any = {};
 
         var cache = {};
@@ -81,14 +81,14 @@ var $ResolveProvider = [function () {
             var values = [], keys = [], def = $q.defer();
 
             angular.forEach(args, function (value, key) {
-                var ifn: IInjector;
+                var ifn: dotjem.routing.IInvoker;
                 keys.push(key);
                 try {
                     if (!(key in cache)) {
                         if (isString(value)) {
                             cache[key] = angular.isString(value);
-                        } else if ((ifn = injectFn(value)) != null) {
-                            cache[key] = ifn($injector, extend({}, locals, scoped));
+                        } else if (ifn = $inject.create(value)) {
+                            cache[key] = ifn(extend({}, locals, scoped));
                         }
                     }
                     values.push(cache[key]);

@@ -1,6 +1,4 @@
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 
 /// <reference path="stateRules.ts" />
 /// <reference path="state.ts" />
@@ -11,7 +9,7 @@ class StateFactory {
          private transitions: dotjem.routing.ITransitionProvider) {
     }
 
-    public createRoute(stateRoute: string, parentRoute: any, stateName: string, reloadOnSearch: bool) {
+    public createRoute(stateRoute: string, parentRoute: any, stateName: string, reloadOnSearch: boolean) {
         var route = parentRoute || '';
 
         if (route !== '' && route[route.length - 1] === '/') {

@@ -1,4 +1,4 @@
-/// <reference path="state.ts" />
+/// <reference path="../refs.d.ts" />
 
 class StateRules {
     private static nameValidation = /^\w+(\.\w+)*?$/;
@@ -10,8 +10,8 @@ class StateRules {
         }
     }
 
-    public static validateTarget(target: string): bool {
-        if (target === '*' || targetValidation.test(target)) {
+    public static validateTarget(target: string): boolean {
+        if (target === '*' || StateRules.targetValidation.test(target)) {
             return true;
         }
         return false;

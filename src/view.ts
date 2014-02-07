@@ -1,6 +1,4 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 
 function $ViewProvider() {
     'use strict';
@@ -189,7 +187,7 @@ function $ViewProvider() {
             //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
             //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
             //      largely care of this, it could be an optimization to not do this?
-            views[name].template = $template.get(template);
+            views[name].template = $template(template);
             views[name].controller = controller;
             views[name].locals = locals;
             
@@ -243,7 +241,7 @@ function $ViewProvider() {
             if (!containsView(views, name)) {
                 views[name] = {
                     //TODO: Should we make this latebound so only views actually used gets loaded and rendered? 
-                    template: $template.get(template),
+                    template: $template(template),
                     controller: controller,
                     locals: locals,
                     sticky: sticky,
@@ -527,4 +525,3 @@ function $ViewProvider() {
     }];
 }
 angular.module('dotjem.routing').provider('$view', $ViewProvider);
-

@@ -1,18 +1,20 @@
-/// <reference path="state.ts" />
+/// <reference path="../refs.d.ts" />
 var StateRules = (function () {
-    function StateRules() { }
-    StateRules.nameValidation = /^\w+(\.\w+)*?$/;
-    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
-    StateRules.validateName = function validateName(name) {
-        if(!StateRules.nameValidation.test(name) || name === rootName) {
+    function StateRules() {
+    }
+    StateRules.validateName = function (name) {
+        if (!StateRules.nameValidation.test(name) || name === rootName) {
             throw new Error("Invalid name: '" + name + "'.");
         }
     };
-    StateRules.validateTarget = function validateTarget(target) {
-        if(target === '*' || StateRules.targetValidation.test(target)) {
+
+    StateRules.validateTarget = function (target) {
+        if (target === '*' || StateRules.targetValidation.test(target)) {
             return true;
         }
         return false;
     };
+    StateRules.nameValidation = /^\w+(\.\w+)*?$/;
+    StateRules.targetValidation = /^\$?\w+(\.\w+)*(\.[*])?$/;
     return StateRules;
 })();

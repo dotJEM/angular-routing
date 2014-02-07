@@ -20,7 +20,7 @@ declare function expect(actual: any): jasmine.Matchers;
 declare function spyOn(object: any, method: string): jasmine.Spy;
 
 declare function runs(asyncMethod: Function): void;
-declare function waitsFor(latchMethod: () => bool, failureMessage: string, timeout?: number): void;
+declare function waitsFor(latchMethod: () => boolean, failureMessage: string, timeout?: number): void;
 declare function waits(timeout?: number): void;
 
 declare module jasmine {
@@ -58,9 +58,9 @@ declare module jasmine {
         uninstallMock(): void;
         real;
         assertInstalled(): void;
-        isInstalled(): bool;
+        isInstalled(): boolean;
         installed: any;
-    };
+    }
 
     interface Env {
         setTimeout;
@@ -85,7 +85,7 @@ declare module jasmine {
         equals_(a, b, mismatchKeys, mismatchValues);
         contains_(haystack, needle);
         addEqualityTester(equalityTester);
-        specFilter(spec): bool;
+        specFilter(spec): boolean;
     }
 
     interface FakeTimer {
@@ -142,31 +142,31 @@ declare module jasmine {
 
     interface Matchers {
 
-        new (env: Env, actual, spec: Env, isNot?: bool);
+        new (env: Env, actual, spec: Env, isNot?: boolean);
 
-        toBe(expected): bool;
-        toNotBe(expected): bool;
-        toEqual(expected): bool;
-        toNotEqual(expected): bool;
-        toMatch(expected): bool;
-        toNotMatch(expected): bool;
-        toBeDefined(): bool;
-        toBeUndefined(): bool;
-        toBeNull(): bool;
-        toBeNaN(): bool;
-        toBeTruthy(): bool;
-        toBeFalsy(): bool;
-        toHaveBeenCalled(): bool;
-        wasNotCalled(): bool;
-        toHaveBeenCalledWith(...params: any[]): bool;
-        toContain(expected): bool;
-        toNotContain(expected): bool;
-        toBeLessThan(expected): bool;
-        toBeGreaterThan(expected): bool;
-        toBeCloseTo(expected, precision): bool;
-        toContainHtml(expected: string): bool;
-        toContainText(expected: string): bool;
-        toThrow(expected? ): bool;
+        toBe(expected): boolean;
+        toNotBe(expected): boolean;
+        toEqual(expected): boolean;
+        toNotEqual(expected): boolean;
+        toMatch(expected): boolean;
+        toNotMatch(expected): boolean;
+        toBeDefined(): boolean;
+        toBeUndefined(): boolean;
+        toBeNull(): boolean;
+        toBeNaN(): boolean;
+        toBeTruthy(): boolean;
+        toBeFalsy(): boolean;
+        toHaveBeenCalled(): boolean;
+        wasNotCalled(): boolean;
+        toHaveBeenCalledWith(...params: any[]): boolean;
+        toContain(expected): boolean;
+        toNotContain(expected): boolean;
+        toBeLessThan(expected): boolean;
+        toBeGreaterThan(expected): boolean;
+        toBeCloseTo(expected, precision): boolean;
+        toContainHtml(expected: string): boolean;
+        toContainText(expected: string): boolean;
+        toThrow(expected? ): boolean;
         not: Matchers;
 
         Any: Any;
@@ -235,7 +235,7 @@ declare module jasmine {
         calls: any[];
         mostRecentCall: { args: any[]; };
         argsForCall: any[];
-        wasCalled: bool;
+        wasCalled: boolean;
         callCount: number;
 
         andReturn(value): void;

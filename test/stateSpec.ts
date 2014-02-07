@@ -867,7 +867,7 @@ describe('$stateProvider', function () {
 
         it('updates location when route is present', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 $state.goto('blog');
@@ -880,7 +880,7 @@ describe('$stateProvider', function () {
 
         it('updates location when route is present and fills in parameters', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42 });
@@ -896,7 +896,7 @@ describe('$stateProvider', function () {
 
         it('updates location when route is present and fills in parameters and keeps those not defined', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42 });
@@ -919,7 +919,7 @@ describe('$stateProvider', function () {
 
         it('updates location when route is present and puts aditional parameters on search', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42, search: "woahh" });
@@ -978,7 +978,7 @@ describe('$stateProvider', function () {
 
         it('builds route', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('blog');
@@ -993,7 +993,7 @@ describe('$stateProvider', function () {
 
         it('builds route with parameters', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('gallery', { id: 42 });
@@ -1016,7 +1016,7 @@ describe('$stateProvider', function () {
             })
 
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService,
                 $browser: ng.IBrowserService) {
 
@@ -1042,7 +1042,7 @@ describe('$stateProvider', function () {
             })
 
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService,
                 $browser: ng.IBrowserService) {
 
@@ -1068,7 +1068,7 @@ describe('$stateProvider', function () {
             })
 
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService,
                 $browser: ng.IBrowserService) {
 
@@ -1090,7 +1090,7 @@ describe('$stateProvider', function () {
 
         it('builds route with search parameters', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('gallery', { id: 42 });
@@ -1113,11 +1113,11 @@ describe('$stateProvider', function () {
             })
 
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService,
                 $browser: ng.IBrowserService) {
 
-                spyOn($browser, 'baseHref').andReturn ('/base');
+                spyOn($browser, 'baseHref').andReturn('/base');
 
                 goto('blog');
                 expect($state.url(false)).toBe('/blog');
@@ -1135,7 +1135,7 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService,
                 $browser: ng.IBrowserService) {
 
@@ -1157,7 +1157,7 @@ describe('$stateProvider', function () {
             });
 
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService,
                 $browser: ng.IBrowserService) {
 
@@ -1199,7 +1199,7 @@ describe('$stateProvider', function () {
 
         it('true on matched states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about');
@@ -1212,7 +1212,7 @@ describe('$stateProvider', function () {
 
         it('false on unmatched states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about');
@@ -1248,7 +1248,7 @@ describe('$stateProvider', function () {
 
         it('true on matched states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 expect($state.root.children.about.scrollTo).toBeNull();
@@ -1285,7 +1285,7 @@ describe('$stateProvider', function () {
 
         it('true on matched states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about');
@@ -1298,7 +1298,7 @@ describe('$stateProvider', function () {
 
         it('true on child states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about.cv.child');
@@ -1311,7 +1311,7 @@ describe('$stateProvider', function () {
 
         it('false on unmatched states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about');
@@ -1324,7 +1324,7 @@ describe('$stateProvider', function () {
 
         it('false on unmatched parent states', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about.cv.child');
@@ -1335,7 +1335,7 @@ describe('$stateProvider', function () {
 
         it('false on partial state names', function () {
             inject(function ($location: ng.ILocationService,
-                $route: ng.IRouteService,
+                $route: dotjem.routing.IRouteService,
                 $state: dotjem.routing.IStateService) {
 
                 goto('about.cv.child');

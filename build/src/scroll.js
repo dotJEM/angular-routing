@@ -1,9 +1,7 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
-var $ScrollProvider = [
-    function () {
+/// <reference path="refs.d.ts" />
+var $ScrollProvider = [function () {
         'use strict';
+
         /**
         * @ngdoc function
         * @name dotjem.routing.$scroll
@@ -24,53 +22,33 @@ var $ScrollProvider = [
         * to allow elements that is being loaded as part of a transition to also work as targets after `$scroll` has been called.
         */
         this.$get = [
-            '$window', 
-            '$rootScope', 
-            '$anchorScroll', 
-            '$injector', 
-            function ($window, $rootScope, $anchorScroll, $injector) {
+            '$window', '$rootScope', '$anchorScroll', '$inject',
+            function ($window, $rootScope, $anchorScroll, $inject) {
                 var scroll = function (arg) {
-                    var fn;
-                    if(isUndefined(arg)) {
+                    var ifn;
+                    if (isUndefined(arg)) {
                         $anchorScroll();
-                    } else if(isString(arg)) {
+                    } else if (isString(arg)) {
                         scrollTo(arg);
-                    } else if((fn = injectFn(arg)) !== null) {
-                        scrollTo(fn($injector));
+                    } else if (ifn = $inject.create(arg)) {
+                        scrollTo(ifn());
                     }
                 };
+
                 scroll.$current = 'top';
+
                 function scrollTo(elm) {
                     scroll.$current = elm;
-                    if(elm === 'top') {
+                    if (elm === 'top') {
                         $window.scrollTo(0, 0);
                         return;
                     }
                     $rootScope.$broadcast('$scrollPositionChanged', elm);
                 }
+
+                //TODO: could we support mocking this way if it doesn't work out of the box?
+                //scroll.$fn = scroll;
                 return scroll;
-            }        ];
-    }
-];
+            }];
+    }];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
-//scroll.$register = register;
-//var elements = {};
-//function register(name: string, elm: HTMLElement) {
-//    if (name in elements) {
-//        var existing = elements[name];
-//    }
-//    elements[name] = elm;
-//}
-/****jQuery( "[attribute='value']"
-* scrollTo: top - scroll to top, explicitly stated.
-*           (This also enables one to override another scrollTo from a parent)
-* scrollTo: null - don't scroll, not even to top.
-* scrollTo: element-selector - scroll to an element id
-* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-*           - scroll to element with id or view if starts with @
-*/
-//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-//scrollTo: null - don't scroll, not even to top.
-//scrollTo: @viewname - scroll to a view.
-//    scrollTo: elementid - scroll to an element id
-//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @

@@ -181,6 +181,7 @@
 function $StateTransitionProvider() {
     'use strict';
     var root = { children: {}, targets: {} },
+        //Note: Do not remove
         _this = this;
 
     function alignHandler(obj) {
@@ -234,12 +235,11 @@ function $StateTransitionProvider() {
      * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
      */
     this.onEnter = function (state: any, handler) {
-        //TODO: Validation
-        if (isObject(handler)) {
+        if (isInjectable(handler)) {
+            this.transition('*', state, handler);
+        } else if (isObject(handler)) {
             var aligned = alignHandler(handler);
             this.transition(aligned.from || '*', state, aligned.handler);
-        } else if (isFunction(handler) || isArray(handler)) {
-            this.transition('*', state, handler);
         }
     };
 
@@ -264,11 +264,11 @@ function $StateTransitionProvider() {
      * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
      */
     this.onExit = function (state: any, handler) {
-        if (isObject(handler)) {
+        if (isInjectable(handler)) {
+            this.transition(state, '*', handler);
+        } else if (isObject(handler)) {
             var aligned = alignHandler(handler);
             this.transition(state, aligned.to || '*', aligned.handler);
-        } else if (isFunction(handler) || isArray(handler)) {
-            this.transition(state, '*', handler);
         }
     };
 
@@ -317,7 +317,7 @@ function $StateTransitionProvider() {
 
             validate(from, to);
 
-            if (injectFn(handler)) { // angular.isFunction(handler) || angular.isArray(handler)) {
+            if (isInjectable(handler)) { 
                 handler = { between: handler };
             }
 
@@ -374,8 +374,8 @@ function $StateTransitionProvider() {
      * @description
      * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
      */
-    this.$get = [<any>'$q', '$injector',
-    function ($q: ng.IQService, $injector: ng.auto.IInjectorService) {
+    this.$get = [<any>'$q', '$inject',
+    function ($q: ng.IQService, $inject: dotjem.routing.IInjectService) {
 
         var $transition: any = {
             root: root,
@@ -386,14 +386,14 @@ function $StateTransitionProvider() {
 
         function find(from, to) {
             var transitions = findTransitions(toName(from)),
-                handlers = extractHandlers(transitions, toName(to)),
-                emitters: any[];
+                handlers = extractHandlers(transitions, toName(to));
 
             function emit(select, tc, trx) {
                 var handler;
                 forEach(handlers, (handlerObj) => {
                     if (isDefined(handler = select(handlerObj))) {
-                        injectFn(handler)($injector, {
+                        //TODO: Cache handler.
+                        $inject.create(handler)({
                             $to: to,
                             $from: from,
                             $transition: tc,

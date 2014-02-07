@@ -1,6 +1,4 @@
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../common.ts" />
-/// <reference path="../interfaces.d.ts" />
+/// <reference path="../refs.d.ts" />
 /// <reference path="stateRules.ts" />
 /// <reference path="stateFactory.ts" />
 var State = (function () {
@@ -8,16 +6,18 @@ var State = (function () {
         this._name = _name;
         this._fullname = _fullname;
         this._parent = _parent;
-        this._children = {
-        };
+        this._children = {};
         this._self = _self;
         this._self.$fullname = _fullname;
         this._reloadOnOptional = !isDefined(_self.reloadOnSearch) || _self.reloadOnSearch;
+
         this._scrollTo = 'top';
-        if(_parent && isDefined(_parent.scrollTo)) {
+
+        if (_parent && isDefined(_parent.scrollTo)) {
             this._scrollTo = _parent.scrollTo;
         }
-        if(isDefined(this._self.scrollTo)) {
+
+        if (isDefined(this._self.scrollTo)) {
             this._scrollTo = this._self.scrollTo;
         }
     }
@@ -71,7 +71,7 @@ var State = (function () {
             return this._route;
         },
         set: function (value) {
-            if(isUndefined(value)) {
+            if (isUndefined(value)) {
                 throw Error(errors.routeCannotBeUndefined);
             }
             this._route = value;
@@ -81,7 +81,7 @@ var State = (function () {
     });
     Object.defineProperty(State.prototype, "root", {
         get: function () {
-            if(this.parent === null) {
+            if (this.parent === null) {
                 return this;
             }
             return this._parent.root;
@@ -89,6 +89,9 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
+
+
     Object.defineProperty(State.prototype, "scrollTo", {
         get: function () {
             return this._scrollTo;
@@ -96,6 +99,7 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
     Object.defineProperty(State.prototype, "views", {
         get: function () {
             return this.self.views;
@@ -103,6 +107,7 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
     Object.defineProperty(State.prototype, "resolve", {
         get: function () {
             return this.self.resolve;
@@ -110,20 +115,25 @@ var State = (function () {
         enumerable: true,
         configurable: true
     });
+
     State.prototype.add = function (child) {
         this._children[child.name] = child;
         return this;
     };
+
     State.prototype.resolveRoute = function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
+
     State.prototype.is = function (state) {
         return this.fullname === state || this.fullname === rootName + '.' + state;
     };
+
     State.prototype.isActive = function (state) {
-        if(this.is(state)) {
+        if (this.is(state)) {
             return true;
         }
+
         return this.parent && this.parent.isActive(state) || false;
     };
     return State;

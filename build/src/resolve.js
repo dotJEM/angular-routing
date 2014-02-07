@@ -1,7 +1,7 @@
 /// <reference path="refs.d.ts" />
-var $ResolveProvider = [
-    function () {
+var $ResolveProvider = [function () {
         'use strict';
+
         /**
         * @ngdoc object
         * @name dotjem.routing.$resolve
@@ -16,13 +16,12 @@ var $ResolveProvider = [
         *
         */
         this.$get = [
-            '$q', 
-            '$injector', 
-            function ($q, $injector) {
-                var $service = {
-                };
-                var cache = {
-                };
+            '$q', '$inject',
+            function ($q, $inject) {
+                var $service = {};
+
+                var cache = {};
+
                 /**
                 * @ngdoc method
                 * @name dotjem.routing.$resolve#push
@@ -37,6 +36,7 @@ var $ResolveProvider = [
                 $service.push = function (key, value) {
                     cache[key] = value;
                 };
+
                 /**
                 * @ngdoc method
                 * @name dotjem.routing.$resolve#clear
@@ -58,35 +58,36 @@ var $ResolveProvider = [
                 * Clears a list of values in the resolver.
                 */
                 $service.clear = function (arg) {
-                    if(isBool(arg) && arg) {
-                        cache = {
-                        };
+                    if (isBool(arg) && arg) {
+                        cache = {};
                     }
-                    if(isString(arg)) {
+
+                    if (isString(arg)) {
                         delete cache[arg];
-                    } else if(isObject(arg)) {
+                    } else if (isObject(arg)) {
                         //TODO: This part should not be the responsibility of the resolver?
                         angular.forEach(arg, function (value, key) {
                             $service.clear(key);
                         });
-                    } else if(isArray(arg)) {
+                    } else if (isArray(arg)) {
                         angular.forEach(arg, function (key) {
                             $service.clear(key);
                         });
                     }
                 };
+
                 $service.all = function (args, locals, scoped) {
                     var values = [], keys = [], def = $q.defer();
+
                     angular.forEach(args, function (value, key) {
                         var ifn;
                         keys.push(key);
                         try  {
-                            if(!(key in cache)) {
-                                if(isString(value)) {
+                            if (!(key in cache)) {
+                                if (isString(value)) {
                                     cache[key] = angular.isString(value);
-                                } else if((ifn = injectFn(value)) != null) {
-                                    cache[key] = ifn($injector, extend({
-                                    }, locals, scoped));
+                                } else if (ifn = $inject.create(value)) {
+                                    cache[key] = ifn(extend({}, locals, scoped));
                                 }
                             }
                             values.push(cache[key]);
@@ -94,9 +95,9 @@ var $ResolveProvider = [
                             def.reject("Could not resolve " + key + ", error was: " + e);
                         }
                     });
+
                     $q.all(values).then(function (values) {
-                        var locals = {
-                        };
+                        var locals = {};
                         angular.forEach(values, function (value, index) {
                             locals[keys[index]] = value;
                         });
@@ -104,9 +105,12 @@ var $ResolveProvider = [
                     }, function (error) {
                         def.reject(error);
                     });
+
                     return def.promise;
                 };
+
                 return $service;
-            }        ];
+            }];
     }];
+
 angular.module('dotjem.routing').provider('$resolve', $ResolveProvider);

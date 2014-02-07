@@ -1,6 +1,4 @@
-/// <reference path="../../lib/angular/angular-1.0.d.ts" />
-/// <reference path="../interfaces.d.ts" />
-/// <reference path="../common.ts" />
+/// <reference path="../refs.d.ts" />
 
 /**
  * @ngdoc directive
@@ -15,69 +13,69 @@
  * @param {string} activeClass Class to add when the state targeted is active.
  */
 var jemLinkDirective = [<any>'$state', '$route',
-function ($state, $route) {
-    'use strict';
-    return {
-        restrict: 'AC',
-        link: function (scope, element: JQuery, attrs) {
-            var tag = element[0].tagName.toLowerCase(),
-                html5 = $route.html5Mode(),
-                prefix = $route.hashPrefix(),
-                attr = { a: 'href', form: 'action' },
-                activeFn = noop;
+    function ($state, $route) {
+        'use strict';
+        return {
+            restrict: 'AC',
+            link: function (scope, element: JQuery, attrs) {
+                var tag = element[0].tagName.toLowerCase(),
+                    html5 = $route.html5Mode(),
+                    prefix = $route.hashPrefix(),
+                    attr = { a: 'href', form: 'action' },
+                    activeFn = noop;
 
-            if (isDefined(attrs.activeClass)) {
-                  activeFn = active;
-            }
-
-            function apply() {
-                var sref = scope.$eval(attrs.sref),
-                    params = scope.$eval(attrs.params),
-                    link = $state.url(sref, params);
-                //NOTE: Is this correct for forms?
-                if (!html5) {
-                    link = '#' + prefix + link;
+                if (isDefined(attrs.activeClass)) {
+                    activeFn = active;
                 }
 
-                element.attr(attr[tag], link);
-            }
+                function apply() {
+                    var sref = scope.$eval(attrs.sref),
+                        params = scope.$eval(attrs.params),
+                        link = $state.url(sref, params);
+                    //NOTE: Is this correct for forms?
+                    if (!html5) {
+                        link = '#' + prefix + link;
+                    }
 
-            function active() {
-                var sref = scope.$eval(attrs.sref);
-                if ($state.isActive(sref)) {
-                    element.addClass(attrs.activeClass);
+                    element.attr(attr[tag], link);
+                }
+
+                function active() {
+                    var sref = scope.$eval(attrs.sref);
+                    if ($state.isActive(sref)) {
+                        element.addClass(attrs.activeClass);
+                    } else {
+                        element.removeClass(attrs.activeClass);
+                    }
+                }
+
+                function onClick() {
+                    scope.$apply(function () {
+                        var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+                        $state.goto(sref, params);
+                    });
+                };
+
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                activeFn();
+
+                if (tag in attr) {
+                    if (isDefined(attrs.params)) {
+                        scope.$watch(attrs.params, apply, true);
+                    }
+                    //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
+                    //attrs.$observe('params', apply);
+                    attrs.$observe('sref', apply);
                 } else {
-                    element.removeClass(attrs.activeClass);
+                    element.bind('click', onClick);
                 }
-            }
 
-            function onClick() {
-                scope.$apply(function () {
-                    var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
-                    $state.goto(sref, params);
+                scope.$on('$destroy', function () {
+                    element.unbind('click', onClick);
+                    deregistration();
                 });
-            };
-            
-            var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
-            activeFn();
-
-            if (tag in attr) {
-                if (isDefined(attrs.params)) {
-                    scope.$watch(attrs.params, apply, true);
-                }
-                //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
-                //attrs.$observe('params', apply);
-                attrs.$observe('sref', apply);
-            } else {
-                element.bind('click', onClick);
             }
-            
-            scope.$on('$destroy', function() {
-                element.unbind('click', onClick);
-                deregistration();
-            });
-        }
-    };
-}];
+        };
+    }];
 
 angular.module('dotjem.routing').directive('sref', jemLinkDirective);

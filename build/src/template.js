@@ -1,9 +1,8 @@
-/// <reference path="../lib/angular/angular-1.0.d.ts" />
-/// <reference path="common.ts" />
-/// <reference path="interfaces.d.ts" />
+/// <reference path="refs.d.ts" />
 function $TemplateProvider() {
     'use strict';
-    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))', 'i');
+    var urlmatcher = new RegExp('^(((http|https|ftp)://([\\w-\\d]+\\.)+[\\w-\\d]+){0,1}(/?[\\w~,;\\-\\./?%&+#=]*))$', 'i');
+
     /**
     * @ngdoc object
     * @name dotjem.routing.$template
@@ -19,33 +18,34 @@ function $TemplateProvider() {
     * **Note:** all templates are returned as promises.
     */
     this.$get = [
-        '$http', 
-        '$q', 
-        '$injector', 
-        '$templateCache', 
+        '$http', '$q', '$injector', '$templateCache',
         function ($http, $q, $injector, $templateCache) {
             function getFromUrl(url) {
-                return $http.get(url, {
-                    cache: $templateCache
-                }).then(function (response) {
+                return $http.get(url, { cache: $templateCache }).then(function (response) {
                     return response.data;
                 });
             }
+
             function getFromFunction(fn) {
                 return $q.when($injector.invoke(fn));
             }
+
             function getFromObject(obj) {
-                if(isDefined(obj.url)) {
+                if (isDefined(obj.url)) {
                     return getFromUrl(obj.url);
                 }
-                if(isDefined(obj.fn)) {
+
+                if (isDefined(obj.fn)) {
                     return getFromFunction(obj.fn);
                 }
-                if(isDefined(obj.html)) {
+
+                if (isDefined(obj.html)) {
                     return $q.when(obj.html);
                 }
+
                 throw new Error("Object must define url, fn or html.");
             }
+
             /**
             * @ngdoc method
             * @name dotjem.routing.$template#get
@@ -69,24 +69,32 @@ function $TemplateProvider() {
             * @description
             * Retrieves a template and returns that as a promise. A Template is a piece of html.
             */
-            var $template = {
-                'get': function (template) {
-                    if(isString(template)) {
-                        if(urlmatcher.test(template)) {
-                            return getFromUrl(template);
-                        }
-                        return $q.when(template);
+            var getter = function (template) {
+                if (isString(template)) {
+                    if (urlmatcher.test(template)) {
+                        return getFromUrl(template);
                     }
-                    if(isFunction(template) || isArray(template)) {
-                        return getFromFunction(template);
-                    }
-                    if(isObject(template)) {
-                        return getFromObject(template);
-                    }
-                    throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
+                    return $q.when(template);
                 }
+
+                if (isFunction(template) || isArray(template)) {
+                    return getFromFunction(template);
+                }
+
+                if (isObject(template)) {
+                    return getFromObject(template);
+                }
+
+                throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
             };
+
+            //Note: We return $template as a function.
+            //      However, to ease mocking we
+            var $template = function (template) {
+                return $template.fn(template);
+            };
+            $template.fn = getter;
             return $template;
-        }    ];
+        }];
 }
 angular.module('dotjem.routing').provider('$template', $TemplateProvider);
