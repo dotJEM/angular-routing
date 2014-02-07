@@ -149,7 +149,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
      *  .state('staff.single', {})
      * </pre>
      *
-     * <img type="image/svg+xml" src="assets/state.provider.structure.png"/>
+     * <img type="image/svg+xml" src="docs/assets/$state/state.provider.structure.svg"/>
      *
      * @param {Object} state All information about the state.
      *
