@@ -52,7 +52,10 @@ var jemLinkDirective = [
                 }
                 ;
 
-                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, activeFn);
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, function () {
+                    activeFn();
+                    apply();
+                });
                 activeFn();
 
                 if (tag in attr) {
@@ -60,8 +63,7 @@ var jemLinkDirective = [
                         scope.$watch(attrs.params, apply, true);
                     }
 
-                    //NOTE: Should we also use watch for sref, it seems rather unlikely that we should.
-                    //attrs.$observe('params', apply);
+                    //NOTE: Should we also use watch for sref, it seems rather unlikely that we should be interested in that.
                     attrs.$observe('sref', apply);
                 } else {
                     element.bind('click', onClick);
