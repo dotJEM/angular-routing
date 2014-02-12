@@ -17,12 +17,12 @@ angular.module('demo', ['dotjem.routing']).
 </pre>
 <p>In it self that is not really useful, but the state it self can have views added as well as onEnter / onExit handlers.
 <br/></p>
-<h5 id="description_views">Views</h5>
+<h3 id="description_views">Views</h3>
 <p><hr/>
 At this basic level you can also configure multiple views, just add a number of <code>ui - view</code> directives with unique names, and simply target those from the configuration.
 <br/>
 e.g.if we had a <code>main</code> view and a <code>hint</code> view we could do.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing']).
    config(['$stateProvider', function ($stateProvider) {
      $stateProvider
@@ -43,10 +43,10 @@ e.g.if we had a <code>main</code> view and a <code>hint</code> view we could do.
 <br/>
 <strong>Note:</strong> The template is suddenly an object with an <code>html</code> property, there is a number of ways to configure templates, see <a href="#/api/dotjem.routing.$template">$template</a> for more details on that.
 <br/></p>
-<h5 id="description_controllers">Controllers</h5>
+<h3 id="description_controllers">Controllers</h3>
 <p><hr/>
 Standing alone like this, views are very static , but just like the original angular routing, we can add controllers to a view.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing']).
    config(['$stateProvider', function ($stateProvider) {
      $stateProvider
@@ -67,14 +67,14 @@ Standing alone like this, views are very static , but just like the original ang
    .controller('TabletsCtrl', ['$scope', function ($scope) { ... }]);
 </pre>
 <br/></p>
-<h5 id="description_nested-states">Nested States</h5>
+<h3 id="description_nested-states">Nested States</h3>
 <p><hr/>
 Until now we have had a flat list of states, but this doesn&#39;t really provide many enhancements over the existing routing concept, even with multiple views, all views are always reloaded. Also it could get quite complex if views dependent on each other couldn&#39;t be arranged in a hierarchy.
 <br/>
 The <code>$stateProvider</code> provides configuring states in a hierarchy in two ways.
 <br/>
 One way is using a name convention for states where <code>.</code> is used to separate state levels. So that the state <code>phones.list</code> becomes a child of <code>phones</code>, it is important however that <code>phones</code> is defined before it&#39;s children.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing']).
    config(['$stateProvider', function($stateProvider) {
      $stateProvider
