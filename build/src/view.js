@@ -314,13 +314,13 @@ function $ViewProvider() {
                 if (!trx.completed) {
                     return trx.refresh(name, data);
                 }
-
                 if (isUndefined(name)) {
                     forEach(views, function (val, key) {
                         $view.refresh(key, data);
                     });
                 } else {
                     //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
+                    data = data || {};
                     data.$locals = views[name] && views[name].locals;
                     raiseRefresh(name, data);
                 }
