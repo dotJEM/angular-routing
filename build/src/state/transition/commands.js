@@ -8,10 +8,7 @@
 var cmd = {
     initializeContext: function (next, params, browser) {
         return function (context) {
-            //context.to = browser.resolve(context.from, next, false);
             var to = browser.resolve(context.from, next, false);
-
-            //var to = browser.lookup(next);
             context.to = to;
             context.params = params;
             context.toState = extend({}, to.self, { $params: params });
