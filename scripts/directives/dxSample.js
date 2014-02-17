@@ -56,7 +56,7 @@ angular.module('dotjem.routing.pages').directive('dxSample', [
             restrict: 'ECA',
             transclude: true,
             controller: 'dxSampleController',
-            templateUrl: 'angular-routing/templates/directives/dxSampleTemplate.html',
+            templateUrl: 'templates/directives/dxSampleTemplate.html',
             scope: {}
         };
     }
