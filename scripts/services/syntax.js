@@ -39,7 +39,7 @@ angular.module('dotjem.routing.pages').service('syntax', [
                 args[_i] = arguments[_i + 1];
             }
             for (var i = 0; i < args.length; i++) {
-                brushmapping[args[i]] = '/assets/scripts/syntaxhighlight/impl/' + file;
+                brushmapping[args[i]] = 'angular-routing/assets/scripts/syntaxhighlight/impl/' + file;
             }
         }
 
