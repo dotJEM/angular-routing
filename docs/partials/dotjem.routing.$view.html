@@ -1,0 +1,154 @@
+<h1><code ng:non-bindable="">$view</code>
+<div><span class="hint">service in module <code ng:non-bindable="">dotjem.routing</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="dotjem-routing-view-page"><p>The <code>$view</code> service is used to update any defined <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive defined in the DOM.
+This will primarily used by the <a href="#/api/dotjem.routing.$state">$state</a> service to update views on transitions. But that way, the <code>$view</code> service
+enables also enables changes to views through transitions defined on the <a href="#/api/dotjem.routing.$stateTransitionProvider">$stateTransitionProvider</a>.
+<br/>
+It also allows updates outside the scope of the <code>$state</code> service.
+<br/>
+<strong>Note:</strong> Whenever a state change causes a series of view updates, these are done in a &quot;transaction&quot;, this means that they won&#39;t be applied untill
+the state transition has run to completion. This means that when accessing the <code>$view</code> service within transitions etc. will fall in under the same transaction, which
+is different than if we call it in a different context.
+<br/>
+Any outside services are also able to create transactional updates by calling the <code>beginUpdate</code> method, and then <code>commit</code> on the returned object.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$rootScope">$rootScope</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$q">$q</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$template">$template</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_beginupdate">beginUpdate()</h3>
+<div class="beginupdate"><div class="dotjem-routing-view-beginupdate-page"><p>Starts a new view update transaction in which to record all changes to views before actually applying them.</p>
+</div><h5 id="methods_beginupdate_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-view-beginupdate-page"><p>A transaction object that can be used to commit or cancel the transaction, see <a href="#/api/dotjem.routing.type:transaction">Transaction</a> for more details.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_clear">clear(name)</h3>
+<div class="clear"><div class="dotjem-routing-view-clear-page"><p>Clears all views.</p>
+</div><h5 id="methods_clear_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-view-clear-page"><p>The name of the view to clear.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_clear">clear(name)</h3>
+<div class="clear"><div class="dotjem-routing-view-clear-page"><p>Clears the named view.</p>
+</div><h5 id="methods_clear_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-view-clear-page"><p>The name of the view to clear.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_create">create(name, args)</h3>
+<div class="create"><div class="dotjem-routing-view-create-page"><p>Sets a named view if it is not yet known by the <code>$view</code> service of if it was cleared. If the view is already updated by another call this call will be ignored.</p>
+</div><h5 id="methods_create_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-view-create-page"><p>The name of the view to set as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p>
+</div></td></tr><tr><td>args</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="dotjem-routing-view-create-page"><p>View update arguments</p>
+<p> args properties:</p>
+<ul>
+<li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
+<li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
+<li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
+<li><code>sticky</code>: <code>{string=}</code> value A flag indicating that the view is sticky.</li>
+</ul>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_get">get()</h3>
+<div class="get"><div class="dotjem-routing-view-get-page"><p>Gets all current view configurations. If a transaction is in progress, updates provided by that will not be reflected untill
+it is comitted.</p>
+</div><h5 id="methods_get_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="dotjem-routing-view-get-page"><p>A list of view configuration objects, each object may defined the following properties:</p>
+<ul>
+<li><code>name</code>: <code>{string}</code> The name of the view.</li>
+<li><code>version</code>: <code>{number}</code> The version the view is currently in.</li>
+<li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
+<li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
+<li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
+<li><code>sticky</code>: <code>{string=}</code> value A flag indicating that the view is sticky.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_get">get(name)</h3>
+<div class="get"><div class="dotjem-routing-view-get-page"><p>Gets the configuration for a namved view. If a transaction is in progress, updates provided by that will not be reflected untill
+it is comitted.</p>
+</div><h5 id="methods_get_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-view-get-page"><p>The name of the view for which to get the configuration.</p>
+</div></td></tr></tbody></table><h5 id="methods_get_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-view-get-page"><p>A view configuration object, this object may defined the following properties:</p>
+<ul>
+<li><code>name</code>: <code>{string}</code> The name of the view.</li>
+<li><code>version</code>: <code>{number}</code> The version the view is currently in.</li>
+<li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
+<li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
+<li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
+<li><code>sticky</code>: <code>{string=}</code> value A flag indicating that the view is sticky.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_refresh">refresh()</h3>
+<div class="refresh"><div class="dotjem-routing-view-refresh-page"><p>Refreshes all views.</p>
+</div></div>
+</li>
+<li><h3 id="methods_refresh">refresh(name, data)</h3>
+<div class="refresh"><div class="dotjem-routing-view-refresh-page"><p>Refreshes a named view.</p>
+</div><h5 id="methods_refresh_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-view-refresh-page"><p>The view to send a refresh.</p>
+</div></td></tr><tr><td>data <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="dotjem-routing-view-refresh-page"><p>An optional data object containing information for the refresh.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_update">update(name, args)</h3>
+<div class="update"><div class="dotjem-routing-view-update-page"><p>Sets or Updates a named view, this forces an update if the view has already been updated by another call to the view service.
+<br/>
+If the view is marked sticky it will only force an update if the sticky flag is different than the previous one. In cases where it
+is the same the <code>$viewRefresh</code> event will be raised instead.
+<br/>
+Views can also be refreshed by calling the <code>refresh</code> method.</p>
+</div><h5 id="methods_update_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-view-update-page"><p>The name of the view to update as defined with the <a href="#/api/dotjem.routing.directive:jemView">jemView</a> directive.</p>
+</div></td></tr><tr><td>args</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="dotjem-routing-view-update-page"><p>View update arguments</p>
+<p> args properties:</p>
+<ul>
+<li><code>template</code>: <code>{string|Object|function}</code> The template to be applied to the view. See <a href="#/api/dotjem.routing.$template">$template</a> on ways to define templates.</li>
+<li><code>controller</code>: <code>{string|function=}</code> The view confroller either as a function or a named controller defined on the module or a referenced module.</li>
+<li><code>locals</code>: <code>{Object=}</code> value An optional map of dependencies which should be injected into the controller.</li>
+<li><code>sticky</code>: <code>{string=}</code> value A flag indicating that the view is sticky.</li>
+</ul>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+<div class="member event"><h2 id="events">Events</h2>
+<ul class="events"><li><h3 id="events_$viewprep">$viewPrep</h3>
+<div class="$viewprep"><div class="dotjem-routing-view-viewprep-page"><p>Broadcasted when a view refreshed, if a transaction is active this will not occur before that is commited.</p>
+</div><div class="inline"><h4 id="events_$viewprep_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$viewprep_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$viewprep_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>angularEvent</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-view-viewprep-page"><p>Synthetic event object.</p>
+</div></td></tr><tr><td>name</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="dotjem-routing-view-viewprep-page"><p>Name of the view that was refreshed.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="events_$viewrefresh">$viewRefresh</h3>
+<div class="$viewrefresh"><div class="dotjem-routing-view-viewrefresh-page"><p>Broadcasted when a view refreshed, if a transaction is active this will not occur before that is commited.</p>
+</div><div class="inline"><h4 id="events_$viewrefresh_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$viewrefresh_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$viewrefresh_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>angularEvent</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-view-viewrefresh-page"><p>Synthetic event object.</p>
+</div></td></tr><tr><td>name</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="dotjem-routing-view-viewrefresh-page"><p>Name of the view that was refreshed.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="events_$viewupdate">$viewUpdate</h3>
+<div class="$viewupdate"><div class="dotjem-routing-view-viewupdate-page"><p>Broadcasted when a view updated, if a transaction is active this will not occur before that is commited.</p>
+</div><div class="inline"><h4 id="events_$viewupdate_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$viewupdate_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$viewupdate_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>angularEvent</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-view-viewupdate-page"><p>Synthetic event object.</p>
+</div></td></tr><tr><td>name</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="dotjem-routing-view-viewupdate-page"><p>Name of the view that was updated.</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,88 @@
+<div class="container">
+    <div class="page-header">
+        <h1>Views</h1>
+    </div>
+
+    <p class="lead">
+        Views are used render the user interface, views can be parallel as well as nested in each other
+        and an application can define as many views as needed.
+    </p>
+</div>
+
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Templates</h2>
+                <p>
+                    A single property, <code>template</code> that automatically detects if it's a url,
+                    function or a simple html string.
+                </p>
+                <p>
+                    Alternatively a template object can be provided that defines either <code>url</code>,
+                    <code>fn</code> or <code>html</code> to explicitly define sort of template it is.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h2>Controllers</h2>
+                <p>Defined on each view if needed, controllers will be bound to the view element.</p>
+                <p>Just like with the <code>ngRoute</code> module, controllers are used to provide the data to the view.</p>
+            </div>
+            <div class="col-md-4">
+                <h2>View Service</h2>
+                <p>
+                    Views can be managed through the <code>$view</code> service, the same service as the state
+                    engine uses.
+                </p>
+                <p>Views can be created, refreshed, updated and removed.</p>
+                <p>A transactional concept is supported for grouping multiple changes into a single commit.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="banding light">
+    <div class="container">
+        <h1>View Configurations</h1>
+        <div class="row">
+            <div class="col-md-4">
+                <h3><code>demo.js</code></h3>
+                <p>This example shows how multiple views can be used and a number of different options to populate them through states.</p>
+                <p>We have two views at <em>root level</em> and three that is embeded in each their parent view template.</p>
+                <p>
+                    We have chosen to name embeded views with a prefix of their parent <code>main.aboutContent</code>, this
+                    is just a convention chosen here to indicate their relation ship, but they are completely unaware of each other.
+                </p>
+                <h3><code>template</code></h3>
+                <p>The sample demonstrates three ways of declaring templates:</p>
+                <dl class="dl-horizontal narrow">
+                    <dt>url:</dt><dd>If the content parses as an URL it will be treated as such.</dd>
+                    <dt>function:</dt><dd>Functions can be passed that returns the template, array annotated functions can be used.</dd>
+                    <dt>html:</dt><dd>If the content does not parse as an URL it will be considered to be the actual template.</dd>
+                </dl>
+                <p>
+                    Templates can also be defined by passing an object with either a <code>url</code>, <code>fn</code>
+                    or <code>html</code> property, this is useful when 'templates/home.html' was actually meant to be treated
+                    as a html string rather than a URL.
+                </p>
+                <h3><code>controller</code></h3>
+                <h3><code>sticky</code></h3>
+            </div>
+            <div class="col-md-8">
+                <div dx-sample tags="angularjs; angular-routing; multiple views">
+                    <div dx-sample-file src="samples/concepts/views/demo.js"></div>
+                    <div dx-sample-file src="samples/concepts/views/demo.about.js"></div>
+                    <div dx-sample-file src="samples/concepts/views/demo.contact.js"></div>
+                    <div dx-sample-file src="samples/concepts/views/controllers.js"></div>
+                    <div dx-sample-file src="samples/concepts/views/index.html"></div>
+                    <div dx-sample-file src="samples/concepts/views/home.html"></div>
+                    <div dx-sample-file src="samples/concepts/views/contact.html"></div>
+                    <div dx-sample-file src="samples/concepts/views/about.html"></div>
+                    <div dx-sample-file src="samples/concepts/views/sticky.html"></div>
+                    <div dx-sample-file src="samples/concepts/views/style.css"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

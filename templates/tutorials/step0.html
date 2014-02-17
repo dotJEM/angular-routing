@@ -1,0 +1,30 @@
+<div class="jumbotron">
+    <div class="container">
+        <a sref="'$node(-1)'" class="btn btn-primary"
+           ng-class="{ disabled: isActive('tutorial.step1') }">
+            <span class="icon-angle-left"></span> &nbsp; Previous
+        </a>
+
+        <a sref="'$node(1)'" class="btn btn-primary pull-right"
+           ng-class="{ disabled: isActive('tutorial.step6') }">
+            Next &nbsp; <span class="icon-angle-right"></span>
+        </a>
+    </div>
+</div>
+
+<div jem-view="step">
+</div>
+
+<div class="jumbotron">
+    <div class="container">
+        <a sref="'$node(-1)'" class="btn btn-primary"
+           ng-class="{ disabled: isActive('tutorial.step1') }">
+            <span class="icon-angle-left"></span> &nbsp; Previous
+        </a>
+
+        <a sref="'$node(1)'" class="btn btn-primary pull-right"
+           ng-class="{ disabled: isActive('tutorial.step6') }">
+            Next &nbsp; <span class="icon-angle-right"></span>
+        </a>
+    </div>
+</div>

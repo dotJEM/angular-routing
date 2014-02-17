@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html ng-app="demo">
+
+  <head>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body ng-controller="siteController">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#/">Project name</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li ng-class="{ active: isActive('home') }">
+              <a sref="'home'">Home</a>
+            </li>
+            <li ng-class="{ active: isActive('about') }">
+              <a sref="'about'">About</a>
+            </li>
+            <li ng-class="{ active: isActive('contact') }">
+              <a sref="'contact'">Contact</a>
+            </li>
+            <li>
+              <a style="cursor: pointer;" ng-click="dorefresh()">Refresh All</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container" jem-view="sticky"></div>
+    <div class="jumbotron">
+      <div class="container" jem-view="main"></div>
+    </div>
+    <div class="container" jem-view="footer"></div>
+    <hr/>
+    <dl class="dl-horizontal">
+      <dt ng-repeat-start="(key, value) in counters"> {{ key }}Controller: </dt>
+      <dd ng-repeat-end> 
+        <ul class="list-unstyled">
+          <li>Loaded <code>{{ value.loads }}</code> times.</li>
+          <li>Refreshed <code>{{ value.refreshes }}</code> times.</li>
+        </ul>
+      </dd>
+    </dl>
+    
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src="https://rawgithub.com/dotJEM/angular-routing/master/build/angular-routing.js"></script>
+    <script src="demo.js"></script>
+    <script src="demo.about.js"></script>
+    <script src="demo.contact.js"></script>
+    <script src="controllers.js"></script>
+  </body>
+
+</html>
