@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html ng-app="dotjem.routing.pages">
+<head>
+    <title>dotJEM Angular Routing</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <link href="assets/styles/normalize/normalize.css" rel="stylesheet" type="text/css" />
+    <link href="assets/styles/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="assets/glyphs/icomoon/style.css" rel="stylesheet" type="text/css" />
+    <link href="styles/main.css" rel="stylesheet" type="text/css" />
+    <link href="styles/syntaxhighlighter.css" rel="stylesheet" type="text/css" />
+    <link href="styles/dxsample.css" rel="stylesheet" type="text/css" />
+    <link href="styles/dxdocs.css" rel="stylesheet" type="text/css" />
+
+    <base href="/" />
+</head>
+<body ng-controller="siteController">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-logo" href="#"> <span class="logo small" /> <span class="navbar-brand">dotJEM Angular Routing</span> </a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{active: isActive('home')}"><a sref="'home'"> <span class="icon-home"> </span> Home</a></li>
+                    <li ng-class="{active: isActive('docs')}" class="dropdown">
+                        <a style="cursor: pointer;" class="dropdown-toggle" data-toggle="dropdown"> <span class="icon-books"> </span> Documentation <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <!--li><a href="#">Getting Started</a></li-->
+                            <li><a sref="'docs.api'">API Reference</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">Concepts</li>
+                            <li><a sref="'docs.concepts.states'">States</a></li>
+                            <li><a sref="'docs.concepts.transitions'">Transitions</a></li>
+                            <li><a sref="'docs.concepts.views'">Views</a></li>
+                            <li><a sref="'docs.concepts.routes'">Routes</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </li>
+                    <li ng-class="{active: isActive('na')}" class="dropdown">
+                        <a style="cursor: pointer;"  class="dropdown-toggle" data-toggle="dropdown"> <span class="icon-hammer" > </span> Contribute <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="https://github.com/dotJEM/angular-routing/issues?state=open">Issues</a></li>
+                            <li><a href="#">Building</a></li>
+                            <li><a href="#">Testing</a></li>
+                            <li><a href="#">Pull Requests</a></li>
+                        </ul>
+                    </li>
+                    <li ng-class="{active: isActive('tutorial')}" class="dropdown">
+                        <a style="cursor: pointer;"  class="dropdown-toggle" data-toggle="dropdown"> <span class="icon-graduation" > </span> Tutorial <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a sref="'tutorial.step1'">1: Starting with Angular Routing</a></li>
+                            <li><a sref="'tutorial.step2'">2: Views and Templates</a></li>
+                            <li><a sref="'tutorial.step3'">3: Controller logic</a></li>
+                            <li><a sref="'tutorial.step4'">4: Nested states</a></li>
+                            <li><a sref="'tutorial.step5'">5: Route Parameters</a></li>
+                            <li><a sref="'tutorial.step6'">6: Transitions</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </div>
+
+    <div jem-view="main"></div>
+
+    <div class="page-footer">
+        <div class="container">
+            <footer>
+                <p>
+                    Copyright <span class="copyright">©</span> 2013-2014 dotJEM ( Jens Melgaard )
+                    <br/> Source licensed under <a href="https://github.com/dotJEM/angular-routing/blob/master/LICENSE">The MIT License</a>.
+                          Documentation licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- TODO: These scripts should be referenced from CDN's -->
+    <script src="assets/scripts/jquery/impl/jquery-2.0.3.js" ></script>
+    <script src="assets/scripts/modenizr/impl/modernizr-2.6.2-respond-1.1.0.min.js" ></script>
+    <script src="assets/scripts/syntaxhighlight/impl/XRegExp.js"></script>
+    <script src="assets/scripts/syntaxhighlight/impl/shCore.full.js"></script>
+
+    <script src="assets/scripts/angular/impl/angular.js" ></script>
+    <script src="assets/scripts/angular/impl/angular-animate.js" ></script>
+    <script src="assets/scripts/bootstrap/impl/bootstrap.js" ></script>
+
+    <!-- TODO: Scripts should be compiled into single file -->
+    <script src="assets/scripts/angular-routing/impl/angular-routing.js" ></script>
+
+    <!-- TODO: Scripts should be compiled into a single files pr. module -->
+    <script src="docs/docs-setup.ts" ></script>
+    <script src="scripts/dotjem.js" ></script>
+    <script src="scripts/dotjem.docs.js" ></script>
+
+    <script src="scripts/common/enums.js" ></script>
+
+    <script src="scripts/directives/dxSyntax.js" ></script>
+    <script src="scripts/directives/dxSample.js" ></script>
+
+    <script src="scripts/services/plunkr.js" ></script>
+    <script src="scripts/services/scriptLoader.js" ></script>
+    <script src="scripts/services/syntax.js" ></script>
+</body>
+</html>

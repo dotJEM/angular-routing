@@ -1,0 +1,97 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+    padding-top: 50px;
+}
+.navbar-logo{
+    float: left;
+    padding: 0;
+    font-size: 18px;
+    line-height: 20px;
+    height: 20px;
+}
+.logo {
+    display: inline-block;
+    background: url('/assets/images/dotJEMLogo2.svg') no-repeat 0 0;
+
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size: contain;
+}
+
+.logo.small{
+    padding-left: 70px;
+    height: 50px;
+}
+.logo.large{
+    height: 90px;
+    width: 120px;
+    vertical-align: text-top;
+}
+.copyright{
+    font-size: 16px;
+}
+.banding{
+    background-color: #eee;
+}
+.jumbotron{
+    padding: 10px;
+    margin-bottom: 0px;
+}
+.jumbotron.light,
+.banding.light {
+    background-color: #fff;
+}
+.jumbotron.dark,
+.banding.dark {
+    background-color: #444;
+    color: #eee;
+}
+.jumbotron.orange,
+.banding.orange {
+    background-color: #c60;
+}
+
+.dark code { background-color: #524C4E; }
+.jumbotron code { background-color: #E4DEE0; }
+
+.page-footer{
+    margin-bottom: 0px;
+    padding: 5px;
+    background-color: #444;
+    color: #eee;
+}
+
+hr {
+    height: 1px;
+    border: 0;
+    color: #c60;
+    background: #c60;
+    margin: 5px 0;
+}
+
+dl.narrow dt { width: 60px; }
+dl.narrow dd { margin-left: 80px; }
+
+dl.medium dt { width: 100px; }
+dl.medium dd { margin-left: 120px; }
+
+@media (max-width: 767px) {
+    .logo.large{ height: 50px; width: 65px; }
+}
+
+@media (max-width: 500px) {
+    .splash .btn{
+        display: block;
+        margin-bottom: 5px;
+    }
+}
+
+@media (max-width: 360px) {
+    .navbar-logo .navbar-brand { display: none; }
+
+}
+
+@media (max-width: 310px) {
+    .logo.large{ display: none; }
+}

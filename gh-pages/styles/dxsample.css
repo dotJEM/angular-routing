@@ -1,0 +1,33 @@
+
+.dx-example {
+    border: 1px solid #555;
+    background-color: #404040;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.dx-example-file-header {
+    margin-top: 5px;
+}
+.dx-example-file-group {
+    border-bottom: 1px dotted #555;
+    margin-top: 10px;
+    #cursor: pointer;
+}
+.dx-example-file-list > ul{
+    margin-left: 12px;
+}
+.dx-example-file-list li a{
+    cursor: pointer;
+    color: #eee;
+}
+.dx-example-file-group .caret {
+    margin: 8px 5px;
+}
+.dx-example .btn {
+    margin-top: 5px;
+}
+
+.dx-example.scrollable .syntaxhighlighter {
+    max-height: 200px !important;
+    overflow: auto !important;
+}

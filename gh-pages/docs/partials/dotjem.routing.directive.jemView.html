@@ -1,0 +1,62 @@
+<h1><code ng:non-bindable="">jemView</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">dotjem.routing</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-page"><h3 id="description_overview">Overview</h3>
+<p><code>jemView</code> is a directive that complements the <a href="#/api/dotjem.routing.$state">$state</a> service by
+including the rendered template of the current state into the main layout (<code>index.html</code>) file.
+Every time the current route changes, the included view changes with it according to the
+configuration of the <code>$state</code> service.</p>
+<h3 id="description_animations">animations</h3>
+<ul>
+<li>enter - animation is used to bring new content into the browser.</li>
+<li>leave - animation is used to animate existing content away.</li>
+</ul>
+<p>The enter and leave animation occur concurrently.</p>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as element:<pre class="prettyprint linenums">&lt;jem-view
+       name="{string}"
+       loader="{string}"&gt;
+&lt;/jem-view&gt;</pre>
+as attribute<pre class="prettyprint linenums">&lt;ANY jem-view="{string}"
+     loader="{string}"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="jem-view: {string}; loader: {string};"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>jemView|name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-page"><p>Name of the view</p>
+</div></td></tr><tr><td>loader</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-page"><p>Url to a template to display while the view is prepared.</p>
+</div></td></tr></tbody></table></div>
+<div class="member event"><h2 id="events">Events</h2>
+<ul class="events"><li><h3 id="events_$refresh">$refresh</h3>
+<div class="$refresh"><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-refresh-page"><p>This event is broadcasted on the view scope unless the view scope defines a refresh function.
+<br/>
+Refresh happens for sticky views when the sticky flag remains the same during an update.</p>
+</div><div class="inline"><h4 id="events_$refresh_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$refresh_target">Target:</h4>
+<div class="target">the current jemView scope</div>
+</div>
+<h5 id="events_$refresh_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>angularEvent</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-refresh-page"><p>Synthetic event object.</p>
+</div></td></tr><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-refresh-page"><p>The name of the view where the broadcast originated.</p>
+</div></td></tr><tr><td>name</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-refresh-page"><p>Any data that may have been provided for a refresh.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="events_$viewcontentloaded">$viewContentLoaded</h3>
+<div class="$viewcontentloaded"><div class="dotjem-routing-directive-page dotjem-routing-directive-jemview-viewcontentloaded-page"><p>Emitted every time the jemView content is reloaded.</p>
+</div><div class="inline"><h4 id="events_$viewcontentloaded_type">Type:</h4>
+<div class="type">emit</div>
+</div>
+<div class="inline"><h4 id="events_$viewcontentloaded_target">Target:</h4>
+<div class="target">the current jemView scope</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>

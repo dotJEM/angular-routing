@@ -1,0 +1,108 @@
+<div class="container">
+    <div class="page-header">
+        <h1>Transitions</h1>
+    </div>
+
+    <p class="lead">
+        States is the core concept and can be used to manage most aspects of
+        an application build with dotJEM Angular Routing.
+    </p>
+</div>
+
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Routes</h2>
+                <p>Through the route property, states can be bound to a route which can then be used to activate the state.</p>
+                <p>Routes are similar to those of ngRoute but with a number of enhancements like parameter converters.</p>
+                <p><a class="btn btn-default" sref="'concepts.routes'" role="button">Read More »</a></p>
+            </div>
+            <div class="col-md-4">
+                <h2>Hierarchies</h2>
+                <p>Configuring states in a hierarchy gives more control over your application with less code.</p>
+                <p>This fits perfectly into the web where users drill down to find the information they need.</p>
+            </div>
+            <div class="col-md-4">
+                <h2>Links</h2>
+                <p>Using the <code>sref</code> directive, it is possible to link directly to states within your application.</p>
+                <p>This ensures that if routes bound to states changes, there is no need to change links throughout the application.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="banding light">
+    <div class="container">
+        <h1>State Configuration</h1>
+        <div class="row">
+            <div class="col-md-4">
+                <h3><code>demo.js</code></h3>
+                <p>The following example shows a very basic application with just three states.</p>
+                <p>Each state is configured in the root and all targets the same view called 'main'.</p>
+                <p>With this we achieve the same functionality as with Angular's <code>ngRoute</code> module.</p>
+                <h3><code>index.html</code></h3>
+                <p>The sample goes beyond <code>ngRoute</code> when we look at the markup however.</p>
+                <p>
+                    When we look at the menu we will notice the use of <code>&lt;a sref="'about'"&gt;...&lt;/a&gt;</code>
+                    which tells the application that this link should target the state <code>about</code> so that if we
+                    changed the route of that state to <code>/newabout</code> in the configuration, the link would automatically
+                    be rewritten as well.
+                </p>
+                <p>
+                    We also use an <code>isActive</code> function bound the <code>$state</code> services <code>isActive</code>
+                    function to tell us when a given state is active to highlight a menu item.
+                </p>
+            </div>
+            <div class="col-md-8">
+                <div dx-sample tags="angularjs; angular-routing;">
+                    <div dx-sample-file src="samples/concepts/transitions/demo.js"></div>
+                    <div dx-sample-file src="samples/concepts/transitions/index.html"></div>
+                    <div dx-sample-file src="samples/concepts/transitions/style.css"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron">
+    <div class="container">
+        <h2>State Transitions</h2>
+        <p>
+
+        </p>
+        <div class="row">
+            <div class="col-md-4">
+                <p>
+                    <img src="assets/images/statediagram_01.svg" type="image/svg+xml" width="100%"/>
+                </p>
+                <p>
+                <pre dx-syntax class="brush: js">$state.goto('B/C');</pre>
+                In this example we transition from the root state <code>R</code> to <code>B.C</code> which
+                causes the states <code>B</code> and <code>B.C</code> to be activated causing their views
+                to be loaded.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <p>
+                    <img src="assets/images/statediagram_02.svg" type="image/svg+xml" width="100%"/>
+                </p>
+                <p>
+                <pre dx-syntax class="brush: js">$state.goto('../C');</pre>
+                In this example we transition between two siblings, <code>B.A</code> and <code>B.C</code>
+                under <code>B</code>, this will deactivate <code>B.A</code> and activate <code>B.C</code>.
+                The state <code>B</code> will be left intact.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <p>
+                    <img src="assets/images/statediagram_03.svg" type="image/svg+xml" width="100%"/>
+                </p>
+                <p>
+                <pre dx-syntax class="brush: js">$state.goto('../../B/C');</pre>
+                In this example we transition from
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

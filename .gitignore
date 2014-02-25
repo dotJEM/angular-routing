@@ -1,8 +1,13 @@
 # Don't include generated js files.
-test/**/*.js
 src/**/*.js
-test/*.js
 src/*.js
+
+
+test/**/*.js
+test/*.js
+
+gh-pages/scripts/*.js
+
 *.js.map
 
 # Local node modules 'yuk'

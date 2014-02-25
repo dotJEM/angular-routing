@@ -1,0 +1,114 @@
+<div class="container">
+    <div class="page-header">
+        <h1>Routes</h1>
+    </div>
+
+    <p class="lead">
+        Routes is primarily used to connect states to urls, the route API is almost identical to the
+        ngRoute api with a few additional features.
+    </p>
+</div>
+
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Parameter Converters</h2>
+
+                <p>Through parameter converters, routes can be much more specific.</p>
+
+                <p>E.g. if only numeric id's should be allowed the <code>num</code> converter can be used to only
+                    let numeric values pass.
+                </p>
+
+                <p><a class="btn btn-default" sref="'docs.concepts.routes'" role="button" ng-show="'false'">Read More »</a>
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h2>State Activators</h2>
+
+                <p>While states can be activated through routes by using the <code>route</code> property.</p>
+
+                <p>If multiple routes should lead to the same state a route can simply define the <code>state</code>
+                    property as well.</p>
+            </div>
+            <div class="col-md-4">
+                <h2>Decorators</h2>
+
+                <p>Decorators can be registered to alter routes before they update events are broad casted.</p>
+
+                <p>This allows for altering the outgoing route objects.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="banding light">
+    <div class="container">
+        <h1>Route Configuration</h1>
+
+        <div class="row">
+            <div class="col-md-4">
+                <h3><code>demo.js</code></h3>
+
+                <p>The following example shows a small application with four states.</p>
+
+                <p>
+                    In addition to the states two extra alternative routes has been configured,
+                    one for the <code>about</code> state and one for the <code>contact</code> state.
+                    Each state is configured in the root and all targets the same view called 'main'.
+                </p>
+
+                <p>
+                    It also configures a parameter converter than is used to only accept parameters
+                    within a given numeric range.
+                </p>
+
+                <p>
+                    Finally it defaults to the route <code>/404</code> if none of the defined routes are matched.
+                </p>
+
+                <h3><code>home.html</code></h3>
+
+                <p>
+                    In the <code>home.html</code> template we have added a number of extra links to the page.
+                </p>
+
+                <p>
+                    Since we are activating states though their alternative routes we can't use the <code>sref</code>
+                    directive here since that would obviously pick the primary route of each state.
+
+                    So instead the links are hardcoded.
+                </p>
+
+                <p>
+                    There are two valid links as well as two invalid ones. Clicking the valid ones will correctly
+                    bring us to the desired states, however if we click the invalid ones we go to the <code>404</code>
+                    page.
+                </p>
+
+                <h3>Scenarios</h3>
+
+                <p>
+                    Configuring alternative routes can be used to provide short-hand routes or keep old
+                    routes that has been replaced in an application active.
+                </p>
+
+                <p>
+                    In both cases a redirection might be more suited however, which is achieved though the same API.
+                </p>
+            </div>
+            <div class="col-md-8">
+                <div dx-sample tags="angularjs; angular-routing">
+                    <div dx-sample-file src="samples/concepts/routes/demo.js"></div>
+                    <div dx-sample-file src="samples/concepts/routes/index.html"></div>
+                    <div dx-sample-file src="samples/concepts/routes/home.html"></div>
+                    <div dx-sample-file src="samples/concepts/routes/contact.html"></div>
+                    <div dx-sample-file src="samples/concepts/routes/about.html"></div>
+                    <div dx-sample-file src="samples/concepts/routes/style.css"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

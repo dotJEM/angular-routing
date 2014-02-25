@@ -1,0 +1,38 @@
+<div class="container dx-docs">
+    <div class="row">
+        <div class="col-md-3 dx-docs-menu">
+            <div ng-repeat-start="(key, mod) in modules">
+                <a sref="'docs.api.section'" params="{ page: mod.overview.locator }"><h3>Module: {{ mod.overview.shortName }}</h3></a>
+            </div>
+            <hr/>
+
+            <h4 ng-show="mod.directives.length > 0"><span class="icon-lightning"> </span> Directives:</h4>
+            <ul class="list-unstyled">
+                <li ng-repeat="page in mod.directives"><a sref="'docs.api.section'" params="{ page: page.locator }">{{page.title}}</a></li>
+            </ul>
+            <h4 ng-show="mod.filters.length > 0"><span class="icon-filter2"> </span> Filters:</h4>
+            <ul class="list-unstyled">
+                <li ng-repeat="page in mod.filters"><a sref="'docs.api.section'" params="{ page: page.locator }">{{page.title}}</a></li>
+            </ul>
+            <h4 ng-show="mod.services.$any"><span class="icon-cogs"> </span> Services:</h4>
+            <ul class="list-unstyled">
+                <li ng-repeat="(key, page) in mod.services">
+                    <a sref="'docs.api.section'" params="{ page: page.instance.locator }">{{ page.instance.title }}</a>
+                    <a sref="'docs.api.section'" params="{ page: page.provider.locator || page.instance.locator }" ng-show="page.provider" class="pull-right"> <span class="icon-cog2"></span> provider</a>
+                </li>
+            </ul>
+            <h4 ng-show="mod.types.length > 0"><span class="icon-tree"> </span> Types:</h4>
+            <ul class="list-unstyled">
+                <li ng-repeat="page in mod.types"><a sref="'docs.api.section'" params="{ page: page.locator }">{{page.title}}</a></li>
+            </ul>
+            <h4 ng-show="mod.others.length > 0"><span class="icon-question"> </span> Others:</h4>
+            <ul class="list-unstyled" ng-repeat-end>
+                <li ng-repeat="page in mod.others"><a sref="'docs.api.section'" params="{ page: page.locator }">{{page.title}}</a></li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <div jem-view="main.doc" ></div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,65 @@
+.dx-docs-menu{
+    background: #eee;
+}
+.dx-docs-menu a{
+    color: #000;
+}
+.dx-docs-menu a:hover{
+    text-decoration: none;
+    color: #c60;
+}
+.dx-docs-menu ul li {
+    padding: 0 20px 0 42px;
+    margin: 0 -15px;
+}
+.dx-docs-menu li:hover {
+    background: #fafafa;
+}
+.dx-docs ul.methods,
+.dx-docs ul.properties,
+.dx-docs ul.events
+{
+    padding: 0;
+}
+.dx-docs ul.methods > li,
+.dx-docs ul.properties > li,
+.dx-docs ul.events > li {
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 0;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    list-style: none;
+}
+.dx-docs ul.methods li > h3,
+.dx-docs ul.properties li > h3,
+.dx-docs ul.events li > h3 {
+    padding: 10px 15px;
+    color: #333333;
+    background-color: #f5f5f5;
+    border-color: #dddddd;
+    border-bottom: 1px solid transparent;
+    margin: 0;
+    font-size: 20px;
+}
+.dx-docs ul.methods li > div,
+.dx-docs ul.properties li > div,
+.dx-docs ul.events li > div {
+    padding: 15px;
+}
+.dx-docs h1 > div {
+    font-weight: normal;
+    line-height: 1;
+    color: #999999;
+    font-size: 65%;
+    display: inline-block;
+}
+.dx-docs a.type-hint{
+    background-color: #c60;
+    margin: 0 3px;
+}
+.dx-docs a.type-hint-object{ background-color: #c60; }
+.dx-docs a.type-hint-string{ background-color: #c60; }
+.dx-docs a.type-hint-function{ background-color: #c60; }
+

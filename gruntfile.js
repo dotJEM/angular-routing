@@ -13,13 +13,12 @@ module.exports = function (grunt) {
         },
 
         typescript: {
-            src: {
+            core: {
                 src: ['src/**/*.ts'],
                 dest: 'build',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    base_path: '',
                     sourcemap: false,
                     declaration: true,
                     comments: true
@@ -31,7 +30,17 @@ module.exports = function (grunt) {
                 options: {
                     module: 'commonjs',
                     target: 'es5',
-                    base_path: '',
+                    sourcemap: false,
+                    declaration: false,
+                    comments: true
+                }
+            },
+            docs: {
+                src: ['gh-pages/**/*.ts'],
+                dest: 'build',
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
                     sourcemap: false,
                     declaration: false,
                     comments: true
@@ -86,10 +95,10 @@ module.exports = function (grunt) {
         },
 
         connect: {
-            substates: {
+            docs: {
                 options: {
                     port: 8080,
-                    base: 'samples/substates'
+                    base: 'build/gh-pages/'
                 }
             }
         },
@@ -117,13 +126,16 @@ module.exports = function (grunt) {
                         }
                     }
                 }]
+            },
+            docs: {
+                
             }
         },
         
         //https://npmjs.org/package/grunt-ngdocs
         ngdocs: {
             options: {
-                dest: 'doc',
+                dest: 'temp',
                 title: "dotJEM Angular Routing",
                 html5Mode: false,
             },

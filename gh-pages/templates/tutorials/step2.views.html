@@ -1,0 +1,230 @@
+<div class="container">
+    <div class="page-header">
+        <h1>Views and Templates</h1>
+    </div>
+
+    <p class="lead">
+        This will take you through the most basic steps of dotJEM Angular Routing, the tutorial will be
+        based on a <a href="https://github.com/twbs/bootstrap/tree/master/docs/examples/starter-template">starter-template</a>
+        from <a href="http://getbootstrap.com/">Bootstrap</a> with AngularJS and dotJEM Angular Routing added. The
+        tutorial
+        doesn't require you to know bootstrap, but some basic knowledge of <a href="http://angularjs.org/">AnuglarJS</a>
+        is required, if your just getting started with Angular start with the
+        <a href="http://docs.angularjs.org/tutorial">Angular tutorial</a>.
+        <br/><br/> - To get you started quickly a base plunkr is provided below:
+    </p>
+
+    <div dx-sample tags="angularjs; angular-routing" scrollable="true">
+        <div dx-sample-file src="samples/tutorials/step1/final/index.html"></div>
+        <div dx-sample-file src="samples/tutorials/step1/final/home.html"></div>
+        <div dx-sample-file src="samples/tutorials/step1/final/contact.html"></div>
+        <div dx-sample-file src="samples/tutorials/step1/final/about.html"></div>
+        <div dx-sample-file src="samples/tutorials/step1/final/application.js"></div>
+        <div dx-sample-file src="samples/tutorials/step1/final/style.css"></div>
+    </div>
+</div>
+
+<div class="banding">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>1. Adding a view</h2>
+                <p>
+                    Start by finding the bootstrap container node in the <code>index.html</code> file.
+                    add the attribute <code>jem-view="main"</code> to the container and remove the content.
+                </p>
+                <p>
+                    It should now look like:
+                <pre dx-syntax class="brush: html">&lt;div class="container" jem-view="main"&gt;&lt;/div&gt;</pre>
+                </p>
+                <p>
+                    Insert the removed content into a new file called <code>home.html</code>. (We will need it later)
+                </p>
+                <p>
+                    It should now look like:
+
+                <div dx-sample-file src="samples/tutorials/step1/001/home.html"></div>
+                </p>
+                <p>
+                    As a result the page is now empty, we still have it as a template, but it doesn't get into our
+                    application.
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <h2>2. Adding a state</h2>
+                <p>
+                    To get the content into the view as before, lets add a state populate our view.
+                </p>
+                <p>
+                    Open the <code>application.js</code> file and add a call to <code>config</code> on our angular
+                    application.
+                    Add <code>$stateProvider</code> as a dependency to the configuration function.
+                </p>
+                <p>
+                    This should look like:
+                    <pre dx-syntax class="brush: js">
+                        app.config(['$stateProvider', function($stateProvider) {
+                        }]);
+                    </pre>
+                </p>
+                <p>
+                    Now add a call to <code>$stateProvider.state(name, state)</code>, we will call the first state
+                    <code>home</code>, bind it to the route <code>'/'</code> and a single view named <code>main</code>
+                    (matching the name in <code>index.html</code>) and provide <code>home.html</code> as a template for
+                    it.
+                </p>
+                <p>
+                    This looks something like this:
+                <div dx-sample-file src="samples/tutorials/step1/002/application.js"></div>
+                </p>
+                <p>
+                    Now our content returns, but we didn't really get any further, the menu items at the top are still
+                    not
+                    working.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="banding light">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-6">
+                <h2>3. Adding more states</h2>
+                <p>
+                    We got as far as to get the content back, but we would like to display some other information when
+                    the user clicks to menu items <code>about</code> and <code>contact</code>.
+                </p>
+                <p>
+                    To do so first add two new templates <code>about.html</code> and <code>contact.html</code>,
+                    content isn't important right now so we will just add a header to each and some standard
+                    placeholder content:
+                <dl class="dl-horizontal medium">
+                    <dt>about.html:</dt>
+                    <dd>
+                            <pre dx-syntax class="brush: html">
+                            <h1>About Page</h1>
+                            <p>
+                                Vidit nusquam nostrum ad ius, mei ipsum accusam
+                                delectus an. Dictas urbanitas eam ei, quo ex nonumy
+                                tincidunt. No tractatos concludaturque sea, ea duis
+                                saperet quo, congue epicurei nam ad. Mea te feugait
+                                facilisis, per ea dicit corpora, nam ex augue
+                                regione utroque. At est omnes habemus intellegam,
+                                ad wisi velit eam.
+                            </p>
+                            </pre>
+                    </dd>
+                    <dt>&nbsp;</dt><dd>&nbsp;</dd>
+                    <dt>contact.html:</dt>
+                    <dd>
+                            <pre dx-syntax class="brush: html">
+                                <h1>Contact Page</h1>
+                                <p>
+                                    Te eam diam copiosae posidonium. Qui facilisi
+                                    repudiare maiestatis id. Ut quo dolores abhorreant.
+                                    Persius admodum vivendum et sed.
+                                </p>
+                            </pre>
+                    </dd>
+                </dl>
+                </p>
+                <p>
+                    Now we need to add states to activate the two templates when the user clicks the menu items.
+                    Add the following two states to our configuration function in <code>application.js</code>
+                </p>
+                <p>
+                <div dx-sample-file src="samples/tutorials/step1/003/application.js"></div>
+                </p>
+                <p>
+                    Now the user can click the menu items and our new templates are loaded into the view.
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <h2>4. Active states and links</h2>
+                <p>
+                    When the user clicks the menu items, we would like them to be highlighted and at the same time
+                    remove that same highlighting from the home item. We would also like to link directly to our states
+                    instead of regular urls so we don't have to maintain urls in multiple places.
+                </p>
+                <p>
+                    The second part is simple, in <code>index.html</code> replace our links:
+                    <pre dx-syntax class="brush: html">
+                        &lt;li class="active"&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;a href="#about"&gt;About&lt;/a&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;a href="#contact"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+                    </pre>
+                </p>
+                <p>
+                    With links using the <code>sref</code> directive instead:
+                    <pre dx-syntax class="brush: html">
+                        &lt;li&gt;&lt;a sref="'home'"&gt;Home&lt;/a&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;a sref="'about'"&gt;About&lt;/a&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;a sref="'contact'"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+                    </pre>
+                </p>
+                <p>
+                    We also removed the <code>active</code> class on the first item which removes the highlighting
+                    from home, but now we need to that back in based on what state is active.
+                </p>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Because bootstrap requires the active class on the <code>li</code> element
+                    instead of the <code>a</code> element, this becomes a little tricky.
+                    <br/>If we could place the class on the <code>a</code> element, we could simply have used
+                    <code>active-class="active"</code> instead.
+                </div>
+                <p>
+                    To do this we first need access to the <code>isActive</code> function on the <code>$state</code>
+                    service, here we will do this by adding a <code>siteController</code> and bind that to the
+                    <code>body</code> element with <code>ng-controller</code>: <code></code>
+                    <pre dx-syntax class="brush: html">
+                        &lt;body ng-controller="siteController"&gt;
+                    </pre>
+                And then adding the controller to <code>application.js</code>:
+                    <pre dx-syntax class="brush: js">
+                        app.controller('siteController', ['$scope', '$state',
+                          function($scope, $state){
+                            $scope.isActive = $state.isActive;
+                          }])
+                    </pre>
+                </p>
+                <p>
+                    Finally we can use <code>ng-class</code> to activate each element:
+                    <pre dx-syntax class="brush: html">
+                        &lt;li ng-class="{ active: isActive('home') }"&gt;
+                            &lt;a sref="'home'"&gt;Home&lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li ng-class="{ active: isActive('about') }"&gt;
+                            &lt;a sref="'about'"&gt;About&lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li ng-class="{ active: isActive('contact') }"&gt;
+                            &lt;a sref="'contact'"&gt;Contact&lt;/a&gt;
+                        &lt;/li&gt;
+                    </pre>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron dark">
+    <div class="container">
+        <p>
+            This concludes the first step of our tutorial. You can find the complete source in the
+            sample below:
+        </p>
+        <div dx-sample tags="angularjs; angular-routing" scrollable="true">
+            <div dx-sample-file src="samples/tutorials/step1/final/index.html"></div>
+            <div dx-sample-file src="samples/tutorials/step1/final/home.html"></div>
+            <div dx-sample-file src="samples/tutorials/step1/final/contact.html"></div>
+            <div dx-sample-file src="samples/tutorials/step1/final/about.html"></div>
+            <div dx-sample-file src="samples/tutorials/step1/final/application.js"></div>
+            <div dx-sample-file src="samples/tutorials/step1/final/style.css"></div>
+        </div>
+
+    </div>
+</div>

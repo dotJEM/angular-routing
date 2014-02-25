@@ -1,0 +1,27 @@
+<h1><code ng:non-bindable="">transaction</code>
+<div><span class="hint">type in module <code ng:non-bindable="">dotjem.routing</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="dotjem-routing-type-page dotjem-routing-type-transaction-page"><p>Records updates to views and applies them when committed.</p>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_cancel">cancel()</h3>
+<div class="cancel"><div class="dotjem-routing-type-page dotjem-routing-type-transaction-cancel-page"><p>Cancels the view transaction, discarding any changes that may have been recorded.</p>
+</div></div>
+</li>
+<li><h3 id="methods_commit">commit()</h3>
+<div class="commit"><div class="dotjem-routing-type-page dotjem-routing-type-transaction-commit-page"><p>Commits the view transaction, applying any changes that may have been recorded.
+<br/>
+Only the final state will be applied, meaning that if the same view had recieved a series of updates, only an update
+for the final state the view will take will be issues, if it causes the view to change state.</p>
+</div></div>
+</li>
+<li><h3 id="methods_pending">pending()</h3>
+<div class="pending"><div class="dotjem-routing-type-page dotjem-routing-type-transaction-pending-page"><p>Returns all pending changes.</p>
+</div></div>
+</li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,93 @@
+<div class="jumbotron splash">
+    <div class="container">
+        <h1><span class="logo large" />dotJEM Angular Routing</h1>
+        <p>Enhanced state based routing for Angular applications!</p>
+        <p>
+            <a href="https://github.com/dotJEM/angular-routing/archive/v0.6.1.zip" class="btn btn-primary btn-lg"><span class="icon-download"/> Download v0.6.1</a>
+            <a href="https://github.com/dotJEM/angular-routing" class="btn btn-default btn-lg"><span class="icon-github3"/> Github Project</a>
+            <a href="https://github.com/dotJEM/angular-routing/releases" class="btn btn-default btn-lg"><span class="icon-history"/> All Releases</a>
+        </p>
+    </div>
+</div>
+
+<div class="jumbotron light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>States</h2>
+                <p>Hierarchical State Machine for managing application state.</p>
+                <p>With the web in mind states may be bound to routes and transitions between all states are by default allowed.</p>
+                <p><a class="btn btn-default" sref="'docs.concepts.states'" role="button">Read More »</a></p>
+            </div>
+            <div class="col-md-4">
+                <h2>Transitions</h2>
+                <p>Take full control over transitions between states by leveraging simple transition handlers.</p>
+                <p>While simple, handlers allow to reject, modify, redirect and block transition between to states.</p>
+                <p><a class="btn btn-default" sref="'docs.concepts.transitions'" role="button">Read More »</a></p>
+            </div>
+            <div class="col-md-4">
+                <h2>Views</h2>
+                <p>A dead simple view model ensures that it is easy to take control over many parallel or nested views.</p>
+                <p>While at the same time providing a rich set of more advanced features.</p>
+                <p><a class="btn btn-default" sref="'docs.concepts.views'" role="button">Read More »</a></p>
+            </div>
+        </div>
+    </div>
+</div>                            
+
+<div class="jumbotron dark">
+    <div class="container">
+        <ul class="nav nav-pills nav-justified">
+            <li ng-class="{active:tab == 'basic'}"><a href="#" ng-click="tab = 'basic'">Basic Example</a></li>
+            <li ng-class="{active:tab == 'sub'}"><a href="#" ng-click="tab = 'sub'">Sub State Example</a></li>
+            <li ng-class="{active:tab == 'tran'}"><a href="#" ng-click="tab = 'tran'">Transitionss</a></li>
+        </ul>
+        <br/>
+
+        <div dx-sample tags="angularjs; angular-routing" ng-show="tab == 'basic'">
+            <div dx-sample-file src="samples/basic/demo.js"></div>
+            <div dx-sample-file src="samples/basic/about.module.js"></div>
+            <div dx-sample-file src="samples/basic/contact.module.js"></div>
+            <div dx-sample-file src="samples/basic/home.module.js"></div>
+
+            <div dx-sample-file src="samples/basic/index.html"></div>
+            <div dx-sample-file src="samples/basic/home.html"></div>
+            <div dx-sample-file src="samples/basic/contact.html"></div>
+            <div dx-sample-file src="samples/basic/about.html"></div>
+
+            <div dx-sample-file src="samples/basic/style.css"></div>
+        </div>
+
+        <div dx-sample tags="angularjs; angular-routing" ng-show="tab == 'sub'">
+            <div dx-sample-file src="samples/basic/demo.js"></div>
+
+            <div dx-sample-file src="samples/basic/index.html"></div>
+            <div dx-sample-file src="samples/basic/home.html"></div>
+            <div dx-sample-file src="samples/basic/contact.html"></div>
+            <div dx-sample-file src="samples/basic/about.html"></div>
+
+            <div dx-sample-file src="samples/basic/style.css"></div>
+        </div>
+
+        <div dx-sample tags="angularjs; angular-routing" ng-show="tab == 'tran'">
+            <div dx-sample-file src="samples/basic/demo.js"></div>
+            <div dx-sample-file src="samples/basic/about.module.js"></div>
+            <div dx-sample-file src="samples/basic/contact.module.js"></div>
+            <div dx-sample-file src="samples/basic/home.module.js"></div>
+
+            <div dx-sample-file src="samples/basic/index.html"></div>
+            <div dx-sample-file src="samples/basic/about.html"></div>
+
+            <div dx-sample-file src="samples/basic/style.css"></div>
+        </div>
+
+    </div>
+</div>
+
+<div class="jumbotron light">
+    <div class="container">
+
+       <h1>SAMPLES</h1>
+
+    </div>
+</div>

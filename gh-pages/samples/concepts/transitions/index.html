@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="demo">
+
+  <head>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body ng-controller="siteController">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#/">Project name</a>
+          <div class="navbar-brand">state: {{ state.current.$fullname }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="canvas" style="text-align: center;"></div>
+
+    <div class="view-container container">
+      <div class="view" jem-view="main"></div>
+    </div>
+    
+
+    <script src="https://rawgithub.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-animate.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="https://rawgithub.com/dotJEM/angular-routing/master/build/angular-routing.js"></script>
+    <script src="demo.js"></script>
+  </body>
+
+</html>

@@ -1,0 +1,17 @@
+<div class="row dx-example" ng-class="{ scrollable: scrollable }">
+    <div class="col-xs-3">
+        <ul class="list-unstyled dx-example-file-list">
+            <li class="dx-example-file-group" ng-repeat-start="(key,val) in files">
+                <span ng-class="val.icon" > </span> {{ val.title }} <b class="caret pull-right"></b>
+            </li>
+            <ul class="list-unstyled" ng-repeat-end>
+                <li ng-repeat="file in val.files"><a ng-click="show(file)" ng-bind="file.name"></a></li>
+            </ul>
+        </ul>
+    </div>
+    <div class="col-xs-9">
+        <div ng-bind="current.name" class="dx-example-file-header"></div>
+        <div ng-transclude></div>
+        <p><a class="btn btn-primary" ng-click="edit()"> <span class="icon-pencil2"> </span> Edit in Plunkr</a></p>
+    </div>
+</div>
