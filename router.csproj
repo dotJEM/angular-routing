@@ -76,6 +76,7 @@
     <TypeScriptCompile Include="src\state\stateFactory.ts" />
     <TypeScriptCompile Include="src\state\stateComparer.ts" />
     <TypeScriptCompile Include="src\directives\jemAnchor.ts" />
+    <Content Include="dev\files.js" />
     <Content Include="lib\angular\angular-cookies.d.ts" />
     <Content Include="lib\angular\angular-mocks-tests.ts" />
     <Content Include="lib\angular\angular-mocks.d.ts" />
@@ -241,7 +242,6 @@
     <Content Include="test\viewSpec.js">
       <DependentUpon>viewSpec.ts</DependentUpon>
     </Content>
-    <Content Include="files.js" />
     <Content Include="test-dev-jquery-config.js" />
   </ItemGroup>
   <ItemGroup>
