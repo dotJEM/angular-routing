@@ -11,7 +11,7 @@ body {
 }
 .logo {
     display: inline-block;
-    background: url('/assets/images/dotJEMLogo2.svg') no-repeat 0 0;
+    background: url('/assets/images/Logo2.svg') no-repeat 0 0;
 
     -webkit-background-size: contain;
     -moz-background-size: contain;
@@ -76,8 +76,26 @@ dl.narrow dd { margin-left: 80px; }
 dl.medium dt { width: 100px; }
 dl.medium dd { margin-left: 120px; }
 
+.bs-callout { margin: 20px 0; padding: 20px; border-left: 3px solid #eee; }
+.bs-callout h4 { margin-top: 0; margin-bottom: 5px; font-weight: bold; }
+.bs-callout p:last-child { margin-bottom: 0; }
+.bs-callout code,
+.bs-callout .highlight { background-color: #fff; }
+
+/* Themes for different contexts */
+.bs-callout-danger { background-color: #fdf7f7; border-color: #d9534f; }
+.bs-callout-danger h4 { color: #d9534f; }
+.bs-callout-warning { background-color: #fcf8f2; border-color: #f0ad4e; }
+.bs-callout-warning h4 { color: #f0ad4e; }
+.bs-callout-info { background-color: #f4f8fa; border-color: #5bc0de; }
+.bs-callout-info h4 { color: #5bc0de; }
+@media (max-width: 992px) {
+    .navbar-logo .navbar-brand { display: none; }
+}
+
 @media (max-width: 767px) {
     .logo.large{ height: 50px; width: 65px; }
+    .navbar-logo .navbar-brand { display: block; }
 }
 
 @media (max-width: 500px) {
@@ -89,7 +107,6 @@ dl.medium dd { margin-left: 120px; }
 
 @media (max-width: 360px) {
     .navbar-logo .navbar-brand { display: none; }
-
 }
 
 @media (max-width: 310px) {

@@ -35,6 +35,9 @@ angular.module('dotjem.routing.pages').config([
         }).state('docs.concepts.views', {
             route: '/views',
             views: { 'main': { template: 'templates/concepts/views.html' } }
+        }).state('docs.faq', {
+            route: '/faq',
+            views: { 'main': { template: 'templates/faq.html' } }
         });
 
         stp.transition('*', 'docs.api', [

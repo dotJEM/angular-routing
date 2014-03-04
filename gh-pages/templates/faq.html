@@ -1,0 +1,87 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 dx-docs-menu">
+            <h3>Topic areas</h3>
+        </div>
+        <div class="col-md-9">
+            <div class="page-header">
+                <h1>FAQ</h1>
+            </div>
+
+            <h2 dx-topic>How to: Configure states in multiple modules</h2>
+            <p>
+                You can easily have multiple modules adding states, simply add each module with a configuration like so:
+                <pre  dx-syntax class="brush: js">
+                    angular.module('demo', ['demo.home',
+                                            'demo.about',
+                                            'demo.contact',
+                                            'dotjem.routing']);
+
+                    angular.module('demo.home', ['dotjem.routing'])
+                      .config(['$stateProvider', function (sp) {
+                          sp.state('home', { /*...*/ });
+                      }]);
+
+                    angular.module('demo.about', ['dotjem.routing'])
+                      .config(['$stateProvider', function (sp) {
+                          sp.state('about', { /*...*/ });
+                      }]);
+
+                    angular.module('demo.contact', ['dotjem.routing'])
+                      .config(['$stateProvider', function (sp) {
+                          sp.state('contact', { /*...*/ });
+                      }]);
+                </pre>
+            </p>
+            <p>
+                But what if you wanted to add a <code>base</code> state in one module and a child in another?
+            </p>
+            <p>
+                In this case we have to think about our dependencies, what people often create is a
+                circular dependency in these cases where <code>demo</code> depends on <code>demo.about</code> which
+                then depends on demo and that is just not possible.
+            </p>
+            <p>
+                So what we have to do is to restructure our app, one fairly simple approach would be
+                to have an <code>bootstrapper</code> module at the top.
+            </p>
+            <p>
+                This approach can be reused on smaller module groups as well, so you could have multiple
+                <code>bootstrappers</code>. Obviously the main <code>bootstrapper</code> should have your
+                application name, so you end up with something like:
+                <pre  dx-syntax class="brush: js">
+                    // 'demo' is merely a boostrapper.
+                    // We can also add stuff to 'app', but we need to be mindful about dependencies.
+                    angular.module('demo', ['demo.base'
+                                            'demo.home',
+                                            'demo.about',
+                                            'demo.contact',
+                                            'dotjem.routing']);
+
+                    angular.module('demo.base', ['dotjem.routing'])
+                      .config(['$stateProvider', function(sp) {
+                        sp.state('base', {...});
+                      }]);
+
+                    angular.module('demo.home', ['dotjem.routing'])
+                      .config(['$stateProvider', function (sp) {
+                          sp.state('base.home', { /*...*/ });
+                      }]);
+
+                    angular.module('demo.about', ['dotjem.routing'])
+                      .config(['$stateProvider', function (sp) {
+                          sp.state('base.about', { /*...*/ });
+                      }]);
+
+                    angular.module('demo.contact', ['dotjem.routing'])
+                      .config(['$stateProvider', function (sp) {
+                          sp.state('base.contact', { /*...*/ });
+                      }]);
+                </pre>
+            </p>
+
+
+
+        </div>
+    </div>
+</div>
