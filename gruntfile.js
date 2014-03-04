@@ -9,7 +9,13 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         banner: grunt.file.read('banner'),
         clean: {
-            src: ['build']
+            build: {
+                src: ['build']
+            },
+            temp: {
+                src: ['temp']
+            }
+
         },
 
         typescript: {
@@ -45,7 +51,7 @@ module.exports = function (grunt) {
                     declaration: false,
                     comments: true
                 }
-            },
+            }
         },
 
         concat: {
@@ -74,7 +80,7 @@ module.exports = function (grunt) {
             legacy: {
                 src: '<%= concat.legacy.dest %>',
                 dest: 'build/<%= pkg.name %>.legacy.min.js'
-            },
+            }
         },
 
         karma: {
@@ -100,48 +106,83 @@ module.exports = function (grunt) {
                     port: 8080,
                     base: 'build/gh-pages/'
                 }
+            },
+
+            devdocs: {
+                options: {
+                    port: 8090,
+                    base: 'gh-pages/'
+                }
             }
         },
 
         watch: {
-            files: ['src/**/*.ts'],
-            tasks: ['build']
+            dev: {
+                files: [
+                    'src/**/*.ts',
+                    'gh-pages/**/*.ts',
+                    'gh-pages/templates/**/*.*',
+                    'gh-pages/styles/**/*.*',
+                    'gh-pages/samples/**/*.*',
+                    'test/**/*.ts' ],
+                tasks: ['build']
+            }
         },
 
         copy: {
             release: {
-                files: [{
-                    expand: true,
-                    src: ['build/*.js'],
-                    dest: 'release/',
-                    rename: function (dest, src) {
-                        if (src.indexOf('.min') !== -1) {
-                            return src
-                                .replace('.min.js', '-<%= pkg.version %>.min.js')
-                                .replace('build', 'release/v<%= pkg.version %>');
-                        } else {
-                            return src
-                                .replace('.js', '-<%= pkg.version %>.js')
-                                .replace('build', 'release/v<%= pkg.version %>');
+                files: [
+                    {
+                        expand: true,
+                        src: ['build/*.js'],
+                        dest: 'release/',
+                        rename: function (dest, src) {
+                            if (src.indexOf('.min') !== -1) {
+                                return src
+                                    .replace('.min.js', '-<%= pkg.version %>.min.js')
+                                    .replace('build', 'release/v<%= pkg.version %>');
+                            } else {
+                                return src
+                                    .replace('.js', '-<%= pkg.version %>.js')
+                                    .replace('build', 'release/v<%= pkg.version %>');
+                            }
                         }
                     }
-                }]
+                ]
             },
-            docs: {
-                
+
+            ngdocs: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'temp/partials/api/',
+                        src: '*.html',
+                        dest: 'gh-pages/docs/partials/'
+                    },
+                    {
+                        src: 'temp/js/docs-setup.js',
+                        dest: 'gh-pages/docs/docs-setup.js'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'build',
+                        src: ['angular-routing.js', 'angular-routing.min.js'],
+                        dest: 'gh-pages/assets/scripts/angular-routing/impl/'
+                    }
+                ]
             }
         },
-        
+
         //https://npmjs.org/package/grunt-ngdocs
         ngdocs: {
             options: {
                 dest: 'temp',
                 title: "dotJEM Angular Routing",
-                html5Mode: false,
+                html5Mode: false
             },
             all: ['build/src/**/*.js']
         },
-        
+
         tslint: {
             options: {
                 configuration: grunt.file.readJSON("tslint.json")
@@ -165,9 +206,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-tslint');
 
     // Default task.
-    grunt.registerTask('build', ['typescript', 'concat', 'uglify']);
-    grunt.registerTask('default', ['clean', 'tslint', 'build', 'karma', 'ngdocs']);
-    grunt.registerTask('release', ['default', 'copy:release']);
-    grunt.registerTask('server', ['clean', 'build', 'connect', 'watch']);
-    grunt.registerTask('docs', ['clean', 'build', 'ngdocs']);
+    grunt.registerTask('default', ['clean', 'build', 'karma']);
+    grunt.registerTask('develop', ['clean', 'build', 'connect', 'watch']);
+
+    grunt.registerTask('build', ['tslint', 'typescript', 'concat', 'uglify', 'ngdocs', 'copy:ngdocs', 'clean:temp']);
 };

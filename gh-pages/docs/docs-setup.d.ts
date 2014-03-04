@@ -1,0 +1,1 @@
+declare var NG_DOCS:any;

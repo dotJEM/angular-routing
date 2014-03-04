@@ -1316,13 +1316,13 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 *
 * In it self that is not really useful, but the state it self can have views added as well as onEnter / onExit handlers.
 * <br/>
-* ### Views
+* # Views
 * <hr/>
 * At this basic level you can also configure multiple views, just add a number of `ui - view` directives with unique names, and simply target those from the configuration.
 * <br/>
 * e.g.if we had a `main` view and a `hint` view we could do.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing']).
 *    config(['$stateProvider', function ($stateProvider) {
 *      $stateProvider
@@ -1343,11 +1343,11 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 * <br/>
 * **Note:** The template is suddenly an object with an `html` property, there is a number of ways to configure templates, see {@link dotjem.routing.$template $template} for more details on that.
 * <br/>
-* ### Controllers
+* # Controllers
 * <hr/>
 * Standing alone like this, views are very static , but just like the original angular routing, we can add controllers to a view.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing']).
 *    config(['$stateProvider', function ($stateProvider) {
 *      $stateProvider
@@ -1368,7 +1368,7 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 *    .controller('TabletsCtrl', ['$scope', function ($scope) { ... }]);
 * </pre>
 * <br/>
-* ### Nested States
+* # Nested States
 * <hr/>
 * Until now we have had a flat list of states, but this doesn't really provide many enhancements over the existing routing concept, even with multiple views, all views are always reloaded. Also it could get quite complex if views dependent on each other couldn't be arranged in a hierarchy.
 * <br/>
@@ -1376,7 +1376,7 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 * <br/>
 * One way is using a name convention for states where `.` is used to separate state levels. So that the state `phones.list` becomes a child of `phones`, it is important however that `phones` is defined before it's children.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing']).
 *    config(['$stateProvider', function($stateProvider) {
 *      $stateProvider
@@ -1444,7 +1444,7 @@ var $StateProvider = [
         *  .state('staff.single', {})
         * </pre>
         *
-        * <img type="image/svg+xml" src="assets/state.provider.structure.png"/>
+        * <img type="image/svg+xml" src="docs/assets/$state/state.provider.structure.svg"/>
         *
         * @param {Object} state All information about the state.
         *
@@ -2406,13 +2406,13 @@ function $ViewProvider() {
                 if (!trx.completed) {
                     return trx.refresh(name, data);
                 }
-
                 if (isUndefined(name)) {
                     forEach(views, function (val, key) {
                         $view.refresh(key, data);
                     });
                 } else {
                     //TODO: Here we still raise the event even if the view does not exist, we should propably do some error handling here?
+                    data = data || {};
                     data.$locals = views[name] && views[name].locals;
                     raiseRefresh(name, data);
                 }
@@ -3192,10 +3192,7 @@ var StateUrlBuilder = (function () {
 var cmd = {
     initializeContext: function (next, params, browser) {
         return function (context) {
-            //context.to = browser.resolve(context.from, next, false);
             var to = browser.resolve(context.from, next, false);
-
-            //var to = browser.lookup(next);
             context.to = to;
             context.params = params;
             context.toState = extend({}, to.self, { $params: params });

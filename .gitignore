@@ -2,12 +2,13 @@
 src/**/*.js
 src/*.js
 
-
 test/**/*.js
 test/*.js
 
-gh-pages/scripts/*.js
+temp/*.*
+temp/**/*.*
 
+gh-pages/scripts/*.js
 *.js.map
 
 # Local node modules 'yuk'
