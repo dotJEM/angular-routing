@@ -116,5 +116,20 @@
 * The above may indicate that views also has a child to parent relation in the naming, but this is merely a good naming convention, there is no constraint on how views are named.
 * <br/>
 * It is recommended that they are unique however, unless you deliberately wish to load the same content into multiple areas of a page, if multiple views use the same name within a page, they will load the same content, but they will render independently.
+*
+* To access the state parameters from the resolve section, inject the destination state `$to` as follows.
+*
+* <pre>
+* angular.module('demo.about', ['dotjem.routing'])
+* .config(['$stateProvider', function(sp){
+*    sp.state('about', {
+*      route: '/about',
+*      resolve: {
+*        something: ['$to',function(to) {
+*          var queryParams = to.$params;
+*        }] }
+*      });
+* }]);
+* </pre>
 */
 declare var $StateProvider: any[];
