@@ -4,6 +4,5 @@
   "main": [ "./build/angular-routing.min.js", "./build/angular-routing.js" ],
   "dependencies": {
     "angular": ">= 1.2"
-  },
-  "private": true
+  }
 }
