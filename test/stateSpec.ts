@@ -50,36 +50,37 @@ describe('$stateProvider', function () {
         };
     }));
 
-    describe("state names", () => {
-        it('invalid throws errors', function () {
-            var provider;
-            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
-                provider = $stateProvider;
-            });
+    //describe("state names", () => {
+    //TODO: These are no longer possible due to latebound registration.
+    //    it('invalid throws errors', function () {
+    //        var provider;
+    //        mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+    //            provider = $stateProvider;
+    //        });
 
-            inject(function ($state: dotjem.routing.IStateService) {
-                expect(function () { provider.state('valid.sub1', {}); })
-                    .toThrow(test.replaceWithRoot("Could not locate 'valid' under 'root'."));
-                expect(function () { provider.state('another.sub1', {}); })
-                    .toThrow(test.replaceWithRoot("Could not locate 'another' under 'root'."));
-                expect(stringifyState($state.root)).toBe("()");
+    //        inject(function ($state: dotjem.routing.IStateService) {
+    //            expect(function () { provider.state('valid.sub1', {}); })
+    //                .toThrow(test.replaceWithRoot("Could not locate 'valid' under 'root'."));
+    //            expect(function () { provider.state('another.sub1', {}); })
+    //                .toThrow(test.replaceWithRoot("Could not locate 'another' under 'root'."));
+    //            expect(stringifyState($state.root)).toBe("()");
 
-                provider.state('valid', {});
-                provider.state('another', {});
-                expect(stringifyState($state.root)).toBe("(valid(),another())");
+    //            provider.state('valid', {});
+    //            provider.state('another', {});
+    //            expect(stringifyState($state.root)).toBe("(valid(),another())");
 
-                expect(function () { provider.state('valid.sub1', {}); }).not.toThrow();
-                expect(function () { provider.state('another.sub1', {}); }).not.toThrow();
+    //            expect(function () { provider.state('valid.sub1', {}); }).not.toThrow();
+    //            expect(function () { provider.state('another.sub1', {}); }).not.toThrow();
 
-                expect(function () { provider.state('valid.sub2.deep', {}); })
-                    .toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.valid'."));
-                expect(function () { provider.state('another.sub2.deep', {}); })
-                    .toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.another'."));
+    //            expect(function () { provider.state('valid.sub2.deep', {}); })
+    //                .toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.valid'."));
+    //            expect(function () { provider.state('another.sub2.deep', {}); })
+    //                .toThrow(test.replaceWithRoot("Could not locate 'sub2' under 'root.another'."));
 
-                expect(stringifyState($state.root)).toBe("(valid(sub1()),another(sub1()))");
-            });
-        });
-    })
+    //            expect(stringifyState($state.root)).toBe("(valid(sub1()),another(sub1()))");
+    //        });
+    //    });
+    //})
 
     describe("state", () => {
         it('can define state', function () {
@@ -90,6 +91,52 @@ describe('$stateProvider', function () {
 
             inject(function ($state: dotjem.routing.IStateService) {
                 expect(stringifyState($state.root)).toBe("(blog())");
+            });
+        });
+
+        it('can define state by function', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+                $stateProvider
+                    .state(function ($register) {
+                        $register('blog', { name: 'blog' });
+                    });
+            });
+
+            inject(function ($state: dotjem.routing.IStateService) {
+                scope.$digest();
+                expect(stringifyState($state.root)).toBe("(blog())");
+
+                (<any>$state).reinitialize();
+                scope.$digest();
+                expect(stringifyState($state.root)).toBe("(blog())");
+            });
+        });
+
+        it('can define state by function using http backend', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider) {
+                $stateProvider
+                    .state(function ($register, $http) {
+                        return $http.get('/stateConfig').then(function (result) {
+                            angular.forEach(result.data, function (state, name) {
+                                $register(name, state);
+                            });
+                        });
+                    });
+            });
+
+            inject(function ($state: dotjem.routing.IStateService, $httpBackend) {
+                $httpBackend.expect('GET', '/stateConfig').respond({ 'blog': { name: 'blog' } });
+                
+                $httpBackend.flush();
+                scope.$digest();
+                expect(stringifyState($state.root)).toBe("(blog())");
+
+                $httpBackend.expect('GET', '/stateConfig').respond({ 'blog': { name: 'blog' }, 'other': { name: 'other' }});
+                (<any>$state).reinitialize();
+
+                $httpBackend.flush();
+                scope.$digest();
+                expect(stringifyState($state.root)).toBe("(blog(),other())");
             });
         });
 
@@ -871,9 +918,11 @@ describe('$stateProvider', function () {
                 $state: dotjem.routing.IStateService) {
 
                 $state.goto('blog');
+                scope.$digest();
                 expect($location.path()).toBe('/blog');
 
                 $state.goto('about.other');
+                scope.$digest();
                 expect($location.path()).toBe('/about/other');
             });
         });
@@ -884,12 +933,15 @@ describe('$stateProvider', function () {
                 $state: dotjem.routing.IStateService) {
 
                 $state.goto('gallery', { id: 42 });
+                scope.$digest();
                 expect($location.path()).toBe('/gallery/42');
 
                 $state.goto('gallery', { id: 4224 });
+                scope.$digest();
                 expect($location.path()).toBe('/gallery/4224');
 
                 $state.goto('gallery.details', { id: 4224, page: 1 });
+                scope.$digest();
                 expect($location.path()).toBe('/gallery/4224/details/1');
             });
         });

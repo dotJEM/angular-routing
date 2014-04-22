@@ -12,9 +12,9 @@ module.exports = function (config) {
             'lib/jQuery/impl/jQuery-1.9.1.min.js',
             'lib/angular/impl/angular.js',
             'lib/angular/impl/angular-mocks.js',
+            
 
             'src/common.js',
-            'src/route.js',
             'src/stateTransition.js',
             'src/state.js',
             'src/resolve.js',
@@ -29,8 +29,10 @@ module.exports = function (config) {
             'src/state/stateFactory.js',
             'src/state/stateRules.js',
             'src/state/stateUrlBuilder.js',
+
             'src/state/transition/commands.js',
             'src/state/transition/context.js',
+            'src/state/transition/transition.js',
 
             'src/directives/jemView.js',
             'src/directives/jemAnchor.js',
@@ -38,9 +40,7 @@ module.exports = function (config) {
 
             'src/legacy/templateDecorator.js',
 
-            'test/testcommon.js',
-
-            'test/**/*Spec.js'
+            'test/**/*.js'
         ],
     });
 };

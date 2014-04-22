@@ -16,7 +16,7 @@
 * Handlers for transitions can be specified in a number of ways, where the most simple handler is an injectable `function`.
 * <br/>
 * Here is a basic example:
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -57,7 +57,7 @@
 * When registering transitions like demonstrated in the example above, this will be maped to the "between" stage.
 * <br/>
 * To target specific stages of a transition use a transition object instead as in the example below:
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -95,7 +95,7 @@
 * <br/>
 * So if we just use `*` we target all existing states under `root`, and we can define a global handler that gets called on all transitions by using `*` both as destination and source.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -107,7 +107,7 @@
 *
 * We can also target all transitions to or from a specific state that way:
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -124,7 +124,7 @@
 *
 * This was global handlers, but we might also wan't to target any state below a specific state:
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -143,7 +143,7 @@
 *
 * In addition to using the `*` wildcart to target multiple states, it is also possible to use arrays for a more specific match.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -164,7 +164,7 @@
 *
 * Each of the states, wildcards can also be used:
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp

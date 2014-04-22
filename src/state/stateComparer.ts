@@ -37,9 +37,9 @@ class StateComparer {
             if (isUndefined(toAtIndex)) {
                 toArray[0].isChanged = stateChanges = true;
             } else if (isUndefined(fromAtIndex)
-                    || forceReload === toAtIndex.state.fullname
-                    || toAtIndex.state.fullname !== fromAtIndex.state.fullname
-                    || !equals(toAtIndex.params, fromAtIndex.params)) {
+                || forceReload === toAtIndex.state.fullname
+                || toAtIndex.state.fullname !== fromAtIndex.state.fullname
+                || !equals(toAtIndex.params, fromAtIndex.params)) {
                 toAtIndex.isChanged = stateChanges = true;
             } else {
                 toAtIndex.isChanged = false;
@@ -53,5 +53,77 @@ class StateComparer {
             stateChanges: stateChanges,
             paramChanges: paramChanges
         };
+    }
+
+
+
+
+    public isSameState(from, to) {
+        if (from === to) {
+            return true;
+        }
+
+        //Note: If one of them is undefined, note that if both are undefined the above if would have returned.
+        if (isUndefined(from) || isUndefined(to)) {
+            return false;
+        }
+
+        return to.name === from.name;
+    }
+
+    public isEquals(from, to) {
+        return this.isSameState(from, to) && equals(to.params, from.params);
+    }
+
+    public path(from, to, fromParams, toParams) {
+        var fromArray = this.toArray(from, fromParams, false),
+            toArray = this.toArray(to, toParams, true),
+            count = Math.max(fromArray.length, toArray.length);
+
+        var unchanged = [];
+        var deactivate = [];
+        var activate = [];
+        var change: any = {};
+
+        for (var i = 0; i < count; i++) {
+            var f = fromArray[i], t = toArray[i];
+            if (this.isEquals(f, t)) {
+                unchanged.push(f);
+            } else if (this.isSameState(f, t)) {
+                deactivate.push(f);
+                activate.push(t);
+            } else {
+                deactivate = deactivate.concat(fromArray.slice(i, fromArray.length));
+                deactivate.reverse();
+
+                activate = activate.concat(toArray.slice(i, toArray.length));
+                break;
+            }
+        }
+        
+        change.changed = deactivate.concat(activate);
+        change.unchanged = unchanged;
+
+        return change;
+    }
+
+    public toArray(state, params, activate) {
+        var states = [],
+            current = state;
+        do {
+            states.push({ state: current, name: current.fullname, params: this.extractParams(params, current), activate: activate });
+        } while (current = current.parent);
+        states.reverse();
+        return states;
+    }
+
+    public extractParams(params, current) {
+        var paramsObj = {};
+        if (current.route) {
+            forEach(current.route.params, (param, name) => {
+                paramsObj[name] = params[name];
+            });
+        }
+        return paramsObj;
     }
 }

@@ -78,6 +78,18 @@ class State {
         return this.fullname === state || this.fullname === rootName + '.' + state;
     }
 
+    public clear(route) {
+        forEach(this._children, function (state) {
+            state.clear(route);
+        });
+
+        if (this._route) {
+            this._route.remove();
+        }
+
+        this._children = {};
+    }
+
     public isActive(state: string) {
         if (this.is(state)) {
             return true;

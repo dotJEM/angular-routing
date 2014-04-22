@@ -25,5 +25,6 @@ declare class State {
     public add(child: State): State;
     public resolveRoute(): string;
     public is(state: string): boolean;
+    public clear(route: any): void;
     public isActive(state: string): any;
 }

@@ -41,7 +41,7 @@ interface IStateTransition {
 //    }
 //};
 
-//TODO: stateTransition.create should be surfice for the factory.
+//TODO: stateTransition.create should be suffice for the factory.
 class Factory implements IFactory {
     factories: IStageFactory[] = [];
 

@@ -16,7 +16,7 @@ These specialized cases can also be configured on the states instead of using th
 <p>Handlers for transitions can be specified in a number of ways, where the most simple handler is an injectable <code>function</code>.
 <br/>
 Here is a basic example:
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp
@@ -57,7 +57,7 @@ Basically this boils down to <code>before</code>, <code>between</code>, <code>af
 <p>When registering transitions like demonstrated in the example above, this will be maped to the &quot;between&quot; stage.
 <br/>
 To target specific stages of a transition use a transition object instead as in the example below:
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp
@@ -93,7 +93,7 @@ Here we defined a handler for all stages, each stage is optional however, so if 
 <p>By using <code>*</code> one can target all states the the Hierarchy below.
 <br/>
 So if we just use <code>*</code> we target all existing states under <code>root</code>, and we can define a global handler that gets called on all transitions by using <code>*</code> both as destination and source.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp
@@ -103,7 +103,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
    }]);
 </pre>
 <p>We can also target all transitions to or from a specific state that way:</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp
@@ -118,7 +118,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
    }]);
 </pre>
 <p>This was global handlers, but we might also wan&#39;t to target any state below a specific state:</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp
@@ -134,7 +134,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
 </pre>
 <h6 id="description_targeting-multiple-states_using-arrays">Using Arrays</h6>
 <p>In addition to using the <code>*</code> wildcart to target multiple states, it is also possible to use arrays for a more specific match.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp
@@ -153,7 +153,7 @@ So if we just use <code>*</code> we target all existing states under <code>root<
    }]);
 </pre>
 <p>Each of the states, wildcards can also be used:</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  angular.module('demo', ['dotjem.routing'])
    .config(['$stateTransitionProvider', function(stp) {
      stp

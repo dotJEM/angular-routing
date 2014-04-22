@@ -266,7 +266,10 @@ var $RouteProvider = [
                 $route: {
                     name: expression.name,
                     params: copy(expression.params),
-                    route: path
+                    route: path,
+                    remove: function () {
+                        delete routes[expression.name];
+                    }
                 }
             };
         };
@@ -836,7 +839,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 * Handlers for transitions can be specified in a number of ways, where the most simple handler is an injectable `function`.
 * <br/>
 * Here is a basic example:
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -877,7 +880,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 * When registering transitions like demonstrated in the example above, this will be maped to the "between" stage.
 * <br/>
 * To target specific stages of a transition use a transition object instead as in the example below:
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -915,7 +918,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 * <br/>
 * So if we just use `*` we target all existing states under `root`, and we can define a global handler that gets called on all transitions by using `*` both as destination and source.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -927,7 +930,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 *
 * We can also target all transitions to or from a specific state that way:
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -944,7 +947,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 *
 * This was global handlers, but we might also wan't to target any state below a specific state:
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -963,7 +966,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 *
 * In addition to using the `*` wildcart to target multiple states, it is also possible to use arrays for a more specific match.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -984,7 +987,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 *
 * Each of the states, wildcards can also be used:
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 *  angular.module('demo', ['dotjem.routing'])
 *    .config(['$stateTransitionProvider', function(stp) {
 *      stp
@@ -1190,10 +1193,9 @@ function $StateTransitionProvider() {
         function ($q, $inject) {
             var $transition = {
                 root: root,
-                find: find
+                find: find,
+                to: noop
             };
-
-            return $transition;
 
             function find(from, to) {
                 var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
@@ -1291,6 +1293,12 @@ function $StateTransitionProvider() {
                 } while(index++ < names.length);
                 return transitions;
             }
+
+            //var current = $q.when(null);
+            //function to(args: { state; params; updateroute?; }) {
+            //    current.then(function () { });
+            //}
+            return $transition;
         }];
 }
 angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);
@@ -1305,7 +1313,7 @@ angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionPr
 * <br/>
 * Here is a very basic example of configuring states.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 * angular.module('demo', ['dotjem.routing']).
 *   config(['$stateProvider', function($stateProvider) {
 *   $stateProvider
@@ -1435,7 +1443,7 @@ var $StateProvider = [
         *
         * The following registrations would result in the ilustated hierachy.
         *
-        * <pre>
+        * <pre dx-syntax class="brush: js">
         *  .state('home', {})
         *  .state('home.recents', {})
         *  .state('home.all', {})
@@ -1462,19 +1470,89 @@ var $StateProvider = [
         * @returns {Object} self
         *
         * @description
-        * Adds a new route definition to the `$route` service.
+        * Adds a new state definition to the `$state` service.
         */
-        this.state = function (fullname, state) {
-            StateRules.validateName(fullname);
+        /**
+        * @ngdoc method
+        * @name dotjem.routing.$stateProvider#state
+        * @methodOf dotjem.routing.$stateProvider
+        *
+        * @param {function} Registration function, this is an injectable function and can be used to load state configurations
+        *        from the backend, e.g. using the `$http` service.
+        *
+        *        The function should at least depend on `$register` which is used in place of the {@link dotjem.routing.$stateProvider#state state} function.
+        *
+        * <pre dx-syntax class="brush: js">
+        *  .state(['$register', '$http', function($register, $http) {
+        *      return $http.get('/stateConfig').then(function (result) {
+        *          // result is delivered as:
+        *          // {
+        *          //   'state1name': { ...params },
+        *          //   'state2name': { ...params }
+        *          // }
+        *          // in this example.
+        *          angular.forEach(result.data, function (state, name) {
+        *              $register(name, state);
+        *          });
+        *      });
+        *  }])
+        * </pre>
+        *
+        * Note: The function should return a promise that is resolved when registration is done, so that the state service knows when it can resume normal operation.
+        *
+        * @returns {Object} self
+        */
+        this.state = function (nameOrFunc, state) {
+            if (!isInjectable(nameOrFunc)) {
+                StateRules.validateName(nameOrFunc);
 
-            var parent = browser.lookup(fullname, 1);
-            parent.add(factory.createState(fullname, state, parent));
+                initializers.push(function () {
+                    internalRegisterState(nameOrFunc, state);
+                    return null;
+                });
+            } else {
+                initializers.push(function () {
+                    return nameOrFunc;
+                });
+            }
             return this;
         };
 
+        function registerState(fullname, state) {
+            StateRules.validateName(fullname);
+
+            internalRegisterState(fullname, state);
+        }
+
+        function internalRegisterState(fullname, state) {
+            var parent = browser.lookup(fullname, 1);
+            parent.add(factory.createState(fullname, state, parent));
+        }
+
+        var initializers = [];
+
         this.$get = [
-            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve',
-            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve) {
+            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler',
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler) {
+                function init(promise) {
+                    root.clear($routeProvider);
+
+                    forEach(initializers, function (init) {
+                        try  {
+                            var injectable = init();
+                            if (injectable !== null) {
+                                promise = promise.then(function () {
+                                    return $inject.invoke(injectable, injectable, { $register: registerState });
+                                });
+                            }
+                        } catch (error) {
+                            $exceptionHandler(error);
+                        }
+                    });
+                    return promise;
+                }
+                var initPromise = init($q.when(0));
+
                 /**
                 * @ngdoc object
                 * @name dotjem.routing.$state
@@ -1716,6 +1794,14 @@ var $StateProvider = [
                 *
                 * @returns {boolean} true if the stats mathces, otherwise false.
                 */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#reinitialize
+                * @methodOf dotjem.routing.$state
+                *
+                * @description
+                * Clears all states and associated routes and reinitializes the state service.
+                */
                 var urlbuilder = new StateUrlBuilder($route);
 
                 var forceReload = null, current = root, $state = {
@@ -1723,17 +1809,26 @@ var $StateProvider = [
                     root: root,
                     current: extend(root.self, { $params: buildParams() }),
                     params: buildParams(),
+                    reinitialize: function () {
+                        return initPromise = init(initPromise);
+                    },
                     goto: function (state, params) {
-                        goto({
-                            state: state,
-                            params: buildParams(params),
-                            updateroute: true
+                        return initPromise.then(function () {
+                            goto({
+                                state: state,
+                                params: buildParams(params),
+                                updateroute: true
+                            });
                         });
                     },
                     lookup: function (path) {
                         return browser.resolve(current, path, true);
                     },
-                    reload: reload,
+                    reload: function (state) {
+                        return initPromise.then(function () {
+                            reload(state);
+                        });
+                    },
                     url: function (arg1, arg2, arg3) {
                         var state = current;
                         if (arguments.length === 0) {
@@ -1779,6 +1874,7 @@ var $StateProvider = [
                         goto({ state: root, params: buildParams() });
                     }
                 });
+
                 $rootScope.$on(EVENTS.ROUTE_UPDATE, function () {
                     var route = $route.current, params = buildParams(route.params, route.pathParams, route.searchParams);
 
@@ -1811,15 +1907,22 @@ var $StateProvider = [
                 var context = new Context($state, function () {
                 }, root).complete();
                 var running = context;
+                var comparer = new StateComparer();
 
                 function goto(args) {
                     var ctx, scrollTo, useUpdate = false;
 
-                    //$transition.create(args.state, args.params, up)
                     if (!running.ended) {
                         running.abort();
                     }
 
+                    //var next = browser.resolve(current, toName(args.state), false);
+                    //var path = comparer.path(current, next, $state.params, args.params);
+                    //$transition.to(args, function (state) {
+                    //    $state.params = state.$params;
+                    //    $state.current = state;
+                    //});
+                    //$transition.create(args.state, args.params, up)
                     ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });
@@ -2891,6 +2994,18 @@ var State = (function () {
         return this.fullname === state || this.fullname === rootName + '.' + state;
     };
 
+    State.prototype.clear = function (route) {
+        forEach(this._children, function (state) {
+            state.clear(route);
+        });
+
+        if (this._route) {
+            this._route.remove();
+        }
+
+        this._children = {};
+    };
+
     State.prototype.isActive = function (state) {
         if (this.is(state)) {
             return true;
@@ -3071,6 +3186,72 @@ var StateComparer = (function () {
             stateChanges: stateChanges,
             paramChanges: paramChanges
         };
+    };
+
+    StateComparer.prototype.isSameState = function (from, to) {
+        if (from === to) {
+            return true;
+        }
+
+        //Note: If one of them is undefined, note that if both are undefined the above if would have returned.
+        if (isUndefined(from) || isUndefined(to)) {
+            return false;
+        }
+
+        return to.name === from.name;
+    };
+
+    StateComparer.prototype.isEquals = function (from, to) {
+        return this.isSameState(from, to) && equals(to.params, from.params);
+    };
+
+    StateComparer.prototype.path = function (from, to, fromParams, toParams) {
+        var fromArray = this.toArray(from, fromParams, false), toArray = this.toArray(to, toParams, true), count = Math.max(fromArray.length, toArray.length);
+
+        var unchanged = [];
+        var deactivate = [];
+        var activate = [];
+        var change = {};
+
+        for (var i = 0; i < count; i++) {
+            var f = fromArray[i], t = toArray[i];
+            if (this.isEquals(f, t)) {
+                unchanged.push(f);
+            } else if (this.isSameState(f, t)) {
+                deactivate.push(f);
+                activate.push(t);
+            } else {
+                deactivate = deactivate.concat(fromArray.slice(i, fromArray.length));
+                deactivate.reverse();
+
+                activate = activate.concat(toArray.slice(i, toArray.length));
+                break;
+            }
+        }
+
+        change.changed = deactivate.concat(activate);
+        change.unchanged = unchanged;
+
+        return change;
+    };
+
+    StateComparer.prototype.toArray = function (state, params, activate) {
+        var states = [], current = state;
+        do {
+            states.push({ state: current, name: current.fullname, params: this.extractParams(params, current), activate: activate });
+        } while(current = current.parent);
+        states.reverse();
+        return states;
+    };
+
+    StateComparer.prototype.extractParams = function (params, current) {
+        var paramsObj = {};
+        if (current.route) {
+            forEach(current.route.params, function (param, name) {
+                paramsObj[name] = params[name];
+            });
+        }
+        return paramsObj;
     };
     return StateComparer;
 })();

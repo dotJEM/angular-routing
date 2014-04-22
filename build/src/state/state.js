@@ -129,6 +129,18 @@ var State = (function () {
         return this.fullname === state || this.fullname === rootName + '.' + state;
     };
 
+    State.prototype.clear = function (route) {
+        forEach(this._children, function (state) {
+            state.clear(route);
+        });
+
+        if (this._route) {
+            this._route.remove();
+        }
+
+        this._children = {};
+    };
+
     State.prototype.isActive = function (state) {
         if (this.is(state)) {
             return true;

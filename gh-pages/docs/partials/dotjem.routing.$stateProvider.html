@@ -7,7 +7,7 @@
 <div class="description"><div class="dotjem-routing-stateprovider-page"><p>Used for configuring states.
 <br/>
 Here is a very basic example of configuring states.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
 angular.module('demo', ['dotjem.routing']).
   config(['$stateProvider', function($stateProvider) {
   $stateProvider
@@ -113,12 +113,12 @@ It is recommended that they are unique however, unless you diliberately wish to 
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
 <ul class="methods"><li><h3 id="methods_state">state(fullname, state)</h3>
-<div class="state"><div class="dotjem-routing-stateprovider-state-page"><p>Adds a new route definition to the <code>$route</code> service.</p>
+<div class="state"><div class="dotjem-routing-stateprovider-state-page"><p>Adds a new state definition to the <code>$state</code> service.</p>
 </div><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fullname</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>Full name of the state, use &#39;.&#39; to seperate parent and child states.</p>
 <p>E.g. if the full name &quot;home&quot; is given, the state is directly located under the root.
 It then becomes possible to register &quot;home.recents&quot; as a child named &quot;recents&quot; under the state &quot;home&quot;.</p>
 <p>The following registrations would result in the ilustated hierachy.</p>
-<pre class="prettyprint linenums">
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
  .state('home', {})
  .state('home.recents', {})
  .state('home.all', {})
@@ -139,6 +139,29 @@ It then becomes possible to register &quot;home.recents&quot; as a child named &
 <li><code>reloadOnSearch</code>: <code>{boolean=}</code> If associated with a route, should that route reload on search.</li>
 <li><code>scrollTo</code>: {string=} An element defined by it&#39;s id to scroll to when the state has been loaded.</li>
 </ul>
+</div></td></tr></tbody></table><h5 id="methods_state_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>self</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_state">state(Registration)</h3>
+<div class="state"><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Registration</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>function, this is an injectable function and can be used to load state configurations
+  from the backend, e.g. using the <code>$http</code> service.</p>
+<p>  The function should at least depend on <code>$register</code> which is used in place of the <a href="#/api/dotjem.routing.$stateProvider#state">state</a> function.</p>
+<pre dx-syntax class="brush: js" class="prettyprint linenums">
+.state(['$register', '$http', function($register, $http) {
+return $http.get('/stateConfig').then(function (result) {
+    // result is delivered as:
+    // {
+    //   'state1name': { ...params },
+    //   'state2name': { ...params }
+    // }
+    // in this example.
+    angular.forEach(result.data, function (state, name) {
+        $register(name, state);
+    });
+});
+}])
+</pre>
+<p>Note: The function should return a promise that is resolved when registration is done, so that the state service knows when it can resume normal operation.</p>
 </div></td></tr></tbody></table><h5 id="methods_state_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="dotjem-routing-stateprovider-state-page"><p>self</p>
 </div></td></tr></table></div>
 </li>

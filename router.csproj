@@ -156,6 +156,7 @@
     <Content Include="src\stateTransition.js">
       <DependentUpon>stateTransition.ts</DependentUpon>
     </Content>
+    <Content Include="test-dev-full-jquery-config.js" />
     <Content Include="test-grunt-jquery-config.js" />
     <Content Include="gruntfile.js" />
     <Content Include="lib\angular\impl\angular-bootstrap-prettify.js" />
@@ -207,6 +208,7 @@
     <Content Include="test\stateSpec.js">
       <DependentUpon>stateSpec.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="test\util\matchers.ts" />
     <TypeScriptCompile Include="test\viewSpec.ts" />
     <Content Include="test\stateTransitionSpec.js">
       <DependentUpon>stateTransitionSpec.ts</DependentUpon>

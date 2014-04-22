@@ -37,8 +37,7 @@ module.exports = function (config) {
 
             'src/legacy/templateDecorator.js',
 
-            'test/testcommon.js',
-            'test/**/*Spec.js'
+            'test/**/*.js'
         ],
     });
 };

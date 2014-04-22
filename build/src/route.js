@@ -118,7 +118,10 @@ var $RouteProvider = [
                 $route: {
                     name: expression.name,
                     params: copy(expression.params),
-                    route: path
+                    route: path,
+                    remove: function () {
+                        delete routes[expression.name];
+                    }
                 }
             };
         };

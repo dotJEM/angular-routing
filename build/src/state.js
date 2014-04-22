@@ -8,7 +8,7 @@
 * <br/>
 * Here is a very basic example of configuring states.
 *
-* <pre>
+* <pre dx-syntax class="brush: js">
 * angular.module('demo', ['dotjem.routing']).
 *   config(['$stateProvider', function($stateProvider) {
 *   $stateProvider
@@ -138,7 +138,7 @@ var $StateProvider = [
         *
         * The following registrations would result in the ilustated hierachy.
         *
-        * <pre>
+        * <pre dx-syntax class="brush: js">
         *  .state('home', {})
         *  .state('home.recents', {})
         *  .state('home.all', {})
@@ -165,19 +165,89 @@ var $StateProvider = [
         * @returns {Object} self
         *
         * @description
-        * Adds a new route definition to the `$route` service.
+        * Adds a new state definition to the `$state` service.
         */
-        this.state = function (fullname, state) {
-            StateRules.validateName(fullname);
+        /**
+        * @ngdoc method
+        * @name dotjem.routing.$stateProvider#state
+        * @methodOf dotjem.routing.$stateProvider
+        *
+        * @param {function} Registration function, this is an injectable function and can be used to load state configurations
+        *        from the backend, e.g. using the `$http` service.
+        *
+        *        The function should at least depend on `$register` which is used in place of the {@link dotjem.routing.$stateProvider#state state} function.
+        *
+        * <pre dx-syntax class="brush: js">
+        *  .state(['$register', '$http', function($register, $http) {
+        *      return $http.get('/stateConfig').then(function (result) {
+        *          // result is delivered as:
+        *          // {
+        *          //   'state1name': { ...params },
+        *          //   'state2name': { ...params }
+        *          // }
+        *          // in this example.
+        *          angular.forEach(result.data, function (state, name) {
+        *              $register(name, state);
+        *          });
+        *      });
+        *  }])
+        * </pre>
+        *
+        * Note: The function should return a promise that is resolved when registration is done, so that the state service knows when it can resume normal operation.
+        *
+        * @returns {Object} self
+        */
+        this.state = function (nameOrFunc, state) {
+            if (!isInjectable(nameOrFunc)) {
+                StateRules.validateName(nameOrFunc);
 
-            var parent = browser.lookup(fullname, 1);
-            parent.add(factory.createState(fullname, state, parent));
+                initializers.push(function () {
+                    internalRegisterState(nameOrFunc, state);
+                    return null;
+                });
+            } else {
+                initializers.push(function () {
+                    return nameOrFunc;
+                });
+            }
             return this;
         };
 
+        function registerState(fullname, state) {
+            StateRules.validateName(fullname);
+
+            internalRegisterState(fullname, state);
+        }
+
+        function internalRegisterState(fullname, state) {
+            var parent = browser.lookup(fullname, 1);
+            parent.add(factory.createState(fullname, state, parent));
+        }
+
+        var initializers = [];
+
         this.$get = [
-            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve',
-            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve) {
+            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler',
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler) {
+                function init(promise) {
+                    root.clear($routeProvider);
+
+                    forEach(initializers, function (init) {
+                        try  {
+                            var injectable = init();
+                            if (injectable !== null) {
+                                promise = promise.then(function () {
+                                    return $inject.invoke(injectable, injectable, { $register: registerState });
+                                });
+                            }
+                        } catch (error) {
+                            $exceptionHandler(error);
+                        }
+                    });
+                    return promise;
+                }
+                var initPromise = init($q.when(0));
+
                 /**
                 * @ngdoc object
                 * @name dotjem.routing.$state
@@ -419,6 +489,14 @@ var $StateProvider = [
                 *
                 * @returns {boolean} true if the stats mathces, otherwise false.
                 */
+                /**
+                * @ngdoc method
+                * @name dotjem.routing.$state#reinitialize
+                * @methodOf dotjem.routing.$state
+                *
+                * @description
+                * Clears all states and associated routes and reinitializes the state service.
+                */
                 var urlbuilder = new StateUrlBuilder($route);
 
                 var forceReload = null, current = root, $state = {
@@ -426,17 +504,26 @@ var $StateProvider = [
                     root: root,
                     current: extend(root.self, { $params: buildParams() }),
                     params: buildParams(),
+                    reinitialize: function () {
+                        return initPromise = init(initPromise);
+                    },
                     goto: function (state, params) {
-                        goto({
-                            state: state,
-                            params: buildParams(params),
-                            updateroute: true
+                        return initPromise.then(function () {
+                            goto({
+                                state: state,
+                                params: buildParams(params),
+                                updateroute: true
+                            });
                         });
                     },
                     lookup: function (path) {
                         return browser.resolve(current, path, true);
                     },
-                    reload: reload,
+                    reload: function (state) {
+                        return initPromise.then(function () {
+                            reload(state);
+                        });
+                    },
                     url: function (arg1, arg2, arg3) {
                         var state = current;
                         if (arguments.length === 0) {
@@ -482,6 +569,7 @@ var $StateProvider = [
                         goto({ state: root, params: buildParams() });
                     }
                 });
+
                 $rootScope.$on(EVENTS.ROUTE_UPDATE, function () {
                     var route = $route.current, params = buildParams(route.params, route.pathParams, route.searchParams);
 
@@ -514,15 +602,22 @@ var $StateProvider = [
                 var context = new Context($state, function () {
                 }, root).complete();
                 var running = context;
+                var comparer = new StateComparer();
 
                 function goto(args) {
                     var ctx, scrollTo, useUpdate = false;
 
-                    //$transition.create(args.state, args.params, up)
                     if (!running.ended) {
                         running.abort();
                     }
 
+                    //var next = browser.resolve(current, toName(args.state), false);
+                    //var path = comparer.path(current, next, $state.params, args.params);
+                    //$transition.to(args, function (state) {
+                    //    $state.params = state.$params;
+                    //    $state.current = state;
+                    //});
+                    //$transition.create(args.state, args.params, up)
                     ctx = running = context.next(function (ctx) {
                         context = ctx;
                     });

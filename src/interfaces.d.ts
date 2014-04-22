@@ -1,3 +1,5 @@
+/// <reference path="../lib/angular/angular.d.ts" />
+
 declare module dotjem.routing {
 
     interface IInjectService extends ng.auto.IInjectorService {
@@ -123,6 +125,7 @@ declare module dotjem.routing {
     }
 
     interface IStateProvider extends ITransitionProviderBase {
+        state(registration: any): IStateProvider;
         state(name: string, state: any): IStateProvider;
     }
 
@@ -148,9 +151,14 @@ declare module dotjem.routing {
         isActive(state?: any);
     }
 
-    interface ITransitionService {        root: any;        find: (from: any, to: any) => any;    }
+    interface ITransitionService {
+        root: any;
+        find: (from: any, to: any) => any;
+        to: (...args: any[]) => any;
+    }
 
-    interface ITransitionProvider extends ITransitionProviderBase {
+    interface ITransitionProvider extends ITransitionProviderBase {
+
         onEnter(state: string, handler: ITransitionHandler);
         onEnter(state: string, handler: ITransition);
         onEnter(state: string, handler: any);
@@ -168,7 +176,8 @@ declare module dotjem.routing {
         onExit(state: any, handler: any);
     }
 
-    interface ITransitionProviderBase {
+    interface ITransitionProviderBase {
+
         transition(from: string, to: string, handler: ITransitionHandler): IStateProvider;
         transition(from: string, to: string, handler: ITransition): IStateProvider;
         transition(from: string, to: string, handler: any): IStateProvider;
@@ -187,5 +196,6 @@ declare module dotjem.routing {
 
         transition(from: any, to: any, handler: ITransitionHandler): IStateProvider;
         transition(from: any, to: any, handler: ITransition): IStateProvider;
-        transition(from: any, to: any, handler: any): IStateProvider;    }
+        transition(from: any, to: any, handler: any): IStateProvider;
+    }
 }

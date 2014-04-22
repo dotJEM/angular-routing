@@ -1,4 +1,5 @@
 /// <reference path="../src/interfaces.d.ts" />
+/// <reference path="util/matchers.ts" />
 /// <reference path="../lib/angular/angular.d.ts" />
 /// <reference path="../lib/angular/angular-mocks.d.ts" />
 /// <reference path="../lib/jasmine/jasmine.d.ts" />
@@ -60,7 +61,7 @@ declare class StateUrlBuilder {
     public buildUrl(current: any, target: any, params?: any, base?: any): string;
 }
 
-interface IState {}
+interface IState { }
 
 interface TestAccessor {
     State;

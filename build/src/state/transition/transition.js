@@ -11,7 +11,7 @@
 //        gotofn({ state: state, params: { all: params }, updateroute: true });
 //    }
 //};
-//TODO: stateTransition.create should be surfice for the factory.
+//TODO: stateTransition.create should be suffice for the factory.
 var Factory = (function () {
     function Factory(inject, q) {
         this.inject = inject;
