@@ -10,4 +10,3 @@ angular.module('dotjem.routing.pages').directive('dxSyntax', [
         };
     }
 ]);
-//# sourceMappingURL=dxSyntax.js.map

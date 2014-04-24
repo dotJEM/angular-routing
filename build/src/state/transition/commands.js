@@ -21,7 +21,7 @@ var cmd = {
     },
     buildChanges: function (force) {
         return function (context) {
-            context.changed = new StateComparer().compare(context.from, context.to, context.$state.params, context.params, force);
+            context.path = new StateComparer().path(context.from, context.to, context.$state.params, context.params, { force: force });
         };
     },
     createTransition: function (gotofn) {
@@ -43,10 +43,11 @@ var cmd = {
     raiseUpdate: function ($rootScope) {
         return function (context) {
             var changed = context.changed;
+            var path = context.path;
             var $state = context.$state;
 
-            if (!changed.stateChanges) {
-                if (changed.paramChanges) {
+            if (path.changed.length < 1) {
+                if (path.paramChanges) {
                     $state.params = context.params;
                     $state.current.$params = context.params;
                     $rootScope.$broadcast('$stateUpdate', $state.current);
@@ -109,6 +110,8 @@ var cmd = {
                     throw Error("Can't cancel transition in after handler");
                 };
                 context.emit.after(context.transition, context.transaction);
+
+                //TODO: Reverse this, the $scroll service should just listen to change events.
                 $scroll(scrollTo);
             }
         };
@@ -118,26 +121,57 @@ var cmd = {
             context.transaction = $view.beginUpdate();
             context.transaction.clear();
 
-            var updating = false;
-            forEach(context.changed.array, function (change) {
-                updating = updating || change.isChanged;
-                forEach(change.state.views, function (view, name) {
+            //var updating = false;
+            //forEach(context.changed.array, function (change) {
+            //    updating = updating || change.isChanged;
+            //    forEach(change.state.views, function (view, name) {
+            //        var ifn: dotjem.routing.IInvoker;
+            //        if (isDefined(view.sticky)) {
+            //            if (ifn = $inject.create(view.sticky)) {
+            //                view.sticky = ifn({ $to: context.toState, $from: context.$state.current });
+            //            } else if (!isString(view.sticky)) {
+            //                view.sticky = change.state.fullname;
+            //            }
+            //        }
+            //        if (updating || view.force || isDefined(view.sticky)) {
+            //            context.prepUpdate(change.state.fullname, name, view);
+            //        } else {
+            //            context.prepCreate(change.state.fullname, name, view);
+            //        }
+            //    });
+            //});
+            var all = context.path.unchanged.concat(context.path.activated);
+            forEach(all, function (act) {
+                forEach(act.state.views, function (view, name) {
                     var ifn;
                     if (isDefined(view.sticky)) {
                         if (ifn = $inject.create(view.sticky)) {
                             view.sticky = ifn({ $to: context.toState, $from: context.$state.current });
                         } else if (!isString(view.sticky)) {
-                            view.sticky = change.state.fullname;
+                            view.sticky = act.name;
                         }
                     }
 
-                    if (updating || view.force || isDefined(view.sticky)) {
-                        context.prepUpdate(change.state.fullname, name, view);
+                    if (act.changed || view.force || isDefined(view.sticky) || (context.path.reloadLeaf && act.isLeaf)) {
+                        context.prepUpdate(act.name, name, view);
                     } else {
-                        context.prepCreate(change.state.fullname, name, view);
+                        context.prepCreate(act.name, name, view);
                     }
                 });
             });
+            //forEach(context.path.activated, function (activate) {
+            //    forEach(activate.state.views, function (view, name) {
+            //        var ifn: dotjem.routing.IInvoker;
+            //        if (isDefined(view.sticky)) {
+            //            if (ifn = $inject.create(view.sticky)) {
+            //                view.sticky = ifn({ $to: context.toState, $from: context.$state.current });
+            //            } else if (!isString(view.sticky)) {
+            //                view.sticky = activate.name;
+            //            }
+            //        }
+            //        context.prepUpdate(activate.name, name, view);
+            //    });
+            //});
         };
     }
 };

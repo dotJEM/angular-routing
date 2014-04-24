@@ -101,4 +101,3 @@ angular.module('dotjem.routing.pages').directive('dxSampleFile', [
         };
     }
 ]);
-//# sourceMappingURL=dxSample.js.map

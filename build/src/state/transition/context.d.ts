@@ -6,6 +6,7 @@ declare class Context {
     public ended : boolean;
     public to: any;
     public from: any;
+    public path: any;
     public params: any;
     public emit: any;
     public changed: any;

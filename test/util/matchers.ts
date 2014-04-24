@@ -2,6 +2,7 @@
 declare module jasmine {
     interface Matchers {
         toHaveProperties(expected): boolean;
+        toBeMsg(expected, message): boolean;
     }
 }
 
@@ -27,5 +28,20 @@ beforeEach(function () {
 
             return fails.length === 0;
         }
+
     });
-}); 
+});
+
+//getJasmineRequireObj().toBe = function () {
+//    function toBe() {
+//        return {
+//            compare: function (actual, expected) {
+//                return {
+//                    pass: actual === expected
+//                };
+//            }
+//        };
+//    }
+
+//    return toBe;
+//};

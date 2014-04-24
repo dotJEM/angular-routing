@@ -664,18 +664,17 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     return;
                 }
 
-                forEach(ctx.changed.array, function (change) {
+                var all = ctx.path.unchanged.concat(ctx.path.activated);
+                forEach(all, function (change) {
                     ctx.promise = ctx.promise.then(function () {
-                        if (useUpdate = useUpdate || change.isChanged) {
+                        if (useUpdate = useUpdate || change.changed) {
                             $resolve.clear(change.state.resolve);
                         }
                         return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
                     }).then(function (locals) {
-
-                            ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
-                            scrollTo = change.state.scrollTo;
-                        });
-
+                        ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
+                        scrollTo = change.state.scrollTo;
+                    });
                 });
 
                 ctx.promise.then(function () {
