@@ -619,9 +619,9 @@ var $RouteProvider = [
                 }
 
                 function update() {
-                    var next = findroute($location.path()), lastRoute = $route.current, nextRoute = next ? next.self : undefined;
+                    var next = findroute($location.path()), last = $route.$$current, lastRoute = $route.current, nextRoute = next ? next.self : undefined;
 
-                    if (!forceReload && nextRoute && lastRoute && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
+                    if (!forceReload && nextRoute && lastRoute && angular.equals(next.path, last.path) && angular.equals(nextRoute.pathParams, lastRoute.pathParams) && !nextRoute.reloadOnSearch) {
                         lastRoute.params = nextRoute.params;
                         lastRoute.searchParams = nextRoute.searchParams;
                         lastRoute.pathParams = nextRoute.pathParams;
@@ -635,6 +635,7 @@ var $RouteProvider = [
                         var event = $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_START, nextRoute, lastRoute);
                         if (!event.defaultPrevented) {
                             $route.current = nextRoute;
+                            $route.$$current = next;
 
                             if (next) {
                                 next.redirect($location, nextRoute);

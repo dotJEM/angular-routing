@@ -10,6 +10,29 @@ describe('$routeProvider', function () {
         };
     }));
 
+    describe("reloadOnSearch", function () {
+        it('raises $routeUpdate when only search params changes', function () {
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/Search/{param}', { id: "search", reloadOnSearch: false }).when('/Other', { id: "other" });
+            });
+
+            mock.inject(function ($route, $location) {
+                //TODO: FIX
+                //$location.path('/Search/one?par=there');
+                //var next, update;
+                //scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
+                //scope.$on('$routeUpdate', (self, n) => { update = n; });
+                //scope.$digest();
+                //expect(next).toBeDefined();
+                //expect(next.id).toBe('search');
+                //$location.path('/Search/one?here=other');
+                //scope.$digest();
+                //expect(update).toBeDefined();
+                //expect(update.id).toBe('search');
+            });
+        });
+    });
+
     describe("when", function () {
         it('matches first defined route', function () {
             mock.module(function ($routeProvider) {

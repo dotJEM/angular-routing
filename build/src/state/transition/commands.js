@@ -120,26 +120,6 @@ var cmd = {
         return function (context) {
             context.transaction = $view.beginUpdate();
             context.transaction.clear();
-
-            //var updating = false;
-            //forEach(context.changed.array, function (change) {
-            //    updating = updating || change.isChanged;
-            //    forEach(change.state.views, function (view, name) {
-            //        var ifn: dotjem.routing.IInvoker;
-            //        if (isDefined(view.sticky)) {
-            //            if (ifn = $inject.create(view.sticky)) {
-            //                view.sticky = ifn({ $to: context.toState, $from: context.$state.current });
-            //            } else if (!isString(view.sticky)) {
-            //                view.sticky = change.state.fullname;
-            //            }
-            //        }
-            //        if (updating || view.force || isDefined(view.sticky)) {
-            //            context.prepUpdate(change.state.fullname, name, view);
-            //        } else {
-            //            context.prepCreate(change.state.fullname, name, view);
-            //        }
-            //    });
-            //});
             var all = context.path.unchanged.concat(context.path.activated);
             forEach(all, function (act) {
                 forEach(act.state.views, function (view, name) {
@@ -159,19 +139,6 @@ var cmd = {
                     }
                 });
             });
-            //forEach(context.path.activated, function (activate) {
-            //    forEach(activate.state.views, function (view, name) {
-            //        var ifn: dotjem.routing.IInvoker;
-            //        if (isDefined(view.sticky)) {
-            //            if (ifn = $inject.create(view.sticky)) {
-            //                view.sticky = ifn({ $to: context.toState, $from: context.$state.current });
-            //            } else if (!isString(view.sticky)) {
-            //                view.sticky = activate.name;
-            //            }
-            //        }
-            //        context.prepUpdate(activate.name, name, view);
-            //    });
-            //});
         };
     }
 };

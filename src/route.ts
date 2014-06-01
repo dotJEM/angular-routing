@@ -681,12 +681,14 @@ var $RouteProvider = [<any>'$locationProvider',
 
             function update() {
                 var next = findroute($location.path()),
+                    last = $route.$$current,
                     lastRoute = $route.current,
                     nextRoute = next ? next.self : undefined;
 
                 if (!forceReload
                     && nextRoute
                     && lastRoute
+                    && angular.equals(next.path, last.path) //TODO: Better identification, use the normalized route name instead.
                     && angular.equals(nextRoute.pathParams, lastRoute.pathParams)
                     && !nextRoute.reloadOnSearch) {
 
@@ -704,6 +706,7 @@ var $RouteProvider = [<any>'$locationProvider',
                     var event = $rootScope.$broadcast(EVENTS.ROUTE_CHANGE_START, nextRoute, lastRoute);
                     if (!event.defaultPrevented) {
                         $route.current = nextRoute;
+                        $route.$$current = next;
 
                         if (next) {
                             next.redirect($location, nextRoute);
