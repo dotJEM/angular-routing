@@ -650,8 +650,8 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     .execute(function () {
                         forceReload = null;
                     })
-                    .execute(cmd.raiseUpdate($rootScope))
                     .execute(cmd.updateRoute($route, args.updateroute))
+                    .execute(cmd.raiseUpdate($rootScope))
                     .execute(cmd.beginTransaction($view, $inject))
                     .execute(cmd.before())
                     .execute(function (context: Context) {

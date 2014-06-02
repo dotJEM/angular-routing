@@ -626,7 +626,7 @@ var $StateProvider = [
                         context.locals = {};
                     }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
                         forceReload = null;
-                    }).execute(cmd.raiseUpdate($rootScope)).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.beginTransaction($view, $inject)).execute(cmd.before()).execute(function (context) {
+                    }).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.raiseUpdate($rootScope)).execute(cmd.beginTransaction($view, $inject)).execute(cmd.before()).execute(function (context) {
                         if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
                             context.abort();
                         }

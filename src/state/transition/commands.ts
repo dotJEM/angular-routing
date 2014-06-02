@@ -52,7 +52,6 @@ var cmd = {
 
     raiseUpdate: function ($rootScope): ICommand {
         return function (context: Context) {
-            var changed = context.changed;
             var path = context.path;
             var $state = context.$state;
 
