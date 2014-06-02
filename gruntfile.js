@@ -103,14 +103,14 @@ module.exports = function (grunt) {
         connect: {
             docs: {
                 options: {
-                    port: 8080,
+                    port: 8888,
                     base: 'build/gh-pages/'
                 }
             },
 
             devdocs: {
                 options: {
-                    port: 8090,
+                    port: 8999,
                     base: 'gh-pages/'
                 }
             }
@@ -125,7 +125,7 @@ module.exports = function (grunt) {
                     'gh-pages/styles/**/*.*',
                     'gh-pages/samples/**/*.*',
                     'test/**/*.ts' ],
-                tasks: ['build']
+                tasks: ['build', 'karma']
             }
         },
 

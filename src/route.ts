@@ -351,7 +351,7 @@ var $RouteProvider = [<any>'$locationProvider',
                 if (param.catchAll) {
                     regex += '/(.*)';
                 } else {
-                    regex += '/([^\\/]*)';
+                    regex += '/([^\\/?]*)';
                 }
                 if (param.converter !== '') {
                     cname = ":" + param.converter;
@@ -380,7 +380,7 @@ var $RouteProvider = [<any>'$locationProvider',
             }
 
             return {
-                exp: new RegExp(regex + '\x2F?$', flags),
+                exp: new RegExp(regex + '\x2F?([?](.*))?$', flags),
                 segments: segments,
                 name: name,
                 params: params

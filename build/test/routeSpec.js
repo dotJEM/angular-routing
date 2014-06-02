@@ -17,23 +17,131 @@ describe('$routeProvider', function () {
             });
 
             mock.inject(function ($route, $location) {
-                //TODO: FIX
-                //$location.path('/Search/one?par=there');
-                //var next, update;
-                //scope.$on('$routeChangeSuccess', (self, n) => { next = n; });
-                //scope.$on('$routeUpdate', (self, n) => { update = n; });
-                //scope.$digest();
-                //expect(next).toBeDefined();
-                //expect(next.id).toBe('search');
-                //$location.path('/Search/one?here=other');
-                //scope.$digest();
-                //expect(update).toBeDefined();
-                //expect(update.id).toBe('search');
+                $location.path('/Search/one?par=there');
+
+                var next, update;
+                scope.$on('$routeChangeSuccess', function (self, n) {
+                    next = n;
+                });
+                scope.$on('$routeUpdate', function (self, n) {
+                    update = n;
+                });
+
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.id).toBe('search');
+
+                $location.path('/Search/one?here=other');
+                scope.$digest();
+                expect(update).toBeDefined();
+                expect(update.id).toBe('search');
+            });
+        });
+
+        it('raises $routeChangeSuccess when entire route changes', function () {
+            mock.module(function ($routeProvider) {
+                $routeProvider.when('/Search/{param}', { id: "search", reloadOnSearch: false }).when('/Other', { id: "other" });
+            });
+
+            mock.inject(function ($route, $location) {
+                $location.path('/Search/one?par=there');
+
+                var next, update;
+                scope.$on('$routeChangeSuccess', function (self, n) {
+                    next = n;
+                });
+                scope.$on('$routeUpdate', function (self, n) {
+                    update = n;
+                });
+
+                scope.$digest();
+                expect(next).toBeDefined();
+                expect(next.id).toBe('search');
+
+                $location.path('/Other?here=other');
+                scope.$digest();
+                expect(update).toBeUndefined();
+                expect(next.id).toBe('other');
             });
         });
     });
 
     describe("when", function () {
+        describe("match variations", function () {
+            var path, route;
+            beforeEach(mock.module(function ($routeProvider, $locationProvider) {
+                $routeProvider.when('/route/:param', { id: "route", reloadOnSearch: true });
+                return function ($location, $route) {
+                    path = function path(val) {
+                        route = undefined;
+                        $location.url(val);
+                        scope.$digest();
+                    };
+                    scope.$on('$routeChangeSuccess', function (self, n) {
+                        route = n;
+                    });
+                };
+            }));
+
+            it('/route/value1 success', function () {
+                mock.inject(function () {
+                    path("/route/value1");
+                    expect(route.id).toBe('route');
+                    expect(route.params.param).toBe('value1');
+                });
+            });
+
+            it('/route/value2 success', function () {
+                mock.inject(function () {
+                    path("/route/value2");
+                    expect(route.id).toBe('route');
+                    expect(route.params.param).toBe('value2');
+                });
+            });
+
+            it('/route/value1?search=quarck success', function () {
+                mock.inject(function () {
+                    path("/route/value1?search=quarck");
+                    expect(route.id).toBe('route');
+                    expect(route.params.param).toBe('value1');
+                    expect(route.params.search).toBe('quarck');
+                });
+            });
+
+            it('/route/value1?search=bark success', function () {
+                mock.inject(function () {
+                    path("/route/value2?search=bark");
+                    expect(route.id).toBe('route');
+                    expect(route.params.param).toBe('value2');
+                    expect(route.params.search).toBe('bark');
+                });
+            });
+
+            it('/route/value1?search=quarckx&sort=asc success', function () {
+                mock.inject(function () {
+                    path("/route/value1?search=moo&sort=asc");
+                    expect(route.id).toBe('route');
+                    expect(route.params.param).toBe('value1');
+                    expect(route.params.search).toBe('moo');
+                    expect(route.params.sort).toBe('asc');
+                });
+            });
+
+            it('/route', function () {
+                mock.inject(function () {
+                    path("/route");
+                    expect(route).toBeUndefined();
+                });
+            });
+
+            it('/route?search=moo&sort=asc fail', function () {
+                mock.inject(function () {
+                    path("/route?search=moo&sort=asc");
+                    expect(route).toBeUndefined();
+                });
+            });
+        });
+
         it('matches first defined route', function () {
             mock.module(function ($routeProvider) {
                 $routeProvider.when('/Book', { message: "bookRoute" }).when('/Customer', { message: "customerRoute" });
