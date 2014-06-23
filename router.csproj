@@ -70,6 +70,7 @@
     <Content Include="build\test\stateSpec.js" />
     <Content Include="build\test\transitionSpec.js" />
     <Content Include="build\test\viewSpec.js" />
+    <TypeScriptCompile Include="src\stages.ts" />
     <TypeScriptCompile Include="src\stateTransition.ts" />
     <TypeScriptCompile Include="src\state\state.ts" />
     <TypeScriptCompile Include="src\state\stateRules.ts" />

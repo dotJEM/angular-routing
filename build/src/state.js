@@ -227,8 +227,8 @@ var $StateProvider = [
         var initializers = [];
 
         this.$get = [
-            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler',
-            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler) {
+            '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler', '$pipeline',
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler, $stages) {
                 function init(promise) {
                     root.clear($routeProvider);
 
@@ -555,6 +555,9 @@ var $StateProvider = [
                     }
                 };
 
+                $transition.browser(browser);
+                $transition.state($state);
+
                 $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                     var route = $route.current;
 
@@ -599,71 +602,25 @@ var $StateProvider = [
                     });
                 }
 
-                var context = new Context($state, function () {
-                }, root).complete();
-                var running = context;
                 var comparer = new StateComparer();
-
                 function goto(args) {
-                    var ctx, scrollTo, useUpdate = false;
+                    var next = browser.resolve(current, toName(args.state), false);
+                    var changes = comparer.path(current, next, $state.params, args.params, { force: forceReload });
+                    forceReload = null;
 
-                    if (!running.ended) {
-                        running.abort();
-                    }
-
-                    //var next = browser.resolve(current, toName(args.state), false);
-                    //var path = comparer.path(current, next, $state.params, args.params);
-                    //$transition.to(args, function (state) {
-                    //    $state.params = state.$params;
-                    //    $state.current = state;
-                    //});
-                    //$transition.create(args.state, args.params, up)
-                    ctx = running = context.next(function (ctx) {
-                        context = ctx;
-                    });
-                    ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser)).execute(function (context) {
-                        context.promise = $q.when('');
-                        context.locals = {};
-                    }).execute(cmd.createEmitter($transition)).execute(cmd.buildChanges(forceReload)).execute(cmd.createTransition(goto)).execute(function () {
-                        forceReload = null;
-                    }).execute(cmd.updateRoute($route, args.updateroute)).execute(cmd.raiseUpdate($rootScope)).execute(cmd.beginTransaction($view, $inject)).execute(cmd.before()).execute(function (context) {
-                        if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
-                            context.abort();
-                        }
-                    });
-
-                    if (ctx.ended) {
-                        return;
-                    }
-
-                    var all = ctx.path.unchanged.concat(ctx.path.activated);
-                    forEach(all, function (change) {
-                        ctx.promise = ctx.promise.then(function () {
-                            if (useUpdate = useUpdate || change.changed) {
-                                $resolve.clear(change.state.resolve);
-                            }
-                            return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
-                        }).then(function (locals) {
-                            ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
-                            scrollTo = change.state.scrollTo;
+                    var promise = $q.when(changes), context = { gotofn: goto };
+                    forEach($stages.all(), function (stage) {
+                        promise = promise.then(function (path) {
+                            return stage({ $changes: changes, $context: context, $args: args });
                         });
                     });
-
-                    ctx.promise.then(function () {
-                        ctx.execute(cmd.between($rootScope)).execute(function (context) {
-                            current = context.to;
-                            var fromState = $state.current;
-                            $state.params = context.params;
-                            $state.current = context.toState;
-
-                            context.transaction.commit();
-                            $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
-                        }).execute(cmd.after($scroll, scrollTo)).complete();
+                    promise.then(function () {
+                        current = changes.to;
                     }, function (error) {
-                        ctx.execute(function (context) {
-                            $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
-                            context.abort();
-                        });
+                        $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
+                        if (context.transaction && !context.transaction.completed) {
+                            context.transaction.cancel();
+                        }
                     });
                 }
                 return $state;

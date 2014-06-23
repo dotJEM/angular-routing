@@ -16,7 +16,9 @@ module.exports = function (config) {
 
             'src/common.js',
             'src/stateTransition.js',
+            'src/route.js',
             'src/state.js',
+            'src/pipeline.js',
             'src/resolve.js',
             'src/template.js',
             'src/view.js',
@@ -29,10 +31,6 @@ module.exports = function (config) {
             'src/state/stateFactory.js',
             'src/state/stateRules.js',
             'src/state/stateUrlBuilder.js',
-
-            'src/state/transition/commands.js',
-            'src/state/transition/context.js',
-            'src/state/transition/transition.js',
 
             'src/directives/jemView.js',
             'src/directives/jemAnchor.js',

@@ -155,6 +155,8 @@ declare module dotjem.routing {
         root: any;
         find: (from: any, to: any) => any;
         to: (...args: any[]) => any;
+        browser: (...args: any[]) => any;
+        state: (...args: any[]) => any;
     }
 
     interface ITransitionProvider extends ITransitionProviderBase {

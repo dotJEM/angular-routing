@@ -25,7 +25,6 @@ class StateComparer {
         var fromArray = this.toArray(from, fromParams, false),
             toArray = this.toArray(to, toParams, true),
             count = Math.max(fromArray.length, toArray.length),
-            paramChanges = !equals(fromParams, toParams),
             searchChanges = !equals(fromParams.$search, toParams.$search),
             unchanged = [], deactivated = [], activated = [], change: any = {};
 
@@ -62,6 +61,7 @@ class StateComparer {
         change.unchanged = unchanged;
         change.changed = deactivated.concat(activated);
         change.paramChanges = !equals(fromParams, toParams);
+        //change.searchChanges = searchChanges;
 
         return change;
     }

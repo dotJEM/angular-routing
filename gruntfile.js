@@ -125,7 +125,7 @@ module.exports = function (grunt) {
                     'gh-pages/styles/**/*.*',
                     'gh-pages/samples/**/*.*',
                     'test/**/*.ts' ],
-                tasks: ['build', 'karma']
+                tasks: ['build']
             }
         },
 
@@ -207,7 +207,7 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('default', ['clean', 'build', 'karma']);
-    grunt.registerTask('develop', ['clean', 'build', 'connect', 'watch']);
+    grunt.registerTask('develop', ['watch']);
 
     grunt.registerTask('build', ['tslint', 'typescript', 'concat', 'uglify', 'ngdocs', 'copy:ngdocs', 'clean:temp']);
 };

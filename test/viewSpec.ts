@@ -418,7 +418,7 @@ describe('$view', function () {
         it('clear causes viet to be cleared after commit', function () {
             mock.inject(function ($view: dotjem.routing.IViewService) {
                 $view.update("root", { template: { html: "root" } });
-                
+
                 var trx = $view.beginUpdate();
 
                 $view.clear("root");

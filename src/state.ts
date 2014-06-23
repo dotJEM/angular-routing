@@ -229,8 +229,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
     var initializers = [];
 
-    this.$get = [<any>'$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler',
-        function ($rootScope: ng.IRootScopeService, $q: ng.IQService, $inject: dotjem.routing.IInjectService, $route: dotjem.routing.IRouteService, $view: dotjem.routing.IViewService, $transition: dotjem.routing.ITransitionService, $location: ng.ILocationService, $scroll, $resolve, $exceptionHandler) {
+    this.$get = [<any>'$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler', '$pipeline',
+        function ($rootScope: ng.IRootScopeService,
+            $q: ng.IQService,
+            $inject: dotjem.routing.IInjectService,
+            $route: dotjem.routing.IRouteService,
+            $view: dotjem.routing.IViewService,
+            $transition: dotjem.routing.ITransitionService,
+            $location: ng.ILocationService,
+            $scroll,
+            $resolve,
+            $exceptionHandler,
+            $stages) {
 
             function init(promise) {
                 root.clear($routeProvider);
@@ -569,6 +579,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                     isActive: (state) => current.isActive(toName(state))
                 };
 
+
+            $transition.browser(browser);
+            $transition.state($state);
+
             $rootScope.$on(EVENTS.ROUTE_CHANGE_SUCCESS, function () {
                 var route = $route.current;
 
@@ -613,92 +627,27 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 });
             }
 
-            var context = new Context($state, () => { }, root).complete();
-            var running = context;
             var comparer = new StateComparer();
+            function goto(args: { state; params; updateroute?; }) {
 
-            function goto(args: { state; params; updateroute? ; }) {
-                var ctx,
-                    scrollTo,
-                    useUpdate = false;
-
-                if (!running.ended) {
-                    running.abort();
-                }
-
-                //var next = browser.resolve(current, toName(args.state), false);
-                //var path = comparer.path(current, next, $state.params, args.params);
-
-                //$transition.to(args, function (state) {
-                //    $state.params = state.$params;
-                //    $state.current = state;
-                //});
-
-                //$transition.create(args.state, args.params, up)
-
-
-
-                ctx = running = context.next(function (ctx: Context) { context = ctx; });
-                ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
-                    .execute(function (context) {
-                        context.promise = $q.when('');
-                        context.locals = {};
-                    })
-                    .execute(cmd.createEmitter($transition))
-                    .execute(cmd.buildChanges(forceReload))
-                    .execute(cmd.createTransition(goto))
-                    .execute(function () {
-                        forceReload = null;
-                    })
-                    .execute(cmd.updateRoute($route, args.updateroute))
-                    .execute(cmd.raiseUpdate($rootScope))
-                    .execute(cmd.beginTransaction($view, $inject))
-                    .execute(cmd.before())
-                    .execute(function (context: Context) {
-                        if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
-                            context.abort();
-                        }
-                    });
-
-                if (ctx.ended) {
-                    return;
-                }
-
-                var all = ctx.path.unchanged.concat(ctx.path.activated);
-                forEach(all, function (change) {
-                    ctx.promise = ctx.promise.then(function () {
-                        if (useUpdate = useUpdate || change.changed) {
-                            $resolve.clear(change.state.resolve);
-                        }
-                        return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
-                    }).then(function (locals) {
-                        ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
-                        scrollTo = change.state.scrollTo;
+                var next = browser.resolve(current, toName(args.state), false);
+                var changes = comparer.path(current, next, $state.params, args.params, { force: forceReload });
+                forceReload = null;
+                
+                var promise = $q.when(changes), context: any = { gotofn: goto };
+                forEach($stages.all(), function (stage) {
+                    promise = promise.then(function (path) {
+                        return stage({ $changes: changes, $context: context, $args: args });
                     });
                 });
-
-                ctx.promise.then(function () {
-                    ctx
-                        .execute(cmd.between($rootScope))
-                        .execute(function (context: Context) {
-
-                            current = context.to;
-                            var fromState = $state.current;
-                            $state.params = context.params;
-                            $state.current = context.toState;
-
-                            context.transaction.commit();
-                            $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
-                        })
-                        .execute(cmd.after($scroll, scrollTo))
-                        .complete();
+                promise.then(function () {
+                    current = changes.to;
                 }, function (error) {
-                        ctx
-                            .execute(function (context: Context) {
-                                $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
-                                context.abort();
-                            });
-                    });
+                    $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
+                    if (context.transaction && !context.transaction.completed) {
+                        context.transaction.cancel();
+                    }
+                });
             }
             return $state;
         }];

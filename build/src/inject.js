@@ -37,35 +37,13 @@ var InjectFn = (function () {
         this.fn = fn;
         this.$inject = $inject;
         //var last;
+        this.dependencies = $inject.annotate(fn);
         if (isArray(fn)) {
-            //last = fn.length - 1;
-            //this.func = fn[last];
             this.func = fn[fn.length - 1];
-            //this.dependencies = fn.slice(0, last);
         } else if (isFunction(fn)) {
             this.func = fn;
-            //if (fn.$inject) {
-            //    this.dependencies = fn.$inject;
-            //} else {
-            //    this.dependencies = this.extractDependencies(fn);
-            //}
         }
     }
-    //private extractDependencies(fn: any) {
-    //    var fnText,
-    //        argDecl,
-    //        deps = [];
-    //    if (fn.length) {
-    //        fnText = fn.toString().replace(InjectFn.STRIP_COMMENTS, '');
-    //        argDecl = fnText.match(InjectFn.FN_ARGS);
-    //        forEach(argDecl[1].split(InjectFn.FN_ARG_SPLIT), function (arg) {
-    //            arg.replace(InjectFn.FN_ARG, function (all, underscore, name) {
-    //                deps.push(name);
-    //            });
-    //        });
-    //    }
-    //    return deps;
-    //}
     InjectFn.prototype.invoker = function (locals) {
         return this.$inject.invoke(this.fn, this.func, locals);
         //Note: This part does not work, nor is it optimized as it should.

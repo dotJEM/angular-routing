@@ -177,305 +177,383 @@
 *    }]);
 * </pre>
 */
-function $StateTransitionProvider() {
-    'use strict';
-    var root = { children: {}, targets: {} }, _this = this;
+var $StateTransitionProvider = [
+    '$pipelineProvider', function ($pipelineProvider) {
+        'use strict';
+        var root = { children: {}, targets: {} }, _this = this;
 
-    function alignHandler(obj) {
-        var result = { handler: {} };
+        function alignHandler(obj) {
+            var result = { handler: {} };
 
-        if (isDefined(obj.to)) {
-            result.to = obj.to;
-        }
-
-        if (isDefined(obj.from)) {
-            result.from = obj.from;
-        }
-
-        if (isDefined(obj.handler)) {
-            result.handler = obj.handler;
-        }
-
-        if (isDefined(obj.before) && isUndefined(result.handler.before)) {
-            result.handler.before = obj.before;
-        }
-
-        if (isDefined(obj.between) && isUndefined(result.handler.between)) {
-            result.handler.between = obj.between;
-        }
-
-        if (isDefined(obj.after) && isUndefined(result.handler.after)) {
-            result.handler.after = obj.after;
-        }
-
-        return result;
-    }
-
-    /**
-    * @ngdoc method
-    * @name dotjem.routing.$stateTransitionProvider#onEnter
-    * @methodOf dotjem.routing.$stateTransitionProvider
-    *
-    * @param {string|State|Array} state The state name matchers(s) to match when entering.
-    * @param {funtion|Object} handler The handler to invoke when entering the state.
-    * <br/>
-    * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
-    * following properties:
-    *
-    * - `before` `{function}` : handler to be called before transition starts
-    * - `between` `{function}` : handler to be called right after views are resolved
-    * - `after` `{function}` : handler to be called when transition is complete
-    *
-    * @description
-    * This is a shorthand method for `$stateTransitionProvider.transition('*', state, handler);`
-    * <br/>
-    * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
-    */
-    this.onEnter = function (state, handler) {
-        if (isInjectable(handler)) {
-            this.transition('*', state, handler);
-        } else if (isObject(handler)) {
-            var aligned = alignHandler(handler);
-            this.transition(aligned.from || '*', state, aligned.handler);
-        }
-    };
-
-    /**
-    * @ngdoc method
-    * @name dotjem.routing.$stateTransitionProvider#onExit
-    * @methodOf dotjem.routing.$stateTransitionProvider
-    *
-    * @param {string|State|Array} state The state name matchers(s) to match when leaving.
-    * @param {funtion|Object} handler The handler to invoke when entering the state.
-    * <br/>
-    * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
-    * following properties:
-    *
-    * - `before` `{function}` : handler to be called before transition starts
-    * - `between` `{function}` : handler to be called right after views are resolved
-    * - `after` `{function}` : handler to be called when transition is complete
-    *
-    * @description
-    * This is a shorthand method for `$stateTransitionProvider.transition(state, '*', handler);`
-    * <br/>
-    * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
-    */
-    this.onExit = function (state, handler) {
-        if (isInjectable(handler)) {
-            this.transition(state, '*', handler);
-        } else if (isObject(handler)) {
-            var aligned = alignHandler(handler);
-            this.transition(state, aligned.to || '*', aligned.handler);
-        }
-    };
-
-    /**
-    * @ngdoc method
-    * @name dotjem.routing.$stateTransitionProvider#transition
-    * @methodOf dotjem.routing.$stateTransitionProvider
-    *
-    * @param {string|State|Array} from The state name matchers(s) to match on leaving.
-    * @param {string|State|Array} to The The state name matchers(s) to match on entering.
-    * @param {funtion|Object} handler The handler to invoke when the transitioning occurs.
-    * <br/>
-    * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
-    * following properties:
-    *
-    * - `before` `{function}` : handler to be called before transition starts
-    * - `between` `{function}` : handler to be called right after views are resolved
-    * - `after` `{function}` : handler to be called when transition is complete
-    *
-    * @description
-    * Register a single handler to get called when leaving the state(s) passed as the from parameter
-    * to the state(s) passed as the to parameter.
-    */
-    this.transition = function (from, to, handler) {
-        var _this = this;
-        var transition, regHandler;
-
-        if (isArray(from)) {
-            forEach(from, function (value) {
-                _this.transition(value, to, handler);
-            });
-        } else if (isArray(to)) {
-            forEach(to, function (value) {
-                _this.transition(from, value, handler);
-            });
-        } else {
-            from = toName(from);
-            to = toName(to);
-
-            // We ignore the situation where to and from are the same explicit state.
-            // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
-            // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
-            if (to === from && to.indexOf('*') === -1) {
-                return this;
+            if (isDefined(obj.to)) {
+                result.to = obj.to;
             }
 
-            validate(from, to);
+            if (isDefined(obj.from)) {
+                result.from = obj.from;
+            }
 
+            if (isDefined(obj.handler)) {
+                result.handler = obj.handler;
+            }
+
+            if (isDefined(obj.before) && isUndefined(result.handler.before)) {
+                result.handler.before = obj.before;
+            }
+
+            if (isDefined(obj.between) && isUndefined(result.handler.between)) {
+                result.handler.between = obj.between;
+            }
+
+            if (isDefined(obj.after) && isUndefined(result.handler.after)) {
+                result.handler.after = obj.after;
+            }
+
+            return result;
+        }
+
+        /**
+        * @ngdoc method
+        * @name dotjem.routing.$stateTransitionProvider#onEnter
+        * @methodOf dotjem.routing.$stateTransitionProvider
+        *
+        * @param {string|State|Array} state The state name matchers(s) to match when entering.
+        * @param {funtion|Object} handler The handler to invoke when entering the state.
+        * <br/>
+        * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+        * following properties:
+        *
+        * - `before` `{function}` : handler to be called before transition starts
+        * - `between` `{function}` : handler to be called right after views are resolved
+        * - `after` `{function}` : handler to be called when transition is complete
+        *
+        * @description
+        * This is a shorthand method for `$stateTransitionProvider.transition('*', state, handler);`
+        * <br/>
+        * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
+        */
+        this.onEnter = function (state, handler) {
             if (isInjectable(handler)) {
-                handler = { between: handler };
+                this.transition('*', state, handler);
+            } else if (isObject(handler)) {
+                var aligned = alignHandler(handler);
+                this.transition(aligned.from || '*', state, aligned.handler);
             }
+        };
 
-            transition = lookup(from);
-            if (!(to in transition.targets)) {
-                transition.targets[to] = [];
+        /**
+        * @ngdoc method
+        * @name dotjem.routing.$stateTransitionProvider#onExit
+        * @methodOf dotjem.routing.$stateTransitionProvider
+        *
+        * @param {string|State|Array} state The state name matchers(s) to match when leaving.
+        * @param {funtion|Object} handler The handler to invoke when entering the state.
+        * <br/>
+        * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+        * following properties:
+        *
+        * - `before` `{function}` : handler to be called before transition starts
+        * - `between` `{function}` : handler to be called right after views are resolved
+        * - `after` `{function}` : handler to be called when transition is complete
+        *
+        * @description
+        * This is a shorthand method for `$stateTransitionProvider.transition(state, '*', handler);`
+        * <br/>
+        * Instead of using this method, the transitions can also be configured when defining states through the {@link dotjem.routing.$stateProvider $stateProvider}.
+        */
+        this.onExit = function (state, handler) {
+            if (isInjectable(handler)) {
+                this.transition(state, '*', handler);
+            } else if (isObject(handler)) {
+                var aligned = alignHandler(handler);
+                this.transition(state, aligned.to || '*', aligned.handler);
             }
-            handler.name = from + ' -> ' + to;
-            transition.targets[to].push(handler);
-        }
-        return this;
-    };
+        };
 
-    function validate(from, to) {
-        var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
+        /**
+        * @ngdoc method
+        * @name dotjem.routing.$stateTransitionProvider#transition
+        * @methodOf dotjem.routing.$stateTransitionProvider
+        *
+        * @param {string|State|Array} from The state name matchers(s) to match on leaving.
+        * @param {string|State|Array} to The The state name matchers(s) to match on entering.
+        * @param {funtion|Object} handler The handler to invoke when the transitioning occurs.
+        * <br/>
+        * Either a injectable function or a handler object. If handler is an object, it must define one or more of the
+        * following properties:
+        *
+        * - `before` `{function}` : handler to be called before transition starts
+        * - `between` `{function}` : handler to be called right after views are resolved
+        * - `after` `{function}` : handler to be called when transition is complete
+        *
+        * @description
+        * Register a single handler to get called when leaving the state(s) passed as the from parameter
+        * to the state(s) passed as the to parameter.
+        */
+        this.transition = function (from, to, handler) {
+            var _this = this;
+            var transition, regHandler;
 
-        if (fromValid && toValid) {
-            return;
-        }
-
-        if (fromValid) {
-            throw new Error("Invalid transition - to: '" + to + "'.");
-        }
-
-        if (toValid) {
-            throw new Error("Invalid transition - from: '" + from + "'.");
-        }
-
-        throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
-    }
-
-    function lookup(name) {
-        var current = root, names = name.split('.'), i = names[0] === rootName ? 1 : 0;
-
-        for (; i < names.length; i++) {
-            if (!(names[i] in current.children)) {
-                current.children[names[i]] = { children: {}, targets: {} };
-            }
-            current = current.children[names[i]];
-        }
-        return current;
-    }
-
-    /**
-    * @ngdoc object
-    * @name dotjem.routing.$stateTransition
-    *
-    * @description
-    * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
-    */
-    this.$get = [
-        '$q', '$inject',
-        function ($q, $inject) {
-            var $transition = {
-                root: root,
-                find: find,
-                to: noop
-            };
-
-            function find(from, to) {
-                var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
-
-                function emit(select, tc, trx) {
-                    var handler;
-                    forEach(handlers, function (handlerObj) {
-                        if (isDefined(handler = select(handlerObj))) {
-                            //TODO: Cache handler.
-                            $inject.create(handler)({
-                                $to: to,
-                                $from: from,
-                                $transition: tc,
-                                $view: trx
-                            });
-                        }
-                    });
-                }
-
-                return {
-                    before: function (tc, trx) {
-                        emit(function (h) {
-                            return h.before;
-                        }, tc, trx);
-                    },
-                    between: function (tc, trx) {
-                        emit(function (h) {
-                            return h.between;
-                        }, tc, trx);
-                    },
-                    after: function (tc, trx) {
-                        emit(function (h) {
-                            return h.after;
-                        }, tc, trx);
-                    }
-                };
-            }
-
-            function trimRoot(path) {
-                if (path[0] === rootName) {
-                    path.splice(0, 1);
-                }
-                return path;
-            }
-
-            function compare(one, to) {
-                var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r;
-
-                while (true) {
-                    l = left.pop();
-                    r = right.pop();
-
-                    if (r === '*' || l === '*') {
-                        return true;
-                    }
-
-                    if (l !== r) {
-                        return false;
-                    }
-
-                    if (!isDefined(l) || !isDefined(r)) {
-                        return true;
-                    }
-                }
-            }
-
-            function extractHandlers(transitions, to) {
-                var handlers = [];
-                forEach(transitions, function (t) {
-                    forEach(t.targets, function (target, targetName) {
-                        if (compare(targetName, to)) {
-                            forEach(target, function (value) {
-                                handlers.push(value);
-                            });
-                        }
-                    });
+            if (isArray(from)) {
+                forEach(from, function (value) {
+                    _this.transition(value, to, handler);
                 });
-                return handlers;
+            } else if (isArray(to)) {
+                forEach(to, function (value) {
+                    _this.transition(from, value, handler);
+                });
+            } else {
+                from = toName(from);
+                to = toName(to);
+
+                // We ignore the situation where to and from are the same explicit state.
+                // Reason to ignore is the array ways of registering transitions, it could easily happen that a fully named
+                // state was in both the target and source array, and it would be a hassle for the user if he had to avoid that.
+                if (to === from && to.indexOf('*') === -1) {
+                    return this;
+                }
+
+                validate(from, to);
+
+                if (isInjectable(handler)) {
+                    handler = { between: handler };
+                }
+
+                transition = lookup(from);
+                if (!(to in transition.targets)) {
+                    transition.targets[to] = [];
+                }
+                handler.name = from + ' -> ' + to;
+                transition.targets[to].push(handler);
+            }
+            return this;
+        };
+
+        function validate(from, to) {
+            var fromValid = StateRules.validateTarget(from), toValid = StateRules.validateTarget(to);
+
+            if (fromValid && toValid) {
+                return;
             }
 
-            function findTransitions(from) {
-                var current = root, names = from.split('.'), transitions = [], index = names[0] === rootName ? 1 : 0;
-
-                do {
-                    if ('*' in current.children) {
-                        transitions.push(current.children['*']);
-                    }
-
-                    if (names[index] in current.children) {
-                        current = current.children[names[index]];
-                        transitions.push(current);
-                    } else {
-                        break;
-                    }
-                } while(index++ < names.length);
-                return transitions;
+            if (fromValid) {
+                throw new Error("Invalid transition - to: '" + to + "'.");
             }
 
-            //var current = $q.when(null);
-            //function to(args: { state; params; updateroute?; }) {
-            //    current.then(function () { });
-            //}
-            return $transition;
-        }];
-}
+            if (toValid) {
+                throw new Error("Invalid transition - from: '" + from + "'.");
+            }
+
+            throw new Error("Invalid transition - from: '" + from + "', to: '" + to + "'.");
+        }
+
+        function lookup(name) {
+            var current = root, names = name.split('.'), i = names[0] === rootName ? 1 : 0;
+
+            for (; i < names.length; i++) {
+                if (!(names[i] in current.children)) {
+                    current.children[names[i]] = { children: {}, targets: {} };
+                }
+                current = current.children[names[i]];
+            }
+            return current;
+        }
+
+        this.pipeline = $pipelineProvider;
+
+        /**
+        * @ngdoc object
+        * @name dotjem.routing.$stateTransition
+        *
+        * @description
+        * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
+        */
+        this.$get = [
+            '$q', '$inject',
+            function ($q, $inject) {
+                var $transition = {
+                    root: root,
+                    find: find,
+                    to: noop,
+                    browser: noop,
+                    state: noop
+                };
+
+                function find(from, to) {
+                    var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
+
+                    function emit(select, tc, trx) {
+                        var handler;
+                        forEach(handlers, function (handlerObj) {
+                            if (isDefined(handler = select(handlerObj))) {
+                                //TODO: Cache handler.
+                                $inject.create(handler)({
+                                    $to: to,
+                                    $from: from,
+                                    $transition: tc,
+                                    $view: trx
+                                });
+                            }
+                        });
+                    }
+
+                    return {
+                        before: function (tc, trx) {
+                            emit(function (h) {
+                                return h.before;
+                            }, tc, trx);
+                        },
+                        between: function (tc, trx) {
+                            emit(function (h) {
+                                return h.between;
+                            }, tc, trx);
+                        },
+                        after: function (tc, trx) {
+                            emit(function (h) {
+                                return h.after;
+                            }, tc, trx);
+                        }
+                    };
+                }
+
+                function trimRoot(path) {
+                    if (path[0] === rootName) {
+                        path.splice(0, 1);
+                    }
+                    return path;
+                }
+
+                function compare(one, to) {
+                    var left = trimRoot(one.split('.')).reverse(), right = trimRoot(to.split('.')).reverse(), l, r;
+
+                    while (true) {
+                        l = left.pop();
+                        r = right.pop();
+
+                        if (r === '*' || l === '*') {
+                            return true;
+                        }
+
+                        if (l !== r) {
+                            return false;
+                        }
+
+                        if (!isDefined(l) || !isDefined(r)) {
+                            return true;
+                        }
+                    }
+                }
+
+                function extractHandlers(transitions, to) {
+                    var handlers = [];
+                    forEach(transitions, function (t) {
+                        forEach(t.targets, function (target, targetName) {
+                            if (compare(targetName, to)) {
+                                forEach(target, function (value) {
+                                    handlers.push(value);
+                                });
+                            }
+                        });
+                    });
+                    return handlers;
+                }
+
+                function findTransitions(from) {
+                    var current = root, names = from.split('.'), transitions = [], index = names[0] === rootName ? 1 : 0;
+
+                    do {
+                        if ('*' in current.children) {
+                            transitions.push(current.children['*']);
+                        }
+
+                        if (names[index] in current.children) {
+                            current = current.children[names[index]];
+                            transitions.push(current);
+                        } else {
+                            break;
+                        }
+                    } while(index++ < names.length);
+                    return transitions;
+                }
+
+                //var current = $q.when(null);
+                //function to(args: { state; params; updateroute?; }) {
+                //    current.then(function () { });
+                //}
+                var $browser, $state;
+
+                function to(args) {
+                    //ctx = running = context.next(function (ctx: Context) { context = ctx; });
+                    //ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
+                    //    .execute(function (context) {
+                    //        context.promise = $q.when('');
+                    //        context.locals = {};
+                    //    })
+                    //    .execute(cmd.createEmitter($transition))
+                    //    .execute(cmd.buildChanges(forceReload))
+                    //    .execute(cmd.createTransition(goto))
+                    //    .execute(function () {
+                    //        forceReload = null;
+                    //    })
+                    //    .execute(cmd.updateRoute($route, args.updateroute))
+                    //    .execute(cmd.raiseUpdate($rootScope))
+                    //    .execute(cmd.beginTransaction($view, $inject))
+                    //    .execute(cmd.before())
+                    //    .execute(function (context: Context) {
+                    //        if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
+                    //            context.abort();
+                    //        }
+                    //    });
+                    //if (ctx.ended) {
+                    //    return;
+                    //}
+                    //var all = ctx.path.unchanged.concat(ctx.path.activated);
+                    //forEach(all, function (change) {
+                    //    ctx.promise = ctx.promise.then(function () {
+                    //        if (useUpdate = useUpdate || change.changed) {
+                    //            $resolve.clear(change.state.resolve);
+                    //        }
+                    //        return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
+                    //    }).then(function (locals) {
+                    //            ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
+                    //            scrollTo = change.state.scrollTo;
+                    //        });
+                    //});
+                    //ctx.promise.then(function () {
+                    //    ctx
+                    //        .execute(cmd.between($rootScope))
+                    //        .execute(function (context: Context) {
+                    //            current = context.to;
+                    //            var fromState = $state.current;
+                    //            $state.params = context.params;
+                    //            $state.current = context.toState;
+                    //            context.transaction.commit();
+                    //            $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
+                    //        })
+                    //        .execute(cmd.after($scroll, scrollTo))
+                    //        .complete();
+                    //}, function (error) {
+                    //        ctx
+                    //            .execute(function (context: Context) {
+                    //                $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
+                    //                context.abort();
+                    //            });
+                    //    });
+                }
+
+                function browser(val) {
+                    $browser = val;
+                }
+                ;
+                function state(val) {
+                    $state = val;
+                }
+
+                $transition.to = to;
+                $transition.browser = browser;
+                $transition.state = state;
+
+                return $transition;
+            }];
+    }];
 angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);

@@ -178,7 +178,7 @@
  *    }]);
  * </pre>
  */
-function $StateTransitionProvider() {
+var $StateTransitionProvider = ['$pipelineProvider', function ($pipelineProvider) {
     'use strict';
     var root = { children: {}, targets: {} },
         //Note: Do not remove
@@ -198,19 +198,19 @@ function $StateTransitionProvider() {
         if (isDefined(obj.handler)) {
             result.handler = obj.handler;
         }
-        
+
         if (isDefined(obj.before) && isUndefined(result.handler.before)) {
             result.handler.before = obj.before;
         }
-        
+
         if (isDefined(obj.between) && isUndefined(result.handler.between)) {
             result.handler.between = obj.between;
         }
-        
+
         if (isDefined(obj.after) && isUndefined(result.handler.after)) {
             result.handler.after = obj.after;
         }
-        
+
         return result;
     }
 
@@ -317,7 +317,7 @@ function $StateTransitionProvider() {
 
             validate(from, to);
 
-            if (isInjectable(handler)) { 
+            if (isInjectable(handler)) {
                 handler = { between: handler };
             }
 
@@ -332,7 +332,7 @@ function $StateTransitionProvider() {
     };
 
     function validate(from: string, to: string) {
-        var fromValid = StateRules.validateTarget(from), 
+        var fromValid = StateRules.validateTarget(from),
             toValid = StateRules.validateTarget(to);
 
         if (fromValid && toValid) {
@@ -354,7 +354,7 @@ function $StateTransitionProvider() {
         var current = root,
             names = name.split('.'),
             //If name contains root explicitly, skip that one
-            i = names[0] === rootName ? 1:0;
+            i = names[0] === rootName ? 1 : 0;
 
         for (; i < names.length; i++) {
             if (!(names[i] in current.children)) {
@@ -365,6 +365,9 @@ function $StateTransitionProvider() {
         return current;
     }
 
+
+    this.pipeline = $pipelineProvider;
+
     /**
      * @ngdoc object
      * @name dotjem.routing.$stateTransition
@@ -373,116 +376,191 @@ function $StateTransitionProvider() {
      * See {@link dotjem.routing.$stateTransitionProvider $stateTransitionProvider} for details on how to configure transitions.
      */
     this.$get = [<any>'$q', '$inject',
-    function ($q: ng.IQService, $inject: dotjem.routing.IInjectService) {
-        var $transition: any = {
-            root: root,
-            find: find,
-            to: noop
-        };
-
-        function find(from, to) {
-            var transitions = findTransitions(toName(from)),
-                handlers = extractHandlers(transitions, toName(to));
-
-            function emit(select, tc, trx) {
-                var handler;
-                forEach(handlers, (handlerObj) => {
-                    if (isDefined(handler = select(handlerObj))) {
-                        //TODO: Cache handler.
-                        $inject.create(handler)({
-                            $to: to,
-                            $from: from,
-                            $transition: tc,
-                            $view: trx
-                        });
-                    }
-                });
-            }
-
-            return {
-                before: function (tc, trx) { emit(h => h.before, tc, trx); },
-                between: function (tc, trx) { emit(h => h.between, tc, trx); },
-                after: function (tc, trx) { emit(h => h.after, tc, trx); },
+        function ($q: ng.IQService, $inject: dotjem.routing.IInjectService) {
+            var $transition: any = {
+                root: root,
+                find: find,
+                to: noop,
+                browser: noop,
+                state: noop
             };
-        }
 
-        function trimRoot(path: string[]) {
-            if (path[0] === rootName) {
-                path.splice(0,1);
+            function find(from, to) {
+                var transitions = findTransitions(toName(from)),
+                    handlers = extractHandlers(transitions, toName(to));
+
+                function emit(select, tc, trx) {
+                    var handler;
+                    forEach(handlers, (handlerObj) => {
+                        if (isDefined(handler = select(handlerObj))) {
+                            //TODO: Cache handler.
+                            $inject.create(handler)({
+                                $to: to,
+                                $from: from,
+                                $transition: tc,
+                                $view: trx
+                            });
+                        }
+                    });
+                }
+
+                return {
+                    before: function (tc, trx) { emit(h => h.before, tc, trx); },
+                    between: function (tc, trx) { emit(h => h.between, tc, trx); },
+                    after: function (tc, trx) { emit(h => h.after, tc, trx); },
+                };
             }
-            return path;
-        }
 
-        function compare(one: string, to: string) {
-            var left = trimRoot(one.split('.')).reverse(),
-                right = trimRoot(to.split('.')).reverse(),
-                l,
-                r;
-
-            while (true) {
-                l = left.pop();
-                r = right.pop();
-
-                if (r === '*' || l === '*') {
-                    return true;
+            function trimRoot(path: string[]) {
+                if (path[0] === rootName) {
+                    path.splice(0, 1);
                 }
-
-                if (l !== r) {
-                    return false;
-                }
-
-                if (!isDefined(l) || !isDefined(r)) {
-                    return true;
-                }
+                return path;
             }
-        }
 
-        function extractHandlers(transitions, to) {
-            var handlers = [];
-            forEach(transitions, (t) => {
-                forEach(t.targets, (target, targetName) => {
-                    if (compare(targetName, to)) {
-                        forEach(target, value => {
-                            handlers.push(value);
-                        });
+            function compare(one: string, to: string) {
+                var left = trimRoot(one.split('.')).reverse(),
+                    right = trimRoot(to.split('.')).reverse(),
+                    l,
+                    r;
+
+                while (true) {
+                    l = left.pop();
+                    r = right.pop();
+
+                    if (r === '*' || l === '*') {
+                        return true;
                     }
+
+                    if (l !== r) {
+                        return false;
+                    }
+
+                    if (!isDefined(l) || !isDefined(r)) {
+                        return true;
+                    }
+                }
+            }
+
+            function extractHandlers(transitions, to) {
+                var handlers = [];
+                forEach(transitions, (t) => {
+                    forEach(t.targets, (target, targetName) => {
+                        if (compare(targetName, to)) {
+                            forEach(target, value => {
+                                handlers.push(value);
+                            });
+                        }
+                    });
                 });
-            });
-            return handlers;
-        }
+                return handlers;
+            }
 
-        function findTransitions(from) {
-            var current = root,
-                names = from.split('.'),
-                transitions = [],
-                index = names[0] === rootName ? 1: 0;
+            function findTransitions(from) {
+                var current = root,
+                    names = from.split('.'),
+                    transitions = [],
+                    index = names[0] === rootName ? 1 : 0;
 
-            do {
-                if ('*' in current.children) {
-                    transitions.push(current.children['*']);
-                }
+                do {
+                    if ('*' in current.children) {
+                        transitions.push(current.children['*']);
+                    }
 
-                if (names[index] in current.children) {
-                    current = current.children[names[index]];
-                    transitions.push(current);
-                } else {
-                    break;
-                }
-            } while (index++ < names.length);
-            return transitions;
-        }
+                    if (names[index] in current.children) {
+                        current = current.children[names[index]];
+                        transitions.push(current);
+                    } else {
+                        break;
+                    }
+                } while (index++ < names.length);
+                return transitions;
+            }
+
+            //var current = $q.when(null);
+            //function to(args: { state; params; updateroute?; }) {
+            //    current.then(function () { });
+            //}
+            var $browser, $state;
+
+            function to(args) {
 
 
-        //var current = $q.when(null);
-
-        //function to(args: { state; params; updateroute?; }) {
-
-        //    current.then(function () { });
 
 
-        //}
+                //ctx = running = context.next(function (ctx: Context) { context = ctx; });
+                //ctx = ctx.execute(cmd.initializeContext(toName(args.state), args.params, browser))
+                //    .execute(function (context) {
+                //        context.promise = $q.when('');
+                //        context.locals = {};
+                //    })
+                //    .execute(cmd.createEmitter($transition))
+                //    .execute(cmd.buildChanges(forceReload))
+                //    .execute(cmd.createTransition(goto))
+                //    .execute(function () {
+                //        forceReload = null;
+                //    })
+                //    .execute(cmd.updateRoute($route, args.updateroute))
+                //    .execute(cmd.raiseUpdate($rootScope))
+                //    .execute(cmd.beginTransaction($view, $inject))
+                //    .execute(cmd.before())
+                //    .execute(function (context: Context) {
+                //        if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, context.toState, $state.current).defaultPrevented) {
+                //            context.abort();
+                //        }
+                //    });
 
-        return $transition;
-    }];
-}
+                //if (ctx.ended) {
+                //    return;
+                //}
+
+                //var all = ctx.path.unchanged.concat(ctx.path.activated);
+                //forEach(all, function (change) {
+                //    ctx.promise = ctx.promise.then(function () {
+                //        if (useUpdate = useUpdate || change.changed) {
+                //            $resolve.clear(change.state.resolve);
+                //        }
+                //        return $resolve.all(change.state.resolve, context.locals, { $to: ctx.toState, $from: $state.current });
+                //    }).then(function (locals) {
+                //            ctx.completePrep(change.state.fullname, context.locals = extend({}, context.locals, locals));
+                //            scrollTo = change.state.scrollTo;
+                //        });
+                //});
+
+                //ctx.promise.then(function () {
+                //    ctx
+                //        .execute(cmd.between($rootScope))
+                //        .execute(function (context: Context) {
+
+                //            current = context.to;
+                //            var fromState = $state.current;
+                //            $state.params = context.params;
+                //            $state.current = context.toState;
+
+                //            context.transaction.commit();
+                //            $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, context.toState, fromState);
+                //        })
+                //        .execute(cmd.after($scroll, scrollTo))
+                //        .complete();
+                //}, function (error) {
+                //        ctx
+                //            .execute(function (context: Context) {
+                //                $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
+                //                context.abort();
+                //            });
+                //    });
+
+
+            }
+
+            function browser(val) { $browser = val; };
+            function state(val) { $state = val; }
+
+            $transition.to = to;
+            $transition.browser = browser;
+            $transition.state = state;
+
+            return $transition;
+        }];
+}];
 angular.module('dotjem.routing').provider('$stateTransition', $StateTransitionProvider);

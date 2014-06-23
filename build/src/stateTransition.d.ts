@@ -177,4 +177,4 @@
 *    }]);
 * </pre>
 */
-declare function $StateTransitionProvider(): void;
+declare var $StateTransitionProvider: {}[];

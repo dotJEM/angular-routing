@@ -23,7 +23,7 @@ var StateComparer = (function () {
     };
 
     StateComparer.prototype.path = function (from, to, fromParams, toParams, options) {
-        var fromArray = this.toArray(from, fromParams, false), toArray = this.toArray(to, toParams, true), count = Math.max(fromArray.length, toArray.length), paramChanges = !equals(fromParams, toParams), searchChanges = !equals(fromParams.$search, toParams.$search), unchanged = [], deactivated = [], activated = [], change = {};
+        var fromArray = this.toArray(from, fromParams, false), toArray = this.toArray(to, toParams, true), count = Math.max(fromArray.length, toArray.length), searchChanges = !equals(fromParams.$search, toParams.$search), unchanged = [], deactivated = [], activated = [], change = {};
 
         options = options || {};
 
@@ -60,6 +60,7 @@ var StateComparer = (function () {
         change.changed = deactivated.concat(activated);
         change.paramChanges = !equals(fromParams, toParams);
 
+        //change.searchChanges = searchChanges;
         return change;
     };
 

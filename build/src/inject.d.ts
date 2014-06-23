@@ -10,6 +10,7 @@ declare class InjectFn implements IInjectFn {
     private static FN_ARG_SPLIT;
     private static FN_ARG;
     private static STRIP_COMMENTS;
+    private dependencies;
     private func;
     constructor(fn: any, $inject: ng.auto.IInjectorService);
     public invoker(locals: any): any;
