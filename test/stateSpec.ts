@@ -876,6 +876,53 @@ describe('$stateProvider', function () {
 
             });
         });
+
+        it('Transitions can be canceled by returning a promise.', function () {
+            mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
+
+                $stateProvider
+                    .state('home', { route: '/', name: 'about' })
+
+                    .state('blog', { route: '/blog', name: 'blog' })
+                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                    .state('blog.other', { route: '/other', name: 'blog.other' })
+
+                    .state('about', { route: '/about', name: 'about' })
+                    .state('about.cv', { route: '/cv', name: 'about.cv' })
+                    .state('about.other', { route: '/other', name: 'about.other' })
+
+                    .state('gallery', { route: '/gallery', name: 'gallery' })
+                    .state('gallery.overview', { route: '/overview', name: 'gallery.overview' })
+                    .state('gallery.details', { route: '/details', name: 'gallery.details' })
+
+                    .state('admin', { route: '/admin', name: 'admin' });
+
+                $stateTransitionProvider
+                    .transition('*', 'admin', ($transition, $q) => {
+                        return $q.reject();
+                    });
+            });
+
+            inject(function ($location, $route, $state: dotjem.routing.IStateService) {
+                function go(path: string) {
+                    $location.path(path);
+                    scope.$digest();
+                }
+
+                go('/blog');
+                go('/admin');
+                expect($state.current.name).toBe('blog');
+
+                go('/gallery');
+                go('/admin');
+                expect($state.current.name).toBe('gallery');
+
+                go('/about');
+                go('/admin');
+                expect($state.current.name).toBe('about');
+
+            });
+        });
     });
 
     //Note: Integration tests between $transition and $state etc.
