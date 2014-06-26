@@ -11,7 +11,7 @@ body {
 }
 .logo {
     display: inline-block;
-    background: url('/assets/images/Logo2.svg') no-repeat 0 0;
+    background: url("/assets/images/dotJEMLogo2.svg") no-repeat 0 0;
 
     -webkit-background-size: contain;
     -moz-background-size: contain;

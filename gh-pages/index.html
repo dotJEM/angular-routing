@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html ng-app="dotjem.routing.pages">
 <head>
     <title>dotJEM Angular Routing</title>
@@ -34,41 +34,7 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li ng-class="{active: isActive('home')}"><a sref="'home'"> <span class="icon-home"> </span> Home</a></li>
-                    <li ng-class="{active: isActive('docs')}" class="dropdown">
-                        <a style="cursor: pointer;" class="dropdown-toggle" data-toggle="dropdown"> <span class="icon-books"> </span> Documentation <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <!--li><a href="#">Getting Started</a></li-->
-                            <li><a sref="'docs.api'">API Reference</a></li>
-                            <li class="divider"></li>
-                            <li class="dropdown-header">Concepts</li>
-                            <li><a sref="'docs.concepts.states'">States</a></li>
-                            <li><a sref="'docs.concepts.transitions'">Transitions</a></li>
-                            <li><a sref="'docs.concepts.views'">Views</a></li>
-                            <li><a sref="'docs.concepts.routes'">Routes</a></li>
-                            <li class="divider"></li>
-                            <li><a sref="'docs.faq'">FAQ</a></li>
-                        </ul>
-                    </li>
-                    <li ng-class="{active: isActive('na')}" class="dropdown">
-                        <a style="cursor: pointer;"  class="dropdown-toggle" data-toggle="dropdown"> <span class="icon-hammer" > </span> Contribute <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="https://github.com/dotJEM/angular-routing/issues?state=open">Issues</a></li>
-                            <li><a href="#">Building</a></li>
-                            <li><a href="#">Testing</a></li>
-                            <li><a href="#">Pull Requests</a></li>
-                        </ul>
-                    </li>
-                    <li ng-class="{active: isActive('tutorial')}" class="dropdown">
-                        <a style="cursor: pointer;"  class="dropdown-toggle" data-toggle="dropdown"> <span class="icon-graduation" > </span> Tutorial <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a sref="'tutorial.step1'">1: Starting with Angular Routing</a></li>
-                            <li><a sref="'tutorial.step2'">2: Views and Templates</a></li>
-                            <li><a sref="'tutorial.step3'">3: Controller logic</a></li>
-                            <li><a sref="'tutorial.step4'">4: Nested states</a></li>
-                            <li><a sref="'tutorial.step5'">5: Route Parameters</a></li>
-                            <li><a sref="'tutorial.step6'">6: Transitions</a></li>
-                        </ul>
-                    </li>
+
                 </ul>
             </div><!--/.navbar-collapse -->
         </div>
@@ -81,8 +47,7 @@
             <footer>
                 <p>
                     Copyright <span class="copyright">©</span> 2013-2014 dotJEM ( Jens Melgaard )
-                    <br/> Source licensed under <a href="https://github.com/dotJEM/angular-routing/blob/master/LICENSE">The MIT License</a>.
-                          Documentation licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+                    <br/> Licensed under <a href="https://github.com/dotJEM/angular-routing/blob/master/LICENSE">The MIT License</a>.
                 </p>
             </footer>
         </div>

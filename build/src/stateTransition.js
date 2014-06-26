@@ -383,33 +383,35 @@ var $StateTransitionProvider = [
                     var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
 
                     function emit(select, tc, trx) {
-                        var handler;
+                        var handler, promises = [];
                         forEach(handlers, function (handlerObj) {
                             if (isDefined(handler = select(handlerObj))) {
                                 //TODO: Cache handler.
-                                $inject.create(handler)({
+                                var val = $inject.create(handler)({
                                     $to: to,
                                     $from: from,
                                     $transition: tc,
                                     $view: trx
                                 });
+                                promises.push($q.when(val));
                             }
                         });
+                        return $q.all(promises);
                     }
 
                     return {
                         before: function (tc, trx) {
-                            emit(function (h) {
+                            return emit(function (h) {
                                 return h.before;
                             }, tc, trx);
                         },
                         between: function (tc, trx) {
-                            emit(function (h) {
+                            return emit(function (h) {
                                 return h.between;
                             }, tc, trx);
                         },
                         after: function (tc, trx) {
-                            emit(function (h) {
+                            return emit(function (h) {
                                 return h.after;
                             }, tc, trx);
                         }

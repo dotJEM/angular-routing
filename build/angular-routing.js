@@ -822,6 +822,7 @@ var $RouteProvider = [
     }];
 angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$routeParams', {});
 
+/// <reference path="refs.d.ts" />
 function $PipelineProvider() {
     var stages = [], stagesMap = {}, self = this;
 
@@ -1011,13 +1012,14 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
 
         pipeline.append('step6', [
             '$context', '$q', function ($context, $q) {
-                $context.emit.before($context.transition, $context.transaction);
-                if ($context.transition.canceled) {
-                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                    //      That is if this was even triggered by an URL change in the first place.
-                    //$rootScope.$broadcast('$stateChangeAborted', toState, fromState);
-                    return $q.reject('Rejected state transition as canceled by user in before handler.');
-                }
+                return $context.emit.before($context.transition, $context.transaction).then(function () {
+                    if ($context.transition.canceled) {
+                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                        //      That is if this was even triggered by an URL change in the first place.
+                        //$rootScope.$broadcast('$stateChangeAborted', toState, fromState);
+                        return $q.reject('Rejected state transition as canceled by user in before handler.');
+                    }
+                });
             }]);
 
         pipeline.append('step7', [
@@ -1048,13 +1050,14 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
 
         pipeline.append('step9', [
             '$context', '$rootScope', '$q', '$state', function ($context, $rootScope, $q, $state) {
-                $context.emit.between($context.transition, $context.transaction);
-                if ($context.transition.canceled) {
-                    //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
-                    //      That is if this was even triggered by an URL change in the first place.
-                    $rootScope.$broadcast('$stateChangeAborted', $context.toState, $state.current);
-                    return $q.reject('Rejected state transition as canceled by user in between handler.');
-                }
+                return $context.emit.between($context.transition, $context.transaction).then(function () {
+                    if ($context.transition.canceled) {
+                        //TODO: Should we do more here?... What about the URL?... Should we reset that to the privous URL?...
+                        //      That is if this was even triggered by an URL change in the first place.
+                        $rootScope.$broadcast('$stateChangeAborted', $context.toState, $state.current);
+                        return $q.reject('Rejected state transition as canceled by user in between handler.');
+                    }
+                });
             }]);
 
         pipeline.append('step10', [
@@ -1073,10 +1076,9 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                     $context.transition.cancel = function () {
                         throw Error("Can't cancel transition in after handler");
                     };
-                    $context.emit.after($context.transition, $context.transaction);
-
-                    //TODO: Reverse this, the $scroll service should just listen to change events.
-                    $scroll($context.scrollTo);
+                    return $context.emit.after($context.transition, $context.transaction).then(function () {
+                        $scroll($context.scrollTo);
+                    });
                 }
             }]);
     }]);
@@ -1466,33 +1468,35 @@ var $StateTransitionProvider = [
                     var transitions = findTransitions(toName(from)), handlers = extractHandlers(transitions, toName(to));
 
                     function emit(select, tc, trx) {
-                        var handler;
+                        var handler, promises = [];
                         forEach(handlers, function (handlerObj) {
                             if (isDefined(handler = select(handlerObj))) {
                                 //TODO: Cache handler.
-                                $inject.create(handler)({
+                                var val = $inject.create(handler)({
                                     $to: to,
                                     $from: from,
                                     $transition: tc,
                                     $view: trx
                                 });
+                                promises.push($q.when(val));
                             }
                         });
+                        return $q.all(promises);
                     }
 
                     return {
                         before: function (tc, trx) {
-                            emit(function (h) {
+                            return emit(function (h) {
                                 return h.before;
                             }, tc, trx);
                         },
                         between: function (tc, trx) {
-                            emit(function (h) {
+                            return emit(function (h) {
                                 return h.between;
                             }, tc, trx);
                         },
                         after: function (tc, trx) {
-                            emit(function (h) {
+                            return emit(function (h) {
                                 return h.after;
                             }, tc, trx);
                         }
