@@ -58,6 +58,7 @@ function buildParams(all, path, search) {
 
 function buildParamsFromObject(params) {
     var par = copy(params && params.all || {});
+    par.$all = copy(par);
     par.$path = copy(params && params.path || {});
     par.$search = copy(params && params.search || {});
     return par;
