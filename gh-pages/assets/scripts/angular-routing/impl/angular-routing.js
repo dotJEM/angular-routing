@@ -3690,7 +3690,7 @@ var jemViewDirective = [
             transclude: 'element',
             compile: function (element, attr, linker) {
                 return function (scope, element, attr) {
-                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template(attr.loader)) || null, activeLoader;
+                    var viewScope, viewElement, name = attr.jemView || attr.dxView || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template(attr.loader)) || null, activeLoader;
 
                     scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                         if (updatedName === name) {
@@ -3839,7 +3839,7 @@ var jemAnchorDirective = [
             restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr.jemAnchor || attr.id, delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
+                var name = attr.jemAnchor || attr.dxAnchor || attr.id, delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
 
                 //$scroll.$register(name, element);
                 //TODO: This is not aware if there are multiple elements named the same, we should instead

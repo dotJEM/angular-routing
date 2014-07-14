@@ -65,7 +65,7 @@ var jemViewDirective = [<any>'$state', '$compile', '$controller', '$view', '$ani
                 return function (scope, element: JQuery, attr) {
                     var viewScope: IViewScope,
                         viewElement: JQuery,
-                        name = attr['jemView'] || attr.name,
+                        name = attr.jemView || attr.dxView || attr.name,
                         onloadExp = attr.onload || '',
                         version = -1,
                         loader = (attr.loader && $template(attr.loader)) || null,

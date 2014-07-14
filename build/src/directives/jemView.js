@@ -58,7 +58,7 @@ var jemViewDirective = [
             transclude: 'element',
             compile: function (element, attr, linker) {
                 return function (scope, element, attr) {
-                    var viewScope, viewElement, name = attr['jemView'] || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template(attr.loader)) || null, activeLoader;
+                    var viewScope, viewElement, name = attr.jemView || attr.dxView || attr.name, onloadExp = attr.onload || '', version = -1, loader = (attr.loader && $template(attr.loader)) || null, activeLoader;
 
                     scope.$on(EVENTS.VIEW_UPDATE, function (event, updatedName) {
                         if (updatedName === name) {

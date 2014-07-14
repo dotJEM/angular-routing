@@ -29,7 +29,7 @@ var jemAnchorDirective = [
             restrict: 'AC',
             terminal: false,
             link: function (scope, element, attr) {
-                var name = attr.jemAnchor || attr.id, delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
+                var name = attr.jemAnchor || attr.dxAnchor || attr.id, delay = isDefined(attr.delay) ? Number(attr.delay) : 1;
 
                 //$scroll.$register(name, element);
                 //TODO: This is not aware if there are multiple elements named the same, we should instead
