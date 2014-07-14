@@ -52,4 +52,5 @@ var jemAnchorDirective = [
         };
     }];
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
+angular.module('dotjem.routing').directive('dxAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);

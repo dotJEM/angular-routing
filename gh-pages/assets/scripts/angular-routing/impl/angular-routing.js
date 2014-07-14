@@ -2147,7 +2147,7 @@ var $StateProvider = [
                 */
                 var urlbuilder = new StateUrlBuilder($route);
 
-                var forceReload = null, current = root, $state = {
+                var current = root, $state = {
                     // NOTE: root should not be used in general, it is exposed for testing purposes.
                     root: root,
                     current: extend(root.self, { $params: buildParams() }),
@@ -2186,22 +2186,34 @@ var $StateProvider = [
                                 return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                             }
                         }
+
                         if (isDefined(arg1)) {
                             state = browser.resolve(current, toName(arg1), false);
                         }
+
                         if (isBool(arg2)) {
                             return urlbuilder.buildUrl($state.current, state, undefined, arg2);
                         } else {
                             return urlbuilder.buildUrl($state.current, state, arg2, arg3);
                         }
                     },
-                    is: function (state) {
-                        return current.is(toName(state));
+                    is: function (state, params) {
+                        return current && current.is(toName(state)) && checkParams(params);
                     },
-                    isActive: function (state) {
-                        return current.isActive(toName(state));
+                    isActive: function (state, params) {
+                        return current && current.isActive(toName(state)) && checkParams(params);
                     }
                 };
+
+                function checkParams(params) {
+                    var result = true;
+                    forEach(params, function (value, key) {
+                        if (!equals($state.params[key], value)) {
+                            result = false;
+                        }
+                    });
+                    return result;
+                }
 
                 $transition.browser(browser);
                 $transition.state($state);
@@ -2230,6 +2242,7 @@ var $StateProvider = [
                 });
 
                 function reload(state) {
+                    var forceReload;
                     if (isDefined(state)) {
                         if (isString(state) || isObject(state)) {
                             forceReload = toName(state);
@@ -2246,15 +2259,14 @@ var $StateProvider = [
                     }
 
                     $rootScope.$evalAsync(function () {
-                        goto({ state: current, params: $state.params, fource: forceReload });
+                        goto({ state: current, params: $state.params, force: forceReload });
                     });
                 }
 
                 var comparer = new StateComparer();
                 function goto(args) {
                     var next = browser.resolve(current, toName(args.state), false);
-                    var changes = comparer.path(current, next, $state.params, args.params, { force: forceReload });
-                    forceReload = null;
+                    var changes = comparer.path(current, next, $state.params, args.params, { force: args.force });
 
                     var promise = $q.when(changes), context = { gotofn: goto };
                     forEach($stages.all(), function (stage) {
@@ -3269,10 +3281,6 @@ var State = (function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
 
-    State.prototype.is = function (state) {
-        return this.fullname === state || this.fullname === rootName + '.' + state;
-    };
-
     State.prototype.clear = function (route) {
         forEach(this._children, function (state) {
             state.clear(route);
@@ -3283,6 +3291,10 @@ var State = (function () {
         }
 
         this._children = {};
+    };
+
+    State.prototype.is = function (state) {
+        return this.fullname === state || this.fullname === rootName + '.' + state;
     };
 
     State.prototype.isActive = function (state) {
@@ -3794,6 +3806,7 @@ var jemViewDirective = [
     }];
 
 angular.module('dotjem.routing').directive('jemView', jemViewDirective);
+angular.module('dotjem.routing').directive('dxView', jemViewDirective);
 
 /// <reference path="../refs.d.ts" />
 'use strict';
@@ -3849,6 +3862,7 @@ var jemAnchorDirective = [
         };
     }];
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
+angular.module('dotjem.routing').directive('dxAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 
 /// <reference path="../refs.d.ts" />
@@ -3871,26 +3885,21 @@ var jemLinkDirective = [
         return {
             restrict: 'AC',
             link: function (scope, element, attrs) {
-                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = { a: 'href', form: 'action' }, activeFn = noop;
+                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = { a: 'href', form: 'action' }, activeFn = isDefined(attrs.activeClass) ? active : noop;
 
-                if (isDefined(attrs.activeClass)) {
-                    activeFn = active;
-                }
-
-                function apply() {
-                    var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params), link = $state.url(sref, params);
+                function apply(sref, params) {
+                    var link = $state.url(sref, params);
 
                     //NOTE: Is this correct for forms?
                     if (!html5) {
                         link = '#' + prefix + link;
                     }
-
                     element.attr(attr[tag], link);
                 }
 
-                function active() {
-                    var sref = scope.$eval(attrs.sref);
-                    if ($state.isActive(sref)) {
+                //TODO: Should we depricate this and use filters instead from 0.7.0?
+                function active(sref, params) {
+                    if ($state.isActive(sref, params)) {
                         element.addClass(attrs.activeClass);
                     } else {
                         element.removeClass(attrs.activeClass);
@@ -3905,15 +3914,19 @@ var jemLinkDirective = [
                 }
                 ;
 
-                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, function () {
-                    activeFn();
-                    apply();
-                });
-                activeFn();
+                function update() {
+                    var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+
+                    activeFn(sref, params);
+                    apply(sref, params);
+                }
+
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, update);
+                update();
 
                 if (tag in attr) {
                     if (isDefined(attrs.params)) {
-                        scope.$watch(attrs.params, apply, true);
+                        scope.$watch(attrs.params, update, true);
                     }
 
                     //NOTE: Should we also use watch for sref, it seems rather unlikely that we should be interested in that.

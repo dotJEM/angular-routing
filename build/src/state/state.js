@@ -125,10 +125,6 @@ var State = (function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
 
-    State.prototype.is = function (state) {
-        return this.fullname === state || this.fullname === rootName + '.' + state;
-    };
-
     State.prototype.clear = function (route) {
         forEach(this._children, function (state) {
             state.clear(route);
@@ -139,6 +135,10 @@ var State = (function () {
         }
 
         this._children = {};
+    };
+
+    State.prototype.is = function (state) {
+        return this.fullname === state || this.fullname === rootName + '.' + state;
     };
 
     State.prototype.isActive = function (state) {

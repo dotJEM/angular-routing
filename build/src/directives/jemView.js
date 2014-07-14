@@ -174,3 +174,4 @@ var jemViewDirective = [
     }];
 
 angular.module('dotjem.routing').directive('jemView', jemViewDirective);
+angular.module('dotjem.routing').directive('dxView', jemViewDirective);

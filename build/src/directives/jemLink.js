@@ -18,26 +18,21 @@ var jemLinkDirective = [
         return {
             restrict: 'AC',
             link: function (scope, element, attrs) {
-                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = { a: 'href', form: 'action' }, activeFn = noop;
+                var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = { a: 'href', form: 'action' }, activeFn = isDefined(attrs.activeClass) ? active : noop;
 
-                if (isDefined(attrs.activeClass)) {
-                    activeFn = active;
-                }
-
-                function apply() {
-                    var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params), link = $state.url(sref, params);
+                function apply(sref, params) {
+                    var link = $state.url(sref, params);
 
                     //NOTE: Is this correct for forms?
                     if (!html5) {
                         link = '#' + prefix + link;
                     }
-
                     element.attr(attr[tag], link);
                 }
 
-                function active() {
-                    var sref = scope.$eval(attrs.sref);
-                    if ($state.isActive(sref)) {
+                //TODO: Should we depricate this and use filters instead from 0.7.0?
+                function active(sref, params) {
+                    if ($state.isActive(sref, params)) {
                         element.addClass(attrs.activeClass);
                     } else {
                         element.removeClass(attrs.activeClass);
@@ -52,15 +47,19 @@ var jemLinkDirective = [
                 }
                 ;
 
-                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, function () {
-                    activeFn();
-                    apply();
-                });
-                activeFn();
+                function update() {
+                    var sref = scope.$eval(attrs.sref), params = scope.$eval(attrs.params);
+
+                    activeFn(sref, params);
+                    apply(sref, params);
+                }
+
+                var deregistration = scope.$on(EVENTS.STATE_CHANGE_SUCCESS, update);
+                update();
 
                 if (tag in attr) {
                     if (isDefined(attrs.params)) {
-                        scope.$watch(attrs.params, apply, true);
+                        scope.$watch(attrs.params, update, true);
                     }
 
                     //NOTE: Should we also use watch for sref, it seems rather unlikely that we should be interested in that.

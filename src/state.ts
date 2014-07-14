@@ -525,7 +525,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
 
             var urlbuilder = new StateUrlBuilder($route);
 
-            var forceReload = null,
+            var 
                 current = root,
                 $state: any = {
                     // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -566,19 +566,34 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                                 return urlbuilder.buildUrl($state.current, state, undefined, undefined);
                             }
                         }
+
                         if (isDefined(arg1)) {
                             state = browser.resolve(current, toName(arg1), false);
                         }
+
                         if (isBool(arg2)) {
                             return urlbuilder.buildUrl($state.current, state, undefined, arg2);
                         } else {
                             return urlbuilder.buildUrl($state.current, state, arg2, arg3);
                         }
                     },
-                    is: (state) => current.is(toName(state)),
-                    isActive: (state) => current.isActive(toName(state))
+                    is: function (state, params) {
+                        return current && current.is(toName(state)) && checkParams(params);
+                    },
+                    isActive: function (state, params) { 
+                        return current && current.isActive(toName(state)) && checkParams(params);
+                    }
                 };
 
+            function checkParams(params) {
+                var result = true;
+                forEach(params, function (value, key) {
+                    if (!equals($state.params[key], value)) {
+                        result = false;
+                    }
+                });
+                return result;
+            }
 
             $transition.browser(browser);
             $transition.state($state);
@@ -608,6 +623,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             });
 
             function reload(state?) {
+                var forceReload;
                 if (isDefined(state)) {
                     if (isString(state) || isObject(state)) {
                         forceReload = toName(state);
@@ -623,17 +639,16 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                 }
 
                 $rootScope.$evalAsync(() => {
-                    goto({ state: current, params: $state.params, fource: forceReload });
+                    goto({ state: current, params: $state.params, force: forceReload });
                 });
             }
 
             var comparer = new StateComparer();
-            function goto(args: { state; params; updateroute?; }) {
+            function goto(args: { state; params; updateroute?; force?}) {
 
                 var next = browser.resolve(current, toName(args.state), false);
-                var changes = comparer.path(current, next, $state.params, args.params, { force: forceReload });
-                forceReload = null;
-                
+                var changes = comparer.path(current, next, $state.params, args.params, { force: args.force });
+               
                 var promise = $q.when(changes), context: any = { gotofn: goto };
                 forEach($stages.all(), function (stage) {
                     promise = promise.then(function (path) {

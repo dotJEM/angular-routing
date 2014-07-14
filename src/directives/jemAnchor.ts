@@ -59,4 +59,5 @@ var jemAnchorDirective = [<any>'$scroll', '$timeout',
         };
     }];
 angular.module('dotjem.routing').directive('jemAnchor', jemAnchorDirective);
+angular.module('dotjem.routing').directive('dxAnchor', jemAnchorDirective);
 angular.module('dotjem.routing').directive('id', jemAnchorDirective);
