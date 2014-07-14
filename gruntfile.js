@@ -207,7 +207,7 @@ module.exports = function (grunt) {
 
     // Default task.
     grunt.registerTask('default', ['clean', 'build', 'karma']);
-    grunt.registerTask('develop', ['watch']);
+    grunt.registerTask('develop', ['build', 'connect:devdocs', 'watch']);
 
     grunt.registerTask('build', ['tslint', 'typescript', 'concat', 'uglify', 'ngdocs', 'copy:ngdocs', 'clean:temp']);
 };

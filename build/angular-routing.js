@@ -3281,6 +3281,10 @@ var State = (function () {
         return isDefined(this.route) ? this.route.route : isDefined(this.parent) ? this.parent.resolveRoute() : '';
     };
 
+    State.prototype.is = function (state) {
+        return this.fullname === state || this.fullname === rootName + '.' + state;
+    };
+
     State.prototype.clear = function (route) {
         forEach(this._children, function (state) {
             state.clear(route);
@@ -3291,10 +3295,6 @@ var State = (function () {
         }
 
         this._children = {};
-    };
-
-    State.prototype.is = function (state) {
-        return this.fullname === state || this.fullname === rootName + '.' + state;
     };
 
     State.prototype.isActive = function (state) {
@@ -3930,7 +3930,7 @@ var jemLinkDirective = [
                     }
 
                     //NOTE: Should we also use watch for sref, it seems rather unlikely that we should be interested in that.
-                    attrs.$observe('sref', apply);
+                    attrs.$observe('sref', update);
                 } else {
                     element.bind('click', onClick);
                 }

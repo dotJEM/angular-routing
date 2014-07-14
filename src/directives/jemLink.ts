@@ -66,7 +66,7 @@ var jemLinkDirective = [<any>'$state', '$route',
                         scope.$watch(attrs.params, update, true);
                     }
                     //NOTE: Should we also use watch for sref, it seems rather unlikely that we should be interested in that.
-                    attrs.$observe('sref', apply);
+                    attrs.$observe('sref', update);
                 } else {
                     element.bind('click', onClick);
                 }
