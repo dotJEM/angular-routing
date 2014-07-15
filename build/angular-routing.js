@@ -3945,6 +3945,32 @@ var jemLinkDirective = [
 
 angular.module('dotjem.routing').directive('sref', jemLinkDirective);
 
+angular.module('dotjem.routing').filter('isActiveState', [
+    '$state', function ($state) {
+        var cachedState, cachedValue;
+
+        return function (state, params) {
+            if (cachedState === $state.current) {
+                return cachedValue;
+            }
+            cachedState = $state.current;
+            return cachedValue = $state.isActive(state, params);
+        };
+    }]);
+
+angular.module('dotjem.routing').filter('isCurrentState', [
+    '$state', function ($state) {
+        var cachedState, cachedValue;
+
+        return function (state, params) {
+            if (cachedState === $state.current) {
+                return cachedValue;
+            }
+            cachedState = $state.current;
+            return cachedValue = $state.is(state, params);
+        };
+    }]);
+
 
 //NOTE: Expose for testing
 dotjem.State = State;

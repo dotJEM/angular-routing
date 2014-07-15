@@ -34,6 +34,9 @@ module.exports = function (config) {
             'src/directives/jemAnchor.js',
             'src/directives/jemLink.js',
 
+            'src/filters/isActiveState.js',
+            'src/filters/isCurrentState.js',
+
             'src/legacy/templateDecorator.js',
 
             'test/**/*.js'

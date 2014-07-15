@@ -21,6 +21,8 @@
             'build/src/directives/jemView.js',
             'build/src/directives/jemAnchor.js',
             'build/src/directives/jemLink.js',
+            'build/src/filters/isActiveState.js',
+            'build/src/filters/isCurrentState.js',
             'src/suffix'
         ],
         'legacy': [
