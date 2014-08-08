@@ -2223,13 +2223,17 @@ var $StateProvider = [
 
                     if (route) {
                         if (route.state) {
-                            goto({
-                                state: route.state,
-                                params: buildParams(route.params, route.pathParams, route.searchParams)
+                            initPromise.then(function () {
+                                goto({
+                                    state: route.state,
+                                    params: buildParams(route.params, route.pathParams, route.searchParams)
+                                });
                             });
                         }
                     } else {
-                        goto({ state: root, params: buildParams() });
+                        initPromise.then(function () {
+                            goto({ state: root, params: buildParams() });
+                        });
                     }
                 });
 
