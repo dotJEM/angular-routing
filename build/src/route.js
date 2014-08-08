@@ -560,7 +560,10 @@ var $RouteProvider = [
                 * @description
                 * Formats the given provided route into an url.
                 */
-                var forceReload = false, baseElement, $route = {
+                var forceReload = false, baseElement, promise = $q.when(null), $route = {
+                    $waitFor: function (wait) {
+                        return promise = wait;
+                    },
                     routes: routes,
                     html5Mode: function () {
                         return $locationProvider.html5Mode();
@@ -570,7 +573,9 @@ var $RouteProvider = [
                     },
                     reload: function () {
                         forceReload = true;
-                        $rootScope.$evalAsync(update);
+                        $rootScope.$evalAsync(function () {
+                            promise.then(update);
+                        });
                     },
                     change: function (args) {
                         var params = args.params || {}, route = interpolate(args.route, params), loc = $location.path(route).search(params);
@@ -592,7 +597,9 @@ var $RouteProvider = [
                     }
                 };
 
-                $rootScope.$on(EVENTS.LOCATION_CHANGE, update);
+                $rootScope.$on(EVENTS.LOCATION_CHANGE, function () {
+                    promise.then(update);
+                });
                 return $route;
 
                 function buildmatch(route, params, search) {

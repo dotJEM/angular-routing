@@ -616,7 +616,9 @@ var $RouteProvider = [<any>'$locationProvider',
              */
             var forceReload = false,
                 baseElement,
+                promise = $q.when(null),
                 $route: any = {
+                    $waitFor: function (wait) { return promise = wait; },
                     routes: routes,
                     html5Mode: function () {
                         return $locationProvider.html5Mode();
@@ -626,7 +628,9 @@ var $RouteProvider = [<any>'$locationProvider',
                     },
                     reload: function () {
                         forceReload = true;
-                        $rootScope.$evalAsync(update);
+                        $rootScope.$evalAsync(function () {
+                            promise.then(update);
+                        });
                     },
                     change: function (args: { route: string; params?: any; replace?: boolean; }) {
                         var params = args.params || {},
@@ -652,7 +656,7 @@ var $RouteProvider = [<any>'$locationProvider',
                     }
                 };
 
-            $rootScope.$on(EVENTS.LOCATION_CHANGE, update);
+            $rootScope.$on(EVENTS.LOCATION_CHANGE, function () { promise.then(update); });
             return $route;
 
             function buildmatch(route, params, search) {

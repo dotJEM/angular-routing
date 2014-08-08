@@ -230,6 +230,9 @@ var $StateProvider = [
             '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler', '$pipeline',
             function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler, $stages) {
                 function init(promise) {
+                    var defer = $q.defer();
+                    $route.$waitFor(defer.promise);
+
                     root.clear($routeProvider);
 
                     forEach(initializers, function (init) {
@@ -244,7 +247,7 @@ var $StateProvider = [
                             $exceptionHandler(error);
                         }
                     });
-                    return promise;
+                    return promise.finally(defer.resolve);
                 }
                 var initPromise = init($q.when(0));
 

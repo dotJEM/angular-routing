@@ -243,6 +243,9 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
             $stages) {
 
             function init(promise) {
+                var defer = $q.defer();
+                (<any>$route).$waitFor(defer.promise);
+
                 root.clear($routeProvider);
 
                 forEach(initializers, function (init) {
@@ -257,7 +260,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', functio
                         $exceptionHandler(error);
                     }
                 });
-                return promise;
+                return promise.finally(defer.resolve);
             }
             var initPromise = init($q.when(0));
 
