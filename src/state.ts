@@ -118,8 +118,12 @@
  * <br/>
  * It is recommended that they are unique however, unless you diliberately wish to load the same content into multiple areas of a page, if multiple views use the same name within a page, they will load the same content, but they will render independendly.
  */
-var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', function ($routeProvider: dotjem.routing.IRouteProvider, $transitionProvider) {
+var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipelineProvider', function ($routeProvider: dotjem.routing.IRouteProvider, $transitionProvider, $pipelineProvider) {
     'use strict';
+
+    this.routes = $routeProvider;
+    this.transitions = $transitionProvider;
+    this.pipeline = $pipelineProvider;
 
     //TODO: maybe create a stateUtilityProvider that can serve as a factory for all these helpers.
     //      it would make testing of them individually easier, although it would make them more public than
