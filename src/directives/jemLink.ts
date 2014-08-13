@@ -17,7 +17,7 @@ var jemLinkDirective = [<any>'$state', '$route',
         'use strict';
         return {
             restrict: 'AC',
-            link: function (scope, element: JQuery, attrs) {
+            link: function (scope, element, attrs) {
                 var tag = element[0].tagName.toLowerCase(),
                     html5 = $route.html5Mode(),
                     prefix = $route.hashPrefix(),
