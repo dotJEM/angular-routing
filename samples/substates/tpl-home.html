@@ -1,0 +1,19 @@
+<div class="starter-template">
+     <h1>Bootstrap starter template</h1>
+
+    <p class="lead">Use this document as a way to quickly start any new project.
+        <br/>All you get is this text and a mostly barebones HTML document.</p>
+</div>
+
+<div class="row">
+  <div class="col-sm-3">
+    <ul class="nav nav-pills nav-stacked">
+      <li ng-class="{ active: ('home.default' | isCurrentState) }"><a sref="'home.default'">Default</a></li>
+      <li ng-class="{ active: ('home.page1' | isCurrentState) }"><a sref="'home.page1'">Page 1</a></li>
+      <li ng-class="{ active: ('home.page2' | isCurrentState) }"><a sref="'home.page2'">Page 2</a></li>
+    </ul>
+  </div>
+  <div class="col-sm-9">
+    <div dx-view="home"></div>
+  </div>
+</div>
