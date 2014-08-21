@@ -12,8 +12,8 @@ dotJEM Angular Routing [![Build Status](https://travis-ci.org/dotJEM/angular-rou
  - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/master/build)
 
 The samples and api reference are currently a work in progress:
- - **Api Reference:** http://dotjem.github.io/angular-routing/doc/
- - **Samples:** http://dotjem.github.com/angular-routing/samples/
+ - **Api Reference:** http://dotjem.github.io/angular-routing/#/docs/api/dotjem.routing
+ - **Samples:** http://dotjem.github.io/angular-routing/
 
 # Version v0.6.6
 
