@@ -244,7 +244,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
             $scroll,
             $resolve,
             $exceptionHandler,
-            $stages) {
+            $pipeline) {
 
             function init(promise) {
                 var defer = $q.defer();
@@ -655,25 +655,21 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
             }
 
             var comparer = new StateComparer();
+            var running, inProgress = false;
             function goto(args: { state; params; updateroute?; force?}) {
-
+                if (inProgress) {
+                    running.reject("Transition defered by another call to goto");
+                }
+                inProgress = true;
+                
                 var next = browser.resolve(current, toName(args.state), false);
                 var changes = comparer.path(current, next, $state.params, args.params, { force: args.force });
-               
-                var promise = $q.when(changes), context: any = { gotofn: goto };
-                forEach($stages.all(), function (stage) {
-                    promise = promise.then(function (path) {
-                        return stage({ $changes: changes, $context: context, $args: args });
-                    });
-                });
-                promise.then(function () {
-                    current = changes.to;
-                }, function (error) {
-                    $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
-                    if (context.transaction && !context.transaction.completed) {
-                        context.transaction.cancel();
-                    }
-                });
+                var context: any = { gotofn: goto };
+
+                running = $pipeline.run({ $changes: changes, $context: context, $args: args });
+                running.promise
+                    .then(function () { current = changes.to; })
+                    .finally(function () { inProgress = false; });
             }
             return $state;
         }];

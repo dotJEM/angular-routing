@@ -832,7 +832,7 @@ angular.module('dotjem.routing').provider('$route', $RouteProvider).value('$rout
 
 /// <reference path="refs.d.ts" />
 function $PipelineProvider() {
-    var stages = [], stagesMap = {}, self = this;
+    var stages = [], stagesMap = {}, errorHandlers = {}, self = this;
 
     function indexOf(name) {
         for (var i = 0, l = stages.length; i < l; i++) {
@@ -909,15 +909,39 @@ function $PipelineProvider() {
         };
     };
 
+    this.error = function (name, handler) {
+        errorHandlers[name] = handler;
+        return this;
+    };
+
     this.$get = [
         '$q', '$inject',
         function ($q, $inject) {
             var sv = {};
 
-            sv.all = function () {
-                return stages.map(function (stg) {
+            sv.run = function (locals) {
+                var all = stages.map(function (stg) {
                     return $inject.create(stg.stage);
                 });
+                var defered = $q.defer();
+                var promise = $q.when(locals);
+                forEach(all, function (stage) {
+                    promise = promise.then(function () {
+                        return stage(locals);
+                    });
+                });
+                promise.then(defered.resolve, onReject);
+
+                function onReject(error) {
+                    locals.$error = error;
+                    forEach(errorHandlers, function (handler) {
+                        handler = $inject.create(handler);
+                        handler(locals);
+                    });
+
+                    defered.reject(error);
+                }
+                return defered;
             };
 
             return sv;
@@ -1087,6 +1111,14 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                     return $context.emit.after($context.transition, $context.transaction).then(function () {
                         $scroll($context.scrollTo);
                     });
+                }
+            }]);
+
+        pipeline.error('error01', [
+            '$changes', '$context', '$rootScope', '$state', '$error', function ($changes, $context, $rootScope, $state, $error) {
+                $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, $context.toState, $state.current, $error);
+                if ($context.transaction && !$context.transaction.completed) {
+                    $context.transaction.cancel();
                 }
             }]);
     }]);
@@ -1887,7 +1919,7 @@ var $StateProvider = [
 
         this.$get = [
             '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler', '$pipeline',
-            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler, $stages) {
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler, $pipeline) {
                 function init(promise) {
                     var defer = $q.defer();
                     $route.$waitFor(defer.promise);
@@ -2282,23 +2314,22 @@ var $StateProvider = [
                 }
 
                 var comparer = new StateComparer();
+                var running, inProgress = false;
                 function goto(args) {
+                    if (inProgress) {
+                        running.reject("Transition defered by another call to goto");
+                    }
+                    inProgress = true;
+
                     var next = browser.resolve(current, toName(args.state), false);
                     var changes = comparer.path(current, next, $state.params, args.params, { force: args.force });
+                    var context = { gotofn: goto };
 
-                    var promise = $q.when(changes), context = { gotofn: goto };
-                    forEach($stages.all(), function (stage) {
-                        promise = promise.then(function (path) {
-                            return stage({ $changes: changes, $context: context, $args: args });
-                        });
-                    });
-                    promise.then(function () {
+                    running = $pipeline.run({ $changes: changes, $context: context, $args: args });
+                    running.promise.then(function () {
                         current = changes.to;
-                    }, function (error) {
-                        $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
-                        if (context.transaction && !context.transaction.completed) {
-                            context.transaction.cancel();
-                        }
+                    }).finally(function () {
+                        inProgress = false;
                     });
                 }
                 return $state;

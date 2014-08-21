@@ -3,6 +3,7 @@
 function $PipelineProvider() {
     var stages = [],
         stagesMap = {},
+        errorHandlers = {},
         self = this;
 
     function indexOf(name) {
@@ -76,12 +77,34 @@ function $PipelineProvider() {
         };
     };
 
+    this.error = function (name, handler) {
+        errorHandlers[name] = handler;
+        return this;
+    };
+        
     this.$get = [<any>'$q', '$inject',
         function ($q: ng.IQService, $inject: dotjem.routing.IInjectService) {
             var sv: any = {};
 
-            sv.all = function () {
-                return stages.map(stg => $inject.create(stg.stage));
+            sv.run = function (locals) {
+                var all = stages.map(stg => $inject.create(stg.stage));
+                var defered = $q.defer();
+                var promise = $q.when(locals);
+                forEach(all, stage => {
+                    promise = promise.then(() => stage(locals));
+                });
+                promise.then(defered.resolve, onReject);
+
+                function onReject(error) {
+                    locals.$error = error;
+                    forEach(errorHandlers, handler => {
+                        handler = $inject.create(handler);
+                        handler(locals);
+                    });
+
+                    defered.reject(error);
+                }
+                return defered;
             };
 
             return sv;
@@ -248,6 +271,13 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider)
                     .then(function () {
                         $scroll($context.scrollTo);
                     });
+            }
+        }]);
+
+        pipeline.error('error01', ['$changes', '$context', '$rootScope', '$state', '$error', function ($changes, $context, $rootScope, $state, $error) {
+            $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, $context.toState, $state.current, $error);
+            if ($context.transaction && !$context.transaction.completed) {
+                $context.transaction.cancel();
             }
         }]);
 

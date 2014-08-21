@@ -232,7 +232,7 @@ var $StateProvider = [
 
         this.$get = [
             '$rootScope', '$q', '$inject', '$route', '$view', '$stateTransition', '$location', '$scroll', '$resolve', '$exceptionHandler', '$pipeline',
-            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler, $stages) {
+            function ($rootScope, $q, $inject, $route, $view, $transition, $location, $scroll, $resolve, $exceptionHandler, $pipeline) {
                 function init(promise) {
                     var defer = $q.defer();
                     $route.$waitFor(defer.promise);
@@ -627,23 +627,22 @@ var $StateProvider = [
                 }
 
                 var comparer = new StateComparer();
+                var running, inProgress = false;
                 function goto(args) {
+                    if (inProgress) {
+                        running.reject("Transition defered by another call to goto");
+                    }
+                    inProgress = true;
+
                     var next = browser.resolve(current, toName(args.state), false);
                     var changes = comparer.path(current, next, $state.params, args.params, { force: args.force });
+                    var context = { gotofn: goto };
 
-                    var promise = $q.when(changes), context = { gotofn: goto };
-                    forEach($stages.all(), function (stage) {
-                        promise = promise.then(function (path) {
-                            return stage({ $changes: changes, $context: context, $args: args });
-                        });
-                    });
-                    promise.then(function () {
+                    running = $pipeline.run({ $changes: changes, $context: context, $args: args });
+                    running.promise.then(function () {
                         current = changes.to;
-                    }, function (error) {
-                        $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, context.toState, $state.current, error);
-                        if (context.transaction && !context.transaction.completed) {
-                            context.transaction.cancel();
-                        }
+                    }).finally(function () {
+                        inProgress = false;
                     });
                 }
                 return $state;

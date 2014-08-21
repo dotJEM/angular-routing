@@ -1,6 +1,6 @@
 ﻿/// <reference path="refs.d.ts" />
 function $PipelineProvider() {
-    var stages = [], stagesMap = {}, self = this;
+    var stages = [], stagesMap = {}, errorHandlers = {}, self = this;
 
     function indexOf(name) {
         for (var i = 0, l = stages.length; i < l; i++) {
@@ -77,15 +77,39 @@ function $PipelineProvider() {
         };
     };
 
+    this.error = function (name, handler) {
+        errorHandlers[name] = handler;
+        return this;
+    };
+
     this.$get = [
         '$q', '$inject',
         function ($q, $inject) {
             var sv = {};
 
-            sv.all = function () {
-                return stages.map(function (stg) {
+            sv.run = function (locals) {
+                var all = stages.map(function (stg) {
                     return $inject.create(stg.stage);
                 });
+                var defered = $q.defer();
+                var promise = $q.when(locals);
+                forEach(all, function (stage) {
+                    promise = promise.then(function () {
+                        return stage(locals);
+                    });
+                });
+                promise.then(defered.resolve, onReject);
+
+                function onReject(error) {
+                    locals.$error = error;
+                    forEach(errorHandlers, function (handler) {
+                        handler = $inject.create(handler);
+                        handler(locals);
+                    });
+
+                    defered.reject(error);
+                }
+                return defered;
             };
 
             return sv;
@@ -255,6 +279,14 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                     return $context.emit.after($context.transition, $context.transaction).then(function () {
                         $scroll($context.scrollTo);
                     });
+                }
+            }]);
+
+        pipeline.error('error01', [
+            '$changes', '$context', '$rootScope', '$state', '$error', function ($changes, $context, $rootScope, $state, $error) {
+                $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, $context.toState, $state.current, $error);
+                if ($context.transaction && !$context.transaction.completed) {
+                    $context.transaction.cancel();
                 }
             }]);
     }]);
