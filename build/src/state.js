@@ -516,7 +516,7 @@ var $StateProvider = [
                     },
                     goto: function (state, params) {
                         return initPromise.then(function () {
-                            goto({
+                            return goto({
                                 state: state,
                                 params: buildParams(params),
                                 updateroute: true
@@ -528,7 +528,7 @@ var $StateProvider = [
                     },
                     reload: function (state) {
                         return initPromise.then(function () {
-                            reload(state);
+                            return reload(state);
                         });
                     },
                     url: function (arg1, arg2, arg3) {
@@ -621,14 +621,17 @@ var $StateProvider = [
                         forceReload = current.fullname;
                     }
 
+                    var defered = $q.defer();
                     $rootScope.$evalAsync(function () {
-                        goto({ state: current, params: $state.params, force: forceReload });
+                        goto({ state: current, params: $state.params, force: forceReload }).then(defered.resolve, defered.reject);
                     });
+                    return defered.promise;
                 }
 
                 var comparer = new StateComparer();
                 var running, inProgress = false;
                 function goto(args) {
+                    var defered = $q.defer();
                     if (inProgress) {
                         running.reject("Transition defered by another call to goto");
                     }
@@ -641,9 +644,11 @@ var $StateProvider = [
                     running = $pipeline.run({ $changes: changes, $context: context, $args: args });
                     running.promise.then(function () {
                         current = changes.to;
-                    }).finally(function () {
+                        defered.resolve(current);
+                    }).catch(defered.reject).finally(function () {
                         inProgress = false;
                     });
+                    return defered.promise;
                 }
                 return $state;
             }];

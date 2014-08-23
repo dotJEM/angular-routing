@@ -544,7 +544,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                     },
                     goto: function (state, params) {
                         return initPromise.then(function () {
-                            goto({
+                            return goto({
                                 state: state,
                                 params: buildParams(params),
                                 updateroute: true
@@ -556,7 +556,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                     },
                     reload: function (state?) {
                         return initPromise.then(function () {
-                            reload(state);
+                            return reload(state);
                         });
                     },
                     url: function (arg1?, arg2?, arg3?) {
@@ -649,14 +649,18 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                     forceReload = current.fullname;
                 }
 
+                var defered = $q.defer();
                 $rootScope.$evalAsync(() => {
-                    goto({ state: current, params: $state.params, force: forceReload });
+                    goto({ state: current, params: $state.params, force: forceReload })
+                        .then(defered.resolve, defered.reject);
                 });
+                return defered.promise;
             }
 
             var comparer = new StateComparer();
             var running, inProgress = false;
-            function goto(args: { state; params; updateroute?; force?}) {
+            function goto(args: { state; params; updateroute? ; force? }) {
+                var defered = $q.defer();
                 if (inProgress) {
                     running.reject("Transition defered by another call to goto");
                 }
@@ -668,8 +672,13 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
 
                 running = $pipeline.run({ $changes: changes, $context: context, $args: args });
                 running.promise
-                    .then(function () { current = changes.to; })
+                    .then(function () {
+                        current = changes.to;
+                        defered.resolve(current);
+                    })
+                    .catch(defered.reject)
                     .finally(function () { inProgress = false; });
+                return defered.promise;
             }
             return $state;
         }];

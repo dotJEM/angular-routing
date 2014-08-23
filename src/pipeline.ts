@@ -91,22 +91,26 @@ function $PipelineProvider() {
                 var defered = $q.defer();
                 var promise = $q.when(locals);
                 forEach(all, stage => {
-                    promise = promise.then(() => stage(locals));
+                    promise = promise.then(function () { 
+                        if (locals.$error) {
+                            return;
+                            //throw Error(locals.$error);
+                        }
+                        return stage(locals);
+                    });
                 });
-                promise.then(defered.resolve, onReject);
+                promise.then(defered.resolve, defered.reject);
 
-                function onReject(error) {
+                defered.promise.catch(function onReject(error) {
                     locals.$error = error;
                     forEach(errorHandlers, handler => {
                         handler = $inject.create(handler);
                         handler(locals);
                     });
-
-                    defered.reject(error);
-                }
+                });
+                
                 return defered;
             };
-
             return sv;
         }];
 }
@@ -215,6 +219,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider)
         }]);
 
         pipeline.append('step7', ['$changes', '$context', '$rootScope', '$state', '$q', function ($changes, $context, $rootScope, $state, $q) {
+            //TODO: Pull event broadcasting back into state service...
             if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, $context.toState, $state.current).defaultPrevented) {
                 return $q.reject('Rejected state transition as canceled by user in ' + EVENTS.STATE_CHANGE_START+'.');
             }
@@ -254,6 +259,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider)
         }]);
 
         pipeline.append('step10', ['$changes', '$context', '$state', '$rootScope', '$args', function ($changes, $context, $state, $rootScope, $args) {
+            //TODO: Pull event broadcasting back into state service...
             var fromState = $state.current;
             $state.params = $args.params;
             $state.current = $context.toState;
@@ -275,6 +281,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider)
         }]);
 
         pipeline.error('error01', ['$changes', '$context', '$rootScope', '$state', '$error', function ($changes, $context, $rootScope, $state, $error) {
+            //TODO: Pull event broadcasting back into state service...
             $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, $context.toState, $state.current, $error);
             if ($context.transaction && !$context.transaction.completed) {
                 $context.transaction.cancel();

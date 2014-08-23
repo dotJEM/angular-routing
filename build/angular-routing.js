@@ -927,23 +927,25 @@ function $PipelineProvider() {
                 var promise = $q.when(locals);
                 forEach(all, function (stage) {
                     promise = promise.then(function () {
+                        if (locals.$error) {
+                            return;
+                            //throw Error(locals.$error);
+                        }
                         return stage(locals);
                     });
                 });
-                promise.then(defered.resolve, onReject);
+                promise.then(defered.resolve, defered.reject);
 
-                function onReject(error) {
+                defered.promise.catch(function onReject(error) {
                     locals.$error = error;
                     forEach(errorHandlers, function (handler) {
                         handler = $inject.create(handler);
                         handler(locals);
                     });
+                });
 
-                    defered.reject(error);
-                }
                 return defered;
             };
-
             return sv;
         }];
 }
@@ -1056,6 +1058,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
 
         pipeline.append('step7', [
             '$changes', '$context', '$rootScope', '$state', '$q', function ($changes, $context, $rootScope, $state, $q) {
+                //TODO: Pull event broadcasting back into state service...
                 if ($rootScope.$broadcast(EVENTS.STATE_CHANGE_START, $context.toState, $state.current).defaultPrevented) {
                     return $q.reject('Rejected state transition as canceled by user in ' + EVENTS.STATE_CHANGE_START + '.');
                 }
@@ -1094,6 +1097,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
 
         pipeline.append('step10', [
             '$changes', '$context', '$state', '$rootScope', '$args', function ($changes, $context, $state, $rootScope, $args) {
+                //TODO: Pull event broadcasting back into state service...
                 var fromState = $state.current;
                 $state.params = $args.params;
                 $state.current = $context.toState;
@@ -1116,6 +1120,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
 
         pipeline.error('error01', [
             '$changes', '$context', '$rootScope', '$state', '$error', function ($changes, $context, $rootScope, $state, $error) {
+                //TODO: Pull event broadcasting back into state service...
                 $rootScope.$broadcast(EVENTS.STATE_CHANGE_ERROR, $context.toState, $state.current, $error);
                 if ($context.transaction && !$context.transaction.completed) {
                     $context.transaction.cancel();
@@ -2203,7 +2208,7 @@ var $StateProvider = [
                     },
                     goto: function (state, params) {
                         return initPromise.then(function () {
-                            goto({
+                            return goto({
                                 state: state,
                                 params: buildParams(params),
                                 updateroute: true
@@ -2215,7 +2220,7 @@ var $StateProvider = [
                     },
                     reload: function (state) {
                         return initPromise.then(function () {
-                            reload(state);
+                            return reload(state);
                         });
                     },
                     url: function (arg1, arg2, arg3) {
@@ -2308,14 +2313,17 @@ var $StateProvider = [
                         forceReload = current.fullname;
                     }
 
+                    var defered = $q.defer();
                     $rootScope.$evalAsync(function () {
-                        goto({ state: current, params: $state.params, force: forceReload });
+                        goto({ state: current, params: $state.params, force: forceReload }).then(defered.resolve, defered.reject);
                     });
+                    return defered.promise;
                 }
 
                 var comparer = new StateComparer();
                 var running, inProgress = false;
                 function goto(args) {
+                    var defered = $q.defer();
                     if (inProgress) {
                         running.reject("Transition defered by another call to goto");
                     }
@@ -2328,9 +2336,11 @@ var $StateProvider = [
                     running = $pipeline.run({ $changes: changes, $context: context, $args: args });
                     running.promise.then(function () {
                         current = changes.to;
-                    }).finally(function () {
+                        defered.resolve(current);
+                    }).catch(defered.reject).finally(function () {
                         inProgress = false;
                     });
+                    return defered.promise;
                 }
                 return $state;
             }];
