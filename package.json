@@ -2,7 +2,7 @@
   "name": "angular-routing",
   "title": "AngularJS Routing",
   "description": "State-based routing and view management for AngularJS",
-  "version": "0.6.1",
+  "version": "0.6.6",
   "homepage": "",
   "author": {
     "name": "dotjem",
