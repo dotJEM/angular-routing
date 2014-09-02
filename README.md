@@ -1,10 +1,10 @@
 dotJEM Angular Routing [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
 =========
 
-#### Latest release v0.6.6:
- - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.6.6/build/angular-routing.js)
- - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.6.6/build/angular-routing.min.js)
- - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.6.6/build)
+#### Latest release v0.6.7:
+ - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.6.7/build/angular-routing.js)
+ - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.6.7/build/angular-routing.min.js)
+ - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.6.7/build)
 
 #### Latest build (currently not automated, so not 100% the latest always):
  - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/master/build/angular-routing.js)
@@ -15,7 +15,7 @@ The samples and api reference are currently a work in progress:
  - **Api Reference:** http://dotjem.github.io/angular-routing/#/docs/api/dotjem.routing
  - **Samples:** http://dotjem.github.io/angular-routing/
 
-# Version v0.6.6
+# Version v0.6.7
 
 Inspired by the UI-Router project by Angular-UI, this project came to life as I wanted
 to provide what I believe is more "true states" where the transitions could be
