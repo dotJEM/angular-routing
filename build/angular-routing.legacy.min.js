@@ -1,6 +1,6 @@
 /**
  * @license dotJEM Angular Routing
- * (c) 2012-2013 dotJEM (Jens Melgaard)
+ * (c) 2012-2014 dotJEM (Jens Melgaard)
  * License: MIT
  *
  * @module angular-routing

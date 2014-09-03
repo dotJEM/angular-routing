@@ -611,7 +611,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                 if (route) {
                     if (route.state) {
                         initPromise.then(function () {
-                            goto({
+                            return goto({
                                 state: route.state,
                                 params: buildParams(route.params, route.pathParams, route.searchParams)
                             });
@@ -619,7 +619,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                     }
                 } else {
                     initPromise.then(function () {
-                        goto({ state: root, params: buildParams() });
+                        return goto({ state: root, params: buildParams() });
                     });
                 }
             });
@@ -658,27 +658,28 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
             }
 
             var comparer = new StateComparer();
-            var running, inProgress = false;
+            var running, gotoPromise = $q.when(initPromise), inProgress = false;
             function goto(args: { state; params; updateroute? ; force? }) {
-                var defered = $q.defer();
                 if (inProgress) {
                     running.reject("Transition defered by another call to goto");
                 }
-                inProgress = true;
-                
                 var next = browser.resolve(current, toName(args.state), false);
                 var changes = comparer.path(current, next, $state.params, args.params, { force: args.force });
                 var context: any = { gotofn: goto };
 
-                running = $pipeline.run({ $changes: changes, $context: context, $args: args });
-                running.promise
-                    .then(function () {
-                        current = changes.to;
-                        defered.resolve(current);
-                    })
-                    .catch(defered.reject)
-                    .finally(function () { inProgress = false; });
-                return defered.promise;
+                return gotoPromise = gotoPromise.finally(function () {
+                    var defered = $q.defer();
+                    inProgress = true;
+
+                    running = $pipeline.run({ $changes: changes, $context: context, $args: args });
+                    running.promise
+                        .then(function () {
+                            current = changes.to;
+                            defered.resolve(current);
+                        })
+                        .catch(defered.reject);
+                    return defered.promise.finally(function () { inProgress = false; });
+                });
             }
             return $state;
         }];

@@ -97,7 +97,6 @@ function $PipelineProvider() {
                     promise = promise.then(function () {
                         if (locals.$error) {
                             return;
-                            //throw Error(locals.$error);
                         }
                         return stage(locals);
                     });
