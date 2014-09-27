@@ -182,6 +182,7 @@
     <Content Include="src\view.js">
       <DependentUpon>view.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="test\templateSpec.ts" />
     <TypeScriptCompile Include="test\legacy\routeLegacySpec.ts" />
     <TypeScriptCompile Include="test\testcommon.ts" />
     <Content Include="test\legacy\routeLegacySpec.js">
