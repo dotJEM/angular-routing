@@ -889,6 +889,16 @@ function $PipelineProvider() {
         return renumber();
     };
 
+    //TODO: Think we need to do an "in('pipeline').insert('').after('')";
+    //      Then clean it up to only use this style:
+    //
+    //       - .before().insert('x').after('y');
+    //       - .in().insert('x').after('y');
+    //       - .after().insert('x').last();
+    //       - .after().insert('x').first();
+    //
+    //
+    //
     this.insert = function (name, stage) {
         stage = wrap(name, stage);
         return {
@@ -1043,7 +1053,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                 });
             }]);
 
-        pipeline.append('step6', [
+        pipeline.append('emitBefore', [
             '$context', '$q', function ($context, $q) {
                 return $context.emit.before($context.transition, $context.transaction).then(function () {
                     if ($context.transition.canceled) {
@@ -1063,7 +1073,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                 }
             }]);
 
-        pipeline.append('step8', [
+        pipeline.append('updateViews', [
             '$changes', '$context', '$view', '$inject', '$state', '$q', '$resolve', function ($changes, $context, $view, $inject, $state, $q, $resolve) {
                 var all = $changes.unchanged.concat($changes.activated), promise = $q.when(all), useUpdate, allLocals = {};
                 forEach(all, function (change) {
@@ -1074,7 +1084,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                         return $resolve.all(change.state.resolve, allLocals, { $to: $context.toState, $from: $state.current });
                     }).then(function (locals) {
                         forEach($context.prep[change.state.fullname], function (value, key) {
-                            value(allLocals = extend({}, allLocals, locals));
+                            value(allLocals = extend({ $to: $context.toState, $from: $state.current }, allLocals, locals));
                         });
                         $context.scrollTo = change.state.scrollTo;
                     });
@@ -1082,7 +1092,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                 return promise;
             }]);
 
-        pipeline.append('step9', [
+        pipeline.append('emitBetween', [
             '$context', '$rootScope', '$q', '$state', function ($context, $rootScope, $q, $state) {
                 return $context.emit.between($context.transition, $context.transaction).then(function () {
                     if ($context.transition.canceled) {
@@ -2222,29 +2232,39 @@ var $StateProvider = [
                             return reload(state);
                         });
                     },
+                    //             State  Params Base
                     url: function (arg1, arg2, arg3) {
-                        var state = current;
+                        var target = current;
+
+                        //Note: No params means we will use current state as both target and source.
                         if (arguments.length === 0) {
-                            return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                            //                         current,        target, params?,   base?
+                            return urlbuilder.buildUrl($state.current, target, undefined, undefined);
                         }
 
+                        //Note: One param means we either got a target state or was asked to use base.
                         if (arguments.length === 1) {
                             if (isBool(arg1)) {
-                                return urlbuilder.buildUrl($state.current, state, undefined, arg1);
+                                //                         current,        target, params?,   base?
+                                return urlbuilder.buildUrl($state.current, target, undefined, arg1);
                             } else {
-                                state = browser.resolve(current, toName(arg1), false);
-                                return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                                target = browser.resolve(current, toName(arg1), false);
+
+                                //                         current,        target, params?,   base?
+                                return urlbuilder.buildUrl($state.current, target, undefined, undefined);
                             }
                         }
 
                         if (isDefined(arg1)) {
-                            state = browser.resolve(current, toName(arg1), false);
+                            target = browser.resolve(current, toName(arg1), false);
                         }
 
                         if (isBool(arg2)) {
-                            return urlbuilder.buildUrl($state.current, state, undefined, arg2);
+                            //                         current,        target, params?,   base?
+                            return urlbuilder.buildUrl($state.current, target, undefined, arg2);
                         } else {
-                            return urlbuilder.buildUrl($state.current, state, arg2, arg3);
+                            //                         current,        target, params?, base?
+                            return urlbuilder.buildUrl($state.current, target, arg2, arg3);
                         }
                     },
                     is: function (state, params) {
@@ -2493,17 +2513,17 @@ function $TemplateProvider() {
                 });
             }
 
-            function getFromFunction(fn) {
-                return $q.when($injector.invoke(fn));
+            function getFromFunction(fn, locals) {
+                return $q.when($injector.invoke(fn, fn, locals));
             }
 
-            function getFromObject(obj) {
+            function getFromObject(obj, locals) {
                 if (isDefined(obj.url)) {
                     return getFromUrl(obj.url);
                 }
 
                 if (isDefined(obj.fn)) {
-                    return getFromFunction(obj.fn);
+                    return getFromFunction(obj.fn, locals);
                 }
 
                 if (isDefined(obj.html)) {
@@ -2536,7 +2556,7 @@ function $TemplateProvider() {
             * @description
             * Retrieves a template and returns that as a promise. A Template is a piece of html.
             */
-            var getter = function (template) {
+            var getter = function (template, locals) {
                 if (isString(template)) {
                     if (urlmatcher.test(template)) {
                         return getFromUrl(template);
@@ -2545,11 +2565,11 @@ function $TemplateProvider() {
                 }
 
                 if (isFunction(template) || isArray(template)) {
-                    return getFromFunction(template);
+                    return getFromFunction(template, locals);
                 }
 
                 if (isObject(template)) {
-                    return getFromObject(template);
+                    return getFromObject(template, locals);
                 }
 
                 throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
@@ -2557,8 +2577,8 @@ function $TemplateProvider() {
 
             //Note: We return $template as a function.
             //      However, to ease mocking we
-            var $template = function (template) {
-                return $template.fn(template);
+            var $template = function (template, locals) {
+                return $template.fn(template, locals);
             };
             $template.fn = getter;
             return $template;
@@ -2747,7 +2767,7 @@ function $ViewProvider() {
                 //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                 //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
                 //      largely care of this, it could be an optimization to not do this?
-                views[name].template = $template(template);
+                views[name].template = $template(template, locals);
                 views[name].controller = controller;
                 views[name].locals = locals;
 
@@ -2799,7 +2819,7 @@ function $ViewProvider() {
                 if (!containsView(views, name)) {
                     views[name] = {
                         //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                        template: $template(template),
+                        template: $template(template, locals),
                         controller: controller,
                         locals: locals,
                         sticky: sticky,

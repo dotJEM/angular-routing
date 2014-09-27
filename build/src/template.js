@@ -26,17 +26,17 @@ function $TemplateProvider() {
                 });
             }
 
-            function getFromFunction(fn) {
-                return $q.when($injector.invoke(fn));
+            function getFromFunction(fn, locals) {
+                return $q.when($injector.invoke(fn, fn, locals));
             }
 
-            function getFromObject(obj) {
+            function getFromObject(obj, locals) {
                 if (isDefined(obj.url)) {
                     return getFromUrl(obj.url);
                 }
 
                 if (isDefined(obj.fn)) {
-                    return getFromFunction(obj.fn);
+                    return getFromFunction(obj.fn, locals);
                 }
 
                 if (isDefined(obj.html)) {
@@ -69,7 +69,7 @@ function $TemplateProvider() {
             * @description
             * Retrieves a template and returns that as a promise. A Template is a piece of html.
             */
-            var getter = function (template) {
+            var getter = function (template, locals) {
                 if (isString(template)) {
                     if (urlmatcher.test(template)) {
                         return getFromUrl(template);
@@ -78,11 +78,11 @@ function $TemplateProvider() {
                 }
 
                 if (isFunction(template) || isArray(template)) {
-                    return getFromFunction(template);
+                    return getFromFunction(template, locals);
                 }
 
                 if (isObject(template)) {
-                    return getFromObject(template);
+                    return getFromObject(template, locals);
                 }
 
                 throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
@@ -90,8 +90,8 @@ function $TemplateProvider() {
 
             //Note: We return $template as a function.
             //      However, to ease mocking we
-            var $template = function (template) {
-                return $template.fn(template);
+            var $template = function (template, locals) {
+                return $template.fn(template, locals);
             };
             $template.fn = getter;
             return $template;

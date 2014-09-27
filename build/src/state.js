@@ -531,29 +531,39 @@ var $StateProvider = [
                             return reload(state);
                         });
                     },
+                    //             State  Params Base
                     url: function (arg1, arg2, arg3) {
-                        var state = current;
+                        var target = current;
+
+                        //Note: No params means we will use current state as both target and source.
                         if (arguments.length === 0) {
-                            return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                            //                         current,        target, params?,   base?
+                            return urlbuilder.buildUrl($state.current, target, undefined, undefined);
                         }
 
+                        //Note: One param means we either got a target state or was asked to use base.
                         if (arguments.length === 1) {
                             if (isBool(arg1)) {
-                                return urlbuilder.buildUrl($state.current, state, undefined, arg1);
+                                //                         current,        target, params?,   base?
+                                return urlbuilder.buildUrl($state.current, target, undefined, arg1);
                             } else {
-                                state = browser.resolve(current, toName(arg1), false);
-                                return urlbuilder.buildUrl($state.current, state, undefined, undefined);
+                                target = browser.resolve(current, toName(arg1), false);
+
+                                //                         current,        target, params?,   base?
+                                return urlbuilder.buildUrl($state.current, target, undefined, undefined);
                             }
                         }
 
                         if (isDefined(arg1)) {
-                            state = browser.resolve(current, toName(arg1), false);
+                            target = browser.resolve(current, toName(arg1), false);
                         }
 
                         if (isBool(arg2)) {
-                            return urlbuilder.buildUrl($state.current, state, undefined, arg2);
+                            //                         current,        target, params?,   base?
+                            return urlbuilder.buildUrl($state.current, target, undefined, arg2);
                         } else {
-                            return urlbuilder.buildUrl($state.current, state, arg2, arg3);
+                            //                         current,        target, params?, base?
+                            return urlbuilder.buildUrl($state.current, target, arg2, arg3);
                         }
                     },
                     is: function (state, params) {

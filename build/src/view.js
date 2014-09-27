@@ -179,7 +179,7 @@ function $ViewProvider() {
                 //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
                 //      also we obtain the actual template even if it's an update for a sticky view, while the "cache" takes
                 //      largely care of this, it could be an optimization to not do this?
-                views[name].template = $template(template);
+                views[name].template = $template(template, locals);
                 views[name].controller = controller;
                 views[name].locals = locals;
 
@@ -231,7 +231,7 @@ function $ViewProvider() {
                 if (!containsView(views, name)) {
                     views[name] = {
                         //TODO: Should we make this latebound so only views actually used gets loaded and rendered?
-                        template: $template(template),
+                        template: $template(template, locals),
                         controller: controller,
                         locals: locals,
                         sticky: sticky,

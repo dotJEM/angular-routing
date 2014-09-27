@@ -57,6 +57,16 @@ function $PipelineProvider() {
         return renumber();
     };
 
+    //TODO: Think we need to do an "in('pipeline').insert('').after('')";
+    //      Then clean it up to only use this style:
+    //
+    //       - .before().insert('x').after('y');
+    //       - .in().insert('x').after('y');
+    //       - .after().insert('x').last();
+    //       - .after().insert('x').first();
+    //
+    //
+    //
     this.insert = function (name, stage) {
         stage = wrap(name, stage);
         return {
@@ -211,7 +221,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                 });
             }]);
 
-        pipeline.append('step6', [
+        pipeline.append('emitBefore', [
             '$context', '$q', function ($context, $q) {
                 return $context.emit.before($context.transition, $context.transaction).then(function () {
                     if ($context.transition.canceled) {
@@ -231,7 +241,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                 }
             }]);
 
-        pipeline.append('step8', [
+        pipeline.append('updateViews', [
             '$changes', '$context', '$view', '$inject', '$state', '$q', '$resolve', function ($changes, $context, $view, $inject, $state, $q, $resolve) {
                 var all = $changes.unchanged.concat($changes.activated), promise = $q.when(all), useUpdate, allLocals = {};
                 forEach(all, function (change) {
@@ -242,7 +252,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                         return $resolve.all(change.state.resolve, allLocals, { $to: $context.toState, $from: $state.current });
                     }).then(function (locals) {
                         forEach($context.prep[change.state.fullname], function (value, key) {
-                            value(allLocals = extend({}, allLocals, locals));
+                            value(allLocals = extend({ $to: $context.toState, $from: $state.current }, allLocals, locals));
                         });
                         $context.scrollTo = change.state.scrollTo;
                     });
@@ -250,7 +260,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
                 return promise;
             }]);
 
-        pipeline.append('step9', [
+        pipeline.append('emitBetween', [
             '$context', '$rootScope', '$q', '$state', function ($context, $rootScope, $q, $state) {
                 return $context.emit.between($context.transition, $context.transaction).then(function () {
                     if ($context.transition.canceled) {

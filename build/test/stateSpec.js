@@ -478,7 +478,10 @@ describe('$stateProvider', function () {
                     'top', {
                         template: "top tpl",
                         sticky: test.nameWithRoot('root.top'),
-                        locals: {}
+                        locals: {
+                            $to: { route: '/top', name: 'top', views: { top: { template: 'top tpl', sticky: true } }, $fullname: '$root.top', $params: { $all: {}, $path: {}, $search: {} } },
+                            $from: { $fullname: '$root', $params: { $all: {}, $path: {}, $search: {} } }
+                        }
                     }]);
 
                 go('/top/sub');
@@ -487,34 +490,38 @@ describe('$stateProvider', function () {
                     'top', {
                         template: "top tpl",
                         sticky: test.nameWithRoot('root.top'),
-                        locals: {}
+                        locals: {
+                            $to: { route: '/sub', name: 'sub', views: { sub: { template: 'sub tpl' } }, $fullname: '$root.top.sub', $params: { $all: {}, $path: {}, $search: {} } },
+                            $from: { route: '/top', name: 'top', views: { top: { template: 'top tpl', sticky: true } }, $fullname: '$root.top', $params: { $all: {}, $path: {}, $search: {} } }
+                        }
                     }]);
+
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(setOrUpdate.calls[0].args).toEqual([
                     'foo', {
                         template: 'foo tpl',
                         sticky: 'imSticky',
-                        locals: {}
+                        locals: {
+                            $to: { route: '/bar', name: 'bar', views: { bar: { template: 'bar tpl' } }, $fullname: '$root.foo.bar', $params: { $all: {}, $path: {}, $search: {} } },
+                            $from: { route: '/sub', name: 'sub', views: { sub: { template: 'sub tpl' } }, $fullname: '$root.top.sub', $params: { $all: {}, $path: {}, $search: {} } }
+                        }
                     }]);
 
                 go('/ban');
                 expect($state.current.name).toBe('ban');
-                expect(setOrUpdate.calls[0].args).toEqual([
-                    'ban', {
-                        template: 'ban tpl',
-                        sticky: test.nameWithRoot('root.ban'),
-                        locals: {}
-                    }]);
+                expect(setOrUpdate.calls[0].args[1]).toHaveProperties({
+                    template: 'ban tpl',
+                    sticky: test.nameWithRoot('root.ban')
+                });
 
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
-                expect(setOrUpdate.calls[0].args).toEqual([
-                    'ban', {
-                        template: 'ban tpl',
-                        sticky: test.nameWithRoot('root.ban.tar'),
-                        locals: {}
-                    }]);
+                expect(setOrUpdate.calls[0].args[1]).toHaveProperties({
+                    template: 'ban tpl',
+                    sticky: test.nameWithRoot('root.ban.tar'),
+                    locals: {}
+                });
             });
         });
 
@@ -1605,7 +1612,7 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state) {
                 goto("home");
-                expect(loc[0]).toEqual({ home: 42 });
+                expect(loc[0]).toHaveProperties({ home: 42 });
             });
         });
 
@@ -1621,7 +1628,7 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state) {
                 goto("home");
-                expect(loc[0]).toEqual({ home: test.replaceWithRoot("root.home - root") });
+                expect(loc[0]).toHaveProperties({ home: test.replaceWithRoot("root.home - root") });
             });
         });
 
@@ -1647,9 +1654,9 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state) {
                 goto("top.mid.low");
-                expect(loc[0]).toEqual({ top: 'top stuff' });
-                expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle' });
-                expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser' });
+                expect(loc[0]).toHaveProperties({ top: 'top stuff' });
+                expect(loc[1]).toHaveProperties({ top: 'top stuff', mid: 'middle' });
+                expect(loc[2]).toHaveProperties({ top: 'top stuff', mid: 'middle', low: 'lowser' });
             });
         });
 
@@ -1675,9 +1682,9 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state) {
                 goto("top.mid.low");
-                expect(loc[0]).toEqual({ first: 'first' });
-                expect(loc[1]).toEqual({ first: 'first', second: 'first second' });
-                expect(loc[2]).toEqual({ first: 'first', second: 'first second', last: 'first first second last' });
+                expect(loc[0]).toHaveProperties({ first: 'first' });
+                expect(loc[1]).toHaveProperties({ first: 'first', second: 'first second' });
+                expect(loc[2]).toHaveProperties({ first: 'first', second: 'first second', last: 'first first second last' });
             });
         });
 
@@ -1703,13 +1710,13 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state) {
                 goto("top");
-                expect(loc[0]).toEqual({ val: 'first' });
+                expect(loc[0]).toHaveProperties({ val: 'first' });
 
                 goto("top.mid");
-                expect(loc[1]).toEqual({ val: 'first.second' });
+                expect(loc[1]).toHaveProperties({ val: 'first.second' });
 
                 goto("top.mid.low");
-                expect(loc[2]).toEqual({ val: 'first.second.last' });
+                expect(loc[2]).toHaveProperties({ val: 'first.second.last' });
             });
         });
 
@@ -1741,9 +1748,9 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state) {
                 goto("top.mid.low");
-                expect(loc[0]).toEqual({ top: 'top stuff', extra: 'top' });
-                expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle', extra: 'mid' });
-                expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser', extra: 'low' });
+                expect(loc[0]).toHaveProperties({ top: 'top stuff', extra: 'top' });
+                expect(loc[1]).toHaveProperties({ top: 'top stuff', mid: 'middle', extra: 'mid' });
+                expect(loc[2]).toHaveProperties({ top: 'top stuff', mid: 'middle', low: 'lowser', extra: 'low' });
             });
         });
     });

@@ -126,12 +126,12 @@ describe('$stateProvider', function () {
 
             inject(function ($state: dotjem.routing.IStateService, $httpBackend) {
                 $httpBackend.expect('GET', '/stateConfig').respond({ 'blog': { name: 'blog' } });
-                
+
                 $httpBackend.flush();
                 scope.$digest();
                 expect(stringifyState($state.root)).toBe("(blog())");
 
-                $httpBackend.expect('GET', '/stateConfig').respond({ 'blog': { name: 'blog' }, 'other': { name: 'other' }});
+                $httpBackend.expect('GET', '/stateConfig').respond({ 'blog': { name: 'blog' }, 'other': { name: 'other' } });
                 (<any>$state).reinitialize();
 
                 $httpBackend.flush();
@@ -451,13 +451,13 @@ describe('$stateProvider', function () {
         it('states invoke view service with view on change', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
-                            .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
-                            .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
-                            .state('top.sub.bot', { route: '/bot', name: 'bot', views: { 'bot': { template: "bot" } } })
+                    .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
+                    .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
+                    .state('top.sub.bot', { route: '/bot', name: 'bot', views: { 'bot': { template: "bot" } } })
 
-                            .state('foo', { route: '/foo', name: 'foo', views: { 'foo': { template: "foo" } } })
-                            .state('foo.bar', { route: '/bar', name: 'bar', views: { 'bar': { template: "bar" } } })
-                            .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
+                    .state('foo', { route: '/foo', name: 'foo', views: { 'foo': { template: "foo" } } })
+                    .state('foo.bar', { route: '/bar', name: 'bar', views: { 'bar': { template: "bar" } } })
+                    .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
@@ -467,7 +467,7 @@ describe('$stateProvider', function () {
                 var viewSpy = spyOn(trx, 'update');
                 var spy: jasmine.Spy = jasmine.createSpy('mySpy');
 
-                function reset() { spy.reset(); viewSpy.reset(); } 
+                function reset() { spy.reset(); viewSpy.reset(); }
                 function go(path: string) {
                     reset();
                     $location.path(path);
@@ -556,7 +556,10 @@ describe('$stateProvider', function () {
                     .toEqual([<any>'top', {
                         template: "top tpl",
                         sticky: test.nameWithRoot('root.top'),
-                        locals: {}
+                        locals: {
+                            $to: { route: '/top', name: 'top', views: { top: { template: 'top tpl', sticky: true } }, $fullname: '$root.top', $params: { $all: {}, $path: {}, $search: {} } },
+                            $from: { $fullname: '$root', $params: { $all: {}, $path: {}, $search: {} } }
+                        }
                     }]);
 
                 go('/top/sub');
@@ -565,47 +568,52 @@ describe('$stateProvider', function () {
                     .toEqual([<any>'top', {
                         template: "top tpl",
                         sticky: test.nameWithRoot('root.top'),
-                        locals: {}
+                        locals: {
+                            $to: { route: '/sub', name: 'sub', views: { sub: { template: 'sub tpl' } }, $fullname: '$root.top.sub', $params: { $all: {}, $path: {}, $search: {} } },
+                            $from: { route: '/top', name: 'top', views: { top: { template: 'top tpl', sticky: true } }, $fullname: '$root.top', $params: { $all: {}, $path: {}, $search: {} } }
+                        }
                     }]);
+
                 go('/foo/bar');
                 expect($state.current.name).toBe('bar');
                 expect(setOrUpdate.calls[0].args)
                     .toEqual([<any>'foo', {
                         template: 'foo tpl',
                         sticky: 'imSticky',
-                        locals: {}
+                        locals: {
+                            $to: { route: '/bar', name: 'bar', views: { bar: { template: 'bar tpl' } }, $fullname: '$root.foo.bar', $params: { $all: {}, $path: {}, $search: {} } },
+                            $from: { route: '/sub', name: 'sub', views: { sub: { template: 'sub tpl' } }, $fullname: '$root.top.sub', $params: { $all: {}, $path: {}, $search: {} } }
+                        }
                     }]);
 
                 go('/ban');
                 expect($state.current.name).toBe('ban');
-                expect(setOrUpdate.calls[0].args)
-                    .toEqual([<any>'ban', {
-                        template: 'ban tpl',
-                        sticky: test.nameWithRoot('root.ban'),
-                        locals: {}
-                    }]);
+                expect(setOrUpdate.calls[0].args[1]).toHaveProperties({
+                    template: 'ban tpl',
+                    sticky: test.nameWithRoot('root.ban')
+                });
 
                 go('/ban/tar');
                 expect($state.current.name).toBe('tar');
-                expect(setOrUpdate.calls[0].args)
-                    .toEqual([<any>'ban', {
+                expect(setOrUpdate.calls[0].args[1])
+                    .toHaveProperties({
                         template: 'ban tpl',
                         sticky: test.nameWithRoot('root.ban.tar'),
                         locals: {}
-                    }]);
+                    });
             });
         });
 
         it('can reload state', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
-                            .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
-                            .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
-                            .state('top.sub.bot', { route: '/bot', name: 'bot', views: { 'bot': { template: "bot" } } })
+                    .state('top', { route: '/top', name: 'top', views: { 'top': { template: "top" } } })
+                    .state('top.sub', { route: '/sub', name: 'sub', views: { 'sub': { template: "sub" } } })
+                    .state('top.sub.bot', { route: '/bot', name: 'bot', views: { 'bot': { template: "bot" } } })
 
-                            .state('foo', { route: '/foo', name: 'foo', views: { 'foo': { template: "foo" } } })
-                            .state('foo.bar', { route: '/bar', name: 'bar', views: { 'bar': { template: "bar" } } })
-                            .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
+                    .state('foo', { route: '/foo', name: 'foo', views: { 'foo': { template: "foo" } } })
+                    .state('foo.bar', { route: '/bar', name: 'bar', views: { 'bar': { template: "bar" } } })
+                    .state('foo.bar.baz', { route: '/baz', name: 'baz', views: { 'baz': { template: "baz" } } })
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
@@ -653,9 +661,9 @@ describe('$stateProvider', function () {
         it('states with parameters get invoked on parameter change', function () {
             mod(function ($stateProvider: dotjem.routing.IStateProvider) {
                 $stateProvider
-                            .state('top', { route: '/top/:top', name: 'top', views: { 'top': { template: "top" } } })
-                            .state('top.sub', { route: '/sub/:sub', name: 'sub', views: { 'sub': { template: "sub" } } })
-                            .state('top.sub.bot', { route: '/bot/:bot', name: 'bot', views: { 'bot': { template: "bot" } } })
+                    .state('top', { route: '/top/:top', name: 'top', views: { 'top': { template: "top" } } })
+                    .state('top.sub', { route: '/sub/:sub', name: 'sub', views: { 'sub': { template: "sub" } } })
+                    .state('top.sub.bot', { route: '/bot/:bot', name: 'bot', views: { 'bot': { template: "bot" } } })
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService, $view: dotjem.routing.IViewService) {
@@ -776,29 +784,29 @@ describe('$stateProvider', function () {
             var last;
             mod(function ($stateProvider: dotjem.routing.IStateProvider, $stateTransitionProvider: dotjem.routing.ITransitionProvider) {
                 $stateProvider
-                        .state('home', { route: '/', name: 'about' })
+                    .state('home', { route: '/', name: 'about' })
 
-                        .state('blog', { route: '/blog', name: 'blog' })
-                        .state('blog.recent', { route: '/recent', name: 'blog.recent' })
-                        .state('blog.other', { route: '/other', name: 'blog.recent' })
+                    .state('blog', { route: '/blog', name: 'blog' })
+                    .state('blog.recent', { route: '/recent', name: 'blog.recent' })
+                    .state('blog.other', { route: '/other', name: 'blog.recent' })
 
-                        .state('about', { route: '/about', name: 'about' })
-                        .state('about.cv', { route: '/cv', name: 'about.cv' })
-                        .state('about.other', { route: '/other', name: 'about.other' })
+                    .state('about', { route: '/about', name: 'about' })
+                    .state('about.cv', { route: '/cv', name: 'about.cv' })
+                    .state('about.other', { route: '/other', name: 'about.other' })
 
-                        .state('gallery', { route: '/gallery', name: 'about.cv' })
-                        .state('gallery.overview', { route: '/overview', name: 'about.other' })
-                        .state('gallery.details', { route: '/details', name: 'about.other' });
+                    .state('gallery', { route: '/gallery', name: 'about.cv' })
+                    .state('gallery.overview', { route: '/overview', name: 'about.other' })
+                    .state('gallery.details', { route: '/details', name: 'about.other' });
 
                 $stateTransitionProvider
-                        .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->about', from: $from, to: $to }; }])
-                        .transition('blog', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->gallery', from: $from, to: $to }; }])
-                        .transition('about', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->blog', from: $from, to: $to }; }])
-                        .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
+                    .transition('blog', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->about', from: $from, to: $to }; }])
+                    .transition('blog', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'blog->gallery', from: $from, to: $to }; }])
+                    .transition('about', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->blog', from: $from, to: $to }; }])
+                    .transition('about', 'gallery', [<any>'$from', '$to', ($from, $to) => { last = { name: 'about->gallery', from: $from, to: $to }; }])
 
-                        .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
+                    .transition('gallery', 'about', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->about', from: $from, to: $to }; }])
 
-                        .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
+                    .transition('gallery', 'blog', [<any>'$from', '$to', ($from, $to) => { last = { name: 'gallery->blog', from: $from, to: $to }; }])
             });
 
             inject(function ($location, $route, $state: dotjem.routing.IStateService) {
@@ -1197,11 +1205,11 @@ describe('$stateProvider', function () {
                 expect($state.url(undefined, { id: 51, search: 'hello' })).toBe('/gallery/51?search=hello');
                 expect($state.url('gallery', { search: 'hello' })).toBe('/gallery/42?search=hello');
                 expect($state.url('gallery', { id: 51, search: 'hello' })).toBe('/gallery/51?search=hello');
-                
+
                 goto('gallery', { id: 4224 });
                 expect($state.url()).toBe('/gallery/4224');
 
-                goto('gallery.details', { id: 4224, page: 1});
+                goto('gallery.details', { id: 4224, page: 1 });
                 expect($state.url(undefined, { search: 'search', other: 'other' })).toBe('/gallery/4224/details/1?search=search&other=other');
             });
         });
@@ -1229,7 +1237,7 @@ describe('$stateProvider', function () {
         });
 
         it('builds route with base path', function () {
-            mod(function($locationProvider: ng.ILocationProvider) {
+            mod(function ($locationProvider: ng.ILocationProvider) {
                 $locationProvider.html5Mode(true);
             });
 
@@ -1251,7 +1259,7 @@ describe('$stateProvider', function () {
         });
 
         it('builds route with basepath by default', function () {
-            mod(function($locationProvider: ng.ILocationProvider) {
+            mod(function ($locationProvider: ng.ILocationProvider) {
                 $locationProvider.html5Mode(true);
             });
 
@@ -1330,9 +1338,9 @@ describe('$stateProvider', function () {
             $stateProvider
                 .state('about', { scrollTo: null })
                 .state('about.cv', { scrollTo: 'scollid' })
-                .state('about.cv.child', {  })
-                .state('about.other', { })
-                .state('other', {  })
+                .state('about.cv.child', {})
+                .state('about.other', {})
+                .state('other', {})
 
             return function ($rootScope, $state) {
                 scope = $rootScope;
@@ -1863,7 +1871,7 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("home");
-                expect(loc[0]).toEqual({ home: 42 });
+                expect(loc[0]).toHaveProperties({home:42});
             });
         });
 
@@ -1878,7 +1886,7 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("home");
-                expect(loc[0]).toEqual({ home: test.replaceWithRoot("root.home - root") });
+                expect(loc[0]).toHaveProperties({ home: test.replaceWithRoot("root.home - root") });
             });
         });
 
@@ -1901,9 +1909,9 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("top.mid.low");
-                expect(loc[0]).toEqual({ top: 'top stuff' });
-                expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle' });
-                expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser' });
+                expect(loc[0]).toHaveProperties({ top: 'top stuff' });
+                expect(loc[1]).toHaveProperties({ top: 'top stuff', mid: 'middle' });
+                expect(loc[2]).toHaveProperties({ top: 'top stuff', mid: 'middle', low: 'lowser' });
             });
         });
 
@@ -1920,15 +1928,15 @@ describe('$stateProvider', function () {
                     })
                     .state('top.mid.low', {
                         views: { 'tpl': { template: "tpl" } },
-                        resolve: { last: function (second, first) { return first + " "+ second + " last"; } }
+                        resolve: { last: function (second, first) { return first + " " + second + " last"; } }
                     })
             });
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("top.mid.low");
-                expect(loc[0]).toEqual({ first: 'first' });
-                expect(loc[1]).toEqual({ first: 'first', second: 'first second' });
-                expect(loc[2]).toEqual({ first: 'first', second: 'first second', last: 'first first second last' });
+                expect(loc[0]).toHaveProperties({ first: 'first' });
+                expect(loc[1]).toHaveProperties({ first: 'first', second: 'first second' });
+                expect(loc[2]).toHaveProperties({ first: 'first', second: 'first second', last: 'first first second last' });
             });
         });
 
@@ -1951,13 +1959,13 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("top");
-                expect(loc[0]).toEqual({ val: 'first' });
+                expect(loc[0]).toHaveProperties({ val: 'first' });
 
                 goto("top.mid");
-                expect(loc[1]).toEqual({ val: 'first.second' });
+                expect(loc[1]).toHaveProperties({ val: 'first.second' });
 
                 goto("top.mid.low");
-                expect(loc[2]).toEqual({ val: 'first.second.last' });
+                expect(loc[2]).toHaveProperties({ val: 'first.second.last' });
             });
         });
 
@@ -1980,9 +1988,9 @@ describe('$stateProvider', function () {
 
             inject(function ($view, $state: dotjem.routing.IStateService) {
                 goto("top.mid.low");
-                expect(loc[0]).toEqual({ top: 'top stuff', extra: 'top' });
-                expect(loc[1]).toEqual({ top: 'top stuff', mid: 'middle', extra: 'mid' });
-                expect(loc[2]).toEqual({ top: 'top stuff', mid: 'middle', low: 'lowser', extra: 'low' });
+                expect(loc[0]).toHaveProperties({ top: 'top stuff', extra: 'top' });
+                expect(loc[1]).toHaveProperties({ top: 'top stuff', mid: 'middle', extra: 'mid' });
+                expect(loc[2]).toHaveProperties({ top: 'top stuff', mid: 'middle', low: 'lowser', extra: 'low' });
             });
         });
     });
@@ -1993,7 +2001,7 @@ describe('$stateProvider', function () {
             $stateProvider
                 .state('page', { route: '/page/:param' })
                 .state('post', { route: '/post/:param', reloadOnSearch: false })
-                .state('foo', {  })
+                .state('foo', {})
                 .state('bar', { reloadOnSearch: false })
                 //reloadOnParams
 
@@ -2001,7 +2009,7 @@ describe('$stateProvider', function () {
                 scope = $rootScope;
                 state = $state;
                 location = $location;
-                
+
                 spy = spyOn(scope, '$broadcast');
                 spy.andCallThrough();
             };
@@ -2010,7 +2018,7 @@ describe('$stateProvider', function () {
         function go(path: string) {
             spy.reset();
             location.url(path);
-            scope.$apply(function() { });
+            scope.$apply(function () { });
         }
 
         function goto(target: string, params: any) {
@@ -2022,7 +2030,7 @@ describe('$stateProvider', function () {
         function find(event) {
             var events = [];
 
-            angular.forEach(spy.calls, function(call: { args: any[]; }) {
+            angular.forEach(spy.calls, function (call: { args: any[]; }) {
                 if (call.args[0] === event)
                     events.push(call);
             });

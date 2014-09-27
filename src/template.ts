@@ -25,17 +25,17 @@ function $TemplateProvider() {
             return $http.get(url, { cache: $templateCache }).then(response => { return response.data; });
         }
 
-        function getFromFunction(fn): ng.IPromise<any> {
-            return $q.when($injector.invoke(fn));
+        function getFromFunction(fn, locals): ng.IPromise<any> {
+            return $q.when($injector.invoke(fn, fn ,locals));
         }
 
-        function getFromObject(obj): ng.IPromise<any> {
+        function getFromObject(obj, locals): ng.IPromise<any> {
             if (isDefined(obj.url)) {
                 return getFromUrl(obj.url);
             }
 
             if (isDefined(obj.fn)) {
-                return getFromFunction(obj.fn);
+                return getFromFunction(obj.fn, locals);
             }
 
             if (isDefined(obj.html)) {
@@ -68,7 +68,7 @@ function $TemplateProvider() {
          * @description
          * Retrieves a template and returns that as a promise. A Template is a piece of html.
          */
-        var getter = function(template): ng.IPromise<any> {
+        var getter = function (template, locals?): ng.IPromise<any> {
             if (isString(template)) {
                 if (urlmatcher.test(template)) {
                     return getFromUrl(template);
@@ -77,11 +77,11 @@ function $TemplateProvider() {
             }
 
             if (isFunction(template) || isArray(template)) {
-                return getFromFunction(template);
+                return getFromFunction(template, locals);
             }
 
             if (isObject(template)) {
-                return getFromObject(template);
+                return getFromObject(template, locals);
             }
 
             throw new Error("Template must be either an url as string, function or a object defining either url, fn or html.");
@@ -89,7 +89,7 @@ function $TemplateProvider() {
 
         //Note: We return $template as a function.
         //      However, to ease mocking we 
-        var $template: any = function(template): ng.IPromise<any> { return $template.fn(template); };
+        var $template: any = function (template, locals?): ng.IPromise<any> { return $template.fn(template, locals); };
         $template.fn = getter;
         return $template;
     }];

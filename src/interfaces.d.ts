@@ -53,14 +53,20 @@ declare module dotjem.routing {
         beginUpdate(): IViewTransaction;
     }
 
+    interface ITemplate {
+        url?: string;
+        fn?: (...args: any[]) => any;
+        html?: string;
+    }
+
     interface ITemplateService {
         (template: string): ng.IPromise<any>;
-        (template: (...args: any[]) => any): ng.IPromise<any>;
-        (template: { url: string; fn: (...args: any[]) => any; html: string; }): ng.IPromise<any>;
+        (template: (...args: any[]) => any, locals?: any): ng.IPromise<any>;
+        (template: ITemplate, locals?: any): ng.IPromise<any>;
 
         fn(template: string): ng.IPromise<any>;
-        fn(template: (...args: any[]) => any): ng.IPromise<any>;
-        fn(template: { url: string; fn: (...args: any[]) => any; html: string; }): ng.IPromise<any>;
+        fn(template: (...args: any[]) => any, locals?: any): ng.IPromise<any>;
+        fn(template: ITemplate, locals?: any): ng.IPromise<any>;
     }
 
     interface IRoute {
