@@ -1,7 +1,6 @@
 {
   "name": "dotjem-angular-routing",
-  "version": "0.6.10",
-  "main": [ "build/angular-routing.min.js", "build/angular-routing.js" ],
+  "main": [ "build/angular-routing.js" ],
   "dependencies": {
     "angular": ">= 1.2"
   }
