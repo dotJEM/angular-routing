@@ -3612,17 +3612,13 @@ var StateFactory = (function () {
         this.transitions = transitions;
     }
     StateFactory.prototype.createRoute = function (stateRoute, parentRoute, stateName, reloadOnSearch) {
-        var route = parentRoute || '';
-
-        if (route !== '' && route[route.length - 1] === '/') {
-            route = route.substr(0, route.length - 1);
+        var route = ((parentRoute || '') + '/' + stateRoute);
+        if (route !== '') {
+            route = ('/' + route).replace(/\/{2,}/g, '/');
+            if (route[route.length - 1] === '/') {
+                route = route.substr(0, route.length - 1);
+            }
         }
-
-        if (stateRoute[0] !== '/' && stateRoute !== '') {
-            route += '/';
-        }
-        route += stateRoute;
-
         return this.routes.when(route, { state: stateName, reloadOnSearch: reloadOnSearch });
     };
 
