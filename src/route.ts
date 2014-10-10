@@ -621,7 +621,11 @@ var $RouteProvider = [<any>'$locationProvider',
                     $waitFor: function (wait) { return promise = wait; },
                     routes: routes,
                     html5Mode: function () {
-                        return $locationProvider.html5Mode();
+                        var html5: any = $locationProvider.html5Mode();
+                        if (isObject(html5)) {
+                            return html5.enabled;
+                        }
+                        return html5;
                     },
                     hashPrefix: function () {
                         return $locationProvider.hashPrefix();
@@ -649,7 +653,7 @@ var $RouteProvider = [<any>'$locationProvider',
                         arg3 = isDefined(arg3) ? arg3 : true;
                         interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
 
-                        if ($locationProvider.html5Mode() && arg3) {
+                        if ($route.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;

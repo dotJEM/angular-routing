@@ -2,6 +2,10 @@
 src/**/*.js
 src/*.js
 
+build/src/**/*.*
+build/test/**/*.*
+build/gh-pages/**/*.*
+
 test/**/*.js
 test/*.js
 

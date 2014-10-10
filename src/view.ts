@@ -293,13 +293,35 @@ function $ViewProvider() {
          */
         function get (name?: string) {
             if (isUndefined(name)) {
-                return copy(views);
+                return copyViews();
             }
 
             // Ensure checks if the view was defined at any point, not if it is still defined.
             // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
-            return copy(views[name]);
+            return copyView(views[name]);
         };
+
+        //Note: copyViews and copyView are both Workaround for https://github.com/angular/angular.js/issues/8726
+        //      but this also means we don't copy locals anymore as well as other nested objects which is ok.
+        function copyViews() {
+            var copy = {};
+            angular.forEach(views, (view, name) => {
+                copy[name] = copyView(view);
+            });
+            return copy;
+        }
+
+        function copyView(view) {
+            if (view === null || isUndefined(view)) {
+                return view;
+            }
+
+            var copy = {};
+            angular.forEach(view, (value, name) => {
+                copy[name] = value;
+            });
+            return copy;
+        }
 
         /**
          * @ngdoc method

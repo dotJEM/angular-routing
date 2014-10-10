@@ -715,7 +715,11 @@ var $RouteProvider = [
                     },
                     routes: routes,
                     html5Mode: function () {
-                        return $locationProvider.html5Mode();
+                        var html5 = $locationProvider.html5Mode();
+                        if (isObject(html5)) {
+                            return html5.enabled;
+                        }
+                        return html5;
                     },
                     hashPrefix: function () {
                         return $locationProvider.hashPrefix();
@@ -739,7 +743,7 @@ var $RouteProvider = [
                         arg3 = isDefined(arg3) ? arg3 : true;
                         interpolated = interpolate(route, arg2) + toKeyValue(arg2, '?');
 
-                        if ($locationProvider.html5Mode() && arg3) {
+                        if ($route.html5Mode() && arg3) {
                             interpolated = ($browser.baseHref() + interpolated).replace(/\/\//g, '/');
                         }
                         return interpolated;
@@ -2870,14 +2874,36 @@ function $ViewProvider() {
             */
             function get(name) {
                 if (isUndefined(name)) {
-                    return copy(views);
+                    return copyViews();
                 }
 
                 // Ensure checks if the view was defined at any point, not if it is still defined.
                 // if it was defined but cleared, then null is returned which can be used to clear the view if desired.
-                return copy(views[name]);
+                return copyView(views[name]);
             }
             ;
+
+            //Note: copyViews and copyView are both Workaround for https://github.com/angular/angular.js/issues/8726
+            //      but this also means we don't copy locals anymore as well as other nested objects which is ok.
+            function copyViews() {
+                var copy = {};
+                angular.forEach(views, function (view, name) {
+                    copy[name] = copyView(view);
+                });
+                return copy;
+            }
+
+            function copyView(view) {
+                if (view === null || isUndefined(view)) {
+                    return view;
+                }
+
+                var copy = {};
+                angular.forEach(view, function (value, name) {
+                    copy[name] = value;
+                });
+                return copy;
+            }
 
             /**
             * @ngdoc method
@@ -3155,6 +3181,27 @@ var $ScrollProvider = [function () {
             }];
     }];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
+//scroll.$register = register;
+//var elements = {};
+//function register(name: string, elm: HTMLElement) {
+//    if (name in elements) {
+//        var existing = elements[name];
+//    }
+//    elements[name] = elm;
+//}
+/****jQuery( "[attribute='value']"
+* scrollTo: top - scroll to top, explicitly stated.
+*           (This also enables one to override another scrollTo from a parent)
+* scrollTo: null - don't scroll, not even to top.
+* scrollTo: element-selector - scroll to an element id
+* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
+*           - scroll to element with id or view if starts with @
+*/
+//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+//scrollTo: null - don't scroll, not even to top.
+//scrollTo: @viewname - scroll to a view.
+//scrollTo: elementid - scroll to an element id
+//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
 /// <reference path="refs.d.ts" />
 
