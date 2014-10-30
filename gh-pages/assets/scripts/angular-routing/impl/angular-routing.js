@@ -750,14 +750,6 @@ var $RouteProvider = [
                     }
                 };
 
-                //var savedUrl = $location.url();
-                //$rootScope.$on(EVENTS.LOCATION_CHANGE, function () {
-                //    if ($location.url() === savedUrl) {
-                //        return;
-                //    }
-                //    savedUrl = $location.url();
-                //    promise.then(update);
-                //});
                 $rootScope.$on(EVENTS.LOCATION_CHANGE, function () {
                     promise.then(update);
                 });
@@ -4002,7 +3994,7 @@ var jemLinkDirective = [
 
                     //NOTE: Is this correct for forms?
                     if (!html5) {
-                        link = '#' + prefix + link;
+                        link = link === '' ? '#' + prefix + '/' + link : '#' + prefix + link;
                     }
                     element.attr(attr[tag], link);
                 }

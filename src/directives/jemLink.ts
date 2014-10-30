@@ -28,7 +28,9 @@ var jemLinkDirective = [<any>'$state', '$route',
                     var link = $state.url(sref, params);
                     //NOTE: Is this correct for forms?
                     if (!html5) {
-                        link = '#' + prefix + link;
+                        link = link === ''
+                            ? '#' + prefix + '/' + link
+                            : '#' + prefix + link;
                     }
                     element.attr(attr[tag], link);
                 }
