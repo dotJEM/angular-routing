@@ -3181,27 +3181,6 @@ var $ScrollProvider = [function () {
             }];
     }];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
-//scroll.$register = register;
-//var elements = {};
-//function register(name: string, elm: HTMLElement) {
-//    if (name in elements) {
-//        var existing = elements[name];
-//    }
-//    elements[name] = elm;
-//}
-/****jQuery( "[attribute='value']"
-* scrollTo: top - scroll to top, explicitly stated.
-*           (This also enables one to override another scrollTo from a parent)
-* scrollTo: null - don't scroll, not even to top.
-* scrollTo: element-selector - scroll to an element id
-* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-*           - scroll to element with id or view if starts with @
-*/
-//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-//scrollTo: null - don't scroll, not even to top.
-//scrollTo: @viewname - scroll to a view.
-//scrollTo: elementid - scroll to an element id
-//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
 /// <reference path="refs.d.ts" />
 
@@ -4070,16 +4049,22 @@ angular.module('dotjem.routing').directive('sref', jemLinkDirective);
 
 angular.module('dotjem.routing').filter('isActiveState', [
     '$state', function ($state) {
-        return function (state, params) {
+        function isActiveState(state, params) {
             return $state.isActive(state, params);
-        };
+        }
+        ;
+        isActiveState.$stateful = true;
+        return isActiveState;
     }]);
 
 angular.module('dotjem.routing').filter('isCurrentState', [
     '$state', function ($state) {
-        return function (state, params) {
+        function isCurrentState(state, params) {
             return $state.is(state, params);
-        };
+        }
+        ;
+        isCurrentState.$stateful = true;
+        return isCurrentState;
     }]);
 
 

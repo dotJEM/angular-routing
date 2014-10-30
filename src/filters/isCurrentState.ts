@@ -1,6 +1,8 @@
 ﻿angular.module('dotjem.routing')
     .filter('isCurrentState', ['$state', function ($state) {
-        return function (state, params) {
+        function isCurrentState(state, params) {
             return $state.is(state, params);
         };
+        (<any>isCurrentState).$stateful = true;
+        return isCurrentState;
     }]); 
