@@ -645,7 +645,7 @@ describe('$routeProvider.templateDecorator', function () {
 
                 expect($location.path()).toEqual('/bar/id3');
                 expect($location.search()).toEqual({ extra: 'eId' });
-                expect($browserUrl.calls[3].args).toEqual([<any>'http://server/#/bar/id3?extra=eId', true]);
+                expect($browserUrl.calls[3].args).toEqual([<any>'http://server/#/bar/id3?extra=eId', true, null]);
             });
         });
     });

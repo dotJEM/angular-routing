@@ -750,6 +750,14 @@ var $RouteProvider = [
                     }
                 };
 
+                //var savedUrl = $location.url();
+                //$rootScope.$on(EVENTS.LOCATION_CHANGE, function () {
+                //    if ($location.url() === savedUrl) {
+                //        return;
+                //    }
+                //    savedUrl = $location.url();
+                //    promise.then(update);
+                //});
                 $rootScope.$on(EVENTS.LOCATION_CHANGE, function () {
                     promise.then(update);
                 });
