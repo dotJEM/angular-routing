@@ -1,10 +1,10 @@
 dotJEM Angular Routing [![Build Status](https://travis-ci.org/dotJEM/angular-routing.png?branch=master)](https://travis-ci.org/dotJEM/angular-routing)
 =========
 
-#### Latest release v0.6.10:
- - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.6.10/build/angular-routing.js)
- - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.6.10/build/angular-routing.min.js)
- - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.6.10/build)
+#### Latest release v0.6.14:
+ - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/v0.6.14/build/angular-routing.js)
+ - Minified: [angular-routing.min.js](https://raw.github.com/dotJEM/angular-routing/v0.6.14/build/angular-routing.min.js)
+ - Folder: [Build](https://github.com/dotJEM/angular-routing/tree/v0.6.14/build)
 
 #### Latest build (currently not automated, so not 100% the latest always):
  - Source: [angular-routing.js](https://raw.github.com/dotJEM/angular-routing/master/build/angular-routing.js)
