@@ -15,7 +15,7 @@ The samples and api reference are currently a work in progress:
  - **Api Reference:** http://dotjem.github.io/angular-routing/#/docs/api/dotjem.routing
  - **Samples:** http://dotjem.github.io/angular-routing/
 
-# Version v0.6.10
+# Briefly
 
 Inspired by the UI-Router project by Angular-UI, this project came to life as I wanted
 to provide what I believe is more "true states" where the transitions could be
