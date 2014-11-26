@@ -575,6 +575,9 @@ var $RouteProvider = [
                     };
                 },
                 format: function (value) {
+                    if (angular.isArray(value)) {
+                        value = value[0];
+                    }
                     var str = value.toString();
                     var test = regex.test(str);
                     if (!test) {
