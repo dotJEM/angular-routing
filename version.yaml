@@ -1,5 +1,5 @@
 # dotJEM Angular Routing build config file
 ---
-version: 0.6.10
-codename: lisa
-stable: 0.6.10
+version: 0.6.15
+codename: depricate
+stable: 0.6.15
