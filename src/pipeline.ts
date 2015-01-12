@@ -39,6 +39,19 @@ function $PipelineProvider() {
         return { name: name, stage: stage };
     }
 
+    this.replace = function(name, stage) {
+        var index = indexOf(name);
+        if (index === -1) {
+            throw new Error("No stages was registered under the name '" + name + "', use insert instead.");
+        }
+
+        stage = wrap(name, stage);
+        stages[index] = stage;
+        stagesMap[name] = stage;
+
+        return self;
+    };
+
     this.append = function (name, stage) {
         stage = wrap(name, stage);
         if (map(name, stage)) {
@@ -64,7 +77,7 @@ function $PipelineProvider() {
     //       - .in().insert('x').after('y');
     //       - .after().insert('x').last();
     //       - .after().insert('x').first();
-    //
+    //       - .replace()
     //       
     //
     this.insert = function (name, stage) {

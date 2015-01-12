@@ -219,7 +219,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
         }
         return this;
     };
-
+    
     function registerState(fullname: string, state: dotjem.routing.IState) {
         StateRules.validateName(fullname);
 
@@ -532,7 +532,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
 
             var urlbuilder = new StateUrlBuilder($route);
 
-            var 
+            var currentForUrls = extend(root.self, { $params: buildParams() }),
                 current = root,
                 $state: any = {
                     // NOTE: root should not be used in general, it is exposed for testing purposes.
@@ -561,22 +561,22 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                     },
                     //             State  Params Base
                     url: function (arg1?, arg2?, arg3?) {
-                        var target = current;
+                        var target = current, cs = currentForUrls;
                         //Note: No params means we will use current state as both target and source.
                         if (arguments.length === 0) {
                             //                         current,        target, params?,   base?
-                            return urlbuilder.buildUrl($state.current, target, undefined, undefined);
+                            return urlbuilder.buildUrl(cs, target, undefined, undefined);
                         }
 
                         //Note: One param means we either got a target state or was asked to use base.
                         if (arguments.length === 1) {
                             if (isBool(arg1)) {
                                 //                         current,        target, params?,   base?
-                                return urlbuilder.buildUrl($state.current, target, undefined, arg1);
+                                return urlbuilder.buildUrl(cs, target, undefined, arg1);
                             } else {
                                 target = browser.resolve(current, toName(arg1), false);
                                 //                         current,        target, params?,   base?
-                                return urlbuilder.buildUrl($state.current, target, undefined, undefined);
+                                return urlbuilder.buildUrl(cs, target, undefined, undefined);
                             }
                         }
 
@@ -586,10 +586,10 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
 
                         if (isBool(arg2)) {
                             //                         current,        target, params?,   base?
-                            return urlbuilder.buildUrl($state.current, target, undefined, arg2);
+                            return urlbuilder.buildUrl(cs, target, undefined, arg2);
                         } else {
                             //                         current,        target, params?, base?
-                            return urlbuilder.buildUrl($state.current, target, arg2,    arg3);
+                            return urlbuilder.buildUrl(cs, target, arg2,    arg3);
                         }
                     },
                     is: function (state, params) {
@@ -684,6 +684,7 @@ var $StateProvider = [<any>'$routeProvider', '$stateTransitionProvider', '$pipel
                         .then(function () {
                             current = changes.to;
                             defered.resolve(current);
+                            currentForUrls = $state.current;
                         })
                         .catch(defered.reject);
                     return defered.promise.finally(function () { inProgress = false; });

@@ -878,6 +878,19 @@ function $PipelineProvider() {
         return { name: name, stage: stage };
     }
 
+    this.replace = function (name, stage) {
+        var index = indexOf(name);
+        if (index === -1) {
+            throw new Error("No stages was registered under the name '" + name + "', use insert instead.");
+        }
+
+        stage = wrap(name, stage);
+        stages[index] = stage;
+        stagesMap[name] = stage;
+
+        return self;
+    };
+
     this.append = function (name, stage) {
         stage = wrap(name, stage);
         if (map(name, stage)) {
@@ -903,7 +916,7 @@ function $PipelineProvider() {
     //       - .in().insert('x').after('y');
     //       - .after().insert('x').last();
     //       - .after().insert('x').first();
-    //
+    //       - .replace()
     //
     //
     this.insert = function (name, stage) {
@@ -2214,7 +2227,7 @@ var $StateProvider = [
                 */
                 var urlbuilder = new StateUrlBuilder($route);
 
-                var current = root, $state = {
+                var currentForUrls = extend(root.self, { $params: buildParams() }), current = root, $state = {
                     // NOTE: root should not be used in general, it is exposed for testing purposes.
                     root: root,
                     current: extend(root.self, { $params: buildParams() }),
@@ -2241,24 +2254,24 @@ var $StateProvider = [
                     },
                     //             State  Params Base
                     url: function (arg1, arg2, arg3) {
-                        var target = current;
+                        var target = current, cs = currentForUrls;
 
                         //Note: No params means we will use current state as both target and source.
                         if (arguments.length === 0) {
                             //                         current,        target, params?,   base?
-                            return urlbuilder.buildUrl($state.current, target, undefined, undefined);
+                            return urlbuilder.buildUrl(cs, target, undefined, undefined);
                         }
 
                         //Note: One param means we either got a target state or was asked to use base.
                         if (arguments.length === 1) {
                             if (isBool(arg1)) {
                                 //                         current,        target, params?,   base?
-                                return urlbuilder.buildUrl($state.current, target, undefined, arg1);
+                                return urlbuilder.buildUrl(cs, target, undefined, arg1);
                             } else {
                                 target = browser.resolve(current, toName(arg1), false);
 
                                 //                         current,        target, params?,   base?
-                                return urlbuilder.buildUrl($state.current, target, undefined, undefined);
+                                return urlbuilder.buildUrl(cs, target, undefined, undefined);
                             }
                         }
 
@@ -2268,10 +2281,10 @@ var $StateProvider = [
 
                         if (isBool(arg2)) {
                             //                         current,        target, params?,   base?
-                            return urlbuilder.buildUrl($state.current, target, undefined, arg2);
+                            return urlbuilder.buildUrl(cs, target, undefined, arg2);
                         } else {
                             //                         current,        target, params?, base?
-                            return urlbuilder.buildUrl($state.current, target, arg2, arg3);
+                            return urlbuilder.buildUrl(cs, target, arg2, arg3);
                         }
                     },
                     is: function (state, params) {
@@ -2364,6 +2377,7 @@ var $StateProvider = [
                         running.promise.then(function () {
                             current = changes.to;
                             defered.resolve(current);
+                            currentForUrls = $state.current;
                         }).catch(defered.reject);
                         return defered.promise.finally(function () {
                             inProgress = false;
