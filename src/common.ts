@@ -151,7 +151,7 @@ var errors = {
     invalidNumericValue: "Value was not acceptable for a numeric parameter.",
     invalidBrowserPathExpression: "Invalid path expression.",
     expressionOutOfBounds: "Expression out of bounds.",
-    couldNotFindStateForPath: "Could find state for path."
+    couldNotFindStateForPath: "Could not find state for path."
 };
 
 var EVENTS = {
