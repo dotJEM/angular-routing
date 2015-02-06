@@ -144,6 +144,10 @@ var jemViewDirective = [<any>'$state', '$compile', '$controller', '$view', '$ani
                             controller = view.controller;
 
                             view.template.then((html) => {
+                                if (scope.$$destroyed) {
+                                    return;
+                                }
+
                                 var newScope = scope.$new();
                                 linker(newScope, function (clone) {
                                     cleanupView(doAnimate);
