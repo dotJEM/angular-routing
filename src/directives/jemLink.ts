@@ -12,8 +12,8 @@
  * @param {string} params Parameters for the state link.
  * @param {string} activeClass Class to add when the state targeted is active.
  */
-var jemLinkDirective = [<any>'$state', '$route',
-    function ($state, $route) {
+var jemLinkDirective = [<any>'$state', '$route', '$exceptionHandler', 
+    function ($state, $route, $exceptionHandler) {
         'use strict';
         return {
             restrict: 'AC',
@@ -25,14 +25,18 @@ var jemLinkDirective = [<any>'$state', '$route',
                     activeFn = isDefined(attrs.activeClass) ? active : noop;
 
                 function apply(sref, params) {
-                    var link = $state.url(sref, params);
-                    //NOTE: Is this correct for forms?
-                    if (!html5) {
-                        link = link === ''
-                            ? '#' + prefix + '/' + link
-                            : '#' + prefix + link;
-                    }
-                    element.attr(attr[tag], link);
+				    try {
+						var link = $state.url(sref, params);
+						//NOTE: Is this correct for forms?
+						if (!html5) {
+							link = link === ''
+								? '#' + prefix + '/' + link
+								: '#' + prefix + link;
+						}
+						element.attr(attr[tag], link);
+					} catch (err) {
+					    $exceptionHandler(err);
+					}
                 }
 
                 //TODO: Should we depricate this and use filters instead from 0.7.0?

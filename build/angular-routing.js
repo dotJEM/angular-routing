@@ -129,7 +129,7 @@ var errors = {
     invalidNumericValue: "Value was not acceptable for a numeric parameter.",
     invalidBrowserPathExpression: "Invalid path expression.",
     expressionOutOfBounds: "Expression out of bounds.",
-    couldNotFindStateForPath: "Could find state for path."
+    couldNotFindStateForPath: "Could not find state for path."
 };
 
 var EVENTS = {
@@ -3198,27 +3198,6 @@ var $ScrollProvider = [function () {
             }];
     }];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
-//scroll.$register = register;
-//var elements = {};
-//function register(name: string, elm: HTMLElement) {
-//    if (name in elements) {
-//        var existing = elements[name];
-//    }
-//    elements[name] = elm;
-//}
-/****jQuery( "[attribute='value']"
-* scrollTo: top - scroll to top, explicitly stated.
-*           (This also enables one to override another scrollTo from a parent)
-* scrollTo: null - don't scroll, not even to top.
-* scrollTo: element-selector - scroll to an element id
-* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
-*           - scroll to element with id or view if starts with @
-*/
-//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
-//scrollTo: null - don't scroll, not even to top.
-//scrollTo: @viewname - scroll to a view.
-//scrollTo: elementid - scroll to an element id
-//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
 /// <reference path="refs.d.ts" />
 
@@ -3904,6 +3883,10 @@ var jemViewDirective = [
                             controller = view.controller;
 
                             view.template.then(function (html) {
+                                if (scope.$$destroyed) {
+                                    return;
+                                }
+
                                 var newScope = scope.$new();
                                 linker(newScope, function (clone) {
                                     cleanupView(doAnimate);
@@ -4019,8 +4002,8 @@ angular.module('dotjem.routing').directive('id', jemAnchorDirective);
 * @param {string} activeClass Class to add when the state targeted is active.
 */
 var jemLinkDirective = [
-    '$state', '$route',
-    function ($state, $route) {
+    '$state', '$route', '$exceptionHandler',
+    function ($state, $route, $exceptionHandler) {
         'use strict';
         return {
             restrict: 'AC',
@@ -4028,13 +4011,17 @@ var jemLinkDirective = [
                 var tag = element[0].tagName.toLowerCase(), html5 = $route.html5Mode(), prefix = $route.hashPrefix(), attr = { a: 'href', form: 'action' }, activeFn = isDefined(attrs.activeClass) ? active : noop;
 
                 function apply(sref, params) {
-                    var link = $state.url(sref, params);
+                    try  {
+                        var link = $state.url(sref, params);
 
-                    //NOTE: Is this correct for forms?
-                    if (!html5) {
-                        link = link === '' ? '#' + prefix + '/' + link : '#' + prefix + link;
+                        //NOTE: Is this correct for forms?
+                        if (!html5) {
+                            link = link === '' ? '#' + prefix + '/' + link : '#' + prefix + link;
+                        }
+                        element.attr(attr[tag], link);
+                    } catch (err) {
+                        $exceptionHandler(err);
                     }
-                    element.attr(attr[tag], link);
                 }
 
                 //TODO: Should we depricate this and use filters instead from 0.7.0?
