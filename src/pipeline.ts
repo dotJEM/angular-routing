@@ -192,9 +192,12 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider)
         pipeline.append('step4', ['$changes', '$context', '$state', '$q', '$rootScope', function ($changes, $context, $state, $q, $rootScope) {
             if ($changes.changed.length < 1) {
                 if ($changes.paramChanges) {
-                    $state.params = $context.params;
-                    $state.current.$params = $context.params;
-                    $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
+                    $state.params = $state.current.$params = $context.params;
+                    if ($changes.to.reloadOnOptional) {
+                        $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, $state.current);
+                    } else {
+                        $rootScope.$broadcast(EVENTS.STATE_UPDATE, $state.current);
+                    }
                 }
                 return $q.reject('Rejected state transition and raised ' + EVENTS.STATE_UPDATE+'.');
             }
