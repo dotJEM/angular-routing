@@ -1036,7 +1036,7 @@ angular.module('dotjem.routing').provider('$pipeline', $PipelineProvider).config
             '$changes', '$context', '$state', '$q', '$rootScope', function ($changes, $context, $state, $q, $rootScope) {
                 if ($changes.changed.length < 1) {
                     if ($changes.paramChanges) {
-                        $state.params = $state.current.$params = $context.params;
+                        $state.params = $state.current.$params = $context.toState.params;
                         if ($changes.to.reloadOnOptional) {
                             $rootScope.$broadcast(EVENTS.STATE_CHANGE_SUCCESS, $state.current);
                         } else {
