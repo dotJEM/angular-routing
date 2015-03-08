@@ -3198,6 +3198,27 @@ var $ScrollProvider = [function () {
             }];
     }];
 angular.module('dotjem.routing').provider('$scroll', $ScrollProvider);
+//scroll.$register = register;
+//var elements = {};
+//function register(name: string, elm: HTMLElement) {
+//    if (name in elements) {
+//        var existing = elements[name];
+//    }
+//    elements[name] = elm;
+//}
+/****jQuery( "[attribute='value']"
+* scrollTo: top - scroll to top, explicitly stated.
+*           (This also enables one to override another scrollTo from a parent)
+* scrollTo: null - don't scroll, not even to top.
+* scrollTo: element-selector - scroll to an element id
+* scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; }
+*           - scroll to element with id or view if starts with @
+*/
+//scrollTo: top - scroll to top, explicitly stated.(This also enables one to override another scrollTo from a parent)
+//scrollTo: null - don't scroll, not even to top.
+//scrollTo: @viewname - scroll to a view.
+//scrollTo: elementid - scroll to an element id
+//scrollTo: ['$stateParams', function($stateParams) { return stateParams.section; } - scroll to element with id or view if starts with @
 
 /// <reference path="refs.d.ts" />
 
@@ -3635,7 +3656,7 @@ var StateComparer = (function () {
     };
 
     StateComparer.prototype.extractParams = function (params, current) {
-        var paramsObj = {};
+        var paramsObj = buildParams();
         if (current.route) {
             forEach(current.route.params, function (param, name) {
                 paramsObj[name] = params[name];

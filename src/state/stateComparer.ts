@@ -83,7 +83,7 @@ class StateComparer {
     }
 
     public extractParams(params, current) {
-        var paramsObj = {};
+        var paramsObj = buildParams();
         if (current.route) {
             forEach(current.route.params, (param, name) => {
                 paramsObj[name] = params[name];

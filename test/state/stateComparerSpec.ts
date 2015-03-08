@@ -230,4 +230,8 @@ describe('state.stateComparer', function () {
             expect(result.unchanged[0]).toHaveProperties({ active: true, changed: false, name: '$root.branch', isLeaf: true });
         });
     });
+
+
+
+
 });
