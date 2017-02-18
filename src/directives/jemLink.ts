@@ -19,10 +19,16 @@ var jemLinkDirective = [<any>'$state', '$route', '$exceptionHandler',
             restrict: 'AC',
             link: function (scope, element, attrs) {
                 var tag = element[0].tagName.toLowerCase(),
-                    html5 = $route.html5Mode(),
+                    html5,
                     prefix = $route.hashPrefix(),
                     attr = { a: 'href', form: 'action' },
                     activeFn = isDefined(attrs.activeClass) ? active : noop;
+                    
+                
+                html5 = $route.html5Mode();
+                if (angular.isObject(html5)) {
+                    html5 = html5.enabled;
+                }
 
                 function apply(sref, params) {
 				    try {
