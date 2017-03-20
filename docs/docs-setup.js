@@ -157,4 +157,3 @@ var NG_DOCS = {
         "angular.min.js"
     ]
 };
-//# sourceMappingURL=docs-setup.js.map

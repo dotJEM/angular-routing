@@ -56,7 +56,7 @@ angular.module('dotjem.routing.pages').directive('dxSample', [
             restrict: 'ECA',
             transclude: true,
             controller: 'dxSampleController',
-            templateUrl: 'templates/directives/dxSampleTemplate.html',
+            templateUrl: '/templates/directives/dxSampleTemplate.html',
             scope: {}
         };
     }
@@ -101,4 +101,3 @@ angular.module('dotjem.routing.pages').directive('dxSampleFile', [
         };
     }
 ]);
-//# sourceMappingURL=dxSample.js.map

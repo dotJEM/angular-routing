@@ -65,4 +65,3 @@ angular.module('dotjem.routing.pages').service('syntax', [
         };
         return $service;
     }]);
-//# sourceMappingURL=syntax.js.map

@@ -101,4 +101,3 @@ angular.module('dotjem.routing.pages').service('docs', [
         return modules;
     }
 ]);
-//# sourceMappingURL=dotjem.js.map

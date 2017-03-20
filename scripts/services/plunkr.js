@@ -31,4 +31,3 @@ angular.module('dotjem.routing.pages').service('plunkr', [
         };
     }
 ]);
-//# sourceMappingURL=plunkr.js.map

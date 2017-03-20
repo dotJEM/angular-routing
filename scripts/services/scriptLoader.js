@@ -19,4 +19,3 @@ angular.module('dotjem.routing.pages').service('scriptLoader', [function () {
 
         return $service;
     }]);
-//# sourceMappingURL=scriptLoader.js.map
